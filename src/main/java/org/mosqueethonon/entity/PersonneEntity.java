@@ -1,0 +1,30 @@
+package org.mosqueethonon.entity;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "personne", schema = "moth")
+@Data
+public class PersonneEntity {
+
+    @Id
+    @Column(name = "idpers")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "txpersnom")
+    private String nom;
+    @Column(name = "txpersprenom")
+    private String prenom;
+    @Column(name = "dtpersnaissance")
+    private LocalDate dateNaissance;
+    @Column(name = "txpersphone")
+    private String telephone;
+    @Column(name = "txpersemail")
+    private String email;
+
+}
