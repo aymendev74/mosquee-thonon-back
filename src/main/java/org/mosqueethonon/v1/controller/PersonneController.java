@@ -11,20 +11,20 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(path = "v1/personne/")
+@RequestMapping(path = "v1/inscription/")
 public class PersonneController {
 
     @Autowired
     private PersonneService personneService;
 
     @PostMapping
-    public ResponseEntity<PersonneDto> savePersonne(PersonneDto personne) {
+    public ResponseEntity<PersonneDto> saveInscription(PersonneDto personne) {
         personne = this.personneService.savePersonne(personne);
         return ResponseEntity.ok(personne);
     }
 
-    @GetMapping
-    public ResponseEntity<List<PersonneDto>> findPersonnesByCriteria(PersonneCriteria criteria) {
+    @GetMapping()
+    public ResponseEntity<List<PersonneDto>> findInscriptionsByCriteria(PersonneCriteria criteria) {
         List<PersonneDto> personnes = this.personneService.findPersonneByCriteria(criteria);
         return ResponseEntity.ok(personnes);
     }
