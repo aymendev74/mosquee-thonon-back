@@ -26,5 +26,6 @@ public class PersonneEntity {
     private String telephone;
     @Column(name = "txpersemail")
     private String email;
-
+    @Column(name = "cdperssexe")
+    private String sexe;
 }

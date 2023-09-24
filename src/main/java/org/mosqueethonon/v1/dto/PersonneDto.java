@@ -13,5 +13,6 @@ public class PersonneDto {
     private String dateNaissance;
     private String telephone;
     private String email;
+    private String sexe;
 
 }

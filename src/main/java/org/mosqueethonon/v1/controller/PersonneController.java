@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequestMapping(path = "v1/inscription/")
+@CrossOrigin
 public class PersonneController {
 
     @Autowired
     private PersonneService personneService;
 
     @PostMapping
-    public ResponseEntity<PersonneDto> saveInscription(PersonneDto personne) {
+    public ResponseEntity<PersonneDto> saveInscription(@RequestBody PersonneDto personne) {
         personne = this.personneService.savePersonne(personne);
         return ResponseEntity.ok(personne);
     }
