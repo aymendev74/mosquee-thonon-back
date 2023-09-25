@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "v1/inscription/")
+@RequestMapping(path = "v1/inscriptions/")
 @CrossOrigin
 public class PersonneController {
 

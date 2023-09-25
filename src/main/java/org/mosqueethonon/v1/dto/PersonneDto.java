@@ -1,8 +1,7 @@
 package org.mosqueethonon.v1.dto;
 
 import lombok.Data;
-
-import java.time.LocalDate;
+import org.mosqueethonon.v1.enums.StatutInscription;
 
 @Data
 public class PersonneDto {
@@ -14,5 +13,8 @@ public class PersonneDto {
     private String telephone;
     private String email;
     private String sexe;
-
+    private String numeroEtRue;
+    private Integer codePostal;
+    private String ville;
+    private StatutInscription statut;
 }
