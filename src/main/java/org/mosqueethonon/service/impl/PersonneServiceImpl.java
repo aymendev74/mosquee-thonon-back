@@ -3,6 +3,7 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.PersonneEntity;
 import org.mosqueethonon.repository.PersonneRepository;
+import org.mosqueethonon.repository.specifications.PersonneEntitySpecifications;
 import org.mosqueethonon.service.PersonneService;
 import org.mosqueethonon.service.criteria.PersonneCriteria;
 import org.mosqueethonon.v1.dto.PersonneDto;
@@ -30,9 +31,9 @@ public class PersonneServiceImpl implements PersonneService {
 
     @Override
     public List<PersonneDto> findPersonneByCriteria(PersonneCriteria criteria) {
-        List<PersonneEntity> entities = this.personneRepository.findAll();
-        if(!CollectionUtils.isEmpty(entities)) {
-            return entities.stream().map(this.personneMapper::fromEntityToDto).collect(Collectors.toList());
+        List<PersonneEntity> personnes = this.personneRepository.findAll(PersonneEntitySpecifications.withCriteria(criteria));
+        if(!CollectionUtils.isEmpty(personnes)) {
+            return personnes.stream().map(this.personneMapper::fromEntityToDto).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }

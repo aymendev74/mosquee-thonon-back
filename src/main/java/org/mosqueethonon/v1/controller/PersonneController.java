@@ -23,8 +23,8 @@ public class PersonneController {
         return ResponseEntity.ok(personne);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<PersonneDto>> findInscriptionsByCriteria(PersonneCriteria criteria) {
+    @GetMapping
+    public ResponseEntity<List<PersonneDto>> findInscriptionsByCriteria(@ModelAttribute PersonneCriteria criteria) {
         List<PersonneDto> personnes = this.personneService.findPersonneByCriteria(criteria);
         return ResponseEntity.ok(personnes);
     }

@@ -9,8 +9,6 @@ public class PersonneCriteria {
 
     private String nom;
     private String prenom;
-    private LocalDate dateNaissance;
     private String telephone;
-    private String email;
 
 }
