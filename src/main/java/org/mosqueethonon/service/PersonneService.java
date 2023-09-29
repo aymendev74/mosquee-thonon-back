@@ -9,5 +9,5 @@ public interface PersonneService {
 
     public PersonneDto savePersonne(PersonneDto personne);
     public List<PersonneDto> findPersonneByCriteria(PersonneCriteria criteria);
-
+    public PersonneDto findInscriptionById(Long id);
 }

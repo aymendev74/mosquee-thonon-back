@@ -38,4 +38,12 @@ public class PersonneServiceImpl implements PersonneService {
         return Collections.emptyList();
     }
 
+    @Override
+    public PersonneDto findInscriptionById(Long id) {
+        PersonneEntity personneEntity = this.personneRepository.findById(id).orElse(null);
+        if(personneEntity!=null) {
+            return this.personneMapper.fromEntityToDto(personneEntity);
+        }
+        return null;
+    }
 }

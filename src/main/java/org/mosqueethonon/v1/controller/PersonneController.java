@@ -28,4 +28,10 @@ public class PersonneController {
         List<PersonneDto> personnes = this.personneService.findPersonneByCriteria(criteria);
         return ResponseEntity.ok(personnes);
     }
+
+    @GetMapping(path = "{id}")
+    public ResponseEntity<PersonneDto> findInscriptionById(@PathVariable("id") Long id) {
+        PersonneDto personne = this.personneService.findInscriptionById(id);
+        return ResponseEntity.ok(personne);
+    }
 }

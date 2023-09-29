@@ -17,6 +17,7 @@ public class PersonneEntitySpecifications {
     public static Specification<PersonneEntity> withCriteria(PersonneCriteria criteria) {
         return (Root<PersonneEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            Predicate statutPredicate = null;
 
             if (StringUtils.hasText(criteria.getNom())) {
                 predicates.add(builder.or(builder.like(builder.lower(root.get("nom")), "%" + criteria.getNom().toLowerCase() + "%")));
@@ -30,11 +31,17 @@ public class PersonneEntitySpecifications {
                 predicates.add(builder.or(builder.like(builder.lower(root.get("telephone")), "%" + criteria.getTelephone().toLowerCase() + "%")));
             }
 
+            if (criteria.getStatut() != null) {
+                statutPredicate = builder.equal(root.get("statut"), criteria.getStatut());
+            }
+
             if(predicates.isEmpty()) {
                 predicates.add(builder.or(builder.isTrue(builder.literal(true))));
             }
 
-            return builder.or(predicates.toArray(new Predicate[predicates.size()]));
+            final Predicate finalPredicateOR = builder.or(predicates.toArray(new Predicate[predicates.size()]));
+
+            return statutPredicate!=null ? builder.and(finalPredicateOR, statutPredicate) : finalPredicateOR;
         };
     }
 
