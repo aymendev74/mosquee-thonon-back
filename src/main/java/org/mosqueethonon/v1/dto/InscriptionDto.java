@@ -4,7 +4,7 @@ import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 @Data
-public class PersonneDto {
+public class InscriptionDto {
 
     private Long id;
     private String nom;
@@ -17,4 +17,6 @@ public class PersonneDto {
     private Integer codePostal;
     private String ville;
     private StatutInscription statut;
+    private SignatureDto signature;
+
 }

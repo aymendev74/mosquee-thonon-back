@@ -1,13 +1,11 @@
 package org.mosqueethonon.repository;
 
-import org.mosqueethonon.entity.PersonneEntity;
+import org.mosqueethonon.entity.InscriptionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface PersonneRepository extends JpaRepository<PersonneEntity, Long>, JpaSpecificationExecutor<PersonneEntity> {
+public interface InscriptionRepository extends JpaRepository<InscriptionEntity, Long>, JpaSpecificationExecutor<InscriptionEntity> {
 
 }

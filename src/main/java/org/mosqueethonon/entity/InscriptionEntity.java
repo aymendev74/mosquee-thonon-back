@@ -7,9 +7,10 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "personne", schema = "moth")
+@EntityListeners(EntityListener.class)
+@Table(name = "inscription", schema = "moth")
 @Data
-public class PersonneEntity {
+public class InscriptionEntity implements Auditable {
 
     @Id
     @Column(name = "idpers")
@@ -36,4 +37,7 @@ public class PersonneEntity {
     @Column(name = "cdpersstatut")
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
+    @Embedded
+    private Signature signature;
+
 }
