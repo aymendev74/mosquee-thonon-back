@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +36,19 @@ public class InscriptionEntitySpecifications {
                 statutPredicate = builder.equal(root.get("statut"), criteria.getStatut());
             }
 
+            if (criteria.getNbDerniersJours() != null) {
+                LocalDate fromDate = LocalDate.now().minusDays(criteria.getNbDerniersJours());
+                statutPredicate = builder.greaterThanOrEqualTo(root.get("signature").get("dateCreation"), fromDate);
+            }
+
             if(predicates.isEmpty()) {
                 predicates.add(builder.or(builder.isTrue(builder.literal(true))));
             }
 
             final Predicate finalPredicateOR = builder.or(predicates.toArray(new Predicate[predicates.size()]));
+
+            // Always order by dateCreation desc
+            query.orderBy(builder.desc(root.get("signature").get("dateCreation")));
 
             return statutPredicate!=null ? builder.and(finalPredicateOR, statutPredicate) : finalPredicateOR;
         };

@@ -10,5 +10,6 @@ public class InscriptionCriteria {
     private String prenom;
     private String telephone;
     private StatutInscription statut;
+    private Long nbDerniersJours;
 
 }

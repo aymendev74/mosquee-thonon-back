@@ -51,15 +51,19 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     @Override
     public List<Long> validateInscriptions(List<Long> ids) {
-        List<Long> updatedPersonneIds = new ArrayList<>();
+        List<InscriptionEntity> inscriptionsToUpdate = new ArrayList<>();
         for (Long id : ids) {
             InscriptionEntity personne = this.inscriptionRepository.findById(id).orElse(null);
             if(personne!=null) {
                 personne.setStatut(StatutInscription.VALIDEE);
-                updatedPersonneIds.add(personne.getId());
+                inscriptionsToUpdate.add(personne);
             }
         }
-        return updatedPersonneIds;
+        if(!CollectionUtils.isEmpty(inscriptionsToUpdate)) {
+            inscriptionsToUpdate = this.inscriptionRepository.saveAll(inscriptionsToUpdate);
+            return inscriptionsToUpdate.stream().map(InscriptionEntity::getId).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
 }
