@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
+@EntityListeners(EntityListener.class)
 @Table(name = "utilisateur", schema = "moth")
 @Data
 public class UtilisateurEntity implements UserDetails {
@@ -20,6 +21,8 @@ public class UtilisateurEntity implements UserDetails {
     private String username;
     @Column(name = "txutilpassword")
     private String password;
+    @Embedded
+    private Signature signature;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

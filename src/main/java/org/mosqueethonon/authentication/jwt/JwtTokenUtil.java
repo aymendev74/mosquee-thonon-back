@@ -1,4 +1,4 @@
-package org.mosqueethonon.jwt;
+package org.mosqueethonon.authentication.jwt;
 
 import io.jsonwebtoken.*;
 import org.mosqueethonon.entity.UtilisateurEntity;

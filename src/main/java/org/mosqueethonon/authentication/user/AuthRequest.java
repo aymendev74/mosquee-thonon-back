@@ -1,4 +1,4 @@
-package org.mosqueethonon.jwt;
+package org.mosqueethonon.authentication.user;
 
 import lombok.Data;
 

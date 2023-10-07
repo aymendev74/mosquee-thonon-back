@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "v1/inscriptions/")
+@RequestMapping(path = "v1/inscriptions")
 @CrossOrigin
 public class InscriptionController {
 
@@ -29,13 +29,13 @@ public class InscriptionController {
         return ResponseEntity.ok(personnes);
     }
 
-    @GetMapping(path = "{id}")
+    @GetMapping(path = "/{id}")
     public ResponseEntity<InscriptionDto> findInscriptionById(@PathVariable("id") Long id) {
         InscriptionDto personne = this.inscriptionService.findInscriptionById(id);
         return ResponseEntity.ok(personne);
     }
 
-    @PostMapping(path = "validation")
+    @PostMapping(path = "/validation")
     public ResponseEntity validateInscriptions(@RequestBody List<Long> ids) {
         ids = this.inscriptionService.validateInscriptions(ids);
         return ResponseEntity.ok(ids);

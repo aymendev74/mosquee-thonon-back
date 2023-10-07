@@ -1,4 +1,4 @@
-package org.mosqueethonon.jwt;
+package org.mosqueethonon.authentication.jwt;
 
 import org.mosqueethonon.entity.UtilisateurEntity;
 import org.springframework.beans.factory.annotation.Autowired;
