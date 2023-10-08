@@ -11,7 +11,7 @@ import java.util.Collection;
 @EntityListeners(EntityListener.class)
 @Table(name = "utilisateur", schema = "moth")
 @Data
-public class UtilisateurEntity implements UserDetails {
+public class UtilisateurEntity implements UserDetails, Auditable {
 
     @Id
     @Column(name = "idutil")
