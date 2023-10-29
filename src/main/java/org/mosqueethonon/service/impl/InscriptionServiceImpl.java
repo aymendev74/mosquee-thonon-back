@@ -66,4 +66,9 @@ public class InscriptionServiceImpl implements InscriptionService {
         return Collections.emptyList();
     }
 
+    @Override
+    public List<Long> deleteInscriptions(List<Long> ids) {
+        this.inscriptionRepository.deleteAllById(ids);
+        return ids;
+    }
 }

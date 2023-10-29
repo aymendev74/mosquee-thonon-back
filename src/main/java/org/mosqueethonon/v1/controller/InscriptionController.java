@@ -40,4 +40,10 @@ public class InscriptionController {
         ids = this.inscriptionService.validateInscriptions(ids);
         return ResponseEntity.ok(ids);
     }
+
+    @DeleteMapping
+    public ResponseEntity deleteInscriptions(@RequestBody List<Long> ids) {
+        ids = this.inscriptionService.deleteInscriptions(ids);
+        return ResponseEntity.ok(ids);
+    }
 }

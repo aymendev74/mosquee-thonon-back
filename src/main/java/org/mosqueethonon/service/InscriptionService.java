@@ -11,4 +11,6 @@ public interface InscriptionService {
     public List<InscriptionDto> findPersonneByCriteria(InscriptionCriteria criteria);
     public InscriptionDto findInscriptionById(Long id);
     public List<Long> validateInscriptions(List<Long> ids);
+
+    public List<Long> deleteInscriptions(List<Long> ids);
 }
