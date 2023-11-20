@@ -81,7 +81,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-dependencies</artifactId>
             <version>${springcloud.version}</version>
@@ -92,7 +92,7 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
             <version>${springcloud.version}</version>
-        </dependency>
+        </dependency> -->
     </dependencies>
     <build>
         <plugins>

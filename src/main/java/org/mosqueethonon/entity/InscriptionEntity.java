@@ -13,30 +13,32 @@ import java.time.LocalDate;
 public class InscriptionEntity implements Auditable {
 
     @Id
-    @Column(name = "idpers")
+    @Column(name = "idinsc")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "txpersnom")
+    @Column(name = "txinscnom")
     private String nom;
-    @Column(name = "txpersprenom")
+    @Column(name = "txinscprenom")
     private String prenom;
-    @Column(name = "dtpersnaissance")
+    @Column(name = "dtinscnaissance")
     private LocalDate dateNaissance;
-    @Column(name = "txpersphone")
+    @Column(name = "txinscphone")
     private String telephone;
-    @Column(name = "txpersemail")
+    @Column(name = "txinscemail")
     private String email;
-    @Column(name = "cdperssexe")
+    @Column(name = "cdinscsexe")
     private String sexe;
-    @Column(name = "txpersnumrue")
+    @Column(name = "txinscnumrue")
     private String numeroEtRue;
-    @Column(name = "noperscodepostal")
+    @Column(name = "noinsccodepostal")
     private Integer codePostal;
-    @Column(name = "txpersville")
+    @Column(name = "txinscville")
     private String ville;
-    @Column(name = "cdpersstatut")
+    @Column(name = "cdinscstatut")
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
+    @Column(name = "cdinscniveau")
+    private String niveau;
     @Embedded
     private Signature signature;
 

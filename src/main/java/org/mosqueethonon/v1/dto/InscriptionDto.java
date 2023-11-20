@@ -17,6 +17,7 @@ public class InscriptionDto {
     private Integer codePostal;
     private String ville;
     private StatutInscription statut;
+    private String niveau;
     private SignatureDto signature;
 
 }
