@@ -5,6 +5,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -16,29 +17,17 @@ public class InscriptionEntity implements Auditable {
     @Column(name = "idinsc")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "txinscnom")
-    private String nom;
-    @Column(name = "txinscprenom")
-    private String prenom;
-    @Column(name = "dtinscnaissance")
-    private LocalDate dateNaissance;
-    @Column(name = "txinscphone")
-    private String telephone;
-    @Column(name = "txinscemail")
-    private String email;
-    @Column(name = "cdinscsexe")
-    private String sexe;
-    @Column(name = "txinscnumrue")
-    private String numeroEtRue;
-    @Column(name = "noinsccodepostal")
-    private Integer codePostal;
-    @Column(name = "txinscville")
-    private String ville;
     @Column(name = "cdinscstatut")
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
-    @Column(name = "cdinscniveau")
-    private String niveau;
+    @Column(name = "dtinscinscription")
+    private LocalDate dateInscription;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idresp", nullable = false)
+    private ResponsableLegalEntity responsableLegal;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idinsc", nullable = false)
+    private List<EleveEntity> eleves;
     @Embedded
     private Signature signature;
 

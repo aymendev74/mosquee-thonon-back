@@ -1,23 +1,18 @@
 package org.mosqueethonon.v1.dto;
 
 import lombok.Data;
+import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.v1.enums.StatutInscription;
+import java.util.List;
 
 @Data
 public class InscriptionDto {
 
     private Long id;
-    private String nom;
-    private String prenom;
-    private String dateNaissance;
-    private String telephone;
-    private String email;
-    private String sexe;
-    private String numeroEtRue;
-    private Integer codePostal;
-    private String ville;
     private StatutInscription statut;
-    private String niveau;
-    private SignatureDto signature;
+    private String dateInscription;
+    private ResponsableLegalDto responsableLegal;
+    private List<EleveDto> eleves;
+    private Signature signature;
 
 }

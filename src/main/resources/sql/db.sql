@@ -9,24 +9,49 @@ CREATE TABLE moth.utilisateur (
 	CONSTRAINT utilisateur_pkey PRIMARY KEY (idutil)
 );
 
-CREATE TABLE moth.inscription (
-	idinsc bigserial NOT NULL,
-	txinscnom varchar(50) NOT NULL,
-	txinscprenom varchar(50) NOT NULL,
-	dtinscnaissance date NOT NULL,
-	txinscphone varchar(20) NOT NULL,
-	txinscemail varchar(100) NOT NULL,
-	cdinscsexe varchar(1) NOT NULL,
-	txinscnumrue varchar(255) NOT NULL,
-	noinsccodepostal int4 NOT NULL,
-	txinscville varchar(100) NOT NULL,
-	cdinscstatut varchar(15) NOT NULL,
-	cdinscniveau varchar(20),
+
+create table moth.resplegal(
+	idresp bigserial not null,
+	txrespnom varchar(50) NOT NULL,
+	txrespprenom varchar(50) NOT NULL,
+	txrespphone varchar(20),
+	txrespmobile varchar(20),
+	txrespemail varchar(100) NOT NULL,
+	txrespnumrue varchar(255) NOT NULL,
+	norespcodepostal int4 NOT NULL,
+	txrespville varchar(100) NOT NULL,
 	oh_date_cre date NOT NULL,
 	oh_vis_cre varchar(20) NOT NULL,
 	oh_date_mod date,
 	oh_vis_mod varchar(20),
-	CONSTRAINT inscription_pkey PRIMARY KEY (idinsc)
+	CONSTRAINT resp_pkey PRIMARY KEY (idresp)
+);
+
+CREATE TABLE moth.inscription (
+	idinsc bigserial NOT NULL,
+	idresp bigint not null,
+	dtinscinscription date not null,
+	oh_date_cre date NOT NULL,
+	oh_vis_cre varchar(20) NOT NULL,
+	oh_date_mod date,
+	oh_vis_mod varchar(20),
+	CONSTRAINT inscription_pkey PRIMARY KEY (idinsc),
+	CONSTRAINT fk_idresp FOREIGN KEY(idresp) REFERENCES moth.resplegal(idresp)
+);
+
+create table moth.eleve(
+	idelev bigserial NOT NULL,
+	idinsc bigint not null,
+	txelevnom varchar(50) NOT NULL,
+	txelevprenom varchar(50) NOT NULL,
+	dtelevnaissance date NOT NULL,
+	cdelevniveau varchar(20),
+	oh_date_cre date NOT NULL,
+	oh_vis_cre varchar(20) NOT NULL,
+	oh_date_mod date,
+	oh_vis_mod varchar(20),
+	CONSTRAINT eleve_pkey PRIMARY KEY (idelev),
+	CONSTRAINT fk_idinsc FOREIGN KEY(idinsc) REFERENCES moth.inscription(idinsc)
 );
 
 CREATE TABLE moth.tarif (
