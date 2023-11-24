@@ -19,9 +19,9 @@ public class TarifController {
     @Autowired
     private TarifService tarifService;
 
-    @GetMapping
+    /*@GetMapping
     public ResponseEntity<List<TarifDto>> findTarifs() {
         List<TarifDto> tarifs = this.tarifService.findAllTarifs();
         return ResponseEntity.ok(tarifs);
-    }
+    }*/
 }

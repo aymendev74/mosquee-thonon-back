@@ -20,6 +20,7 @@ create table moth.resplegal(
 	txrespnumrue varchar(255) NOT NULL,
 	norespcodepostal int4 NOT NULL,
 	txrespville varchar(100) NOT NULL,
+	lorespadherent bool NOT NULL,
 	oh_date_cre date NOT NULL,
 	oh_vis_cre varchar(20) NOT NULL,
 	oh_date_mod date,

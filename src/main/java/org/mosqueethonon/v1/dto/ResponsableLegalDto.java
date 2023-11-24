@@ -15,6 +15,8 @@ public class ResponsableLegalDto {
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;
+    private Long idTarif;
+    private Boolean adherent;
     private Signature signature;
 
 }

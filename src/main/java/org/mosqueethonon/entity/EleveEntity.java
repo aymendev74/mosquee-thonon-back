@@ -23,6 +23,8 @@ public class EleveEntity implements Auditable{
     private LocalDate dateNaissance;
     @Column(name = "cdelevniveau")
     private String niveau;
+    @Column(name = "idtari")
+    private Long idTarif;
     @Embedded
     private Signature signature;
 

@@ -1,10 +1,7 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
-import org.mosqueethonon.v1.enums.StatutInscription;
-
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -32,6 +29,10 @@ public class ResponsableLegalEntity implements Auditable {
     private Integer codePostal;
     @Column(name = "txrespville")
     private String ville;
+    @Column(name = "idtari")
+    private Long idTarif;
+    @Column(name = "lorespadherent")
+    private Boolean adherent;
     @Embedded
     private Signature signature;
 
