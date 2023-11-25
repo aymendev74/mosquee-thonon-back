@@ -28,15 +28,17 @@ public class TarifCalculServiceImpl implements TarifCalculService {
                 .type(TypeTarifEnum.BASE.name()).adherent(responsableLegal.getAdherent())
                 .nbEnfant(nbEnfants).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
+        TarifDto tarifBase = tarifsBase.get(0);
 
         // Calcul du tarif par enfant
         criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
                 .type(TypeTarifEnum.ENFANT.name()).adherent(responsableLegal.getAdherent())
                 .nbEnfant(nbEnfants).build();
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
+        TarifDto tarifEnfant = tarifsEnfant.get(0);
 
-        return TarifInscriptionDto.builder().tarifBase(tarifsBase.get(0).getMontant())
-                .tarifEleve(tarifsEnfant.get(0).getMontant()).build();
+        return TarifInscriptionDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
+                .tarifEleve(tarifEnfant.getMontant()).idTariEleve(tarifEnfant.getId()).build();
     }
 
 }

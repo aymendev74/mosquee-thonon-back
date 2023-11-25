@@ -3,10 +3,11 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.specifications.InscriptionEntitySpecifications;
 import org.mosqueethonon.service.InscriptionService;
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
+import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.InscriptionDto;
+import org.mosqueethonon.v1.dto.InscriptionInfosDto;
+import org.mosqueethonon.v1.dto.TarifInscriptionDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
@@ -23,21 +24,22 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     private InscriptionRepository inscriptionRepository;
     private InscriptionMapper inscriptionMapper;
+    private TarifCalculService tarifCalculService;
 
     @Override
-    public InscriptionDto savePersonne(InscriptionDto personne) {
-        InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(personne);
+    public InscriptionDto savePersonne(InscriptionDto inscription) {
+        this.doCalculTarifInscription(inscription);
+        InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
         entity = this.inscriptionRepository.save(entity);
         return this.inscriptionMapper.fromEntityToDto(entity);
     }
 
-    @Override
-    public List<InscriptionDto> findPersonneByCriteria(InscriptionCriteria criteria) {
-        List<InscriptionEntity> personnes = this.inscriptionRepository.findAll(InscriptionEntitySpecifications.withCriteria(criteria));
-        if(!CollectionUtils.isEmpty(personnes)) {
-            return personnes.stream().map(this.inscriptionMapper::fromEntityToDto).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+    private void doCalculTarifInscription(InscriptionDto inscription) {
+        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().eleves(inscription.getEleves())
+                .responsableLegal(inscription.getResponsableLegal()).build();
+        TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
+        inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
+        inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
     }
 
     @Override

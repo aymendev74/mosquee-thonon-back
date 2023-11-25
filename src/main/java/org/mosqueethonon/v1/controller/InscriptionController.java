@@ -1,8 +1,10 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.service.InscriptionLightService;
 import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.service.criteria.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionDto;
+import org.mosqueethonon.v1.dto.InscriptionLightDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +18,18 @@ public class InscriptionController {
 
     @Autowired
     private InscriptionService inscriptionService;
+    @Autowired
+    private InscriptionLightService inscriptionLightService;
 
     @PostMapping
-    public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto personne) {
-        personne = this.inscriptionService.savePersonne(personne);
-        return ResponseEntity.ok(personne);
+    public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription) {
+        inscription = this.inscriptionService.savePersonne(inscription);
+        return ResponseEntity.ok(inscription);
     }
 
     @GetMapping
-    public ResponseEntity<List<InscriptionDto>> findInscriptionsByCriteria(@ModelAttribute InscriptionCriteria criteria) {
-        List<InscriptionDto> personnes = this.inscriptionService.findPersonneByCriteria(criteria);
+    public ResponseEntity<List<InscriptionLightDto>> findInscriptionsByCriteria(@ModelAttribute InscriptionCriteria criteria) {
+        List<InscriptionLightDto> personnes = this.inscriptionLightService.findInscriptionsLightByCriteria(criteria);
         return ResponseEntity.ok(personnes);
     }
 

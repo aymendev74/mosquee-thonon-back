@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 @Builder
 public class TarifInscriptionDto {
 
+    private Long idTariBase;
     private BigDecimal tarifBase;
+    private Long idTariEleve;
     private BigDecimal tarifEleve;
 
 }
