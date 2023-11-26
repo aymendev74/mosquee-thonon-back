@@ -13,5 +13,6 @@ public class TarifInscriptionDto {
     private BigDecimal tarifBase;
     private Long idTariEleve;
     private BigDecimal tarifEleve;
+    private boolean listeAttente;
 
 }

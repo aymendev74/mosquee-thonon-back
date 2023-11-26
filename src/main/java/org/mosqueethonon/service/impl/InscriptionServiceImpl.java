@@ -12,7 +12,6 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,13 @@ public class InscriptionServiceImpl implements InscriptionService {
         TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
         inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
         inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
+        if(inscription.getStatut() == null) {
+            if(tarifs.isListeAttente()) {
+                inscription.setStatut(StatutInscription.LISTE_ATTENTE);
+            } else {
+                inscription.setStatut(StatutInscription.PROVISOIRE);
+            }
+        }
     }
 
     @Override
@@ -73,4 +79,5 @@ public class InscriptionServiceImpl implements InscriptionService {
         this.inscriptionRepository.deleteAllById(ids);
         return ids;
     }
+
 }

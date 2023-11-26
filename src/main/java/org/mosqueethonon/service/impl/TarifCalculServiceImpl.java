@@ -3,6 +3,7 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.service.TarifService;
 import org.mosqueethonon.service.criteria.TarifCriteria;
@@ -16,6 +17,7 @@ import java.util.List;
 public class TarifCalculServiceImpl implements TarifCalculService {
 
     private TarifService tarifService;
+    private InscriptionRepository inscriptionRepository;
 
     @Override
     public TarifInscriptionDto calculTarifInscription(InscriptionInfosDto inscriptionInfos) {
@@ -37,8 +39,15 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
         TarifDto tarifEnfant = tarifsEnfant.get(0);
 
+        // On va aller calculer si le nombre d'élèves maximum sur la période risque d'être atteint
+        // afin d'avertir l'utilisateur
+        PeriodeDto periode = tarifEnfant.getPeriode();
+        Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId());
+        boolean isListeAttente = nbEnfants + nbElevesInscrits > periode.getNbMaxInscription();
+
         return TarifInscriptionDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
-                .tarifEleve(tarifEnfant.getMontant()).idTariEleve(tarifEnfant.getId()).build();
+                .tarifEleve(tarifEnfant.getMontant()).idTariEleve(tarifEnfant.getId())
+                .listeAttente(isListeAttente).build();
     }
 
 }
