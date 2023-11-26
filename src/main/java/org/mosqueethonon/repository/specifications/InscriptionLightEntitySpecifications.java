@@ -11,8 +11,10 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class InscriptionLightEntitySpecifications {
 
@@ -39,9 +41,19 @@ public class InscriptionLightEntitySpecifications {
                 statutPredicate = builder.equal(root.get("statut"), criteria.getStatut());
             }
 
+            if(criteria.getDateInscription() != null) {
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.FRANCE);
+                LocalDate dateInscription = LocalDate.parse(criteria.getDateInscription(), df);
+                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), dateInscription));
+            }
+
+            if(criteria.getNiveau() != null) {
+                predicates.add(builder.equal(root.get("niveau"), criteria.getNiveau()));
+            }
+
             if (criteria.getNbDerniersJours() != null) {
                 LocalDate fromDate = LocalDate.now().minusDays(criteria.getNbDerniersJours());
-                statutPredicate = builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate);
+                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate));
             }
 
             if(predicates.isEmpty()) {

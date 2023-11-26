@@ -1,6 +1,7 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
+import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import javax.persistence.*;
@@ -26,7 +27,8 @@ public class InscriptionLightEntity {
     @Column(name = "datenaissance")
     private LocalDate dateNaissance;
     @Column(name = "niveau")
-    private String niveau;
+    @Enumerated(EnumType.STRING)
+    private NiveauScolaireEnum niveau;
     @Column(name = "telephone")
     private String telephone;
     @Column(name = "mobile")

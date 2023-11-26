@@ -12,48 +12,67 @@ CREATE TABLE moth.utilisateur (
 
 create table moth.resplegal(
 	idresp bigserial not null,
-	txrespnom varchar(50) NOT NULL,
-	txrespprenom varchar(50) NOT NULL,
-	txrespphone varchar(20),
-	txrespmobile varchar(20),
-	txrespemail varchar(100) NOT NULL,
-	txrespnumrue varchar(255) NOT NULL,
-	norespcodepostal int4 NOT NULL,
-	txrespville varchar(100) NOT NULL,
-	lorespadherent bool NOT NULL,
-	oh_date_cre date NOT NULL,
-	oh_vis_cre varchar(20) NOT NULL,
-	oh_date_mod date,
-	oh_vis_mod varchar(20),
+	idtari int8 NOT NULL,
+    txrespnom varchar(50) NOT NULL,
+    txrespprenom varchar(50) NOT NULL,
+    txrespphone varchar(20),
+    txrespmobile varchar(20),
+    txrespemail varchar(100) NOT NULL,
+    txrespnumrue varchar(255) NOT NULL,
+    norespcodepostal int4 NOT NULL,
+    txrespville varchar(100) NOT NULL,
+    lorespadherent bool NOT NULL,
+    oh_date_cre date NOT NULL,
+    oh_vis_cre varchar(20) NOT NULL,
+    oh_date_mod date,
+    oh_vis_mod varchar(20),
 	CONSTRAINT resp_pkey PRIMARY KEY (idresp)
 );
 
 CREATE TABLE moth.inscription (
 	idinsc bigserial NOT NULL,
-	idresp bigint not null,
-	dtinscinscription date not null,
-	oh_date_cre date NOT NULL,
-	oh_vis_cre varchar(20) NOT NULL,
-	oh_date_mod date,
-	oh_vis_mod varchar(20),
+	idresp int8 NOT NULL,
+    dtinscinscription date NOT NULL,
+    cdinscstatut varchar(20) NOT NULL,
+    oh_date_cre date NOT NULL,
+    oh_vis_cre varchar(20) NOT NULL,
+    oh_date_mod date,
+    oh_vis_mod varchar(20),
 	CONSTRAINT inscription_pkey PRIMARY KEY (idinsc),
 	CONSTRAINT fk_idresp FOREIGN KEY(idresp) REFERENCES moth.resplegal(idresp)
 );
 
 create table moth.eleve(
 	idelev bigserial NOT NULL,
-	idinsc bigint not null,
-	txelevnom varchar(50) NOT NULL,
-	txelevprenom varchar(50) NOT NULL,
-	dtelevnaissance date NOT NULL,
-	cdelevniveau varchar(20),
-	oh_date_cre date NOT NULL,
-	oh_vis_cre varchar(20) NOT NULL,
-	oh_date_mod date,
-	oh_vis_mod varchar(20),
+	idinsc int8 NOT NULL,
+    idtari int8 NOT NULL,
+    txelevnom varchar(50) NOT NULL,
+    txelevprenom varchar(50) NOT NULL,
+    dtelevnaissance date NOT NULL,
+    cdelevniveau varchar(20),
+    oh_date_cre date NOT NULL,
+    oh_vis_cre varchar(20) NOT NULL,
+    oh_date_mod date,
+    oh_vis_mod varchar(20),
 	CONSTRAINT eleve_pkey PRIMARY KEY (idelev),
 	CONSTRAINT fk_idinsc FOREIGN KEY(idinsc) REFERENCES moth.inscription(idinsc)
 );
+
+create or replace view moth.v_inscription_light as
+SELECT e.idelev AS id,
+    i.idinsc AS idinscription,
+    i.dtinscinscription AS dateinscription,
+    i.cdinscstatut AS statut,
+    e.txelevnom AS nom,
+    e.txelevprenom AS prenom,
+    e.dtelevnaissance AS datenaissance,
+    e.cdelevniveau AS niveau,
+    r.txrespphone AS telephone,
+    r.txrespmobile AS mobile,
+    r.txrespville AS ville
+   FROM ((moth.inscription i
+     JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
+     JOIN moth.resplegal r ON ((i.idresp = r.idresp)));
 
 CREATE TABLE moth.tarif (
 	idtari bigserial NOT NULL,
