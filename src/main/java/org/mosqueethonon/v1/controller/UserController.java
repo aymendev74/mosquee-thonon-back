@@ -18,7 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "v1/user")
+@RequestMapping(path = "api/v1/user")
 @CrossOrigin
 public class UserController {
 

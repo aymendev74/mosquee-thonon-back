@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "v1/inscriptions")
+@RequestMapping(path = "api/v1/inscriptions")
 @CrossOrigin
 public class InscriptionController {
 

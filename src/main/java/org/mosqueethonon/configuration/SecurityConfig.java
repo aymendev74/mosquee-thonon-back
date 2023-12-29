@@ -34,12 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.authorizeRequests()
-                .antMatchers("/v1/user/auth").permitAll()
-                .antMatchers(HttpMethod.POST, "/v1/inscriptions").permitAll()
-                .antMatchers("/v1/periodes").permitAll()
-                .antMatchers("/v1/tarifs").permitAll()
-                .antMatchers("/v1/tarifs-inscription").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
+                .antMatchers("/api/v1/user/auth").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/inscriptions").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/adhesions").permitAll()
+                .antMatchers("/api/v1/periodes").permitAll()
+                .antMatchers("/api/v1/tarifs").permitAll()
+                .antMatchers("/api/v1/tarifs-inscription").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
                 .antMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().authenticated();
 

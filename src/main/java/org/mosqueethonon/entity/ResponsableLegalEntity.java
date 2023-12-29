@@ -33,6 +33,16 @@ public class ResponsableLegalEntity implements Auditable {
     private Long idTarif;
     @Column(name = "lorespadherent")
     private Boolean adherent;
+    @Column(name = "lorespautonomie")
+    private Boolean autorisationAutonomie;
+    @Column(name = "lorespmedia")
+    private Boolean autorisationMedia;
+    @Column(name = "txrespnomautre")
+    private String nomAutre;
+    @Column(name = "txrespprenomautre")
+    private String prenomAutre;
+    @Column(name = "txresplienparente")
+    private String lienParente;
     @Embedded
     private Signature signature;
 

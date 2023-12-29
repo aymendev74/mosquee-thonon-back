@@ -22,6 +22,11 @@ create table moth.resplegal(
     norespcodepostal int4 NOT NULL,
     txrespville varchar(100) NOT NULL,
     lorespadherent bool NOT NULL,
+    lorespautonomie bool not null,
+    lorespmedia bool not null,
+    txrespnomautre varchar(50),
+    txrespprenomautre varchar(50),
+    txresplienparente varchar(50),
     oh_date_cre date NOT NULL,
     oh_vis_cre varchar(20) NOT NULL,
     oh_date_mod date,
@@ -58,6 +63,29 @@ create table moth.eleve(
 	CONSTRAINT fk_idinsc FOREIGN KEY(idinsc) REFERENCES moth.inscription(idinsc)
 );
 
+create table moth.adhesion(
+	idadhe bigserial NOT NULL,
+    idtari int8 NOT NULL,
+    cdadhestatut varchar(20) NOT NULL,
+    cdadhetitre varchar(10) NOT null,
+    txadhenom varchar(50) NOT NULL,
+    txadheprenom varchar(50) NOT NULL,
+    dtadhenaissance date NOT NULL,
+    txadhephone varchar(20),
+    txadhemobile varchar(20),
+    txadheemail varchar(100) NOT NULL,
+    txadhenumrue varchar(255) NOT NULL,
+    noadhecodepostal int4 NOT NULL,
+    txadheville varchar(100) NOT NULL,
+    mtadheautre int4,
+    oh_date_cre date NOT NULL,
+    oh_vis_cre varchar(20) NOT NULL,
+    oh_date_mod date,
+    oh_vis_mod varchar(20),
+	CONSTRAINT adhesion_pkey PRIMARY KEY (idadhe),
+	CONSTRAINT fk_idtari FOREIGN KEY(idtari) REFERENCES moth.tarif(idtari)
+);
+
 create or replace view moth.v_inscription_light as
 SELECT e.idelev AS id,
     i.idinsc AS idinscription,
@@ -81,7 +109,7 @@ CREATE TABLE moth.tarif (
 	cdtaritype varchar(50),
 	lotariadherent bool,
 	nbtarienfant int,
-	mttari decimal NOT NULL,
+	mttari decimal,
 	oh_date_cre date NOT NULL,
 	oh_vis_cre varchar(20) NOT NULL,
 	oh_date_mod date,
@@ -108,12 +136,14 @@ values (to_date('01092023','DDMMYYYY'), to_date('31082024','DDMMYYYY'), 15, curr
 
 -------------------- Tarifs adhésion -----------------------------------------------------
 
-insert into moth.tarif (idperi, cdtariapplication, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 15, current_date, 'aymen');
-insert into moth.tarif (idperi, cdtariapplication, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 20, current_date, 'aymen');
-insert into moth.tarif (idperi, cdtariapplication, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 30, current_date, 'aymen');
+insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
+values (1, 'ADHESION', 'FIXE', 15, current_date, 'aymen');
+insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
+values (1, 'ADHESION', 'FIXE', 20, current_date, 'aymen');
+insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
+values (1, 'ADHESION', 'FIXE', 30, current_date, 'aymen');
+insert into moth.tarif (idperi, cdtariapplication, cdtaritype, oh_date_cre, oh_vis_cre)
+values (1, 'ADHESION', 'LIBRE', current_date, 'aymen');
 
 ------------------- Tarifs BASE inscription cours arabes ----------------------------------
 

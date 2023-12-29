@@ -17,6 +17,11 @@ public class ResponsableLegalDto {
     private String ville;
     private Long idTarif;
     private Boolean adherent;
+    private Boolean autorisationAutonomie;
+    private Boolean autorisationMedia;
+    private String nomAutre;
+    private String prenomAutre;
+    private String lienParente;
     private Signature signature;
 
 }

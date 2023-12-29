@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping(path = "v1/tarifs-inscription")
+@RequestMapping(path = "api/v1/tarifs-inscription")
 public class TarifInscriptionController {
 
     @Autowired
