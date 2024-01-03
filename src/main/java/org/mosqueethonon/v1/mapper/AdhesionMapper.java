@@ -9,9 +9,11 @@ import org.mosqueethonon.v1.dto.AdhesionDto;
 public interface AdhesionMapper {
 
     @Mapping(source = "dateNaissance", target = "dateNaissance", dateFormat = "dd.MM.yyyy")
+    @Mapping(source = "dateInscription", target = "dateInscription", dateFormat = "dd.MM.yyyy")
     public AdhesionEntity fromDtoToEntity(AdhesionDto adhesionDto) ;
 
     @Mapping(source = "dateNaissance", target = "dateNaissance", dateFormat = "dd.MM.yyyy")
+    @Mapping(source = "dateInscription", target = "dateInscription", dateFormat = "dd.MM.yyyy")
     public AdhesionDto fromEntityToDto(AdhesionEntity adhesionEntity);
 
 }

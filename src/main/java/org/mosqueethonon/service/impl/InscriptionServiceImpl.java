@@ -12,6 +12,8 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +31,9 @@ public class InscriptionServiceImpl implements InscriptionService {
     public InscriptionDto savePersonne(InscriptionDto inscription) {
         this.doCalculTarifInscription(inscription);
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
+        if(entity.getDateInscription()==null) {
+            entity.setDateInscription(LocalDate.now());
+        }
         entity = this.inscriptionRepository.save(entity);
         return this.inscriptionMapper.fromEntityToDto(entity);
     }

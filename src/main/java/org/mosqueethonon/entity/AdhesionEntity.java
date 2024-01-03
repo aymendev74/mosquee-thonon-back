@@ -44,6 +44,8 @@ public class AdhesionEntity implements Auditable {
     @Column(name = "cdadhestatut")
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
+    @Column(name = "dtadheinscription")
+    private LocalDate dateInscription;
     @Embedded
     private Signature signature;
 
