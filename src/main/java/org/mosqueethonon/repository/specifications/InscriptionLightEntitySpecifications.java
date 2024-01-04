@@ -4,6 +4,7 @@ import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.entity.InscriptionLightEntity;
 import org.mosqueethonon.service.criteria.InscriptionCriteria;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -21,6 +22,9 @@ public class InscriptionLightEntitySpecifications {
 
     public static Specification<InscriptionLightEntity> withCriteria(InscriptionCriteria criteria) {
         return (Root<InscriptionLightEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
+            // Always order by dateInscription desc
+            query.orderBy(builder.desc(root.get("dateInscription")));
+
             List<Predicate> predicates = new ArrayList<>();
             Predicate statutPredicate = null;
 
@@ -47,8 +51,8 @@ public class InscriptionLightEntitySpecifications {
                 predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), dateInscription));
             }
 
-            if(criteria.getNiveau() != null) {
-                predicates.add(builder.equal(root.get("niveau"), criteria.getNiveau()));
+            if(!CollectionUtils.isEmpty(criteria.getNiveaux())) {
+                predicates.add(builder.isTrue(root.get("niveau").in(criteria.getNiveaux())));
             }
 
             if (criteria.getNbDerniersJours() != null) {
@@ -57,13 +61,14 @@ public class InscriptionLightEntitySpecifications {
             }
 
             if(predicates.isEmpty()) {
-                predicates.add(builder.or(builder.isTrue(builder.literal(true))));
+                if(statutPredicate != null) { // uniquement le filtre statut
+                    return builder.and(statutPredicate);
+                } else { // Réellement aucun filtre - toujours true (on renvoi tous les résultats)
+                    return builder.or(builder.isTrue(builder.literal(true)));
+                }
             }
 
             final Predicate finalPredicateOR = builder.or(predicates.toArray(new Predicate[predicates.size()]));
-
-            // Always order by dateCreation desc
-            query.orderBy(builder.desc(root.get("dateInscription")));
 
             return statutPredicate!=null ? builder.and(finalPredicateOR, statutPredicate) : finalPredicateOR;
         };

@@ -23,7 +23,7 @@ public class AdhesionDto {
     private String ville;
     private BigDecimal montantAutre;
     private StatutInscription statut;
-    private LocalDate dateInscription;
+    private String dateInscription;
     private SignatureDto signature;
 
 }

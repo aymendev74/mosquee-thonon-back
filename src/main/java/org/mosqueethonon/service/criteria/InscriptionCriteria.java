@@ -5,6 +5,7 @@ import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class InscriptionCriteria {
@@ -15,6 +16,6 @@ public class InscriptionCriteria {
     private StatutInscription statut;
     private Long nbDerniersJours;
     private String dateInscription;
-    private NiveauScolaireEnum niveau;
+    private List<NiveauScolaireEnum> niveaux;
 
 }

@@ -21,6 +21,9 @@ public class AdhesionLightEntitySpecifications {
 
     public static Specification<AdhesionLightEntity> withCriteria(AdhesionCriteria criteria) {
         return (Root<AdhesionLightEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
+            // Always order by dateInscription desc
+            query.orderBy(builder.desc(root.get("dateInscription")));
+
             List<Predicate> predicates = new ArrayList<>();
             Predicate statutPredicate = null;
 
@@ -36,18 +39,25 @@ public class AdhesionLightEntitySpecifications {
                 predicates.add(builder.or(builder.greaterThanOrEqualTo(root.get("montant"), criteria.getMontant())));
             }
 
+            if(criteria.getDateInscription() != null) {
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.FRANCE);
+                LocalDate dateInscription = LocalDate.parse(criteria.getDateInscription(), df);
+                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), dateInscription));
+            }
+
             if (criteria.getStatut() != null) {
                 statutPredicate = builder.equal(root.get("statut"), criteria.getStatut());
             }
 
             if(predicates.isEmpty()) {
-                predicates.add(builder.or(builder.isTrue(builder.literal(true))));
+                if(statutPredicate != null) { // uniquement le filtre statut
+                    return builder.and(statutPredicate);
+                } else { // Réellement aucun filtre - toujours true (tous les résultats)
+                    return builder.or(builder.isTrue(builder.literal(true)));
+                }
             }
 
             final Predicate finalPredicateOR = builder.or(predicates.toArray(new Predicate[predicates.size()]));
-
-            // Always order by dateCreation desc
-            query.orderBy(builder.desc(root.get("dateInscription")));
 
             return statutPredicate!=null ? builder.and(finalPredicateOR, statutPredicate) : finalPredicateOR;
         };
