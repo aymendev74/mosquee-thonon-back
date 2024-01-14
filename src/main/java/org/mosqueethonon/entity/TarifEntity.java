@@ -4,7 +4,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -18,7 +17,7 @@ public class TarifEntity implements Auditable {
     private Long id;
     @ManyToOne
     @JoinColumn(name="idperi", nullable=false)
-    private PeriodeEntity periode;
+    private PeriodeInfoEntity periode;
     @Column(name = "cdtariapplication")
     private String application;
     @Column(name = "cdtaritype")
@@ -29,6 +28,8 @@ public class TarifEntity implements Auditable {
     private Integer nbEnfant;
     @Column(name = "mttari")
     private BigDecimal montant;
+    @Column(name = "cdtaritarif")
+    private String code;
     @Embedded
     private Signature signature;
 

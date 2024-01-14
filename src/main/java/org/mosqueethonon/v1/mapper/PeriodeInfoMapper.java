@@ -1,19 +1,20 @@
 package org.mosqueethonon.v1.mapper;
 
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mosqueethonon.entity.PeriodeEntity;
-import org.mosqueethonon.v1.dto.PeriodeDto;
+import org.mosqueethonon.entity.PeriodeInfoEntity;
+import org.mosqueethonon.v1.dto.PeriodeInfoDto;
 
 @Mapper(componentModel = "spring")
-public interface PeriodeMapper {
+public interface PeriodeInfoMapper {
 
     @Mapping(source = "dateDebut", target = "dateDebut", dateFormat = "dd.MM.yyyy")
     @Mapping(source = "dateFin", target = "dateFin", dateFormat = "dd.MM.yyyy")
-    public PeriodeEntity fromDtoToEntity(PeriodeDto periode) ;
+    public PeriodeInfoEntity fromDtoToEntity(PeriodeInfoDto periode) ;
 
     @Mapping(source = "dateDebut", target = "dateDebut", dateFormat = "dd.MM.yyyy")
     @Mapping(source = "dateFin", target = "dateFin", dateFormat = "dd.MM.yyyy")
-    public PeriodeDto fromEntityToDto(PeriodeEntity periode);
+    public PeriodeInfoDto fromEntityToDto(PeriodeInfoEntity periode);
 
 }

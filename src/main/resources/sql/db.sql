@@ -118,6 +118,7 @@ CREATE TABLE moth.tarif (
 	lotariadherent bool,
 	nbtarienfant int,
 	mttari decimal,
+	cdtaritarif varchar(50),
 	oh_date_cre date NOT NULL,
 	oh_vis_cre varchar(20) NOT NULL,
 	oh_date_mod date,
@@ -138,77 +139,60 @@ CREATE TABLE moth.periode (
 	CONSTRAINT periode_pkey PRIMARY KEY (idperi)
 );
 
+create or replace view moth.v_periode_cours as
+select distinct peri.idperi as id, peri.dtperidebut as datedebut, peri.dtperifin as datefin,
+moth.existInscriptionForPeriode(peri.idperi) as existInscription
+from moth.periode peri
+;
+
+create or replace function moth.existInscriptionForPeriode(idPeriode int8)
+returns boolean
+language plpgsql
+as
+$$
+declare
+   idElev int8;
+begin
+   select elev.idElev
+   into idElev
+   from moth.eleve elev
+   inner join moth.tarif tari on tari.idtari = elev.idtari
+   inner join moth.periode peri on peri.idperi = tari.idperi
+   where
+   peri.idPeri = idPeriode
+   limit 1;
+
+  IF idElev > 0 THEN
+   return true;
+  else return false;
+ end if;
+end;
+$$;
+
 insert into moth.periode (dtperidebut, dtperifin, nbperimaxinscription, oh_date_cre, oh_vis_cre)
 values (to_date('01092023','DDMMYYYY'), to_date('31082024','DDMMYYYY'), 15, current_date, 'aymen');
 
+------------------- Tarifs adhésions et cours arabes ----------------------------------
 
--------------------- Tarifs adhésion -----------------------------------------------------
-
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 'FIXE', 15, current_date, 'aymen');
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 'FIXE', 20, current_date, 'aymen');
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 'FIXE', 30, current_date, 'aymen');
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, oh_date_cre, oh_vis_cre)
-values (1, 'ADHESION', 'LIBRE', current_date, 'aymen');
-
-------------------- Tarifs BASE inscription cours arabes ----------------------------------
-
--- Adhérent, 1 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', true, 1, 120, current_date, 'aymen');
--- Non adhérent, 1 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', false, 1, 240, current_date, 'aymen');
-
--- Adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', true, 2, 160, current_date, 'aymen');
--- Non adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', false, 2, 280, current_date, 'aymen');
-
--- Adhérent, 3 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', true, 3, 200, current_date, 'aymen');
--- Non adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', false, 3, 320, current_date, 'aymen');
-
--- Adhérent, 4 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', true, 4, 240, current_date, 'aymen');
--- Non adhérent, 4 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'BASE', false, 4, 360, current_date, 'aymen');
-
-
--------------- Tarifs PAR ENFANT inscription cours arabes ---------------------------
--- Adhérent, 1 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', true, 1, 15, current_date, 'aymen');
--- Non adhérent, 1 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', false, 1, 15, current_date, 'aymen');
-
--- Adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', true, 2, 15, current_date, 'aymen');
--- Non adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', false, 2, 15, current_date, 'aymen');
-
--- Adhérent, 3 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', true, 3, 15, current_date, 'aymen');
--- Non adhérent, 2 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', false, 3, 15, current_date, 'aymen');
-
--- Adhérent, 4 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', true, 4, 15, current_date, 'aymen');
--- Non adhérent, 4 enfant
-insert into moth.tarif (idperi, cdtariapplication, cdtaritype, lotariadherent, nbtarienfant, mttari, oh_date_cre, oh_vis_cre)
-values (1, 'COURS', 'ENFANT', false, 4, 15, current_date, 'aymen');
+INSERT INTO moth.tarif (idperi,cdtariapplication,cdtaritype,lotariadherent,nbtarienfant,mttari,oh_date_cre,oh_vis_cre,oh_date_mod,oh_vis_mod,cdtaritarif) VALUES
+	 (1,'ADHESION','FIXE',NULL,NULL,15,'2023-12-29','aymen',NULL,NULL,NULL),
+	 (1,'ADHESION','FIXE',NULL,NULL,20,'2023-12-29','aymen',NULL,NULL,NULL),
+	 (1,'ADHESION','FIXE',NULL,NULL,30,'2023-12-29','aymen',NULL,NULL,NULL),
+	 (1,'ADHESION','LIBRE',NULL,NULL,NULL,'2023-12-29','aymen',NULL,NULL,NULL),
+	 (1,'COURS','BASE',true,1,120,'2023-11-20','aymen',NULL,NULL,'BASE_ADHERENT_1_ENFANT'),
+	 (1,'COURS','BASE',false,1,240,'2023-11-20','aymen',NULL,NULL,'BASE_1_ENFANT'),
+	 (1,'COURS','BASE',true,2,160,'2023-11-20','aymen',NULL,NULL,'BASE_ADHERENT_2_ENFANT'),
+	 (1,'COURS','BASE',false,2,280,'2023-11-20','aymen',NULL,NULL,'BASE_2_ENFANT'),
+	 (1,'COURS','BASE',true,3,200,'2023-11-20','aymen',NULL,NULL,'BASE_ADHERENT_3_ENFANT'),
+	 (1,'COURS','BASE',false,3,320,'2023-11-20','aymen',NULL,NULL,'BASE_3_ENFANT');
+INSERT INTO moth.tarif (idperi,cdtariapplication,cdtaritype,lotariadherent,nbtarienfant,mttari,oh_date_cre,oh_vis_cre,oh_date_mod,oh_vis_mod,cdtaritarif) VALUES
+	 (1,'COURS','BASE',true,4,240,'2023-11-20','aymen',NULL,NULL,'BASE_ADHERENT_4_ENFANT'),
+	 (1,'COURS','BASE',false,4,360,'2023-11-20','aymen',NULL,NULL,'BASE_4_ENFANT'),
+	 (1,'COURS','ENFANT',true,1,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_ADHERENT_1_ENFANT'),
+	 (1,'COURS','ENFANT',false,1,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_1_ENFANT'),
+	 (1,'COURS','ENFANT',true,2,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_ADHERENT_2_ENFANT'),
+	 (1,'COURS','ENFANT',false,2,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_2_ENFANT'),
+	 (1,'COURS','ENFANT',true,3,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_ADHERENT_3_ENFANT'),
+	 (1,'COURS','ENFANT',false,3,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_3_ENFANT'),
+	 (1,'COURS','ENFANT',true,4,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_ADHERENT_4_ENFANT'),
+	 (1,'COURS','ENFANT',false,4,15,'2023-11-20','aymen',NULL,NULL,'ENFANT_4_ENFANT');

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public class TarifDto {
 
     private Long id;
-    private PeriodeDto periode;
+    private PeriodeInfoDto periode;
     private String application;
     private String type;
     private Boolean adherent;

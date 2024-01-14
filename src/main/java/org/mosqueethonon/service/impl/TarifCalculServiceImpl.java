@@ -41,7 +41,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
         // On va aller calculer si le nombre d'élèves maximum sur la période risque d'être atteint
         // afin d'avertir l'utilisateur
-        PeriodeDto periode = tarifEnfant.getPeriode();
+        PeriodeInfoDto periode = tarifEnfant.getPeriode();
         Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId());
         boolean isListeAttente = nbEnfants + nbElevesInscrits > periode.getNbMaxInscription();
 
