@@ -141,7 +141,13 @@ CREATE TABLE moth.periode (
 
 create or replace view moth.v_periode_cours as
 select distinct peri.idperi as id, peri.dtperidebut as datedebut, peri.dtperifin as datefin,
-moth.existInscriptionForPeriode(peri.idperi) as existInscription
+peri.nbperimaxinscription as nbmaxinscription,
+moth.existInscriptionForPeriode(peri.idperi) as existInscription, peri.oh_date_cre,
+peri.oh_vis_cre, peri.oh_date_mod, peri.oh_vis_mod,
+	case
+		when current_date between peri.dtperidebut and peri.dtperifin then true
+		else false
+	end as active
 from moth.periode peri
 ;
 

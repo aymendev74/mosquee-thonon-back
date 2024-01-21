@@ -13,6 +13,7 @@ public class PeriodeEntity implements Auditable {
 
     @Id
     @Column(name = "idperi")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "dtperidebut")
     private LocalDate dateDebut;

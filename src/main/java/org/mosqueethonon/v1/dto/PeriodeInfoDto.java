@@ -3,12 +3,9 @@ package org.mosqueethonon.v1.dto;
 import lombok.Data;
 
 @Data
-public class PeriodeInfoDto {
+public class PeriodeInfoDto extends PeriodeDto {
 
-    private Long id;
-    private String dateDebut;
-    private String dateFin;
-    private Integer nbMaxInscription;
     private Boolean existInscription;
+    private Boolean active;
 
 }

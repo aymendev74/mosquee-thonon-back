@@ -20,5 +20,9 @@ public class PeriodeInfoEntity {
     private Integer nbMaxInscription;
     @Column(name = "existinscription")
     private Boolean existInscription;
+    @Column(name = "active")
+    private Boolean active;
+    @Embedded
+    private Signature signature;
 
 }
