@@ -9,6 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CodeTarif {
 
-    String value();
+    public String codeTarif();
+    public int nbEnfant();
+    public String type();
+
+    public boolean adherent();
 
 }

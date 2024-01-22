@@ -1,12 +1,11 @@
 package org.mosqueethonon.repository.specifications;
 
+import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.service.criteria.TarifCriteria;
 import org.springframework.data.jpa.domain.Specification;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +29,12 @@ public class TarifEntitySpecifications {
 
             if (criteria.getNbEnfant() != null) {
                 predicates.add(builder.equal(root.get("nbEnfant"), criteria.getNbEnfant()));
+            }
+
+            if (criteria.getAtDate() != null) {
+                Join<TarifEntity, PeriodeEntity> joinPeriode = root.join("periode");
+                predicates.add(builder.lessThanOrEqualTo(joinPeriode.get("dateDebut"), criteria.getAtDate()));
+                predicates.add(builder.greaterThanOrEqualTo(joinPeriode.get("dateFin"), criteria.getAtDate()));
             }
 
             return builder.and(predicates.toArray(new Predicate[predicates.size()]));

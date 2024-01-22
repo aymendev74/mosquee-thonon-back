@@ -20,4 +20,10 @@ public class TarifAdminController {
         return ResponseEntity.ok(infoTarif);
     }
 
+    @PostMapping
+    public ResponseEntity<InfoTarifDto> findTarifsByPeriode(@RequestBody InfoTarifDto infoTarifDto) {
+        infoTarifDto = this.tarifAdminService.saveInfoTarif(infoTarifDto);
+        return ResponseEntity.ok(infoTarifDto);
+    }
+
 }

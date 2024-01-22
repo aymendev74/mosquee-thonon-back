@@ -1,6 +1,9 @@
 package org.mosqueethonon.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -9,6 +12,9 @@ import java.math.BigDecimal;
 @EntityListeners(EntityListener.class)
 @Table(name = "tarif", schema = "moth")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TarifEntity implements Auditable {
 
     @Id
@@ -17,7 +23,7 @@ public class TarifEntity implements Auditable {
     private Long id;
     @ManyToOne
     @JoinColumn(name="idperi", nullable=false)
-    private PeriodeInfoEntity periode;
+    private PeriodeEntity periode;
     @Column(name = "cdtariapplication")
     private String application;
     @Column(name = "cdtaritype")

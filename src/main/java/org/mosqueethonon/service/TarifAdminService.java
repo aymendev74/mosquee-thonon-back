@@ -6,4 +6,6 @@ public interface TarifAdminService {
 
     InfoTarifDto findInfoTarifByPeriode(Long idPeriode);
 
+    InfoTarifDto saveInfoTarif(InfoTarifDto infoTarifDto);
+
 }

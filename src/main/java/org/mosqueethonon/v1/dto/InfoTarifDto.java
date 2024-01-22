@@ -11,37 +11,37 @@ import java.math.BigDecimal;
 public class InfoTarifDto {
 
     private Long idPeriode;
-    @CodeTarif("BASE_1_ENFANT")
+    @CodeTarif(codeTarif = "BASE_1_ENFANT", type="BASE", adherent = false, nbEnfant = 1)
     private BigDecimal montantBase1Enfant;
-    @CodeTarif("BASE_ADHERENT_1_ENFANT")
+    @CodeTarif(codeTarif = "BASE_ADHERENT_1_ENFANT", type="BASE", adherent = true, nbEnfant = 1)
     private BigDecimal montantBase1EnfantAdherent;
-    @CodeTarif("ENFANT_1_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_1_ENFANT", type="ENFANT", adherent = false, nbEnfant = 1)
     private BigDecimal montantEnfant1Enfant;
-    @CodeTarif("ENFANT_ADHERENT_1_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_ADHERENT_1_ENFANT", type="ENFANT", adherent = true, nbEnfant = 1)
     private BigDecimal montantEnfant1EnfantAdherent;
-    @CodeTarif("BASE_2_ENFANT")
+    @CodeTarif(codeTarif = "BASE_2_ENFANT", type="BASE", adherent = false, nbEnfant = 2)
     private BigDecimal montantBase2Enfant;
-    @CodeTarif("BASE_ADHERENT_2_ENFANT")
+    @CodeTarif(codeTarif = "BASE_ADHERENT_2_ENFANT", type="BASE", adherent = true, nbEnfant = 2)
     private BigDecimal montantBase2EnfantAdherent;
-    @CodeTarif("ENFANT_2_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_2_ENFANT", type="ENFANT", adherent = false, nbEnfant = 2)
     private BigDecimal montantEnfant2Enfant;
-    @CodeTarif("ENFANT_ADHERENT_2_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_ADHERENT_2_ENFANT", type="ENFANT", adherent = true, nbEnfant = 2)
     private BigDecimal montantEnfant2EnfantAdherent;
-    @CodeTarif("BASE_3_ENFANT")
+    @CodeTarif(codeTarif = "BASE_3_ENFANT", type="BASE", adherent = false, nbEnfant = 3)
     private BigDecimal montantBase3Enfant;
-    @CodeTarif("BASE_ADHERENT_3_ENFANT")
+    @CodeTarif(codeTarif = "BASE_ADHERENT_3_ENFANT", type="BASE", adherent = true, nbEnfant = 3)
     private BigDecimal montantBase3EnfantAdherent;
-    @CodeTarif("ENFANT_3_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_3_ENFANT", type="ENFANT", adherent = false, nbEnfant = 3)
     private BigDecimal montantEnfant3Enfant;
-    @CodeTarif("ENFANT_ADHERENT_3_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_ADHERENT_3_ENFANT", type="ENFANT", adherent = true, nbEnfant = 3)
     private BigDecimal montantEnfant3EnfantAdherent;
-    @CodeTarif("BASE_4_ENFANT")
+    @CodeTarif(codeTarif = "BASE_4_ENFANT", type="BASE", adherent = false, nbEnfant = 4)
     private BigDecimal montantBase4Enfant;
-    @CodeTarif("BASE_ADHERENT_4_ENFANT")
+    @CodeTarif(codeTarif = "BASE_ADHERENT_4_ENFANT", type="BASE", adherent = true, nbEnfant = 4)
     private BigDecimal montantBase4EnfantAdherent;
-    @CodeTarif("ENFANT_4_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_4_ENFANT", type="ENFANT", adherent = false, nbEnfant = 4)
     private BigDecimal montantEnfant4Enfant;
-    @CodeTarif("ENFANT_ADHERENT_4_ENFANT")
+    @CodeTarif(codeTarif = "ENFANT_ADHERENT_4_ENFANT", type="ENFANT", adherent = true, nbEnfant = 4)
     private BigDecimal montantEnfant4EnfantAdherent;
 
 }

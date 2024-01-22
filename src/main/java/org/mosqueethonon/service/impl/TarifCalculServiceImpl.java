@@ -10,6 +10,7 @@ import org.mosqueethonon.service.criteria.TarifCriteria;
 import org.mosqueethonon.v1.dto.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -28,14 +29,14 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         // Calcul du tarif de base
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
                 .type(TypeTarifEnum.BASE.name()).adherent(responsableLegal.getAdherent())
-                .nbEnfant(nbEnfants).build();
+                .nbEnfant(nbEnfants).atDate(LocalDate.now()).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
         TarifDto tarifBase = tarifsBase.get(0);
 
         // Calcul du tarif par enfant
         criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
                 .type(TypeTarifEnum.ENFANT.name()).adherent(responsableLegal.getAdherent())
-                .nbEnfant(nbEnfants).build();
+                .nbEnfant(nbEnfants).atDate(LocalDate.now()).build();
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
         TarifDto tarifEnfant = tarifsEnfant.get(0);
 
