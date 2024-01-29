@@ -18,6 +18,9 @@ public class TarifInscriptionController {
     @PostMapping
     public ResponseEntity<TarifInscriptionDto> calculTarifInscription(@RequestBody InscriptionInfosDto inscriptionInfos) {
         TarifInscriptionDto tarif = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
+        if(tarif == null) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(tarif);
     }
 
