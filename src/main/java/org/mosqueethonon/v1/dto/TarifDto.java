@@ -9,7 +9,6 @@ public class TarifDto {
 
     private Long id;
     private PeriodeInfoDto periode;
-    private String application;
     private String type;
     private Boolean adherent;
     private Integer nbEnfant;

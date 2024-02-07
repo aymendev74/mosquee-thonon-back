@@ -24,6 +24,8 @@ public class AdhesionDto {
     private BigDecimal montantAutre;
     private StatutInscription statut;
     private String dateInscription;
+    private BigDecimal montant;
+    private Integer noMembre;
     private SignatureDto signature;
 
 }

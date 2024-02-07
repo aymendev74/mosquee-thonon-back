@@ -24,8 +24,6 @@ public class TarifEntity implements Auditable {
     @ManyToOne
     @JoinColumn(name="idperi", nullable=false)
     private PeriodeEntity periode;
-    @Column(name = "cdtariapplication")
-    private String application;
     @Column(name = "cdtaritype")
     private String type;
     @Column(name = "lotariadherent")

@@ -2,11 +2,14 @@ package org.mosqueethonon.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
+import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.service.TarifCalculService;
+import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.InscriptionInfosDto;
+import org.mosqueethonon.v1.dto.PeriodeDto;
 import org.mosqueethonon.v1.dto.TarifInscriptionDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
@@ -83,6 +86,18 @@ public class InscriptionServiceImpl implements InscriptionService {
     public List<Long> deleteInscriptions(List<Long> ids) {
         this.inscriptionRepository.deleteAllById(ids);
         return ids;
+    }
+
+    @Override
+    public Integer findNbInscriptionsByPeriode(Long idPeriode) {
+        return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode);
+    }
+
+    @Override
+    public boolean isInscriptionOutsideRange(PeriodeDto periodeDto) {
+        Integer nbInscriptionOutside = this.inscriptionRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
+                DateUtils.fromStringToLocalDate(periodeDto.getDateDebut()), DateUtils.fromStringToLocalDate(periodeDto.getDateFin()));
+        return nbInscriptionOutside != null && nbInscriptionOutside > 0;
     }
 
 }

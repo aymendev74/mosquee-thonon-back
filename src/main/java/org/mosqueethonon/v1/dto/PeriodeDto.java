@@ -10,5 +10,6 @@ public class PeriodeDto {
     private String dateFin;
     private Integer nbMaxInscription;
     private SignatureDto signature;
+    private String application;
 
 }

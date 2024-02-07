@@ -1,6 +1,7 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.Formula;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import javax.persistence.*;
@@ -46,6 +47,10 @@ public class AdhesionEntity implements Auditable {
     private StatutInscription statut;
     @Column(name = "dtadheinscription")
     private LocalDate dateInscription;
+    @Formula("(select tari.mttari from moth.tarif tari where tari.idtari = idtari)")
+    private BigDecimal montant;
+    @Column(name = "noadhemembre")
+    private Integer noMembre;
     @Embedded
     private Signature signature;
 

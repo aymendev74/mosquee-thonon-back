@@ -16,7 +16,8 @@ public class TarifEntitySpecifications {
         return (Root<TarifEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (criteria.getApplication() != null) {
-                predicates.add(builder.equal(root.get("application"), criteria.getApplication()));
+                Join<TarifEntity, PeriodeEntity> joinPeriode = root.join("periode");
+                predicates.add(builder.equal(joinPeriode.get("application"), criteria.getApplication()));
             }
 
             if (criteria.getType() != null) {

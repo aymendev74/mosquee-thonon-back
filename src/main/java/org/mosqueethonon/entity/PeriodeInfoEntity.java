@@ -22,6 +22,8 @@ public class PeriodeInfoEntity {
     private Boolean existInscription;
     @Column(name = "active")
     private Boolean active;
+    @Column(name = "application")
+    private String application;
     @Embedded
     private Signature signature;
 

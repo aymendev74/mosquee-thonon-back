@@ -21,6 +21,8 @@ public class PeriodeEntity implements Auditable {
     private LocalDate dateFin;
     @Column(name = "nbperimaxinscription")
     private Integer nbMaxInscription;
+    @Column(name = "cdperiapplication")
+    private String application;
     @Embedded
     private Signature signature;
 

@@ -29,7 +29,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
     @Override
     public InfoTarifDto findInfoTarifByPeriode(Long idPeriode) {
         InfoTarifDto infoTarif = InfoTarifDto.builder().idPeriode(idPeriode).build();
-        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndApplication(idPeriode, "COURS");
+        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndPeriodeApplication(idPeriode, "COURS");
         if(!CollectionUtils.isEmpty(tarifsByPeriode)) {
             tarifsByPeriode.stream().forEach(tarif -> {
                 setFieldValue(infoTarif, tarif.getCode(), tarif.getMontant());
@@ -41,7 +41,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
     @Override
     public InfoTarifDto saveInfoTarif(InfoTarifDto infoTarifDto) {
         // On récupères les anciens tarifs
-        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndApplication(infoTarifDto.getIdPeriode(), "COURS");
+        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndPeriodeApplication(infoTarifDto.getIdPeriode(), "COURS");
         Field[] infoTarifDtoFields = infoTarifDto.getClass().getDeclaredFields();
         Map<String, BigDecimal> mapNewTarifByCode = Arrays.stream(infoTarifDtoFields)
                 .filter(this::existAnnotationCodeTarif).collect(Collectors.toMap(field -> this.getCodeTarif(field, infoTarifDto), field -> this.getMontant(field, infoTarifDto)));
@@ -75,7 +75,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
         CodeTarif annotationCodeTarif = field.getAnnotation(CodeTarif.class);
         return TarifEntity.builder().code(annotationCodeTarif.codeTarif()).adherent(annotationCodeTarif.adherent())
                 .type(annotationCodeTarif.type()).nbEnfant(annotationCodeTarif.nbEnfant())
-                .periode(periode).application("COURS").build();
+                .periode(periode).build();
     }
 
     private String getCodeTarif(Field field, InfoTarifDto infoTarifDto) {
