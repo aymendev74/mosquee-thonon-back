@@ -3,8 +3,10 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
+import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.MailService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.InscriptionDto;
@@ -30,15 +32,22 @@ public class InscriptionServiceImpl implements InscriptionService {
     private InscriptionMapper inscriptionMapper;
     private TarifCalculService tarifCalculService;
 
+    private MailService mailService;
+
     @Override
-    public InscriptionDto savePersonne(InscriptionDto inscription) {
+    public InscriptionDto saveInscription(InscriptionDto inscription) {
         this.doCalculTarifInscription(inscription);
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
+        boolean sendMailConfirmation = inscription.getId() == null;
         if(entity.getDateInscription()==null) {
             entity.setDateInscription(LocalDate.now());
         }
         entity = this.inscriptionRepository.save(entity);
-        return this.inscriptionMapper.fromEntityToDto(entity);
+        inscription = this.inscriptionMapper.fromEntityToDto(entity);
+        if(sendMailConfirmation) {
+            this.mailService.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS);
+        }
+        return inscription;
     }
 
     private void doCalculTarifInscription(InscriptionDto inscription) {

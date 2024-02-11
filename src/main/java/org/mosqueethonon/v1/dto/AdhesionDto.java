@@ -7,17 +7,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-public class AdhesionDto {
+public class AdhesionDto extends MailObjectDto {
 
     private Long id;
     private String titre;
-    private String nom;
-    private String prenom;
     private String dateNaissance;
     private Long idTarif;
     private String telephone;
     private String mobile;
-    private String email;
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;

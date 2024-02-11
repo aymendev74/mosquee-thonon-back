@@ -12,6 +12,6 @@ public interface AdhesionService {
 
     public List<Long> deleteAdhesions(List<Long> ids);
 
-    public List<Long> validateInscriptions(List<Long> ids);
+    public List<Long> validateAdhesions(List<Long> ids);
 
 }

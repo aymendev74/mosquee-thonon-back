@@ -2,6 +2,7 @@ package org.mosqueethonon.v1.controller;
 
 import org.mosqueethonon.service.AdhesionLightService;
 import org.mosqueethonon.service.AdhesionService;
+import org.mosqueethonon.service.MailService;
 import org.mosqueethonon.service.criteria.AdhesionCriteria;
 import org.mosqueethonon.service.criteria.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.AdhesionDto;
@@ -23,7 +24,6 @@ public class AdhesionController {
     @Autowired
     private AdhesionLightService adhesionLightService;
 
-
     @PostMapping
     public ResponseEntity<AdhesionDto> saveAdhesion(@RequestBody AdhesionDto adhesion) {
         adhesion = this.adhesionService.saveAdhesion(adhesion);
@@ -44,7 +44,7 @@ public class AdhesionController {
 
     @PostMapping(path = "/validation")
     public ResponseEntity validateInscriptions(@RequestBody List<Long> ids) {
-        ids = this.adhesionService.validateInscriptions(ids);
+        ids = this.adhesionService.validateAdhesions(ids);
         return ResponseEntity.ok(ids);
     }
 

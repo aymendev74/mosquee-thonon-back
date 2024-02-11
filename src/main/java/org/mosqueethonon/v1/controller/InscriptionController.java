@@ -23,7 +23,7 @@ public class InscriptionController {
 
     @PostMapping
     public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription) {
-        inscription = this.inscriptionService.savePersonne(inscription);
+        inscription = this.inscriptionService.saveInscription(inscription);
         return ResponseEntity.ok(inscription);
     }
 

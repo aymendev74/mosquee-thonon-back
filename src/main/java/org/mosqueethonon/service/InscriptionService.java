@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface InscriptionService {
 
-    public InscriptionDto savePersonne(InscriptionDto personne);
+    public InscriptionDto saveInscription(InscriptionDto personne);
     public InscriptionDto findInscriptionById(Long id);
     public List<Long> validateInscriptions(List<Long> ids);
     public List<Long> deleteInscriptions(List<Long> ids);
