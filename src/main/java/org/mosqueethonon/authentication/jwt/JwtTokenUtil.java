@@ -1,13 +1,18 @@
 package org.mosqueethonon.authentication.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.mosqueethonon.entity.UtilisateurEntity;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtTokenUtil {
@@ -20,30 +25,26 @@ public class JwtTokenUtil {
     private String SECRET_KEY;
 
     public String generateAccessToken(UtilisateurEntity user) {
+        SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
-                .setSubject(String.format("%s,%s", user.getId(), user.getUsername()))
-                .setIssuer("MosqueeThonon")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .subject(String.format("%s,%s", user.getId(), user.getUsername()))
+                .issuer("MosqueeThonon")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
+                .signWith(key, Jwts.SIG.HS512)
                 .compact();
     }
 
 
     public boolean validateAccessToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
-        } catch (ExpiredJwtException ex) {
-            LOGGER.error("JWT expired", ex.getMessage());
+        } catch (JwtException ex) {
+            LOGGER.error(ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            LOGGER.error("Token is null, empty or only whitespace", ex.getMessage());
-        } catch (MalformedJwtException ex) {
-            LOGGER.error("JWT is invalid", ex);
-        } catch (UnsupportedJwtException ex) {
-            LOGGER.error("JWT is not supported", ex);
-        } catch (SignatureException ex) {
-            LOGGER.error("Signature validation failed");
+            LOGGER.error(ex.getMessage());
         }
 
         return false;
@@ -54,10 +55,9 @@ public class JwtTokenUtil {
     }
 
     private Claims parseClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
+        SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return  Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
+                .getPayload();
     }
 
 }

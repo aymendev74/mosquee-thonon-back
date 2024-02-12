@@ -4,7 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.Formula;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

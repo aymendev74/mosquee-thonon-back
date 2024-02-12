@@ -1,7 +1,7 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @EntityListeners(EntityListener.class)

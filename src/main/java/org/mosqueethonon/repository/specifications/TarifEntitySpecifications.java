@@ -5,7 +5,7 @@ import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.service.criteria.TarifCriteria;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 

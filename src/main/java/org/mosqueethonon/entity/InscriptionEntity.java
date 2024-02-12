@@ -3,7 +3,7 @@ package org.mosqueethonon.entity;
 import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
