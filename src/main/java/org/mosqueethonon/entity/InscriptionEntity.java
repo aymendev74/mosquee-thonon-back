@@ -28,6 +28,8 @@ public class InscriptionEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "idinsc", nullable = false)
     private List<EleveEntity> eleves;
+    @Column(name = "noinscinscription")
+    private String noInscription;
     @Embedded
     private Signature signature;
 

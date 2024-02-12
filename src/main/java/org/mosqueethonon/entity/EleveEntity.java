@@ -1,6 +1,8 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
+import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.enums.NiveauScolaireEnum;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -22,7 +24,11 @@ public class EleveEntity implements Auditable{
     @Column(name = "dtelevnaissance")
     private LocalDate dateNaissance;
     @Column(name = "cdelevniveau")
-    private String niveau;
+    @Enumerated(EnumType.STRING)
+    private NiveauScolaireEnum niveau;
+    @Column(name = "cdelevniveauinterne")
+    @Enumerated(EnumType.STRING)
+    private NiveauInterneEnum niveauInterne;
     @Column(name = "idtari")
     private Long idTarif;
     @Embedded

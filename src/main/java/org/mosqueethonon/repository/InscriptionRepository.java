@@ -27,4 +27,6 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
             "and not (i.dtinscinscription between :dateDebut and :dateFin)", nativeQuery = true)
     Integer getNbInscriptionOutsideRange(Long idPeriode, LocalDate dateDebut, LocalDate dateFin);
 
+    @Query(value = "select nextval('moth.inscription_noinscinscription_seq')", nativeQuery = true)
+    Long getNextNumeroInscription();
 }

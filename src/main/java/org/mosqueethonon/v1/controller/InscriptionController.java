@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(path = "api/v1/inscriptions")
@@ -40,13 +41,13 @@ public class InscriptionController {
     }
 
     @PostMapping(path = "/validation")
-    public ResponseEntity validateInscriptions(@RequestBody List<Long> ids) {
+    public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
         ids = this.inscriptionService.validateInscriptions(ids);
         return ResponseEntity.ok(ids);
     }
 
     @DeleteMapping
-    public ResponseEntity deleteInscriptions(@RequestBody List<Long> ids) {
+    public ResponseEntity deleteInscriptions(@RequestBody Set<Long> ids) {
         ids = this.inscriptionService.deleteInscriptions(ids);
         return ResponseEntity.ok(ids);
     }

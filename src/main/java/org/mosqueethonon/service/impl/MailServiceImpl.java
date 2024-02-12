@@ -16,11 +16,11 @@ public class MailServiceImpl implements MailService {
     private JavaMailSender emailSender;
 
     @Override
-    public void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail) {
+    public void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailObject.getEmail());
         message.setSubject(getEmailSubject(typeMail));
-        message.setText(getEmailBody(mailObject, typeMail));
+        message.setText(getEmailBody(mailObject, typeMail, noInscription));
         emailSender.send(message);
     }
 
@@ -39,7 +39,7 @@ public class MailServiceImpl implements MailService {
         return mailSubject;
     }
 
-    private String getEmailBody(MailObjectDto mailObject, TypeMailEnum typeMail) {
+    private String getEmailBody(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription) {
         StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
                 .append(" ").append(mailObject.getNom()).append(", \n\n");
         switch (typeMail) {
@@ -53,6 +53,11 @@ public class MailServiceImpl implements MailService {
                 throw new IllegalArgumentException("La valeur n'est pas géré ici ! typeMail = " + typeMail);
         }
         sbMailBody.append("\n\n");
+        if(noInscription != null) {
+            sbMailBody.append("Pour toute communication, voici la référence de votre inscription: ");
+            sbMailBody.append(noInscription);
+            sbMailBody.append("\n\n");
+        }
         sbMailBody.append("Cordialement,\n");
         sbMailBody.append("L'équipe de l'Association Musulmane du Chablais,\n");
         return sbMailBody.toString();

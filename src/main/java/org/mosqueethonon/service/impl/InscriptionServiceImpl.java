@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,10 +43,14 @@ public class InscriptionServiceImpl implements InscriptionService {
         if(entity.getDateInscription()==null) {
             entity.setDateInscription(LocalDate.now());
         }
+        if(entity.getNoInscription() == null) {
+            Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
+            entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
+        }
         entity = this.inscriptionRepository.save(entity);
         inscription = this.inscriptionMapper.fromEntityToDto(entity);
         if(sendMailConfirmation) {
-            this.mailService.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS);
+            this.mailService.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS, entity.getNoInscription());
         }
         return inscription;
     }
@@ -75,7 +80,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     @Override
-    public List<Long> validateInscriptions(List<Long> ids) {
+    public Set<Long> validateInscriptions(Set<Long> ids) {
         List<InscriptionEntity> inscriptionsToUpdate = new ArrayList<>();
         for (Long id : ids) {
             InscriptionEntity personne = this.inscriptionRepository.findById(id).orElse(null);
@@ -86,13 +91,13 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
         if(!CollectionUtils.isEmpty(inscriptionsToUpdate)) {
             inscriptionsToUpdate = this.inscriptionRepository.saveAll(inscriptionsToUpdate);
-            return inscriptionsToUpdate.stream().map(InscriptionEntity::getId).collect(Collectors.toList());
+            return inscriptionsToUpdate.stream().map(InscriptionEntity::getId).collect(Collectors.toSet());
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     @Override
-    public List<Long> deleteInscriptions(List<Long> ids) {
+    public Set<Long> deleteInscriptions(Set<Long> ids) {
         this.inscriptionRepository.deleteAllById(ids);
         return ids;
     }

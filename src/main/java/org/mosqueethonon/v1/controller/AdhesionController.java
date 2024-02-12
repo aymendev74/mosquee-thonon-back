@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(path = "api/v1/adhesions")
@@ -37,13 +38,13 @@ public class AdhesionController {
     }
 
     @DeleteMapping
-    public ResponseEntity deleteAdhesions(@RequestBody List<Long> ids) {
+    public ResponseEntity deleteAdhesions(@RequestBody Set<Long> ids) {
         ids = this.adhesionService.deleteAdhesions(ids);
         return ResponseEntity.ok(ids);
     }
 
     @PostMapping(path = "/validation")
-    public ResponseEntity validateInscriptions(@RequestBody List<Long> ids) {
+    public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
         ids = this.adhesionService.validateAdhesions(ids);
         return ResponseEntity.ok(ids);
     }

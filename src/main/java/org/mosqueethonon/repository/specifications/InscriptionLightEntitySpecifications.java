@@ -55,6 +55,14 @@ public class InscriptionLightEntitySpecifications {
                 predicates.add(builder.isTrue(root.get("niveau").in(criteria.getNiveaux())));
             }
 
+            if(!CollectionUtils.isEmpty(criteria.getNiveauxInternes())) {
+                predicates.add(builder.isTrue(root.get("niveauInterne").in(criteria.getNiveauxInternes())));
+            }
+
+            if(StringUtils.hasText(criteria.getNoInscription())) {
+                predicates.add(builder.equal(root.get("noInscription"), criteria.getNoInscription()));
+            }
+
             if (criteria.getNbDerniersJours() != null) {
                 LocalDate fromDate = LocalDate.now().minusDays(criteria.getNbDerniersJours());
                 predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate));

@@ -17,5 +17,6 @@ public class InscriptionLightDto {
     private String mobile;
     private StatutInscription statut;
     private String ville;
+    private String noInscription;
 
 }

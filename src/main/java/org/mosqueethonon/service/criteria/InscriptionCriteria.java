@@ -1,6 +1,7 @@
 package org.mosqueethonon.service.criteria;
 
 import lombok.Data;
+import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
@@ -17,5 +18,7 @@ public class InscriptionCriteria {
     private Long nbDerniersJours;
     private String dateInscription;
     private List<NiveauScolaireEnum> niveaux;
+    private List<NiveauInterneEnum> niveauxInternes;
+    private String noInscription;
 
 }

@@ -13,6 +13,7 @@ public class InscriptionDto {
     private String dateInscription;
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
+    private String noInscription;
     private Signature signature;
 
 }

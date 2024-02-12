@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -47,7 +44,7 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
 
         if(sendMailAdherent) {
-            this.mailService.sendEmailConfirmation(adhesionDto, TypeMailEnum.ADHESION);
+            this.mailService.sendEmailConfirmation(adhesionDto, TypeMailEnum.ADHESION, null);
         }
         return adhesionDto;
     }
@@ -62,13 +59,13 @@ public class AdhesionServiceImpl implements AdhesionService {
     }
 
     @Override
-    public List<Long> deleteAdhesions(List<Long> ids) {
+    public Set<Long> deleteAdhesions(Set<Long> ids) {
         this.adhesionRepository.deleteAllById(ids);
         return ids;
     }
 
     @Override
-    public List<Long> validateInscriptions(List<Long> ids) {
+    public Set<Long> validateAdhesions(Set<Long> ids) {
         List<AdhesionEntity> adhesionsToUpdate = new ArrayList<>();
         for (Long id : ids) {
             AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElse(null);
@@ -79,8 +76,8 @@ public class AdhesionServiceImpl implements AdhesionService {
         }
         if(!CollectionUtils.isEmpty(adhesionsToUpdate)) {
             adhesionsToUpdate = this.adhesionRepository.saveAll(adhesionsToUpdate);
-            return adhesionsToUpdate.stream().map(AdhesionEntity::getId).collect(Collectors.toList());
+            return adhesionsToUpdate.stream().map(AdhesionEntity::getId).collect(Collectors.toSet());
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 }

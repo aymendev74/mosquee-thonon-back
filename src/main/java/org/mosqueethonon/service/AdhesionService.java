@@ -3,6 +3,7 @@ package org.mosqueethonon.service;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AdhesionService {
 
@@ -10,8 +11,8 @@ public interface AdhesionService {
 
     public AdhesionDto findAdhesionById(Long id);
 
-    public List<Long> deleteAdhesions(List<Long> ids);
+    public Set<Long> deleteAdhesions(Set<Long> ids);
 
-    public List<Long> validateAdhesions(List<Long> ids);
+    public Set<Long> validateAdhesions(Set<Long> ids);
 
 }

@@ -7,13 +7,14 @@ import org.mosqueethonon.v1.dto.PeriodeDto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface InscriptionService {
 
     public InscriptionDto saveInscription(InscriptionDto personne);
     public InscriptionDto findInscriptionById(Long id);
-    public List<Long> validateInscriptions(List<Long> ids);
-    public List<Long> deleteInscriptions(List<Long> ids);
+    public Set<Long> validateInscriptions(Set<Long> ids);
+    public Set<Long> deleteInscriptions(Set<Long> ids);
 
     public Integer findNbInscriptionsByPeriode(Long idPeriode);
 

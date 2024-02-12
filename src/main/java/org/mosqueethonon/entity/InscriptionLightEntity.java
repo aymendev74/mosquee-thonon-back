@@ -38,5 +38,8 @@ public class InscriptionLightEntity {
     private StatutInscription statut;
     @Column(name = "ville")
     private String ville;
+    @Column(name = "noinscription")
+    private String noInscription;
+
 
 }
