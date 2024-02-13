@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.annotations.CodeTarif;
 import org.mosqueethonon.entity.PeriodeEntity;
@@ -38,6 +39,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
         return infoTarif;
     }
 
+    @Transactional
     @Override
     public InfoTarifDto saveInfoTarif(InfoTarifDto infoTarifDto) {
         // On récupères les anciens tarifs

@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.InscriptionLightService;
 import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.service.criteria.InscriptionCriteria;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping(path = "api/v1/inscriptions")
@@ -22,9 +24,18 @@ public class InscriptionController {
     @Autowired
     private InscriptionLightService inscriptionLightService;
 
+    @Autowired
+    private LockManager lockManager;
+
     @PostMapping
     public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription) {
-        inscription = this.inscriptionService.saveInscription(inscription);
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            inscription = this.inscriptionService.saveInscription(inscription);
+        } finally {
+            lock.unlock();
+        }
         return ResponseEntity.ok(inscription);
     }
 
@@ -42,13 +53,25 @@ public class InscriptionController {
 
     @PostMapping(path = "/validation")
     public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
-        ids = this.inscriptionService.validateInscriptions(ids);
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            ids = this.inscriptionService.validateInscriptions(ids);
+        } finally {
+            lock.unlock();
+        }
         return ResponseEntity.ok(ids);
     }
 
     @DeleteMapping
     public ResponseEntity deleteInscriptions(@RequestBody Set<Long> ids) {
-        ids = this.inscriptionService.deleteInscriptions(ids);
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            ids = this.inscriptionService.deleteInscriptions(ids);
+        } finally {
+            lock.unlock();
+        }
         return ResponseEntity.ok(ids);
     }
 }

@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.PeriodeService;
 import org.mosqueethonon.v1.dto.PeriodeDto;
 import org.mosqueethonon.v1.dto.PeriodeInfoDto;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping(path = "api/v1/periodes")
@@ -17,6 +19,8 @@ public class PeriodeController {
 
     @Autowired
     private PeriodeService periodeService;
+    @Autowired
+    private LockManager lockManager;
 
     @GetMapping
     public ResponseEntity<List<PeriodeInfoDto>> findPeriodes() {
@@ -26,7 +30,13 @@ public class PeriodeController {
 
     @PostMapping
     public ResponseEntity<PeriodeDto> savePeriode(@RequestBody PeriodeDto periode) {
-        periode = this.periodeService.savePeriode(periode);
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            periode = this.periodeService.savePeriode(periode);
+        } finally {
+            lock.unlock();
+        }
         return ResponseEntity.ok(periode);
     }
 

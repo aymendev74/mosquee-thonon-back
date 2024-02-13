@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.PeriodeInfoEntity;
@@ -44,6 +45,7 @@ public class PeriodeServiceImpl implements PeriodeService {
         return Collections.emptyList();
     }
 
+    @Transactional
     @Override
     public PeriodeDto savePeriode(PeriodeDto periode) {
         PeriodeEntity periodeEntity = this.periodeRepository.save(this.periodeMapper.fromDtoToEntity(periode));

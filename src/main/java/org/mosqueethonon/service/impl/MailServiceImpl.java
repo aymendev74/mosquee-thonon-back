@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.service.MailService;
@@ -15,6 +16,7 @@ public class MailServiceImpl implements MailService {
 
     private JavaMailSender emailSender;
 
+    @Transactional
     @Override
     public void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription) {
         SimpleMailMessage message = new SimpleMailMessage();

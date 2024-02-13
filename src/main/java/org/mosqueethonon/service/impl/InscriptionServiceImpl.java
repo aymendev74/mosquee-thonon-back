@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
@@ -35,6 +36,7 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     private MailService mailService;
 
+    @Transactional
     @Override
     public InscriptionDto saveInscription(InscriptionDto inscription) {
         this.doCalculTarifInscription(inscription);
@@ -79,6 +81,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         return null;
     }
 
+    @Transactional
     @Override
     public Set<Long> validateInscriptions(Set<Long> ids) {
         List<InscriptionEntity> inscriptionsToUpdate = new ArrayList<>();
@@ -96,6 +99,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         return Collections.emptySet();
     }
 
+    @Transactional
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
         this.inscriptionRepository.deleteAllById(ids);
