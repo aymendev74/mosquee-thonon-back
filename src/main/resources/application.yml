@@ -33,3 +33,5 @@ spring:
     mvc:
         pathmatch:
             matching-strategy: ant_path_matcher
+scheduled:
+    confirmation-mail: 1 # unit = minutes

@@ -2,11 +2,12 @@ package org.mosqueethonon.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.AdhesionEntity;
-import org.mosqueethonon.entity.InscriptionEntity;
+import org.mosqueethonon.entity.MailingConfirmationEntity;
+import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
-import org.mosqueethonon.service.MailService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.AdhesionMapper;
@@ -25,7 +26,7 @@ public class AdhesionServiceImpl implements AdhesionService {
 
     private AdhesionMapper adhesionMapper;
 
-    private MailService mailService;
+    private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Override
     public AdhesionDto saveAdhesion(AdhesionDto adhesionDto) {
@@ -44,7 +45,8 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
 
         if(sendMailAdherent) {
-            this.mailService.sendEmailConfirmation(adhesionDto, TypeMailEnum.ADHESION, null);
+            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idAdhesion(adhesionDto.getId())
+                    .statut(MailingConfirmationStatut.PENDING).build());
         }
         return adhesionDto;
     }

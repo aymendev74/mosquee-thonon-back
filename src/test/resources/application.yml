@@ -27,3 +27,5 @@ spring:
                     starttls:
                         enable: true
         username: aymen.mimech.13@gmail.com
+scheduled:
+    confirmation-mail: 1 # unit = minutes

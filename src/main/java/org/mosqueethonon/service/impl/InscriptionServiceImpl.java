@@ -3,11 +3,12 @@ package org.mosqueethonon.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
-import org.mosqueethonon.entity.PeriodeEntity;
+import org.mosqueethonon.entity.MailingConfirmationEntity;
+import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.InscriptionService;
-import org.mosqueethonon.service.MailService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.InscriptionDto;
@@ -34,7 +35,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     private InscriptionMapper inscriptionMapper;
     private TarifCalculService tarifCalculService;
 
-    private MailService mailService;
+    private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Transactional
     @Override
@@ -52,7 +53,8 @@ public class InscriptionServiceImpl implements InscriptionService {
         entity = this.inscriptionRepository.save(entity);
         inscription = this.inscriptionMapper.fromEntityToDto(entity);
         if(sendMailConfirmation) {
-            this.mailService.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS, entity.getNoInscription());
+            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
+                    .statut(MailingConfirmationStatut.PENDING).build());
         }
         return inscription;
     }
