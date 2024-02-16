@@ -1,11 +1,16 @@
 package org.mosqueethonon.v1.dto;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import java.util.List;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
 public class InscriptionDto {
 
     private Long id;

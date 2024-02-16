@@ -16,7 +16,7 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
             + "inner join moth.tarif t on t.idtari = e.idtari "
             + "inner join moth.periode p on p.idperi = t.idperi "
             + "where p.idperi = :idPeriode " +
-            "and i.cdinscstatut = 'VALIDEE'", nativeQuery = true)
+            "and i.cdinscstatut IN ('VALIDEE', 'PROVISOIRE')", nativeQuery = true)
     Integer getNbElevesInscritsByIdPeriode(Long idPeriode);
 
     @Query(value = "select count(*) from moth.inscription i "
