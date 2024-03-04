@@ -19,5 +19,6 @@ public interface InscriptionService {
     public Integer findNbInscriptionsByPeriode(Long idPeriode);
 
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto);
+    public void updateListeAttentePeriode(Long idPeriode);
 
 }

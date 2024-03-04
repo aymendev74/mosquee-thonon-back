@@ -19,6 +19,7 @@ public class InscriptionDto {
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
     private String noInscription;
+    private Integer noPositionAttente;
     private Signature signature;
 
 }

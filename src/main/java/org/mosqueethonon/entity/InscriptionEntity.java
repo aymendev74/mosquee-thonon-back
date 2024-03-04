@@ -30,6 +30,8 @@ public class InscriptionEntity implements Auditable {
     private List<EleveEntity> eleves;
     @Column(name = "noinscinscription")
     private String noInscription;
+    @Column(name = "noinscpositionattente")
+    private Integer noPositionAttente;
     @Embedded
     private Signature signature;
 

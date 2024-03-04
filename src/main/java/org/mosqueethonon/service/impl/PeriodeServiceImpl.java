@@ -49,6 +49,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     public PeriodeDto savePeriode(PeriodeDto periode) {
         PeriodeEntity periodeEntity = this.periodeRepository.save(this.periodeMapper.fromDtoToEntity(periode));
+        this.inscriptionService.updateListeAttentePeriode(periode.getId());
         return this.periodeMapper.fromEntityToDto(periodeEntity);
     }
 

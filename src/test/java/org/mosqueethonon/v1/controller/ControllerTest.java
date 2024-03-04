@@ -1,6 +1,7 @@
 package org.mosqueethonon.v1.controller;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
 import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
@@ -40,33 +41,12 @@ public class ControllerTest {
 
     @BeforeAll
     protected void initReferentiel() {
-        PeriodeEntity periodeCours = this.initPeriode(ApplicationTarifEnum.COURS.name());
-        PeriodeEntity periodeAdhesion = this.initPeriode(ApplicationTarifEnum.ADHESION.name());
-        this.initTarifs(periodeCours, periodeAdhesion);
+        this.initTarifsCours(this.initPeriode());
     }
 
-    private void initTarifs(PeriodeEntity... periodes) {
-        for(PeriodeEntity periode : periodes) {
-            if(periode.getApplication().equals(ApplicationTarifEnum.COURS.name())) {
-                this.initTarifsCours(periode);
-            } else {
-                this.initTarifsAdhesion(periode);
-            }
-        }
-    }
-
-    private void initTarifsAdhesion(PeriodeEntity periode) {
-        List<TarifEntity> tarifsAdhesion = new ArrayList<>();
-        // tarifs base
-        tarifsAdhesion.add(TarifEntity.builder().periode(periode)
-                .type("FIXE").montant(bd(15)).build());
-        tarifsAdhesion.add(TarifEntity.builder().periode(periode)
-                .type("FIXE").montant(bd(20)).build());
-        tarifsAdhesion.add(TarifEntity.builder().periode(periode)
-                .type("FIXE").montant(bd(30)).build());
-        tarifsAdhesion.add(TarifEntity.builder().periode(periode)
-                .type("LIBRE").build());
-        this.tarifRepository.saveAll(tarifsAdhesion);
+    @BeforeEach
+    protected void deleteInscription() {
+        this.inscriptionRepository.deleteAll();
     }
 
     private void initTarifsCours(PeriodeEntity periode) {
@@ -110,10 +90,10 @@ public class ControllerTest {
         this.tarifRepository.saveAll(tarifsCours);
     }
 
-    private PeriodeEntity initPeriode(String application) {
+    private PeriodeEntity initPeriode() {
         LocalDate today = LocalDate.now();
-        PeriodeEntity periode = PeriodeEntity.builder().application(application).dateDebut(today.minusDays(1))
-                .dateFin(today.plusDays(1)).nbMaxInscription("COURS".equals(application) ? 500 : null).build();
+        PeriodeEntity periode = PeriodeEntity.builder().application("COURS").dateDebut(today.minusDays(1))
+                .dateFin(today.plusDays(1)).nbMaxInscription(500).build();
         return this.periodeRepository.save(periode);
     }
 
