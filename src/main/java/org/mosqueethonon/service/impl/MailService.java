@@ -11,6 +11,7 @@ import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.MailObjectDto;
+import org.mosqueethonon.v1.enums.StatutInscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -54,11 +55,13 @@ public class MailService {
             if(mailingConfirmationEntity.getIdInscription() != null) {
                 LOGGER.info("Envoi du mail pour l'inscription idinsc = " + mailingConfirmationEntity.getIdInscription());
                 InscriptionDto inscription = this.inscriptionService.findInscriptionById(mailingConfirmationEntity.getIdInscription());
-                this.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS, inscription.getNoInscription());
+                boolean isRefus = inscription.getStatut() == StatutInscription.REFUSE;
+                this.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS, inscription.getNoInscription(),
+                        isRefus);
             } else {
                 LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + mailingConfirmationEntity.getIdAdhesion());
                 AdhesionDto adhesion = this.adhesionService.findAdhesionById(mailingConfirmationEntity.getIdAdhesion());
-                this.sendEmailConfirmation(adhesion, TypeMailEnum.ADHESION, null);
+                this.sendEmailConfirmation(adhesion, TypeMailEnum.ADHESION, null, false);
             }
              mailingConfirmationEntity.setStatut(MailingConfirmationStatut.DONE);
         } else {
@@ -67,11 +70,11 @@ public class MailService {
         }
     }
 
-    private void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription) {
+    private void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription, boolean refus) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailObject.getEmail());
         message.setSubject(getEmailSubject(typeMail));
-        message.setText(getEmailBody(mailObject, typeMail, noInscription));
+        message.setText(getEmailBody(mailObject, typeMail, noInscription, refus));
         emailSender.send(message);
     }
 
@@ -82,15 +85,15 @@ public class MailService {
                 mailSubject = "Votre demande d'adhésion à l'AMC";
                 break;
             case COURS:
-                mailSubject = "Votre demande inscription aux cours à l'AMC";
+                mailSubject = "Votre demande d'inscription aux cours à l'AMC";
                 break;
             default:
-                throw new IllegalArgumentException("La valeur n'est pas géré ici ! typeMail = " + typeMail);
+                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! typeMail = " + typeMail);
         }
         return mailSubject;
     }
 
-    private String getEmailBody(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription) {
+    private String getEmailBody(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription, boolean refus) {
         StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
                 .append(" ").append(mailObject.getNom()).append(", \n\n");
         switch (typeMail) {
@@ -98,10 +101,15 @@ public class MailService {
                 sbMailBody.append("Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.");
                 break;
             case COURS:
-                sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours, vous serez recontacté très rapidement pour la finaliser.");
+                if(refus) {
+                    sbMailBody.append("Votre inscription a été refusée car actuellement, seules les réinscriptions sont autorisées.");
+                    sbMailBody.append("Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter directement l'AMC en répondant à cet e-mail");
+                } else {
+                    sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.");
+                }
                 break;
             default:
-                throw new IllegalArgumentException("La valeur n'est pas géré ici ! typeMail = " + typeMail);
+                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! typeMail = " + typeMail);
         }
         sbMailBody.append("\n\n");
         if(noInscription != null) {

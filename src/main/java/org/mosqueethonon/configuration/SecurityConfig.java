@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/periodes").permitAll()
                 .requestMatchers("/api/v1/tarifs").permitAll()
                 .requestMatchers("/api/v1/tarifs-inscription").permitAll()
+                .requestMatchers("api/v1/params/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().authenticated());

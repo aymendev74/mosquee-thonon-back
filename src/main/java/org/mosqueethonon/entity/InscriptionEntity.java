@@ -25,7 +25,7 @@ public class InscriptionEntity implements Auditable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idinsc", nullable = false)
     private List<EleveEntity> eleves;
     @Column(name = "noinscinscription")
@@ -34,5 +34,8 @@ public class InscriptionEntity implements Auditable {
     private Integer noPositionAttente;
     @Embedded
     private Signature signature;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idinsc", updatable = false, insertable = false)
+    private List<MailingConfirmationEntity> mailingConfirmations;
 
 }

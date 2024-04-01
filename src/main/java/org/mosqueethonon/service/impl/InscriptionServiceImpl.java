@@ -5,18 +5,17 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.entity.MailingConfirmationEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
+import org.mosqueethonon.entity.ReinscriptionPrioritaireEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
-import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
+import org.mosqueethonon.repository.ReinscriptionPrioritaireRepository;
 import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.utils.DateUtils;
-import org.mosqueethonon.v1.dto.InscriptionDto;
-import org.mosqueethonon.v1.dto.InscriptionInfosDto;
-import org.mosqueethonon.v1.dto.PeriodeDto;
-import org.mosqueethonon.v1.dto.TarifInscriptionDto;
+import org.mosqueethonon.v1.dto.*;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
@@ -40,10 +39,15 @@ public class InscriptionServiceImpl implements InscriptionService {
     private MailingConfirmationRepository mailingConfirmationRepository;
     private PeriodeRepository periodeRepository;
 
+    private ParamService paramService;
+
+    private ReinscriptionPrioritaireRepository reinscriptionPrioritaireRepository;
+
     @Transactional
     @Override
     public InscriptionDto saveInscription(InscriptionDto inscription) {
-        this.doCalculTarifInscription(inscription);
+        TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription);
+        this.computeStatutInscription(inscription, tarifs.isListeAttente());
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
         boolean sendMailConfirmation = inscription.getId() == null;
         if(entity.getDateInscription()==null) {
@@ -62,14 +66,22 @@ public class InscriptionServiceImpl implements InscriptionService {
         return inscription;
     }
 
-    private void doCalculTarifInscription(InscriptionDto inscription) {
-        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().eleves(inscription.getEleves())
-                .responsableLegal(inscription.getResponsableLegal()).build();
-        TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
-        inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
-        inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
+    private void computeStatutInscription(InscriptionDto inscription, boolean isListeAttente) {
+        boolean isReinscriptionEnabled = this.paramService.isReinscriptionPrioritaireEnabled();
+        if(isReinscriptionEnabled && inscription.getStatut() == null) {
+            if(isReinscriptionValide(inscription)) {
+                // Si réinscription et que les élèves sont tous reconnus alors on valide directement l'inscription
+                inscription.setStatut(StatutInscription.VALIDEE);
+            } else {
+                // Sinon on la refuse
+                inscription.setStatut(StatutInscription.REFUSE);
+            }
+            return;
+        }
+
+        // S'il ne s'agit pas de réinscription
         if(inscription.getStatut() == null) {
-            if(tarifs.isListeAttente()) {
+            if(isListeAttente) {
                 inscription.setStatut(StatutInscription.LISTE_ATTENTE);
                 inscription.setNoPositionAttente(this.calculPositionAttente());
             } else {
@@ -82,6 +94,29 @@ public class InscriptionServiceImpl implements InscriptionService {
                 inscription.setNoPositionAttente(null);
             }
         }
+    }
+
+    private boolean isReinscriptionValide(InscriptionDto inscription) {
+        for(EleveDto eleve : inscription.getEleves()) {
+            ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomIgnoreCaseAndPrenomIgnoreCaseAndDateNaissance
+                    (eleve.getNom(), eleve.getPrenom(), DateUtils.fromStringToLocalDate(eleve.getDateNaissance()));
+            if(reinscriptionPrio == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription) {
+        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().eleves(inscription.getEleves())
+                .responsableLegal(inscription.getResponsableLegal()).build();
+        TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
+        if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
+            throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
+        }
+        inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
+        inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
+        return tarifs;
     }
 
     private Integer calculPositionAttente() {

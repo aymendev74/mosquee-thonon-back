@@ -92,7 +92,7 @@ public class InscriptionControllerTest extends ControllerTest {
 
     private List<EleveDto> createEleve() {
         return Lists.newArrayList(EleveDto.builder().nom("").prenom("").dateNaissance("14.11.2015")
-                .niveau(NiveauScolaireEnum.CE2).niveauInterne(NiveauInterneEnum.PREPARATOIRE).build());
+                .niveau(NiveauScolaireEnum.CE2).niveauInterne(NiveauInterneEnum.P1).build());
     }
 
 }

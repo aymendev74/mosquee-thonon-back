@@ -1,6 +1,7 @@
 package org.mosqueethonon.entity;
 
 import lombok.Data;
+import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
@@ -29,6 +30,9 @@ public class InscriptionLightEntity {
     @Column(name = "niveau")
     @Enumerated(EnumType.STRING)
     private NiveauScolaireEnum niveau;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "niveauinterne")
+    private NiveauInterneEnum niveauInterne;
     @Column(name = "telephone")
     private String telephone;
     @Column(name = "mobile")
@@ -40,6 +44,5 @@ public class InscriptionLightEntity {
     private String ville;
     @Column(name = "noinscription")
     private String noInscription;
-
 
 }
