@@ -141,6 +141,7 @@ public class InscriptionServiceImpl implements InscriptionService {
             InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
             if(inscription!=null) {
                 inscription.setStatut(StatutInscription.VALIDEE);
+                inscription.setNoPositionAttente(null);
                 inscriptionsToUpdate.add(inscription);
             }
         }
@@ -179,8 +180,6 @@ public class InscriptionServiceImpl implements InscriptionService {
             Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId());
             if(nbElevesInscrits < periode.getNbMaxInscription()) {
                 List<InscriptionEntity> inscriptionsEnAttente = this.inscriptionRepository.getInscriptionEnAttenteByPeriode(periode.getId());
-                inscriptionsEnAttente = inscriptionsEnAttente.stream().sorted((i1, i2) -> i1.getNoPositionAttente().compareTo(i2.getNoPositionAttente()))
-                        .collect(Collectors.toList());
                 int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
                     for(InscriptionEntity inscriptionEnAttente: inscriptionsEnAttente) {
                         Integer nbEleveInscription = inscriptionEnAttente.getEleves().size();

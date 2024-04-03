@@ -48,10 +48,11 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
     Integer getLastPositionAttente(Long idPeriode);
 
     @Query(value = "select i.* from moth.inscription i "
-            + "inner join moth.resplegal r on r.idresp = i.idinsc "
-            + "inner join moth.tarif t on t.idtari = e.idtari "
+            + "inner join moth.resplegal r on r.idresp = i.idresp "
+            + "inner join moth.tarif t on t.idtari = r.idtari "
             + "inner join moth.periode p on p.idperi = t.idperi "
-            + "where p.idperi = :idPeriode " +
-            "and i.cdinscstatut IN ('LISTE_ATTENTE')", nativeQuery = true)
+            + "where p.idperi = :idPeriode "
+            + "and i.cdinscstatut IN ('LISTE_ATTENTE') "
+            + "order by i.noinscpositionattente", nativeQuery = true)
     List<InscriptionEntity> getInscriptionEnAttenteByPeriode(Long idPeriode);
 }
