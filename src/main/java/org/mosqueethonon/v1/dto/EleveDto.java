@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -17,7 +20,8 @@ public class EleveDto {
     private Long id;
     private String nom;
     private String prenom;
-    private String dateNaissance;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private LocalDate dateNaissance;
     private NiveauScolaireEnum niveau;
     private NiveauInterneEnum niveauInterne;
     private Long idTarif;

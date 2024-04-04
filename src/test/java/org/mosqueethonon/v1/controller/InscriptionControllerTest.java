@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -91,7 +92,7 @@ public class InscriptionControllerTest extends ControllerTest {
     }
 
     private List<EleveDto> createEleve() {
-        return Lists.newArrayList(EleveDto.builder().nom("").prenom("").dateNaissance("14.11.2015")
+        return Lists.newArrayList(EleveDto.builder().nom("").prenom("").dateNaissance(LocalDate.of(2015, 11, 14))
                 .niveau(NiveauScolaireEnum.CE2).niveauInterne(NiveauInterneEnum.P1).build());
     }
 

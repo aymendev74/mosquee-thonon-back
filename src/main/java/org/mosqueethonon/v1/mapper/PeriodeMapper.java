@@ -8,12 +8,8 @@ import org.mosqueethonon.v1.dto.PeriodeDto;
 @Mapper(componentModel = "spring")
 public interface PeriodeMapper {
 
-    @Mapping(source = "dateDebut", target = "dateDebut", dateFormat = "dd.MM.yyyy")
-    @Mapping(source = "dateFin", target = "dateFin", dateFormat = "dd.MM.yyyy")
     public PeriodeEntity fromDtoToEntity(PeriodeDto periode) ;
 
-    @Mapping(source = "dateDebut", target = "dateDebut", dateFormat = "dd.MM.yyyy")
-    @Mapping(source = "dateFin", target = "dateFin", dateFormat = "dd.MM.yyyy")
     public PeriodeDto fromEntityToDto(PeriodeEntity periode);
 
 }

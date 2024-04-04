@@ -3,7 +3,7 @@ package org.mosqueethonon.v1.controller;
 import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.InscriptionLightService;
 import org.mosqueethonon.service.InscriptionService;
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
+import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.InscriptionLightDto;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,7 +5,7 @@ import org.mosqueethonon.entity.InscriptionLightEntity;
 import org.mosqueethonon.repository.InscriptionLightRepository;
 import org.mosqueethonon.repository.specifications.InscriptionLightEntitySpecifications;
 import org.mosqueethonon.service.InscriptionLightService;
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
+import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionLightDto;
 import org.mosqueethonon.v1.mapper.InscriptionLightMapper;
 import org.springframework.stereotype.Service;

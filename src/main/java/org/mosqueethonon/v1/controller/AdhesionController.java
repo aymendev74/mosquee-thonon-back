@@ -2,7 +2,7 @@ package org.mosqueethonon.v1.controller;
 
 import org.mosqueethonon.service.AdhesionLightService;
 import org.mosqueethonon.service.AdhesionService;
-import org.mosqueethonon.service.criteria.AdhesionCriteria;
+import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.AdhesionLightDto;
 import org.springframework.beans.factory.annotation.Autowired;

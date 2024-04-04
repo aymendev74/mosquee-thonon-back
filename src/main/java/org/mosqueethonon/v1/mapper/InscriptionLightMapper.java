@@ -8,14 +8,8 @@ import org.mosqueethonon.v1.dto.InscriptionLightDto;
 @Mapper(componentModel = "spring")
 public interface InscriptionLightMapper {
 
-
-    @Mapping(source = "dateInscription", target = "dateInscription", dateFormat = "dd.MM.yyyy")
-    @Mapping(source = "dateNaissance", target = "dateNaissance", dateFormat = "dd.MM.yyyy")
     public InscriptionLightEntity fromDtoToEntity(InscriptionLightDto inscriptionDto) ;
 
-    @Mapping(source = "dateInscription", target = "dateInscription", dateFormat = "dd.MM.yyyy")
-    @Mapping(source = "dateNaissance", target = "dateNaissance", dateFormat = "dd.MM.yyyy")
     public InscriptionLightDto fromEntityToDto(InscriptionLightEntity inscriptionEntity);
-
 
 }

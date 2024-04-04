@@ -23,14 +23,14 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
     @Override
     public TarifInscriptionDto calculTarifInscription(InscriptionInfosDto inscriptionInfos) {
-        ResponsableLegalDto responsableLegal = inscriptionInfos.getResponsableLegal();
-        List<EleveDto> eleves = inscriptionInfos.getEleves();
-        Integer nbEnfants = eleves.size();
+        Boolean adherent = inscriptionInfos.getAdherent();
+        Integer nbEnfants = inscriptionInfos.getNbEleves();
+        LocalDate atDate = inscriptionInfos.getAtDate() != null ? inscriptionInfos.getAtDate() : LocalDate.now();
 
         // Calcul du tarif de base
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
-                .type(TypeTarifEnum.BASE.name()).adherent(responsableLegal.getAdherent())
-                .nbEnfant(nbEnfants).atDate(LocalDate.now()).build();
+                .type(TypeTarifEnum.BASE.name()).adherent(adherent)
+                .nbEnfant(nbEnfants).atDate(atDate).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
         if(CollectionUtils.isEmpty(tarifsBase)) {
             // Si pas de tarif base trouvé, alors on ne peut pas donner de tarif à l'utilisateur
@@ -39,7 +39,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
         // Calcul du tarif par enfant
         criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
-                .type(TypeTarifEnum.ENFANT.name()).adherent(responsableLegal.getAdherent())
+                .type(TypeTarifEnum.ENFANT.name()).adherent(adherent)
                 .nbEnfant(nbEnfants).atDate(LocalDate.now()).build();
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
         if(CollectionUtils.isEmpty(tarifsEnfant)) {

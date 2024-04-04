@@ -1,8 +1,10 @@
 package org.mosqueethonon.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 public class AdhesionLightDto {
@@ -13,6 +15,7 @@ public class AdhesionLightDto {
     private String ville;
     private StatutInscription statut;
     private BigDecimal montant;
-    private String dateInscription;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private LocalDate dateInscription;
 
 }

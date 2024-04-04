@@ -1,6 +1,6 @@
 package org.mosqueethonon.service;
 
-import org.mosqueethonon.service.criteria.AdhesionCriteria;
+import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.mosqueethonon.v1.dto.AdhesionLightDto;
 
 import java.util.List;

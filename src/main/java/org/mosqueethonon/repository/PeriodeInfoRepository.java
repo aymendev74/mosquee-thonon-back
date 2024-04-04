@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface PeriodeInfoRepository extends JpaRepository<PeriodeInfoEntity, Long> {
 
-    List<PeriodeInfoEntity> findByApplication(String application);
+    List<PeriodeInfoEntity> findByApplicationOrderByDateDebutDesc(String application);
 
 }

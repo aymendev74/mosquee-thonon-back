@@ -1,8 +1,7 @@
 package org.mosqueethonon.repository.specifications;
 
-import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.entity.InscriptionLightEntity;
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
+import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -25,60 +24,73 @@ public class InscriptionLightEntitySpecifications {
             // Always order by dateInscription desc
             query.orderBy(builder.desc(root.get("dateInscription")));
 
-            List<Predicate> predicates = new ArrayList<>();
-            Predicate statutPredicate = null;
+            List<Predicate> predicatesOR = new ArrayList<>();
+            List<Predicate> predicatesAND = new ArrayList<>();
+            Predicate finalPredicateOR = null;
+            Predicate finalPredicateAND = null;
 
             if (StringUtils.hasText(criteria.getNom())) {
-                predicates.add(builder.or(builder.like(builder.lower(root.get("nom")), "%" + criteria.getNom().toLowerCase() + "%")));
+                predicatesOR.add(builder.like(builder.lower(root.get("nom")), "%" + criteria.getNom().toLowerCase() + "%"));
             }
 
             if (StringUtils.hasText(criteria.getPrenom())) {
-                predicates.add(builder.or(builder.like(builder.lower(root.get("prenom")), "%" + criteria.getPrenom().toLowerCase() + "%")));
+                predicatesOR.add(builder.like(builder.lower(root.get("prenom")), "%" + criteria.getPrenom().toLowerCase() + "%"));
             }
 
             if (StringUtils.hasText(criteria.getTelephone())) {
-                predicates.add(builder.or(builder.like(builder.lower(root.get("telephone")), "%" + criteria.getTelephone().toLowerCase() + "%")));
-                predicates.add(builder.or(builder.like(builder.lower(root.get("mobile")), "%" + criteria.getTelephone().toLowerCase() + "%")));
-            }
-
-            if (criteria.getStatut() != null) {
-                statutPredicate = builder.equal(root.get("statut"), criteria.getStatut());
+                predicatesOR.add(builder.like(builder.lower(root.get("telephone")), "%" + criteria.getTelephone().toLowerCase() + "%"));
+                predicatesOR.add(builder.like(builder.lower(root.get("mobile")), "%" + criteria.getTelephone().toLowerCase() + "%"));
             }
 
             if(criteria.getDateInscription() != null) {
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.FRANCE);
-                LocalDate dateInscription = LocalDate.parse(criteria.getDateInscription(), df);
-                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), dateInscription));
+                predicatesOR.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), criteria.getDateInscription()));
             }
 
             if(!CollectionUtils.isEmpty(criteria.getNiveaux())) {
-                predicates.add(builder.isTrue(root.get("niveau").in(criteria.getNiveaux())));
+                predicatesOR.add(builder.isTrue(root.get("niveau").in(criteria.getNiveaux())));
             }
 
             if(!CollectionUtils.isEmpty(criteria.getNiveauxInternes())) {
-                predicates.add(builder.isTrue(root.get("niveauInterne").in(criteria.getNiveauxInternes())));
+                predicatesOR.add(builder.isTrue(root.get("niveauInterne").in(criteria.getNiveauxInternes())));
             }
 
             if(StringUtils.hasText(criteria.getNoInscription())) {
-                predicates.add(builder.equal(root.get("noInscription"), criteria.getNoInscription()));
+                predicatesOR.add(builder.like(root.get("noInscription"), "%" + criteria.getNoInscription() + "%"));
             }
 
             if (criteria.getNbDerniersJours() != null) {
                 LocalDate fromDate = LocalDate.now().minusDays(criteria.getNbDerniersJours());
-                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate));
+                predicatesOR.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate));
             }
 
-            if(predicates.isEmpty()) {
-                if(statutPredicate != null) { // uniquement le filtre statut
-                    return builder.and(statutPredicate);
-                } else { // Réellement aucun filtre - toujours true (on renvoi tous les résultats)
-                    return builder.or(builder.isTrue(builder.literal(true)));
-                }
+            if(criteria.getIdPeriode() != null) {
+                predicatesAND.add(builder.equal(root.get("idPeriode"), criteria.getIdPeriode()));
             }
 
-            final Predicate finalPredicateOR = builder.or(predicates.toArray(new Predicate[predicates.size()]));
+            if (criteria.getStatut() != null) {
+                predicatesAND.add(builder.equal(root.get("statut"), criteria.getStatut()));
+            }
 
-            return statutPredicate!=null ? builder.and(finalPredicateOR, statutPredicate) : finalPredicateOR;
+            if(!predicatesOR.isEmpty()) {
+                finalPredicateOR = builder.or(predicatesOR.toArray(new Predicate[predicatesOR.size()]));
+            }
+
+            if(!predicatesAND.isEmpty()) {
+                finalPredicateAND = builder.and(predicatesAND.toArray(new Predicate[predicatesAND.size()]));
+            }
+
+            if(finalPredicateOR == null && finalPredicateAND == null) {
+                return builder.or(builder.isTrue(builder.literal(true)));
+            }
+
+            if(finalPredicateOR != null && finalPredicateAND != null) {
+                return builder.and(finalPredicateOR, finalPredicateAND);
+            } else if (finalPredicateOR != null) {
+                return finalPredicateOR;
+            } else {
+                return finalPredicateAND;
+            }
         };
     }
 

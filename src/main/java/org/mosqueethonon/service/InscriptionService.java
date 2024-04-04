@@ -1,12 +1,8 @@
 package org.mosqueethonon.service;
 
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionDto;
-import org.mosqueethonon.v1.dto.InscriptionLightDto;
 import org.mosqueethonon.v1.dto.PeriodeDto;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 public interface InscriptionService {

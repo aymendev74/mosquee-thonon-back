@@ -97,12 +97,17 @@ SELECT e.idelev AS id,
     e.txelevprenom AS prenom,
     e.dtelevnaissance AS datenaissance,
     e.cdelevniveau AS niveau,
+    e.cdelevniveauinterne AS niveauinterne,
     r.txrespphone AS telephone,
     r.txrespmobile AS mobile,
-    r.txrespville AS ville
+    r.txrespville AS ville,
+    i.noinscinscription AS noinscription,
+    p.idperi as idPeriode
    FROM ((moth.inscription i
      JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
-     JOIN moth.resplegal r ON ((i.idresp = r.idresp)));
+     JOIN moth.resplegal r ON ((i.idresp = r.idresp))
+     join moth.tarif t on ((t.idtari = r.idtari))
+     join moth.periode p on ((p.idperi = t.idperi)));
 
 create or replace view moth.v_adhesion_light as
 select a.idadhe as id, a.txadhenom as nom, a.txadheprenom as prenom, a.txadheville as ville,

@@ -5,7 +5,7 @@ import org.mosqueethonon.entity.AdhesionLightEntity;
 import org.mosqueethonon.repository.AdhesionLightRepository;
 import org.mosqueethonon.repository.specifications.AdhesionLightEntitySpecifications;
 import org.mosqueethonon.service.AdhesionLightService;
-import org.mosqueethonon.service.criteria.AdhesionCriteria;
+import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.mosqueethonon.v1.dto.AdhesionLightDto;
 import org.mosqueethonon.v1.mapper.AdhesionLightMapper;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +16,8 @@ public class AdhesionDto extends MailObjectDto {
 
     private Long id;
     private String titre;
-    private String dateNaissance;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private LocalDate dateNaissance;
     private Long idTarif;
     private String telephone;
     private String mobile;

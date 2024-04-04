@@ -1,6 +1,6 @@
 package org.mosqueethonon.service;
 
-import org.mosqueethonon.service.criteria.InscriptionCriteria;
+import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionLightDto;
 
 import java.util.List;

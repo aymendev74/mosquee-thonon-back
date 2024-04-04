@@ -44,5 +44,7 @@ public class InscriptionLightEntity {
     private String ville;
     @Column(name = "noinscription")
     private String noInscription;
+    @Column(name = "idperiode")
+    private Long idPeriode;
 
 }

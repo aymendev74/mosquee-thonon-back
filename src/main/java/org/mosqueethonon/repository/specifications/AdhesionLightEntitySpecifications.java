@@ -1,7 +1,7 @@
 package org.mosqueethonon.repository.specifications;
 
 import org.mosqueethonon.entity.AdhesionLightEntity;
-import org.mosqueethonon.service.criteria.AdhesionCriteria;
+import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
@@ -39,8 +39,7 @@ public class AdhesionLightEntitySpecifications {
 
             if(criteria.getDateInscription() != null) {
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.FRANCE);
-                LocalDate dateInscription = LocalDate.parse(criteria.getDateInscription(), df);
-                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), dateInscription));
+                predicates.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), criteria.getDateInscription()));
             }
 
             if (criteria.getStatut() != null) {

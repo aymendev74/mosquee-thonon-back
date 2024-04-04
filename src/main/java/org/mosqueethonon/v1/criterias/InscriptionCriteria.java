@@ -1,5 +1,6 @@
-package org.mosqueethonon.service.criteria;
+package org.mosqueethonon.v1.criterias;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
@@ -16,9 +17,11 @@ public class InscriptionCriteria {
     private String telephone;
     private StatutInscription statut;
     private Long nbDerniersJours;
-    private String dateInscription;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private LocalDate dateInscription;
     private List<NiveauScolaireEnum> niveaux;
     private List<NiveauInterneEnum> niveauxInternes;
     private String noInscription;
+    private Long idPeriode;
 
 }

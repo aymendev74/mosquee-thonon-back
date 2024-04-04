@@ -22,7 +22,6 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springfox.version>3.0.0</springfox.version>
         <jsonwebtoken.version>0.12.5</jsonwebtoken.version>
-        <springcloud.version>4.7.2</springcloud.version>
     </properties>
 
     <dependencies>
@@ -95,29 +94,12 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>spring-cloud-gcp-dependencies</artifactId>
-            <version>${springcloud.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-            <version>${springcloud.version}</version>
-        </dependency> -->
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <environmentVariables>
-                        <GOOGLE_APPLICATION_CREDENTIALS>src/main/resources/cloud_db_accesskey.json</GOOGLE_APPLICATION_CREDENTIALS>
-                    </environmentVariables>
-                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.springframework</groupId>
@@ -125,15 +107,6 @@
                         <version>1.2.8.RELEASE</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>appengine-maven-plugin</artifactId>
-                <version>2.5.0</version>
-                <configuration>
-                    <version>1</version>
-                    <projectId>mosquee-thonon</projectId>
-                </configuration>
             </plugin>
         </plugins>
     </build>

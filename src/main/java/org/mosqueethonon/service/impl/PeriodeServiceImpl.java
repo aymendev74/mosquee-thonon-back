@@ -38,7 +38,7 @@ public class PeriodeServiceImpl implements PeriodeService {
 
     @Override
     public List<PeriodeInfoDto> findAllPeriodes() {
-        List<PeriodeInfoEntity> periodeEntities = this.periodeInfoRepository.findByApplication("COURS");
+        List<PeriodeInfoEntity> periodeEntities = this.periodeInfoRepository.findByApplicationOrderByDateDebutDesc("COURS");
         if(!CollectionUtils.isEmpty(periodeEntities)) {
             return periodeEntities.stream().map(this.periodeInfoMapper::fromEntityToDto).collect(Collectors.toList());
         }
@@ -91,8 +91,6 @@ public class PeriodeServiceImpl implements PeriodeService {
     }
 
     private boolean checkNoOverlap(PeriodeDto periode) {
-        LocalDate dateDebut = DateUtils.fromStringToLocalDate(periode.getDateDebut());
-        LocalDate dateFin = DateUtils.fromStringToLocalDate(periode.getDateFin());
         List<PeriodeEntity> periodes = null;
         if(periode.getId() == null) { // si création on ramène toutes les périodes
             periodes = this.periodeRepository.findByApplication(PERIODE_APPLICATION_COURS);
@@ -100,7 +98,7 @@ public class PeriodeServiceImpl implements PeriodeService {
             periodes = this.periodeRepository.findByApplicationAndIdNot(PERIODE_APPLICATION_COURS, periode.getId());
         }
         Optional<PeriodeEntity> optPeriodeOverlaps = periodes.stream().filter(existingPeriode -> DateUtils.isOverlap(existingPeriode.getDateDebut(), existingPeriode.getDateFin(),
-                dateDebut, dateFin)).findFirst();
+                periode.getDateDebut(), periode.getDateFin())).findFirst();
         return !optPeriodeOverlaps.isPresent();
     }
 }

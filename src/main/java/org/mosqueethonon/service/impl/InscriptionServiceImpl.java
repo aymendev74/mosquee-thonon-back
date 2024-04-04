@@ -99,7 +99,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     private boolean isReinscriptionValide(InscriptionDto inscription) {
         for(EleveDto eleve : inscription.getEleves()) {
             ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomIgnoreCaseAndPrenomIgnoreCaseAndDateNaissance
-                    (eleve.getNom(), eleve.getPrenom(), DateUtils.fromStringToLocalDate(eleve.getDateNaissance()));
+                    (eleve.getNom(), eleve.getPrenom(), eleve.getDateNaissance());
             if(reinscriptionPrio == null) {
                 return false;
             }
@@ -108,8 +108,8 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription) {
-        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().eleves(inscription.getEleves())
-                .responsableLegal(inscription.getResponsableLegal()).build();
+        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().nbEleves(inscription.getEleves().size())
+                .adherent(inscription.getResponsableLegal().getAdherent()).build();
         TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
         if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
@@ -205,7 +205,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Override
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto) {
         Integer nbInscriptionOutside = this.inscriptionRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
-                DateUtils.fromStringToLocalDate(periodeDto.getDateDebut()), DateUtils.fromStringToLocalDate(periodeDto.getDateFin()));
+                periodeDto.getDateDebut(), periodeDto.getDateFin());
         return nbInscriptionOutside != null && nbInscriptionOutside > 0;
     }
 

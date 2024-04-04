@@ -1,15 +1,18 @@
 package org.mosqueethonon.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @Builder
 public class InscriptionInfosDto {
 
-    private ResponsableLegalDto responsableLegal;
-    private List<EleveDto> eleves;
-
+    private Boolean adherent;
+    private Integer nbEleves;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    private LocalDate atDate;
 }
