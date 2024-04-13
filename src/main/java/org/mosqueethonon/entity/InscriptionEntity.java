@@ -4,7 +4,7 @@ import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,7 +21,7 @@ public class InscriptionEntity implements Auditable {
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
     @Column(name = "dtinscinscription")
-    private LocalDate dateInscription;
+    private LocalDateTime dateInscription;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;

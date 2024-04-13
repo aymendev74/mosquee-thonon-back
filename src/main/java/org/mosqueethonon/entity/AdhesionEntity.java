@@ -7,6 +7,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -46,7 +47,7 @@ public class AdhesionEntity implements Auditable {
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
     @Column(name = "dtadheinscription")
-    private LocalDate dateInscription;
+    private LocalDateTime dateInscription;
     @Formula("(select tari.mttari from moth.tarif tari where tari.idtari = idtari)")
     private BigDecimal montant;
     @Column(name = "noadhemembre")

@@ -24,6 +24,7 @@ public class ResponsableLegalDto extends MailObjectDto {
     private String nomAutre;
     private String prenomAutre;
     private String lienParente;
+    private String telephoneAutre;
     private Signature signature;
 
 }

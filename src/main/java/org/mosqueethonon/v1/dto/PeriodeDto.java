@@ -2,6 +2,7 @@ package org.mosqueethonon.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.mosqueethonon.configuration.APIDateFormats;
 
 import java.time.LocalDate;
 
@@ -9,9 +10,9 @@ import java.time.LocalDate;
 public class PeriodeDto {
 
     private Long id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateDebut;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateFin;
     private Integer nbMaxInscription;
     private SignatureDto signature;

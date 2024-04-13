@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
@@ -20,7 +21,7 @@ public class EleveDto {
     private Long id;
     private String nom;
     private String prenom;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private NiveauScolaireEnum niveau;
     private NiveauInterneEnum niveauInterne;

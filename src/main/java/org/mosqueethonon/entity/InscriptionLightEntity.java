@@ -7,6 +7,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "v_inscription_light", schema = "moth")
@@ -18,7 +19,7 @@ public class InscriptionLightEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "dateinscription")
-    private LocalDate dateInscription;
+    private LocalDateTime dateInscription;
     @Column(name = "idinscription")
     private Long idInscription;
     @Column(name = "nom")

@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class EntityListener {
 
@@ -15,14 +16,14 @@ public class EntityListener {
             signature = new Signature();
             auditable.setSignature(signature);
         }
-        signature.setDateCreation(LocalDate.now());
+        signature.setDateCreation(LocalDateTime.now());
         signature.setVisaCreation(getVisa());
     }
 
     @PreUpdate
     public void doBeforeUpdate(Auditable auditable) {
         Signature signature = auditable.getSignature();
-        signature.setDateModification(LocalDate.now());
+        signature.setDateModification(LocalDateTime.now());
         signature.setVisaModification(getVisa());
     }
 

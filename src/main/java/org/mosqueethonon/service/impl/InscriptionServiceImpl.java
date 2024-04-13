@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +52,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
         boolean sendMailConfirmation = inscription.getId() == null;
         if(entity.getDateInscription()==null) {
-            entity.setDateInscription(LocalDate.now());
+            entity.setDateInscription(LocalDateTime.now());
         }
         if(entity.getNoInscription() == null) {
             Long noInscription = this.inscriptionRepository.getNextNumeroInscription();

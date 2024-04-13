@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class AdhesionServiceImpl implements AdhesionService {
         AdhesionEntity adhesionEntity = this.adhesionMapper.fromDtoToEntity(adhesionDto);
 
         if(adhesionEntity.getDateInscription() == null) {
-            adhesionEntity.setDateInscription(LocalDate.now());
+            adhesionEntity.setDateInscription(LocalDateTime.now());
         }
         if(adhesionEntity.getStatut() == null) {
             adhesionEntity.setStatut(StatutInscription.PROVISOIRE);

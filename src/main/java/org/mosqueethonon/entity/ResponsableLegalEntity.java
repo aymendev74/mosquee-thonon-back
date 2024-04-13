@@ -43,6 +43,8 @@ public class ResponsableLegalEntity implements Auditable {
     private String prenomAutre;
     @Column(name = "txresplienparente")
     private String lienParente;
+    @Column(name = "txrespphoneautre")
+    private String telephoneAutre;
     @Embedded
     private Signature signature;
 

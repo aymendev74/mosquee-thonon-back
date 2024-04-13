@@ -5,7 +5,7 @@ import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "v_adhesion_light", schema = "moth")
@@ -27,6 +27,6 @@ public class AdhesionLightEntity {
     @Column(name = "montant")
     private BigDecimal montant;
     @Column(name = "dateinscription")
-    private LocalDate dateInscription;
+    private LocalDateTime dateInscription;
 
 }

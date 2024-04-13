@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
@@ -16,7 +18,7 @@ public class AdhesionDto extends MailObjectDto {
 
     private Long id;
     private String titre;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private Long idTarif;
     private String telephone;
@@ -26,7 +28,8 @@ public class AdhesionDto extends MailObjectDto {
     private String ville;
     private BigDecimal montantAutre;
     private StatutInscription statut;
-    private String dateInscription;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
+    private LocalDateTime dateInscription;
     private BigDecimal montant;
     private Integer noMembre;
     private SignatureDto signature;
