@@ -17,9 +17,6 @@ public class ParamEntity {
     @Column(name = "txparaname")
     @Enumerated(EnumType.STRING)
     private ParamNameEnum name;
-    @Column(name = "txparatype")
-    @Enumerated(EnumType.STRING)
-    private ParamTypeEnum type;
     @Column(name = "txparavalue")
     private String value;
 

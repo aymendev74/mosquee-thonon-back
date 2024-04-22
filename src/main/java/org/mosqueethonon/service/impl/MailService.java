@@ -11,6 +11,7 @@ import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.MailObjectDto;
+import org.mosqueethonon.v1.dto.ResponsableLegalDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,38 +45,48 @@ public class MailService {
         List<MailingConfirmationEntity> mailingConfirmationsToProcess = mailingConfirmationRepository.findByStatut(MailingConfirmationStatut.PENDING);
         if(!CollectionUtils.isEmpty(mailingConfirmationsToProcess)) {
             LOGGER.info("Il y a " + mailingConfirmationsToProcess.size() + " mails de confirmation à envoyer");
-            mailingConfirmationsToProcess.stream().forEach(this::processMailConfirmation);
+            mailingConfirmationsToProcess.stream().forEach(this::processMail);
         } else {
             LOGGER.info("Il n'y a aucun mail de confirmation à envoyer");
         }
     }
 
-    private void processMailConfirmation(MailingConfirmationEntity mailingConfirmationEntity) {
+    private void processMail(MailingConfirmationEntity mailingConfirmationEntity) {
         if(mailingConfirmationEntity.getIdInscription() != null || mailingConfirmationEntity.getIdAdhesion() != null) {
+            SimpleMailMessage mail = null;
             if(mailingConfirmationEntity.getIdInscription() != null) {
                 LOGGER.info("Envoi du mail pour l'inscription idinsc = " + mailingConfirmationEntity.getIdInscription());
-                InscriptionDto inscription = this.inscriptionService.findInscriptionById(mailingConfirmationEntity.getIdInscription());
-                boolean isRefus = inscription.getStatut() == StatutInscription.REFUSE;
-                this.sendEmailConfirmation(inscription.getResponsableLegal(), TypeMailEnum.COURS, inscription.getNoInscription(),
-                        isRefus);
+                mail = this.processMailInscription(mailingConfirmationEntity.getIdInscription());
             } else {
                 LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + mailingConfirmationEntity.getIdAdhesion());
-                AdhesionDto adhesion = this.adhesionService.findAdhesionById(mailingConfirmationEntity.getIdAdhesion());
-                this.sendEmailConfirmation(adhesion, TypeMailEnum.ADHESION, null, false);
+                mail = this.processMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
             }
-             mailingConfirmationEntity.setStatut(MailingConfirmationStatut.DONE);
+            this.emailSender.send(mail);
+            mailingConfirmationEntity.setStatut(MailingConfirmationStatut.DONE);
         } else {
             LOGGER.info("Pas normal, ni idInscription ni idAdhesion... idmaco = " + mailingConfirmationEntity.getId());
             mailingConfirmationEntity.setStatut(MailingConfirmationStatut.ERROR);
         }
     }
 
-    private void sendEmailConfirmation(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription, boolean refus) {
+    private SimpleMailMessage processMailInscription(Long idInscription) {
+        LOGGER.info("Envoi du mail pour l'inscription idinsc = " + idInscription);
+        InscriptionDto inscription = this.inscriptionService.findInscriptionById(idInscription);
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(mailObject.getEmail());
-        message.setSubject(getEmailSubject(typeMail));
-        message.setText(getEmailBody(mailObject, typeMail, noInscription, refus));
-        emailSender.send(message);
+        message.setTo(inscription.getResponsableLegal().getEmail());
+        message.setSubject(getEmailSubject(TypeMailEnum.COURS));
+        message.setText(getEmailInscriptionBody(inscription.getResponsableLegal(), inscription.getNoInscription(), inscription.getStatut()));
+        return message;
+    }
+
+    private SimpleMailMessage processMailAdhesion(Long idAdhesion) {
+        LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + idAdhesion);
+        AdhesionDto adhesion = this.adhesionService.findAdhesionById(idAdhesion);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(adhesion.getEmail());
+        message.setSubject(getEmailSubject(TypeMailEnum.ADHESION));
+        message.setText(getEmailAdhesionBody(adhesion));
+        return message;
     }
 
     private String getEmailSubject(TypeMailEnum typeMail) {
@@ -93,30 +104,50 @@ public class MailService {
         return mailSubject;
     }
 
-    private String getEmailBody(MailObjectDto mailObject, TypeMailEnum typeMail, String noInscription, boolean refus) {
+    private String getEmailInscriptionBody(MailObjectDto mailObject, String noInscription, StatutInscription statutInscription) {
         StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
                 .append(" ").append(mailObject.getNom()).append(", \n\n");
-        switch (typeMail) {
-            case ADHESION:
-                sbMailBody.append("Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.");
+
+        switch(statutInscription) {
+            case PROVISOIRE:
+                sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.\n");
+                sbMailBody.append("Votre inscription a été prise en compte, vous serez contacté rapidement par l'AMC pour la finaliser.");
                 break;
-            case COURS:
-                if(refus) {
-                    sbMailBody.append("Votre inscription a été refusée car actuellement, seules les réinscriptions sont autorisées.");
-                    sbMailBody.append("Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter directement l'AMC en répondant à cet e-mail");
-                } else {
-                    sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.");
-                }
+
+            case VALIDEE:
+                sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.\n");
+                sbMailBody.append("Votre inscription a été validée.");
                 break;
+
+            case REFUSE:
+                sbMailBody.append("Votre inscription a été refusée car actuellement, seules les réinscriptions sont autorisées.\n");
+                sbMailBody.append("Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter directement l'AMC en répondant à cet e-mail.");
+                break;
+
+            case LISTE_ATTENTE:
+                sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.\n");
+                sbMailBody.append("Votre inscription a été prise en compte et elle a été placée sur liste d'attente.\n");
+                sbMailBody.append("Vous serez contactés par l'AMC si des places se libèrent.");
+                break;
+
             default:
-                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! typeMail = " + typeMail);
+                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! statutInscription = " + statutInscription);
         }
         sbMailBody.append("\n\n");
-        if(noInscription != null) {
-            sbMailBody.append("Pour toute communication, voici la référence de votre inscription: ");
-            sbMailBody.append(noInscription);
-            sbMailBody.append("\n\n");
-        }
+        sbMailBody.append("Pour toute communication, voici la référence de votre inscription: ");
+        sbMailBody.append(noInscription);
+        sbMailBody.append("\n\n");
+        sbMailBody.append("Cordialement,\n");
+        sbMailBody.append("L'équipe de l'Association Musulmane du Chablais,\n");
+        return sbMailBody.toString();
+    }
+
+
+    private String getEmailAdhesionBody(MailObjectDto mailObject) {
+        StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
+                .append(" ").append(mailObject.getNom()).append(", \n\n");
+        sbMailBody.append("Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.");
+        sbMailBody.append("\n\n");
         sbMailBody.append("Cordialement,\n");
         sbMailBody.append("L'équipe de l'Association Musulmane du Chablais,\n");
         return sbMailBody.toString();
