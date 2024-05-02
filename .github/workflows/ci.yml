@@ -40,4 +40,4 @@ jobs:
     steps:
     - name: Send app via ssh
       run: |
-        ls target
+        ls
