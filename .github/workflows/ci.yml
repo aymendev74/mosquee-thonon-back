@@ -30,6 +30,11 @@ jobs:
         cache: maven
     - name: Build
       run: mvn -B package --file pom.xml
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mosqueethononapi
+        path: target/*.jar
 
   deploy:
 
@@ -38,6 +43,11 @@ jobs:
     if: github.event_name == 'workflow_dispatch'  # Déclenchement de ce job manuellement
 
     steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: mosqueethononapi
+        
     - name: Send app via ssh
       run: |
         ls
