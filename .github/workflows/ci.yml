@@ -29,3 +29,14 @@ jobs:
         cache: maven
     - name: Build
       run: mvn -B package --file pom.xml
+
+  deploy:
+
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch'  # Déclenchement de ce job manuellement
+
+    steps:
+    - name: Send app via ssh
+      run: |
+        ls target
