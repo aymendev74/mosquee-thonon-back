@@ -55,6 +55,6 @@ jobs:
         
     - name: Update API
       run: |
-        ssh ubuntu@51.68.174.20 "sudo systemctl stop mosqueethononapp.service"
+        ssh -o StrictHostKeyChecking=no ubuntu@51.68.174.20 "sudo systemctl stop mosqueethononapp.service"
         scp -r mosqueethononapp.jar ubuntu@51.68.174.20:/home/ubuntu/springboot/
-        ssh ubuntu@51.68.174.20 "sudo systemctl start mosqueethononapp.service"
+        ssh -o StrictHostKeyChecking=no ubuntu@51.68.174.20 "sudo systemctl start mosqueethononapp.service"
