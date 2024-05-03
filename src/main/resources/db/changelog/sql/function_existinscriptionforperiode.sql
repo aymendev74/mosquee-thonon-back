@@ -20,3 +20,4 @@ begin
   else return false;
  end if;
 end;
+$$;
