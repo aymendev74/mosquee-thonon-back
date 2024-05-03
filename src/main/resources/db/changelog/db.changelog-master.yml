@@ -563,10 +563,10 @@ databaseChangeLog:
                   i.noinscinscription AS noinscription,
                   p.idperi AS idperiode
                  FROM ((((inscription i
-                   JOIN eleve e ON ((e.idinsc = i.idinsc)))
-                   JOIN resplegal r ON ((i.idresp = r.idresp)))
-                   JOIN tarif t ON ((t.idtari = r.idtari)))
-                   JOIN periode p ON ((p.idperi = t.idperi)));
+                   JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
+                   JOIN moth.resplegal r ON ((i.idresp = r.idresp)))
+                   JOIN moth.tarif t ON ((t.idtari = r.idtari)))
+                   JOIN moth.periode p ON ((p.idperi = t.idperi)));
             viewName: v_inscription_light
   - changeSet:
       id: 1714745941513-12
@@ -579,7 +579,7 @@ databaseChangeLog:
                   peri.dtperidebut AS datedebut,
                   peri.dtperifin AS datefin,
                   peri.nbperimaxinscription AS nbmaxinscription,
-                  existinscriptionforperiode(peri.idperi) AS existinscription,
+                  moth.existinscriptionforperiode(peri.idperi) AS existinscription,
                   peri.oh_date_cre,
                   peri.oh_vis_cre,
                   peri.oh_date_mod,
@@ -589,7 +589,7 @@ databaseChangeLog:
                           WHEN ((CURRENT_DATE >= peri.dtperidebut) AND (CURRENT_DATE <= peri.dtperifin)) THEN true
                           ELSE false
                       END AS active
-                 FROM periode peri;
+                 FROM moth.periode peri;
             viewName: v_periode_cours
   - changeSet:
       id: 1714745941513-13
@@ -605,8 +605,8 @@ databaseChangeLog:
                   a.cdadhestatut AS statut,
                   COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
                   a.dtadheinscription AS dateinscription
-                 FROM (adhesion a
-                   JOIN tarif t ON ((t.idtari = a.idtari)));
+                 FROM (moth.adhesion a
+                   JOIN moth.tarif t ON ((t.idtari = a.idtari)));
             viewName: v_adhesion_light
   - changeSet:
       id: 1714745941513-14
@@ -622,8 +622,8 @@ databaseChangeLog:
                   a.cdadhestatut AS statut,
                   COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
                   a.dtadheinscription AS dateinscription
-                 FROM (adhesion a
-                   JOIN tarif t ON ((t.idtari = a.idtari)));
+                 FROM (moth.adhesion a
+                   JOIN moth.tarif t ON ((t.idtari = a.idtari)));
             viewName: v_adhesion_light_2
   - changeSet:
       id: 1714745941513-15
