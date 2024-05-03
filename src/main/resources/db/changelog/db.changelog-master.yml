@@ -1,0 +1,916 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1714745941513-1
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: utilisateur_pkey
+                  name: idutil
+                  startWith: 2
+                  type: BIGINT
+              - column:
+                  name: txutiluser
+                  type: VARCHAR(50)
+              - column:
+                  name: txutilpassword
+                  type: VARCHAR(255)
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+            tableName: utilisateur
+  - changeSet:
+      id: 1714745941513-2
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: periode_pkey
+                  name: idperi
+                  startWith: 29
+                  type: BIGINT
+              - column:
+                  name: dtperidebut
+                  type: date
+              - column:
+                  name: dtperifin
+                  type: date
+              - column:
+                  name: nbperimaxinscription
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+              - column:
+                  name: cdperiapplication
+                  type: VARCHAR(50)
+            tableName: periode
+  - changeSet:
+      id: 1714745941513-3
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: tarif_pkey
+                  name: idtari
+                  startWith: 52
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idperi
+                  type: BIGINT
+              - column:
+                  name: cdtaritype
+                  type: VARCHAR(50)
+              - column:
+                  name: lotariadherent
+                  type: BOOLEAN
+              - column:
+                  name: nbtarienfant
+                  type: INTEGER
+              - column:
+                  name: mttari
+                  type: numeric
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+              - column:
+                  name: cdtaritarif
+                  type: VARCHAR(50)
+            tableName: tarif
+  - changeSet:
+      id: 1714745941513-4
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: resp_pkey
+                  name: idresp
+                  startWith: 34
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idtari
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txrespnom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txrespprenom
+                  type: VARCHAR(50)
+              - column:
+                  name: txrespphone
+                  type: VARCHAR(20)
+              - column:
+                  name: txrespmobile
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txrespemail
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txrespnumrue
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: norespcodepostal
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txrespville
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: lorespadherent
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: lorespautonomie
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: lorespmedia
+                  type: BOOLEAN
+              - column:
+                  name: txrespnomautre
+                  type: VARCHAR(50)
+              - column:
+                  name: txrespprenomautre
+                  type: VARCHAR(50)
+              - column:
+                  name: txresplienparente
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+              - column:
+                  name: txrespphoneautre
+                  type: VARCHAR(20)
+            tableName: resplegal
+  - changeSet:
+      id: 1714745941513-5
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: inscription_pkey
+                  name: idinsc
+                  startWith: 29
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idresp
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dtinscinscription
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: cdinscstatut
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+              - column:
+                  name: noinscinscription
+                  type: VARCHAR(20)
+              - column:
+                  name: noinscpositionattente
+                  type: INTEGER
+            tableName: inscription
+  - changeSet:
+      id: 1714745941513-6
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: eleve_pkey
+                  name: idelev
+                  startWith: 65
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idinsc
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idtari
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txelevnom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txelevprenom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dtelevnaissance
+                  type: date
+              - column:
+                  name: cdelevniveau
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+              - column:
+                  name: cdelevniveauinterne
+                  type: VARCHAR(20)
+            tableName: eleve
+  - changeSet:
+      id: 1714745941513-7
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: adhesion_pkey
+                  name: idadhe
+                  startWith: 13
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: idtari
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: cdadhestatut
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: cdadhetitre
+                  type: VARCHAR(10)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txadhenom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txadheprenom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dtadhenaissance
+                  type: date
+              - column:
+                  name: txadhephone
+                  type: VARCHAR(20)
+              - column:
+                  name: txadhemobile
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txadheemail
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txadhenumrue
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: noadhecodepostal
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txadheville
+                  type: VARCHAR(100)
+              - column:
+                  name: mtadheautre
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dtadheinscription
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: noadhemembre
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+            tableName: adhesion
+  - changeSet:
+      id: 1714745941513-8
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: mailingconfirmation_pkey
+                  name: idmaco
+                  startWith: 25
+                  type: BIGINT
+              - column:
+                  name: idinsc
+                  type: BIGINT
+              - column:
+                  name: idadhe
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: cdmacostatut
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+            tableName: mailingconfirmation
+  - changeSet:
+      id: 1714745941513-9
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                  name: idrepr
+                  startWith: 4
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txreprnom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txreprprenom
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dtreprnaissance
+                  type: date
+            tableName: reinscriptionprioritaire
+  - changeSet:
+      id: 1714745941513-10
+      author: Aymen et Marina (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: params_pkey
+                  name: idpara
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txparaname
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: txparavalue
+                  type: VARCHAR(50)
+            tableName: params
+  - changeSet:
+      id: 1714745941513-11
+      author: Aymen et Marina (generated)
+      changes:
+        - createView:
+            fullDefinition: false
+            selectQuery: |-
+              SELECT e.idelev AS id,
+                  i.idinsc AS idinscription,
+                  i.dtinscinscription AS dateinscription,
+                  i.cdinscstatut AS statut,
+                  e.txelevnom AS nom,
+                  e.txelevprenom AS prenom,
+                  e.dtelevnaissance AS datenaissance,
+                  e.cdelevniveau AS niveau,
+                  e.cdelevniveauinterne AS niveauinterne,
+                  r.txrespphone AS telephone,
+                  r.txrespmobile AS mobile,
+                  r.txrespville AS ville,
+                  i.noinscinscription AS noinscription,
+                  p.idperi AS idperiode
+                 FROM ((((inscription i
+                   JOIN eleve e ON ((e.idinsc = i.idinsc)))
+                   JOIN resplegal r ON ((i.idresp = r.idresp)))
+                   JOIN tarif t ON ((t.idtari = r.idtari)))
+                   JOIN periode p ON ((p.idperi = t.idperi)));
+            viewName: v_inscription_light
+  - changeSet:
+      id: 1714745941513-12
+      author: Aymen et Marina (generated)
+      changes:
+        - createView:
+            fullDefinition: false
+            selectQuery: |-
+              SELECT DISTINCT peri.idperi AS id,
+                  peri.dtperidebut AS datedebut,
+                  peri.dtperifin AS datefin,
+                  peri.nbperimaxinscription AS nbmaxinscription,
+                  existinscriptionforperiode(peri.idperi) AS existinscription,
+                  peri.oh_date_cre,
+                  peri.oh_vis_cre,
+                  peri.oh_date_mod,
+                  peri.oh_vis_mod,
+                  peri.cdperiapplication AS application,
+                      CASE
+                          WHEN ((CURRENT_DATE >= peri.dtperidebut) AND (CURRENT_DATE <= peri.dtperifin)) THEN true
+                          ELSE false
+                      END AS active
+                 FROM periode peri;
+            viewName: v_periode_cours
+  - changeSet:
+      id: 1714745941513-13
+      author: Aymen et Marina (generated)
+      changes:
+        - createView:
+            fullDefinition: false
+            selectQuery: |-
+              SELECT a.idadhe AS id,
+                  a.txadhenom AS nom,
+                  a.txadheprenom AS prenom,
+                  a.txadheville AS ville,
+                  a.cdadhestatut AS statut,
+                  COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
+                  a.dtadheinscription AS dateinscription
+                 FROM (adhesion a
+                   JOIN tarif t ON ((t.idtari = a.idtari)));
+            viewName: v_adhesion_light
+  - changeSet:
+      id: 1714745941513-14
+      author: Aymen et Marina (generated)
+      changes:
+        - createView:
+            fullDefinition: false
+            selectQuery: |-
+              SELECT a.idadhe AS id,
+                  a.txadhenom AS nom,
+                  a.txadheprenom AS prenom,
+                  a.txadheville AS ville,
+                  a.cdadhestatut AS statut,
+                  COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
+                  a.dtadheinscription AS dateinscription
+                 FROM (adhesion a
+                   JOIN tarif t ON ((t.idtari = a.idtari)));
+            viewName: v_adhesion_light_2
+  - changeSet:
+      id: 1714745941513-15
+      author: Aymen et Marina (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: txparaname
+            indexName: constraint_txparaname
+            tableName: params
+            unique: true
+  - changeSet:
+      id: 1714745941513-16
+      author: Aymen et Marina (generated)
+      changes:
+        - createSequence:
+            cacheSize: 1
+            cycle: false
+            dataType: bigint
+            incrementBy: 1
+            maxValue: 9223372036854775807
+            minValue: 1
+            sequenceName: inscription_noinscinscription_seq
+            startValue: 1000
+  - changeSet:
+      id: 1714745941513-17
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idadhe
+            baseTableName: mailingconfirmation
+            constraintName: fk_idadhe
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idadhe
+            referencedTableName: adhesion
+            validate: true
+  - changeSet:
+      id: 1714745941513-18
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idinsc
+            baseTableName: eleve
+            constraintName: fk_idinsc
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idinsc
+            referencedTableName: inscription
+            validate: true
+  - changeSet:
+      id: 1714745941513-19
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idinsc
+            baseTableName: mailingconfirmation
+            constraintName: fk_idinsc
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idinsc
+            referencedTableName: inscription
+            validate: true
+  - changeSet:
+      id: 1714745941513-20
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idperi
+            baseTableName: tarif
+            constraintName: fk_idperi
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idperi
+            referencedTableName: periode
+            validate: true
+  - changeSet:
+      id: 1714745941513-21
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idresp
+            baseTableName: inscription
+            constraintName: fk_idresp
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idresp
+            referencedTableName: resplegal
+            validate: true
+  - changeSet:
+      id: 1714745941513-22
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idtari
+            baseTableName: adhesion
+            constraintName: fk_idtari
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idtari
+            referencedTableName: tarif
+            validate: true
+  - changeSet:
+      id: 1714745941513-23
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idtari
+            baseTableName: eleve
+            constraintName: fk_idtari
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idtari
+            referencedTableName: tarif
+            validate: true
+  - changeSet:
+      id: 1714745941513-24
+      author: Aymen et Marina (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: idtari
+            baseTableName: resplegal
+            constraintName: fk_idtari
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idtari
+            referencedTableName: tarif
+            validate: true
+
+  - changeSet:
+      id: 1714745994116-1
+      author: Aymen et Marina (generated)
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: idutil
+                  name: idutil
+                  type: NUMERIC
+              - column:
+                  header: txutiluser
+                  name: txutiluser
+                  type: STRING
+              - column:
+                  header: txutilpassword
+                  name: txutilpassword
+                  type: STRING
+              - column:
+                  header: oh_date_cre
+                  name: oh_date_cre
+                  type: DATE
+              - column:
+                  header: oh_vis_cre
+                  name: oh_vis_cre
+                  type: STRING
+              - column:
+                  header: oh_date_mod
+                  name: oh_date_mod
+                  type: DATE
+              - column:
+                  header: oh_vis_mod
+                  name: oh_vis_mod
+                  type: STRING
+            commentLineStartsWith: '#'
+            encoding: UTF-8
+            file: classpath:db/changelog/data/utilisateur.csv
+            quotchar: '"'
+            separator: ','
+            tableName: utilisateur
+  - changeSet:
+      id: 1714745994116-2
+      author: Aymen et Marina (generated)
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: idperi
+                  name: idperi
+                  type: NUMERIC
+              - column:
+                  header: dtperidebut
+                  name: dtperidebut
+                  type: DATE
+              - column:
+                  header: dtperifin
+                  name: dtperifin
+                  type: DATE
+              - column:
+                  header: nbperimaxinscription
+                  name: nbperimaxinscription
+                  type: NUMERIC
+              - column:
+                  header: oh_date_cre
+                  name: oh_date_cre
+                  type: DATE
+              - column:
+                  header: oh_vis_cre
+                  name: oh_vis_cre
+                  type: STRING
+              - column:
+                  header: oh_date_mod
+                  name: oh_date_mod
+                  type: DATE
+              - column:
+                  header: oh_vis_mod
+                  name: oh_vis_mod
+                  type: STRING
+              - column:
+                  header: cdperiapplication
+                  name: cdperiapplication
+                  type: STRING
+            commentLineStartsWith: '#'
+            encoding: UTF-8
+            file: classpath:db/changelog/data/periode.csv
+            quotchar: '"'
+            separator: ','
+            tableName: periode
+  - changeSet:
+      id: 1714745994116-3
+      author: Aymen et Marina (generated)
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: idtari
+                  name: idtari
+                  type: NUMERIC
+              - column:
+                  header: idperi
+                  name: idperi
+                  type: NUMERIC
+              - column:
+                  header: cdtaritype
+                  name: cdtaritype
+                  type: STRING
+              - column:
+                  header: lotariadherent
+                  name: lotariadherent
+                  type: BOOLEAN
+              - column:
+                  header: nbtarienfant
+                  name: nbtarienfant
+                  type: NUMERIC
+              - column:
+                  header: mttari
+                  name: mttari
+                  type: NUMERIC
+              - column:
+                  header: oh_date_cre
+                  name: oh_date_cre
+                  type: DATE
+              - column:
+                  header: oh_vis_cre
+                  name: oh_vis_cre
+                  type: STRING
+              - column:
+                  header: oh_date_mod
+                  name: oh_date_mod
+                  type: skip
+              - column:
+                  header: oh_vis_mod
+                  name: oh_vis_mod
+                  type: skip
+              - column:
+                  header: cdtaritarif
+                  name: cdtaritarif
+                  type: STRING
+            commentLineStartsWith: '#'
+            encoding: UTF-8
+            file: classpath:db/changelog/data/tarif.csv
+            quotchar: '"'
+            separator: ','
+            tableName: tarif

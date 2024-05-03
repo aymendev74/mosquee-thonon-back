@@ -1,0 +1,146 @@
+databaseChangeLog:
+- changeSet:
+    id: 1714745994116-1
+    author: Aymen et Marina (generated)
+    changes:
+    - loadData:
+        columns:
+        - column:
+            header: idutil
+            name: idutil
+            type: NUMERIC
+        - column:
+            header: txutiluser
+            name: txutiluser
+            type: STRING
+        - column:
+            header: txutilpassword
+            name: txutilpassword
+            type: STRING
+        - column:
+            header: oh_date_cre
+            name: oh_date_cre
+            type: DATE
+        - column:
+            header: oh_vis_cre
+            name: oh_vis_cre
+            type: STRING
+        - column:
+            header: oh_date_mod
+            name: oh_date_mod
+            type: DATE
+        - column:
+            header: oh_vis_mod
+            name: oh_vis_mod
+            type: STRING
+        commentLineStartsWith: '#'
+        encoding: UTF-8
+        file: src/main/resources/db/changelog/data/utilisateur.csv
+        quotchar: '"'
+        separator: ','
+        tableName: utilisateur
+- changeSet:
+    id: 1714745994116-2
+    author: Aymen et Marina (generated)
+    changes:
+    - loadData:
+        columns:
+        - column:
+            header: idperi
+            name: idperi
+            type: NUMERIC
+        - column:
+            header: dtperidebut
+            name: dtperidebut
+            type: DATE
+        - column:
+            header: dtperifin
+            name: dtperifin
+            type: DATE
+        - column:
+            header: nbperimaxinscription
+            name: nbperimaxinscription
+            type: NUMERIC
+        - column:
+            header: oh_date_cre
+            name: oh_date_cre
+            type: DATE
+        - column:
+            header: oh_vis_cre
+            name: oh_vis_cre
+            type: STRING
+        - column:
+            header: oh_date_mod
+            name: oh_date_mod
+            type: DATE
+        - column:
+            header: oh_vis_mod
+            name: oh_vis_mod
+            type: STRING
+        - column:
+            header: cdperiapplication
+            name: cdperiapplication
+            type: STRING
+        commentLineStartsWith: '#'
+        encoding: UTF-8
+        file: src/main/resources/db/changelog/data/periode.csv
+        quotchar: '"'
+        separator: ','
+        tableName: periode
+- changeSet:
+    id: 1714745994116-3
+    author: Aymen et Marina (generated)
+    changes:
+    - loadData:
+        columns:
+        - column:
+            header: idtari
+            name: idtari
+            type: NUMERIC
+        - column:
+            header: idperi
+            name: idperi
+            type: NUMERIC
+        - column:
+            header: cdtaritype
+            name: cdtaritype
+            type: STRING
+        - column:
+            header: lotariadherent
+            name: lotariadherent
+            type: BOOLEAN
+        - column:
+            header: nbtarienfant
+            name: nbtarienfant
+            type: NUMERIC
+        - column:
+            header: mttari
+            name: mttari
+            type: NUMERIC
+        - column:
+            header: oh_date_cre
+            name: oh_date_cre
+            type: DATE
+        - column:
+            header: oh_vis_cre
+            name: oh_vis_cre
+            type: STRING
+        - column:
+            header: oh_date_mod
+            name: oh_date_mod
+            type: skip
+        - column:
+            header: oh_vis_mod
+            name: oh_vis_mod
+            type: skip
+        - column:
+            header: cdtaritarif
+            name: cdtaritarif
+            type: STRING
+        commentLineStartsWith: '#'
+        encoding: UTF-8
+        file: src/main/resources/db/changelog/data/tarif.csv
+        quotchar: '"'
+        separator: ','
+        tableName: tarif
+

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -54,5 +55,8 @@ public class AdhesionEntity implements Auditable {
     private Integer noMembre;
     @Embedded
     private Signature signature;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idadhe", updatable = false, insertable = false)
+    private List<MailingConfirmationEntity> mailingConfirmations;
 
 }

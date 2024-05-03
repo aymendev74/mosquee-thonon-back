@@ -7,6 +7,10 @@ server:
         threads:
             max: 100
 spring:
+    liquibase:
+        change-log: classpath:db/changelog/db.changelog-master.yml
+        enabled: true
+        defaultSchema: moth
     datasource:
         password: Tawhid74200
         url: jdbc:postgresql://localhost:5432/mosqueethonon
@@ -21,7 +25,7 @@ spring:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
     mail:
         host: smtp.gmail.com
-        password: xlfwlnvlsxnmwred
+        password: xohxklmusumzpecq
         port: 587
         properties:
             mail:
@@ -29,7 +33,7 @@ spring:
                     auth: true
                     starttls:
                         enable: true
-        username: aymen.mimech.13@gmail.com
+        username: amcinscription@gmail.com
     mvc:
         pathmatch:
             matching-strategy: ant_path_matcher
