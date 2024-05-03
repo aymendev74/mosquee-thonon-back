@@ -806,7 +806,7 @@ databaseChangeLog:
                   type: STRING
             commentLineStartsWith: '#'
             encoding: UTF-8
-            file: classpath:db/changelog/data/utilisateur.csv
+            file: db/changelog/data/utilisateur.csv
             quotchar: '"'
             separator: ','
             tableName: utilisateur
@@ -854,7 +854,7 @@ databaseChangeLog:
                   type: STRING
             commentLineStartsWith: '#'
             encoding: UTF-8
-            file: classpath:db/changelog/data/periode.csv
+            file: db/changelog/data/periode.csv
             quotchar: '"'
             separator: ','
             tableName: periode
@@ -910,7 +910,7 @@ databaseChangeLog:
                   type: STRING
             commentLineStartsWith: '#'
             encoding: UTF-8
-            file: classpath:db/changelog/data/tarif.csv
+            file: db/changelog/data/tarif.csv
             quotchar: '"'
             separator: ','
             tableName: tarif

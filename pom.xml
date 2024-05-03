@@ -121,6 +121,7 @@
                 <version>${liquibase.version}</version> <!-- Assurez-vous d'utiliser la dernière version disponible -->
                 <configuration>
                     <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <!-- Exécutez la mise à jour de la base de données lors de la phase de préparation -->

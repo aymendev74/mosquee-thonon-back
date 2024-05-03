@@ -2,6 +2,8 @@ app:
     jwt:
         secret: abcdhijklNOPQTVWGdnjdealdjDHkfddldjkkdkdjDNnWidjheggDDwszgwkWDzhDKllDDkkDPEEDBXAJxxsbbd
 spring:
+    liquibase:
+        enabled: false
     datasource:
         driverClassName: org.h2.Driver
         password: Tawhid74200
