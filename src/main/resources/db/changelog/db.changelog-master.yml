@@ -568,6 +568,15 @@ databaseChangeLog:
                    JOIN moth.tarif t ON ((t.idtari = r.idtari)))
                    JOIN moth.periode p ON ((p.idperi = t.idperi)));
             viewName: v_inscription_light
+
+  - changeSet:
+      id: CREATE-FUNCTION-existInscriptionForPeriode
+      author: Aymen
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/function_existinscriptionforperiode.sql
+            endDelimiter:  \nGO
+
   - changeSet:
       id: 1714745941513-12
       author: Aymen et Marina (generated)
