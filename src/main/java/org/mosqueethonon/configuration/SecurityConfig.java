@@ -3,6 +3,7 @@ package org.mosqueethonon.configuration;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.authentication.jwt.JwtTokenFilter;
 import org.mosqueethonon.service.UserService;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -59,5 +60,15 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(userDetailService);
         authProvider.setPasswordEncoder(passEncoder);
         return new ProviderManager(authProvider);
+    }
+
+    @Bean
+    public FilterRegistrationBean<RequestLoggingFilter> loggingFilter() {
+        FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(new RequestLoggingFilter());
+        registrationBean.addUrlPatterns("/*"); // Appliquer le filtre à toutes les URL
+
+        return registrationBean;
     }
 }
