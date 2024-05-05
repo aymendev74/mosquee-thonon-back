@@ -11,7 +11,6 @@ import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping(path = "api/v1/tarifs-admin")
-@CrossOrigin
 public class TarifAdminController {
 
     @Autowired

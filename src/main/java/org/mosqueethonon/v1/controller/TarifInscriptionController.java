@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
 @RequestMapping(path = "api/v1/tarifs-inscription")
 public class TarifInscriptionController {
 

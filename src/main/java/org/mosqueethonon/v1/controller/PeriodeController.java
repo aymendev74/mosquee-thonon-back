@@ -14,7 +14,6 @@ import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping(path = "api/v1/periodes")
-@CrossOrigin
 public class PeriodeController {
 
     @Autowired

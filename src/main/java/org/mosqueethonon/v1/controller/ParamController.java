@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1/params")
-@CrossOrigin
 public class ParamController {
 
     @Autowired

@@ -14,7 +14,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping(path = "api/v1/adhesions")
-@CrossOrigin
 public class AdhesionController {
 
     @Autowired

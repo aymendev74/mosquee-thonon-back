@@ -16,7 +16,6 @@ import java.util.concurrent.locks.Lock;
 
 @RestController
 @RequestMapping(path = "api/v1/inscriptions")
-@CrossOrigin
 public class InscriptionController {
 
     @Autowired
