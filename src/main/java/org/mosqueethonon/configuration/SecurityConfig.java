@@ -38,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/v1/user/auth").permitAll()
+                /*.requestMatchers("/api/v1/user/auth").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/inscriptions").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/adhesions").permitAll()
                 .requestMatchers("/api/v1/periodes").permitAll()
@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/tarifs-inscription").permitAll()
                 .requestMatchers("api/v1/params/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
-                .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                .requestMatchers(AUTH_WHITE_LIST).permitAll()*/
                 .anyRequest().authenticated());
 
         /* http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
