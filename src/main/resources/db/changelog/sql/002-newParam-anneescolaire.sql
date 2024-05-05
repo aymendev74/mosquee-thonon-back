@@ -1,0 +1,1 @@
+INSERT INTO MOTH.PARAMS (txparaname, txparavalue) VALUES ('ANNEE_SCOLAIRE', '2024/2025');

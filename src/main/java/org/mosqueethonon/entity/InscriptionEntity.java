@@ -4,6 +4,8 @@ import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,5 +39,9 @@ public class InscriptionEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "idinsc", updatable = false, insertable = false)
     private List<MailingConfirmationEntity> mailingConfirmations;
+    @Column(name = "txinscanneescolaire")
+    private String anneeScolaire;
+    @Column(name = "mtinsctotal")
+    private BigDecimal montantTotal;
 
 }

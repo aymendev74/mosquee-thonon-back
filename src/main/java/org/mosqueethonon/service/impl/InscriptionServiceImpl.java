@@ -21,6 +21,7 @@ import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,6 +58,9 @@ public class InscriptionServiceImpl implements InscriptionService {
         if(entity.getNoInscription() == null) {
             Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
             entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
+        }
+        if(entity.getAnneeScolaire() == null) {
+            entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
         }
         entity = this.inscriptionRepository.save(entity);
         inscription = this.inscriptionMapper.fromEntityToDto(entity);
@@ -109,7 +113,8 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription) {
-        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().nbEleves(inscription.getEleves().size())
+        Integer nbEleves = inscription.getEleves().size();
+        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().nbEleves(nbEleves)
                 .adherent(inscription.getResponsableLegal().getAdherent()).build();
         TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
         if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
@@ -117,7 +122,12 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
         inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
         inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
+        inscription.setMontantTotal(this.calculMontantTotal(tarifs.getTarifBase(), tarifs.getTarifEleve(), nbEleves));
         return tarifs;
+    }
+
+    private BigDecimal calculMontantTotal(BigDecimal tarifBase, BigDecimal tarifEleve, Integer nbEleves) {
+        return tarifBase.add(tarifEleve.multiply(BigDecimal.valueOf(nbEleves))).setScale(0);
     }
 
     private Integer calculPositionAttente() {
@@ -129,6 +139,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     public InscriptionDto findInscriptionById(Long id) {
         InscriptionEntity inscriptionEntity = this.inscriptionRepository.findById(id).orElse(null);
         if(inscriptionEntity !=null) {
+            this.inscriptionMapper.fromEntityToDto(inscriptionEntity);
             return this.inscriptionMapper.fromEntityToDto(inscriptionEntity);
         }
         return null;

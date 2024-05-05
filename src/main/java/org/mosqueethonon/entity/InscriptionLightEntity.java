@@ -34,8 +34,6 @@ public class InscriptionLightEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "niveauinterne")
     private NiveauInterneEnum niveauInterne;
-    @Column(name = "telephone")
-    private String telephone;
     @Column(name = "mobile")
     private String mobile;
     @Column(name = "statut")

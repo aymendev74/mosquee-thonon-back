@@ -38,7 +38,6 @@ public class InscriptionLightEntitySpecifications {
             }
 
             if (StringUtils.hasText(criteria.getTelephone())) {
-                predicatesOR.add(builder.like(builder.lower(root.get("telephone")), "%" + criteria.getTelephone().toLowerCase() + "%"));
                 predicatesOR.add(builder.like(builder.lower(root.get("mobile")), "%" + criteria.getTelephone().toLowerCase() + "%"));
             }
 

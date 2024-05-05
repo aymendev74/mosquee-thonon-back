@@ -923,3 +923,6 @@ databaseChangeLog:
             quotchar: '"'
             separator: ','
             tableName: tarif
+
+  - includeAll:
+      path: db/changelog/2024

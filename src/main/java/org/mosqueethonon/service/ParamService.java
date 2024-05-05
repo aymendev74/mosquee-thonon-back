@@ -1,11 +1,18 @@
 package org.mosqueethonon.service;
 
 import org.mosqueethonon.v1.dto.ParamDto;
+import org.mosqueethonon.v1.dto.ParamsDto;
+
+import java.util.List;
 
 public interface ParamService {
 
     boolean isReinscriptionPrioritaireEnabled();
 
-    void saveParam(ParamDto paramDto);
+    String getAnneeScolaireEnCours();
+
+    void saveParam(List<ParamDto> paramDtos);
+
+    ParamsDto getParams();
 
 }

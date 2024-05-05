@@ -17,8 +17,6 @@ public class ResponsableLegalEntity implements Auditable {
     private String nom;
     @Column(name = "txrespprenom")
     private String prenom;
-    @Column(name = "txrespphone")
-    private String telephone;
     @Column(name = "txrespmobile")
     private String mobile;
     @Column(name = "txrespemail")

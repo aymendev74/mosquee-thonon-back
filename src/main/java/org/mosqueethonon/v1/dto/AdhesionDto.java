@@ -21,7 +21,6 @@ public class AdhesionDto extends MailObjectDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private Long idTarif;
-    private String telephone;
     private String mobile;
     private String numeroEtRue;
     private Integer codePostal;

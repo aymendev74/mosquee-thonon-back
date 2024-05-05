@@ -30,8 +30,6 @@ public class AdhesionEntity implements Auditable {
     private LocalDate dateNaissance;
     @Column(name = "idtari")
     private Long idTarif;
-    @Column(name = "txadhephone")
-    private String telephone;
     @Column(name = "txadhemobile")
     private String mobile;
     @Column(name = "txadheemail")

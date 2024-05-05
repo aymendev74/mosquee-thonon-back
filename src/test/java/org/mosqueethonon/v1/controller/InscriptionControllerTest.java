@@ -88,7 +88,7 @@ public class InscriptionControllerTest extends ControllerTest {
     private ResponsableLegalDto createResponsableLegal() {
         return ResponsableLegalDto.builder().adherent(true).autorisationAutonomie(true).autorisationMedia(false)
                 .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
-                .numeroEtRue("").telephone("").nom("").prenom("").build();
+                .numeroEtRue("").nom("").prenom("").build();
     }
 
     private List<EleveDto> createEleve() {

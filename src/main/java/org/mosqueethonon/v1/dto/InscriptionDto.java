@@ -9,6 +9,7 @@ import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,5 +28,7 @@ public class InscriptionDto {
     private String noInscription;
     private Integer noPositionAttente;
     private Signature signature;
+    private String anneeScolaire;
+    private BigDecimal montantTotal;
 
 }

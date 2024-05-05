@@ -12,7 +12,6 @@ import org.mosqueethonon.entity.Signature;
 public class ResponsableLegalDto extends MailObjectDto {
 
     private Long id;
-    private String telephone;
     private String mobile;
     private String numeroEtRue;
     private Integer codePostal;

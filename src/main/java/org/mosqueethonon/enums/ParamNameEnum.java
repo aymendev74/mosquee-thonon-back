@@ -2,7 +2,8 @@ package org.mosqueethonon.enums;
 
 public enum ParamNameEnum {
 
-    REINSCRIPTION_ENABLED(ParamTypeEnum.BOOLEAN);
+    REINSCRIPTION_ENABLED(ParamTypeEnum.BOOLEAN),
+    ANNEE_SCOLAIRE(ParamTypeEnum.STRING);
 
     private ParamTypeEnum type;
 

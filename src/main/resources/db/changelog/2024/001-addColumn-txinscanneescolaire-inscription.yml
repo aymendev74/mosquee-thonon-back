@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-addColumn-txinscanneescolaire
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: inscription
+            columns:
+              - column:
+                  name: txinscanneescolaire
+                  type: varchar(30)
