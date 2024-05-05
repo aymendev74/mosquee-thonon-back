@@ -49,18 +49,6 @@ public class SecurityConfig {
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().permitAll());
 
-        /* http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, ex) -> {
-                            response.sendError(
-                                    HttpServletResponse.SC_UNAUTHORIZED,
-                                    ex.getMessage()
-                            );
-                        }
-                );*/
-
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
