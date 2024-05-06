@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Enumeration;
 
+/**
+ * Classe utilisée pour investiguer des problèmes de sécurité CORS (log des requêtes HTTP entrantes)
+ */
 public class RequestLoggingFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);

@@ -2,6 +2,8 @@ app:
     jwt:
         secret: abcdhijklNOPQTVWGdnjdealdjDHkfddldjkkdkdjDNnWidjheggDDwszgwkWDzhDKllDDkkDPEEDBXAJxxsbbd
 spring:
+    profiles:
+        active: dev
     liquibase:
         enabled: false
     datasource:
@@ -19,7 +21,8 @@ spring:
         show-sql: true
     mail:
         host: smtp.gmail.com
-        password: xlfwlnvlsxnmwred
+        password: pphjevkrbulljoer
+
         port: 587
         properties:
             mail:

@@ -41,13 +41,10 @@ public class MailService {
     @Scheduled(fixedDelayString = "${scheduled.confirmation-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void sendEmailConfirmation() {
-        LOGGER.info("Exécution du job d'envoi des emails de confirmation");
         List<MailingConfirmationEntity> mailingConfirmationsToProcess = mailingConfirmationRepository.findByStatut(MailingConfirmationStatut.PENDING);
         if(!CollectionUtils.isEmpty(mailingConfirmationsToProcess)) {
             LOGGER.info("Il y a " + mailingConfirmationsToProcess.size() + " mails de confirmation à envoyer");
             mailingConfirmationsToProcess.stream().forEach(this::processMail);
-        } else {
-            LOGGER.info("Il n'y a aucun mail de confirmation à envoyer");
         }
     }
 
@@ -55,10 +52,8 @@ public class MailService {
         if(mailingConfirmationEntity.getIdInscription() != null || mailingConfirmationEntity.getIdAdhesion() != null) {
             SimpleMailMessage mail = null;
             if(mailingConfirmationEntity.getIdInscription() != null) {
-                LOGGER.info("Envoi du mail pour l'inscription idinsc = " + mailingConfirmationEntity.getIdInscription());
                 mail = this.processMailInscription(mailingConfirmationEntity.getIdInscription());
             } else {
-                LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + mailingConfirmationEntity.getIdAdhesion());
                 mail = this.processMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
             }
             this.emailSender.send(mail);

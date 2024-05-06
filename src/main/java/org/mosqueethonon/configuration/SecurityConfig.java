@@ -62,7 +62,7 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
-    @Bean
+    /*@Bean
     public FilterRegistrationBean<RequestLoggingFilter> loggingFilter() {
         FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
 
@@ -70,5 +70,5 @@ public class SecurityConfig {
         registrationBean.addUrlPatterns("/*"); // Appliquer le filtre à toutes les URL
 
         return registrationBean;
-    }
+    }*/
 }
