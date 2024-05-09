@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 @RestController
-@RequestMapping(path = "api/v1/periodes")
+@RequestMapping(path = "/v1/periodes")
 public class PeriodeController {
 
     @Autowired

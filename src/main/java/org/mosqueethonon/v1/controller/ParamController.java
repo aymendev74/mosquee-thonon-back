@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/params")
+@RequestMapping(path = "/v1/params")
 public class ParamController {
 
     @Autowired

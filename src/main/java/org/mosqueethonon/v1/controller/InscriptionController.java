@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 @RestController
-@RequestMapping(path = "api/v1/inscriptions")
+@RequestMapping(path = "/v1/inscriptions")
 public class InscriptionController {
 
     @Autowired

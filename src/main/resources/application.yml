@@ -2,6 +2,8 @@ app:
     jwt:
         secret: abcdhijklNOPQTVWGdnjdealdjDHkfddldjkkdkdjDNnWidjheggDDwszgwkWDzhDKllDDkkDPEEDBXAJxxsbbd
 server:
+    servlet:
+        context-path: /api
     tomcat:
         max-threads: 100
         threads:

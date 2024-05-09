@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.mosqueethonon.service.AdhesionLightService;
 import org.mosqueethonon.service.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping(path = "api/v1/adhesions")
+@RequestMapping(path = "/v1/adhesions")
 public class AdhesionController {
 
     @Autowired
@@ -21,6 +22,7 @@ public class AdhesionController {
     @Autowired
     private AdhesionLightService adhesionLightService;
 
+    @Operation(summary = "Sauvegarde d'une adhésion")
     @PostMapping
     public ResponseEntity<AdhesionDto> saveAdhesion(@RequestBody AdhesionDto adhesion) {
         adhesion = this.adhesionService.saveAdhesion(adhesion);

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "api/v1/tarifs-inscription")
+@RequestMapping(path = "/v1/tarifs-inscription")
 public class TarifInscriptionController {
 
     @Autowired

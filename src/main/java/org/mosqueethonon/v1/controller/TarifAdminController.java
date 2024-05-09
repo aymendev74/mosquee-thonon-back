@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.locks.Lock;
 
 @RestController
-@RequestMapping(path = "api/v1/tarifs-admin")
+@RequestMapping(path = "/v1/tarifs-admin")
 public class TarifAdminController {
 
     @Autowired

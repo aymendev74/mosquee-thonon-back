@@ -20,6 +20,7 @@ public class InscriptionLightDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private String niveau;
+    private String niveauInterne;
     private String mobile;
     private StatutInscription statut;
     private String ville;

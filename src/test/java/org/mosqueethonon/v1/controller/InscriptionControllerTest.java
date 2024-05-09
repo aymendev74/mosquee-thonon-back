@@ -39,7 +39,7 @@ public class InscriptionControllerTest extends ControllerTest {
 
     @Test
     public void testFindInscriptionsByCriteriaReturn200() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/inscriptions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions")
                         .header("Authorization", generateToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -52,7 +52,7 @@ public class InscriptionControllerTest extends ControllerTest {
         for (int i = 0; i < nbThreads; i++) {
             new Thread(() -> {
                 try {
-                    mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/inscriptions")
+                    mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions")
                                     .header("Authorization", generateToken())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonMapper.writeValueAsString(this.createInscription())))

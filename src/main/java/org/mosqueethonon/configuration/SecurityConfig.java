@@ -29,10 +29,10 @@ public class SecurityConfig {
     private UserService userService;
 
     private static final String[] AUTH_WHITE_LIST = {
-            "/v3/api-docs/**",
-            "/v2/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-resources/**"
+            "/api/v3/api-docs/**",
+            "/api/v2/api-docs/**",
+            "/api/swagger-ui/**",
+            "/api/swagger-resources/**"
     };
 
     @Bean
@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/periodes").permitAll()
                 .requestMatchers("/api/v1/tarifs").permitAll()
                 .requestMatchers("/api/v1/tarifs-inscription").permitAll()
-                .requestMatchers("api/v1/params/**").permitAll()
+                .requestMatchers("/api/v1/params/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().permitAll());
