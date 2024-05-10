@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-onlyMobilePhone
+      author: Aymen
+      changes:
+        - dropView:
+            ifExists: true
+            viewName: v_inscription_light
+        - dropColumn:
+            columns:
+              - column:
+                  name: txrespphone
+            tableName: resplegal
+        - dropColumn:
+            columns:
+              - column:
+                  name: txadhephone
+            tableName: adhesion
+        - createView:
+            encoding:  UTF-8
+            selectQuery: SELECT e.idelev AS id,
+                          i.idinsc AS idinscription,
+                          i.dtinscinscription AS dateinscription,
+                          i.cdinscstatut AS statut,
+                          e.txelevnom AS nom,
+                          e.txelevprenom AS prenom,
+                          e.dtelevnaissance AS datenaissance,
+                          e.cdelevniveau AS niveau,
+                          e.cdelevniveauinterne AS niveauinterne,
+                          r.txrespmobile AS mobile,
+                          r.txrespville AS ville,
+                          i.noinscinscription AS noinscription,
+                          p.idperi AS idperiode
+                          FROM ((((moth.inscription i
+                          JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
+                          JOIN moth.resplegal r ON ((i.idresp = r.idresp)))
+                          JOIN moth.tarif t ON ((t.idtari = r.idtari)))
+                          JOIN moth.periode p ON ((p.idperi = t.idperi)));
+            viewName: v_inscription_light

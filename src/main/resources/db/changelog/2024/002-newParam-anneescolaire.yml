@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-newParam-anneescolaire
+      author: Aymen
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/002-newParam-anneescolaire.sql
+            endDelimiter:  \nGO
