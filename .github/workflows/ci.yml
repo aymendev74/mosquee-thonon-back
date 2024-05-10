@@ -29,6 +29,12 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build
+      env:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        MAIL_SERVICE_USERNAME: ${{ secrets.MAIL_SERVICE_USERNAME }}
+        MAIL_SERVICE_PASSWORD: ${{ secrets.MAIL_SERVICE_PASSWORD }} 
+        JWT_SECRET: ${{ secrets.JWT_SECRET }} 
       run: mvn -B package --file pom.xml
     - name: Upload artifact
       uses: actions/upload-artifact@v2
