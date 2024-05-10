@@ -1,0 +1,5 @@
+/target
+/.idea
+/logs
+src/main/resources/cloud_db_accesskey.json
+src/main/resources/.env
