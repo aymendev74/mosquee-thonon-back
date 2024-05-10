@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-dropColumn-dtreprnaissance
+      author: Aymen
+      changes:
+        - dropColumn:
+            columns:
+              - column:
+                  name: dtreprnaissance
+            tableName: reinscriptionprioritaire

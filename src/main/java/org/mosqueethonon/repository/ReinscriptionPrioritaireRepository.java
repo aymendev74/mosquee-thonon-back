@@ -9,6 +9,6 @@ import java.time.LocalDate;
 @Repository
 public interface ReinscriptionPrioritaireRepository extends JpaRepository<ReinscriptionPrioritaireEntity, Long> {
 
-    ReinscriptionPrioritaireEntity findByNomIgnoreCaseAndPrenomIgnoreCaseAndDateNaissance(String nom, String prenom, LocalDate dateNaissance);
+    ReinscriptionPrioritaireEntity findByNomIgnoreCaseAndPrenomIgnoreCase(String nom, String prenom);
 
 }

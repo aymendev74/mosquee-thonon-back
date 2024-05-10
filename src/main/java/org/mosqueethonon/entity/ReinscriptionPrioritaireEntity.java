@@ -19,7 +19,5 @@ public class ReinscriptionPrioritaireEntity {
     private String nom;
     @Column(name = "txreprprenom")
     private String prenom;
-    @Column(name = "dtreprnaissance")
-    private LocalDate dateNaissance;
 
 }
