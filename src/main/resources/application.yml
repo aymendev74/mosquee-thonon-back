@@ -1,6 +1,6 @@
 app:
     jwt:
-        secret: abcdhijklNOPQTVWGdnjdealdjDHkfddldjkkdkdjDNnWidjheggDDwszgwkWDzhDKllDDkkDPEEDBXAJxxsbbd
+        secret: ${JWT_SECRET}
 server:
     servlet:
         context-path: /api
@@ -16,9 +16,9 @@ spring:
         enabled: true
         defaultSchema: moth
     datasource:
-        password: Tawhid74200
+        password: ${DB_PASSWORD}
         url: jdbc:postgresql://localhost:5432/mosqueethonon
-        username: postgres
+        username: ${DB_USERNAME}
     jpa:
         hibernate:
             ddl-auto: none
@@ -29,8 +29,8 @@ spring:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
     mail:
         host: smtp.gmail.com
-        password: pphjevkrbulljoer
-
+        password: ${MAIL_SERVICE_PASSWORD}
+        username:  ${MAIL_SERVICE_USERNAME}
         port: 587
         properties:
             mail:
@@ -38,7 +38,6 @@ spring:
                     auth: true
                     starttls:
                         enable: true
-        username: aymen.mimech.13@gmail.com
     mvc:
         pathmatch:
             matching-strategy: ant_path_matcher
