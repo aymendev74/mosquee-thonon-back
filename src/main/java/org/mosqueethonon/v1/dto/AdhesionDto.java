@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.utils.StringUtils;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
@@ -33,4 +34,8 @@ public class AdhesionDto extends MailObjectDto {
     private Integer noMembre;
     private SignatureDto signature;
 
+    public void normalize() {
+        this.setNom(StringUtils.normalize(this.getNom()));
+        this.setPrenom(StringUtils.normalize(this.getPrenom()));
+    }
 }

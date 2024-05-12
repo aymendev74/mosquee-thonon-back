@@ -48,6 +48,8 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public InscriptionDto saveInscription(InscriptionDto inscription) {
+        // Normalisation des chaines de caractères saisies par l'utilisateur
+        inscription.normalize();
         TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription);
         this.computeStatutInscription(inscription, tarifs.isListeAttente());
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);

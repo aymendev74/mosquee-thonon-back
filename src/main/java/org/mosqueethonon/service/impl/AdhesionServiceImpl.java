@@ -31,6 +31,8 @@ public class AdhesionServiceImpl implements AdhesionService {
 
     @Override
     public AdhesionDto saveAdhesion(AdhesionDto adhesionDto) {
+        // Normalisation des chaines de caractères saisies par l'utilisateur
+        adhesionDto.normalize();
         // Si nouvelle adhésion alors on envoi un mail de confirmation à l'adhérent
         boolean sendMailAdherent = adhesionDto.getId() == null;
         AdhesionEntity adhesionEntity = this.adhesionMapper.fromDtoToEntity(adhesionDto);

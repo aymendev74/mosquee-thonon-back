@@ -1,10 +1,7 @@
 package org.mosqueethonon.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.Signature;
 import org.mosqueethonon.enums.NiveauInterneEnum;
