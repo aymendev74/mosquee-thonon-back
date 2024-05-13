@@ -105,8 +105,7 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     private boolean isReinscriptionValide(InscriptionDto inscription) {
         for(EleveDto eleve : inscription.getEleves()) {
-            ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomIgnoreCaseAndPrenomIgnoreCase
-                    (eleve.getNom(), eleve.getPrenom());
+            ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomAndPrenomPhonetique(eleve.getNom(), eleve.getPrenom());
             if(reinscriptionPrio == null) {
                 return false;
             }
