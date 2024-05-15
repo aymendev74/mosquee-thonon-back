@@ -39,16 +39,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/v1/user/auth").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/inscriptions").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/adhesions").permitAll()
-                .requestMatchers("/api/v1/periodes").permitAll()
-                .requestMatchers("/api/v1/tarifs").permitAll()
-                .requestMatchers("/api/v1/tarifs-inscription").permitAll()
-                .requestMatchers("/api/v1/params/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
+                .requestMatchers("/v1/user/auth").permitAll()
+                .requestMatchers(HttpMethod.POST, "/v1/inscriptions").permitAll()
+                .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
+                .requestMatchers("/v1/tarifs").permitAll()
+                .requestMatchers("/v1/tarifs-inscription").permitAll()
+                .requestMatchers("/v1/params/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
-                .anyRequest().permitAll());
+                .anyRequest().authenticated());
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
