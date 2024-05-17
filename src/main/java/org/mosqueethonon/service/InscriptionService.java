@@ -2,7 +2,6 @@ package org.mosqueethonon.service;
 
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.PeriodeDto;
-
 import java.util.Set;
 
 public interface InscriptionService {
@@ -16,5 +15,7 @@ public interface InscriptionService {
 
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto);
     public void updateListeAttentePeriode(Long idPeriode);
+
+    public String checkCoherence(InscriptionDto inscriptionDto);
 
 }

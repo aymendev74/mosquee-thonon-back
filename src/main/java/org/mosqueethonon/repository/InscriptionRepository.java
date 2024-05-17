@@ -1,5 +1,6 @@
 package org.mosqueethonon.repository;
 
+import org.mosqueethonon.entity.EleveEntity;
 import org.mosqueethonon.entity.InscriptionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -55,4 +57,14 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
             + "and i.cdinscstatut IN ('LISTE_ATTENTE') "
             + "order by i.noinscpositionattente", nativeQuery = true)
     List<InscriptionEntity> getInscriptionEnAttenteByPeriode(Long idPeriode);
+
+    @Query(value = "select distinct i.* from moth.inscription i "
+            + "inner join moth.eleve e on e.idinsc = i.idinsc "
+            + "inner join moth.tarif t on t.idtari = e.idtari "
+            + "inner join moth.periode p on p.idperi = t.idperi "
+            + "where :atDate between p.dtperidebut and p.dtperifin "
+            + "and i.cdinscstatut IN ('VALIDEE', 'PROVISOIRE', 'LISTE_ATTENTE') "
+            + "and e.txelevprenom = :prenom and e.txelevnom = :nom "
+            + "and i.idinsc <> coalesce(:excludedInscription, -1)", nativeQuery = true)
+    List<InscriptionEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDateTime atDate, Long excludedInscription);
 }

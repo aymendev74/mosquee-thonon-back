@@ -73,4 +73,11 @@ public class InscriptionController {
         }
         return ResponseEntity.ok(ids);
     }
+
+    @PostMapping(path = "/incoherences")
+    public ResponseEntity<String> checkCoherence(@RequestBody InscriptionDto inscriptionDto) {
+        String incoherence = this.inscriptionService.checkCoherence(inscriptionDto);
+        return ResponseEntity.ok(incoherence);
+    }
+
 }

@@ -2,10 +2,7 @@ package org.mosqueethonon.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.InscriptionEntity;
-import org.mosqueethonon.entity.MailingConfirmationEntity;
-import org.mosqueethonon.entity.PeriodeEntity;
-import org.mosqueethonon.entity.ReinscriptionPrioritaireEntity;
+import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
@@ -17,6 +14,7 @@ import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.*;
 import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.v1.incoherences.Incoherences;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -222,4 +220,28 @@ public class InscriptionServiceImpl implements InscriptionService {
         return nbInscriptionOutside != null && nbInscriptionOutside > 0;
     }
 
+    @Override
+    public String checkCoherence(InscriptionDto inscriptionDto) {
+        inscriptionDto.normalize();
+        return this.isAlreadyExistingEleves(inscriptionDto);
+    }
+
+    private String isAlreadyExistingEleves(InscriptionDto inscriptionDto) {
+        if(!CollectionUtils.isEmpty(inscriptionDto.getEleves())) {
+            LocalDateTime atDate = inscriptionDto.getDateInscription();
+            if(atDate == null) {
+                atDate = LocalDateTime.now();
+            }
+            for(EleveDto eleve : inscriptionDto.getEleves()) {
+                if(eleve.getPrenom() != null && eleve.getNom() != null) {
+                    List<InscriptionEntity> matchedInscriptions = this.inscriptionRepository.findInscriptionsWithEleve(eleve.getPrenom(),
+                            eleve.getNom(), atDate, inscriptionDto.getId());
+                    if(!CollectionUtils.isEmpty(matchedInscriptions)) {
+                        return Incoherences.ELEVE_ALREADY_EXISTS;
+                    }
+                }
+            }
+        }
+        return Incoherences.NO_INCOHERENCE;
+    }
 }

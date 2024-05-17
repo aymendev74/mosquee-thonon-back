@@ -41,6 +41,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/v1/user/auth").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/inscriptions").permitAll()
+                .requestMatchers(HttpMethod.POST, "/v1/inscriptions/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
                 .requestMatchers("/v1/tarifs").permitAll()
                 .requestMatchers("/v1/tarifs-inscription").permitAll()
