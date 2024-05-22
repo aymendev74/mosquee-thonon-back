@@ -21,7 +21,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.ref }} # branche sur laquelle on a déclenché le workflow
+          
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
@@ -29,12 +34,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build
-      env:
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_USERNAME: ${{ secrets.DB_USERNAME }}
-        MAIL_SERVICE_USERNAME: ${{ secrets.MAIL_SERVICE_USERNAME }}
-        MAIL_SERVICE_PASSWORD: ${{ secrets.MAIL_SERVICE_PASSWORD }} 
-        JWT_SECRET: ${{ secrets.JWT_SECRET }} 
       run: mvn -B package --file pom.xml
     - name: Upload artifact
       uses: actions/upload-artifact@v2
