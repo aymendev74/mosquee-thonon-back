@@ -30,6 +30,12 @@ jobs:
           cache: maven
 
       - name: Tests
+        env: #injection de valeurs bidon pour faire tourner les tests
+          DB_PASSWORD: DB_PASSWORD
+          DB_USERNAME: DB_USERNAME
+          MAIL_SERVICE_USERNAME: MAIL_SERVICE_USERNAME
+          MAIL_SERVICE_PASSWORD: MAIL_SERVICE_PASSWORD
+          JWT_SECRET: JWT_SECRET
         run: mvn test                
 
   create-release-branch:
