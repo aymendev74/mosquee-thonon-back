@@ -2,11 +2,15 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Branche de release (par ex. 1.x)'
+        description: 'Branche de release (préciser uniquement la version majeure)'
         required: true
 
 permissions:
   contents: write
+
+env:
+  RELEASE_VERSION: "${{ github.event.inputs.release_version }}.0.0"
+  RELEASE_BRANCHE: "release-${{ github.event.inputs.release_version }}.0.0"
 
 jobs:
   create-release-branch:
@@ -29,11 +33,15 @@ jobs:
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
-          RELEASE_BRANCHE="release-${{ github.event.inputs.release_version }}"
           git checkout -b $RELEASE_BRANCHE
-          mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}  
+          mvn versions:set -DnewVersion=$RELEASE_VERSION  
           git add pom.xml
-          git commit -m "release branche created ==> ${{ github.event.inputs.release_version }}"
+          git commit -m "release branche created ==> $RELEASE_VERSION"
           git push origin $RELEASE_BRANCHE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create first Tag
+        run: |
+          git tag $RELEASE_VERSION
+          git push origin $RELEASE_VERSION # on pousse le nouveau tag   
