@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref }} # branche sur laquelle on a déclenché la création du tag (branche de release)
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -29,11 +30,10 @@ jobs:
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
-          git tag ${{ github.event.inputs.tag_version }}
-          git checkout ${{ github.event.inputs.tag_version }}
           mvn versions:set -DnewVersion=${{ github.event.inputs.tag_version }}  
           git add pom.xml
           git commit -m "tag created ==> ${{ github.event.inputs.tag_version }}"
-          git push origin ${{ github.event.inputs.tag_version }}
+          git tag ${{ github.event.inputs.tag_version }}
+          git push origin ${{ github.ref }} --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
