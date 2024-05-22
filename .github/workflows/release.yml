@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Branche de release (par ex. 1.0)'
+        description: 'Branche de release (par ex. 1.x)'
         required: true
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
           git checkout -b $RELEASE_BRANCHE
           mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}  
           git add pom.xml
-          git commit -m "released version ==> ${{ github.event.inputs.release_version }}"
+          git commit -m "release branche created ==> ${{ github.event.inputs.release_version }}"
           git push origin $RELEASE_BRANCHE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
