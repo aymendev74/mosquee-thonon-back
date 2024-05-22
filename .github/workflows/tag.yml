@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  create-release-branch:
+  create-tag:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Create release branch
+      - name: Create Tag
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
