@@ -29,6 +29,9 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Tests
+        run: mvn test          
+
       - name: Create release branch
         run: |
           git config --global user.name "Aymen"
