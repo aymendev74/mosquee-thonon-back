@@ -31,7 +31,9 @@ jobs:
           git config --global user.email "aymen330d@hotmail.fr"
           RELEASE_BRANCHE="release-${{ github.event.inputs.release_version }}"
           git checkout -b $RELEASE_BRANCHE
-          mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}      
+          mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}  
+          git add pom.xml
+          git commit -m "released version ==> ${{ github.event.inputs.release_version }}"
           git push origin $RELEASE_BRANCHE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
