@@ -1,0 +1,31 @@
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Branche de release (par ex. 1.0)'
+        required: true
+
+jobs:
+  create-release-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
+
+      - name: Create release branch
+        run: |
+          git config --global user.name "Aymen"
+          git config --global user.email "aymen330d@hotmail.fr"
+          RELEASE_BRANCHE="release-${{ github.event.inputs.version }}"
+          git checkout -b $RELEASE_BRANCHE
+          mvn versions:set -DnewVersion=${{ github.event.inputs.version }}      
+          git push origin ${{ github.event.inputs.release_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
