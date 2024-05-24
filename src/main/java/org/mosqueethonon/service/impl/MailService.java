@@ -11,7 +11,6 @@ import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.MailObjectDto;
-import org.mosqueethonon.v1.dto.ResponsableLegalDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,19 +51,34 @@ public class MailService {
         if(mailingConfirmationEntity.getIdInscription() != null || mailingConfirmationEntity.getIdAdhesion() != null) {
             SimpleMailMessage mail = null;
             if(mailingConfirmationEntity.getIdInscription() != null) {
-                mail = this.processMailInscription(mailingConfirmationEntity.getIdInscription());
+                mail = this.createMailInscription(mailingConfirmationEntity.getIdInscription());
             } else {
-                mail = this.processMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
+                mail = this.createMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
             }
-            this.emailSender.send(mail);
-            mailingConfirmationEntity.setStatut(MailingConfirmationStatut.DONE);
+            this.sendEmail(mailingConfirmationEntity, mail);
         } else {
             LOGGER.info("Pas normal, ni idInscription ni idAdhesion... idmaco = " + mailingConfirmationEntity.getId());
             mailingConfirmationEntity.setStatut(MailingConfirmationStatut.ERROR);
         }
     }
 
-    private SimpleMailMessage processMailInscription(Long idInscription) {
+    private void sendEmail(MailingConfirmationEntity mailingConfirmationEntity, SimpleMailMessage mail) {
+        try {
+            this.emailSender.send(mail);
+            mailingConfirmationEntity.setStatut(MailingConfirmationStatut.DONE);
+        } catch (Exception e) {
+            String messageLog = null;
+            if(mailingConfirmationEntity.getIdInscription() != null) {
+                messageLog = "Problème lors de l'envoi du mail pour l'inscription idinsc = " + mailingConfirmationEntity.getIdInscription();
+            } else {
+                messageLog = "Problème lors de l'envoi du mail pour l'adhésion idadhe = " + mailingConfirmationEntity.getIdAdhesion();
+            }
+            LOGGER.error(messageLog, e);
+        }
+
+    }
+
+    private SimpleMailMessage createMailInscription(Long idInscription) {
         LOGGER.info("Envoi du mail pour l'inscription idinsc = " + idInscription);
         InscriptionDto inscription = this.inscriptionService.findInscriptionById(idInscription);
         SimpleMailMessage message = new SimpleMailMessage();
@@ -74,7 +88,7 @@ public class MailService {
         return message;
     }
 
-    private SimpleMailMessage processMailAdhesion(Long idAdhesion) {
+    private SimpleMailMessage createMailAdhesion(Long idAdhesion) {
         LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + idAdhesion);
         AdhesionDto adhesion = this.adhesionService.findAdhesionById(idAdhesion);
         SimpleMailMessage message = new SimpleMailMessage();
