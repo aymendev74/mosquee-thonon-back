@@ -73,6 +73,7 @@ public class MailService {
             } else {
                 messageLog = "Problème lors de l'envoi du mail pour l'adhésion idadhe = " + mailingConfirmationEntity.getIdAdhesion();
             }
+            mailingConfirmationEntity.setStatut(MailingConfirmationStatut.ERROR);
             LOGGER.error(messageLog, e);
         }
 
