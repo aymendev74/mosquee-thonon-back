@@ -6,6 +6,7 @@ import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionDto;
 import org.mosqueethonon.v1.dto.InscriptionLightDto;
+import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +28,12 @@ public class InscriptionController {
     private LockManager lockManager;
 
     @PostMapping
-    public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription) {
+    public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription,
+                                                          @ModelAttribute InscriptionSaveCriteria criteria) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            inscription = this.inscriptionService.saveInscription(inscription);
+            inscription = this.inscriptionService.saveInscription(inscription, criteria);
         } finally {
             lock.unlock();
         }
