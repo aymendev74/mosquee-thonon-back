@@ -1,7 +1,9 @@
 package org.mosqueethonon.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.repository.InscriptionRepository;
@@ -16,6 +18,7 @@ import org.mosqueethonon.v1.dto.*;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -29,7 +32,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@Autowired))
+@NoArgsConstructor
 public class InscriptionServiceImpl implements InscriptionService {
 
     private InscriptionRepository inscriptionRepository;
@@ -45,13 +49,12 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     @Transactional
     @Override
-    public InscriptionDto saveInscription(InscriptionDto inscription) {
+    public InscriptionDto saveInscription(InscriptionDto inscription, InscriptionSaveCriteria criteria) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
         TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription);
         this.computeStatutInscription(inscription, tarifs.isListeAttente());
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
-        boolean sendMailConfirmation = inscription.getId() == null;
         if(entity.getDateInscription()==null) {
             entity.setDateInscription(LocalDateTime.now());
         }
@@ -64,7 +67,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
         entity = this.inscriptionRepository.save(entity);
         inscription = this.inscriptionMapper.fromEntityToDto(entity);
-        if(sendMailConfirmation) {
+        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
                     .statut(MailingConfirmationStatut.PENDING).build());
         }

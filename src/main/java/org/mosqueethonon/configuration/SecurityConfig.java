@@ -29,10 +29,9 @@ public class SecurityConfig {
     private UserService userService;
 
     private static final String[] AUTH_WHITE_LIST = {
-            "/api/v3/api-docs/**",
-            "/api/v2/api-docs/**",
-            "/api/swagger-ui/**",
-            "/api/swagger-resources/**"
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**"
     };
 
     @Bean
@@ -40,7 +39,6 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/v1/user/auth").permitAll()
-                .requestMatchers(HttpMethod.POST, "/v1/inscriptions").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/inscriptions/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
                 .requestMatchers("/v1/tarifs").permitAll()
