@@ -40,12 +40,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.PAT_GITHUB }}
-          branch: new-tag-released-${{ github.event.inputs.tag_version }}
-          base: ${{ github.ref }}
-          title: "Update version release after released tag"
-          body: "Update version release after released tag"
-          draft: false          
+          
