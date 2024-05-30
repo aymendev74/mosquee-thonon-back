@@ -31,10 +31,16 @@ jobs:
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
           git checkout -b new-tag-released-${{ github.event.inputs.tag_version }}
+          echo "Current branch and status before changes:"
+          git branch -vv
+          git status
           mvn versions:set -DnewVersion=${{ github.event.inputs.tag_version }}  
           cat pom.xml
           git add pom.xml
           git commit -m "tag created ==> ${{ github.event.inputs.tag_version }}"
+          echo "Current branch and status after changes:"
+          git branch -vv
+          git status
           git tag ${{ github.event.inputs.tag_version }}
           git push origin new-tag-released-${{ github.event.inputs.tag_version }} # on pousse les modif sur la nouvelle branche
           git push origin ${{ github.event.inputs.tag_version }} # on pousse le nouveau tag
