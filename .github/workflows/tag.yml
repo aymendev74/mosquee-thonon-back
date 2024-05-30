@@ -44,4 +44,4 @@ jobs:
       - name: Create Pull Request (to ${{ github.ref }})
         run: gh pr create -B ${{ github.ref }} -H new-tag-released-${{ github.event.inputs.tag_version }} --title 'Update version following tag creation' --body 'Update version following tag creation'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
