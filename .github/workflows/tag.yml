@@ -35,8 +35,8 @@ jobs:
           git add pom.xml
           git commit -m "tag created ==> ${{ github.event.inputs.tag_version }}"
           git push origin new-tag-released-${{ github.event.inputs.tag_version }} # on pousse les modif sur la nouvelle branche
-          git tag ${{ github.event.inputs.tag_version }}
-          git push origin ${{ github.event.inputs.tag_version }} # on pousse le nouveau tag
+          #git tag ${{ github.event.inputs.tag_version }}
+          #git push origin ${{ github.event.inputs.tag_version }} # on pousse le nouveau tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
