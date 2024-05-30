@@ -32,6 +32,7 @@ jobs:
           git config --global user.email "aymen330d@hotmail.fr"
           git checkout -b new-tag-released-${{ github.event.inputs.tag_version }}
           mvn versions:set -DnewVersion=${{ github.event.inputs.tag_version }}  
+          cat pom.xml
           git add pom.xml
           git commit -m "tag created ==> ${{ github.event.inputs.tag_version }}"
           git tag ${{ github.event.inputs.tag_version }}
