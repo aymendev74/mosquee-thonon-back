@@ -4,7 +4,7 @@
 
     <groupId>org.mosqueethonon</groupId>
     <artifactId>mosquee-thonon-back</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>Mosquée Thonon - services</name>
