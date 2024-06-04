@@ -18,6 +18,11 @@ on:
       - master
       - 'release-*'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environnement de déploiement (staging | production)'
+        required: true
+        default: 'staging'
 
 jobs:
   build:
@@ -70,6 +75,6 @@ jobs:
         
     - name: Update API
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl stop mosqueethononapp.service"
-        scp -r mosqueethononapp.jar ubuntu@${{ secrets.TARGET_SERVER_IP }}:/home/ubuntu/springboot/
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl start mosqueethononapp.service"
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl stop mosqueethononapp-${{ github.event.inputs.environment }}.service"
+        scp -r mosqueethononapp.jar ubuntu@${{ secrets.TARGET_SERVER_IP }}:/home/ubuntu/mosquee-thonon-api/${{ github.event.inputs.environment }}
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl start mosqueethononapp-${{ github.event.inputs.environment }}.service"
