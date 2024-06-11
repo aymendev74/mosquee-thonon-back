@@ -1,7 +1,6 @@
 package org.mosqueethonon.service.impl;
 
 import jakarta.transaction.Transactional;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.*;
@@ -13,11 +12,12 @@ import org.mosqueethonon.repository.ReinscriptionPrioritaireRepository;
 import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
-import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.*;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
 import org.mosqueethonon.v1.mapper.InscriptionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class InscriptionServiceImpl implements InscriptionService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InscriptionServiceImpl.class);
+
     private InscriptionRepository inscriptionRepository;
     private InscriptionMapper inscriptionMapper;
     private TarifCalculService tarifCalculService;
@@ -50,6 +52,15 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public InscriptionDto saveInscription(InscriptionDto inscription, InscriptionSaveCriteria criteria) {
+        // Si pas en mode admin, on check si les inscriptions sont activées
+        if(!Boolean.TRUE.equals(criteria.getIsAdmin())) {
+            if(!this.paramService.isInscriptionEnabled()) {
+                // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
+                RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
+                LOGGER.error("Les inscriptions sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
+                throw e;
+            }
+        }
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
         TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription);

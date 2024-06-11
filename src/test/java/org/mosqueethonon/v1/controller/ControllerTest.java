@@ -3,11 +3,14 @@ package org.mosqueethonon.v1.controller;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
+import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.entity.UtilisateurEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.ParamRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class ControllerTest {
     @Autowired
     protected InscriptionRepository inscriptionRepository;
 
+    @Autowired
+    private ParamRepository paramRepository;
+
     protected String generateToken() {
         UtilisateurEntity user = new UtilisateurEntity();
         user.setId(1L);
@@ -41,6 +47,7 @@ public class ControllerTest {
 
     @BeforeAll
     protected void initReferentiel() {
+        this.initParams();
         this.initTarifsCours(this.initPeriode());
     }
 
@@ -95,6 +102,13 @@ public class ControllerTest {
         PeriodeEntity periode = PeriodeEntity.builder().application("COURS").dateDebut(today.minusDays(1))
                 .dateFin(today.plusDays(1)).nbMaxInscription(500).build();
         return this.periodeRepository.save(periode);
+    }
+
+    private void initParams() {
+        ParamEntity paramInscriptionEnabled = new ParamEntity();
+        paramInscriptionEnabled.setName(ParamNameEnum.INSCRIPTION_ENABLED);
+        paramInscriptionEnabled.setValue(Boolean.TRUE.toString());
+        this.paramRepository.save(paramInscriptionEnabled);
     }
 
     public static final BigDecimal bd(Integer bdAsInt) {

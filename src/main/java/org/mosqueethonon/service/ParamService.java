@@ -13,6 +13,8 @@ public interface ParamService {
 
     void saveParam(List<ParamDto> paramDtos);
 
+    boolean isInscriptionEnabled();
+
     ParamsDto getParams();
 
 }

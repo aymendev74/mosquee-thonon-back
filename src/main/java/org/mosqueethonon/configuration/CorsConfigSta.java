@@ -6,13 +6,13 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@Profile("prod")
-public class CorsConfigProd implements WebMvcConfigurer {
+@Profile("sta")
+public class CorsConfigSta implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://www.inscription-amc.fr", "https://inscription-amc.fr")
+                .allowedOrigins("https://www.staging.inscription-amc.fr", "https://staging.inscription-amc.fr")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
     }

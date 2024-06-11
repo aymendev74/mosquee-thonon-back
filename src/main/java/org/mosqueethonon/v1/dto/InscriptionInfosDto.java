@@ -20,5 +20,6 @@ public class InscriptionInfosDto {
     private Integer nbEleves;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate atDate;
+    private Boolean isAdmin;
 
 }

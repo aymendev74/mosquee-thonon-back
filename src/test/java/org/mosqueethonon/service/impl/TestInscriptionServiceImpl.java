@@ -49,6 +49,16 @@ public class TestInscriptionServiceImpl {
         this.testSaveInscription(Boolean.FALSE);
     }
 
+    @Test
+    public void testSaveInscriptionExpectIllegalStateExceptionWhenInscriptionDisabled() {
+        when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.FALSE);
+        assertThrows(IllegalStateException.class,
+                () -> {
+                    this.underTest.saveInscription(null, InscriptionSaveCriteria.builder()
+                            .isAdmin(false).build());
+                });
+    }
+
     private void testSaveInscription(boolean sendMailConfirmation) {
         // GIVEN
         final String anneeScolaire = "2024/2025";
@@ -62,6 +72,7 @@ public class TestInscriptionServiceImpl {
         when(this.paramService.getAnneeScolaireEnCours()).thenReturn(anneeScolaire);
         when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
         when(this.inscriptionRepository.save(any())).thenReturn(inscriptionEntity);
+        when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
         this.underTest.saveInscription(inscriptionDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
