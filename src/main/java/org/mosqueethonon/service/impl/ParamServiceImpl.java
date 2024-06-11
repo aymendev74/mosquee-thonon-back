@@ -24,11 +24,7 @@ public class ParamServiceImpl implements ParamService {
 
     @Override
     public boolean isReinscriptionPrioritaireEnabled() {
-        ParamEntity param = this.paramRepository.findByName(ParamNameEnum.REINSCRIPTION_ENABLED);
-        if (param == null) {
-            return false;
-        }
-        return this.booleanParamValueParser.getValue(param.getValue());
+        return this.findParamAsBoolean(ParamNameEnum.REINSCRIPTION_ENABLED);
     }
 
     @Override
@@ -78,8 +74,25 @@ public class ParamServiceImpl implements ParamService {
                 if(param.getName() == ParamNameEnum.ANNEE_SCOLAIRE) {
                     paramsDto.setAnneeScolaire(param.getValue());
                 }
+                if(param.getName() == ParamNameEnum.INSCRIPTION_ENABLED) {
+                    paramsDto.setInscriptionEnabled(this.booleanParamValueParser.getValue(param.getValue()));
+                }
             }
         }
         return paramsDto;
     }
+
+    @Override
+    public boolean isInscriptionEnabled() {
+        return this.findParamAsBoolean(ParamNameEnum.INSCRIPTION_ENABLED);
+    }
+
+    private boolean findParamAsBoolean(ParamNameEnum paramName) {
+        ParamEntity param = this.paramRepository.findByName(paramName);
+        if (param == null) {
+            return false;
+        }
+        return this.booleanParamValueParser.getValue(param.getValue());
+    }
+
 }

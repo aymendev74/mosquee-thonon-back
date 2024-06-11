@@ -7,5 +7,6 @@ public class ParamsDto {
 
     private boolean reinscriptionPrioritaire;
     private String anneeScolaire;
+    private boolean inscriptionEnabled;
 
 }

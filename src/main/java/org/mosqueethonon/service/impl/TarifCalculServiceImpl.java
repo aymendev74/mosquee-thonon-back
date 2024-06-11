@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.service.TarifService;
 import org.mosqueethonon.service.criteria.TarifCriteria;
@@ -21,8 +22,18 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     private TarifService tarifService;
     private InscriptionRepository inscriptionRepository;
 
+    private ParamService paramService;
+
     @Override
     public TarifInscriptionDto calculTarifInscription(InscriptionInfosDto inscriptionInfos) {
+        // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
+        if(!Boolean.TRUE.equals(inscriptionInfos.getIsAdmin())) {
+            boolean isInscriptionEnabled = this.paramService.isInscriptionEnabled();
+            if(!isInscriptionEnabled) {
+                return null;
+            }
+        }
+
         Boolean adherent = inscriptionInfos.getAdherent();
         Integer nbEnfants = inscriptionInfos.getNbEleves();
         LocalDate atDate = inscriptionInfos.getAtDate() != null ? inscriptionInfos.getAtDate() : LocalDate.now();
