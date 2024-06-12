@@ -5,7 +5,7 @@ public enum ParamNameEnum {
     REINSCRIPTION_ENABLED(ParamTypeEnum.BOOLEAN),
     ANNEE_SCOLAIRE(ParamTypeEnum.STRING),
 
-    INSCRIPTION_ENABLED(ParamTypeEnum.BOOLEAN);
+    INSCRIPTION_ENABLED_FROM_DATE(ParamTypeEnum.DATE);
 
     private ParamTypeEnum type;
 
