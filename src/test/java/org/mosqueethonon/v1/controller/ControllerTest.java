@@ -106,8 +106,8 @@ public class ControllerTest {
 
     private void initParams() {
         ParamEntity paramInscriptionEnabled = new ParamEntity();
-        paramInscriptionEnabled.setName(ParamNameEnum.INSCRIPTION_ENABLED);
-        paramInscriptionEnabled.setValue(Boolean.TRUE.toString());
+        paramInscriptionEnabled.setName(ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE);
+        paramInscriptionEnabled.setValue("01.01.1950");
         this.paramRepository.save(paramInscriptionEnabled);
     }
 
