@@ -3,16 +3,22 @@ package org.mosqueethonon.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.enums.ParamTypeEnum;
 import org.mosqueethonon.params.BooleanParamValueParser;
+import org.mosqueethonon.params.DateParamValueParser;
 import org.mosqueethonon.repository.ParamRepository;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.v1.dto.ParamDto;
 import org.mosqueethonon.v1.dto.ParamsDto;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -21,6 +27,8 @@ public class ParamServiceImpl implements ParamService {
 
     private ParamRepository paramRepository;
     private BooleanParamValueParser booleanParamValueParser;
+
+    private DateParamValueParser dateParamValueParser;
 
     @Override
     public boolean isReinscriptionPrioritaireEnabled() {
@@ -58,8 +66,18 @@ public class ParamServiceImpl implements ParamService {
         return switch (type) {
             case BOOLEAN -> value != null && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"));
             case STRING -> true;
+            case DATE -> StringUtils.EMPTY.equals(value) || this.isValideDate(value);
             default -> throw new IllegalArgumentException("Aucune règle de validation pour les paramètres de type : " + type);
         };
+    }
+
+    private boolean isValideDate(String value) {
+        try {
+            LocalDate.parse(value, DateTimeFormatter.ofPattern(APIDateFormats.DATE_FORMAT));
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
     @Override
@@ -74,8 +92,8 @@ public class ParamServiceImpl implements ParamService {
                 if(param.getName() == ParamNameEnum.ANNEE_SCOLAIRE) {
                     paramsDto.setAnneeScolaire(param.getValue());
                 }
-                if(param.getName() == ParamNameEnum.INSCRIPTION_ENABLED) {
-                    paramsDto.setInscriptionEnabled(this.booleanParamValueParser.getValue(param.getValue()));
+                if(param.getName() == ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE) {
+                    paramsDto.setInscriptionEnabledFromDate(this.dateParamValueParser.getValue(param.getValue()));
                 }
             }
         }
@@ -84,7 +102,8 @@ public class ParamServiceImpl implements ParamService {
 
     @Override
     public boolean isInscriptionEnabled() {
-        return this.findParamAsBoolean(ParamNameEnum.INSCRIPTION_ENABLED);
+        LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE);
+        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
     }
 
     private boolean findParamAsBoolean(ParamNameEnum paramName) {
@@ -93,6 +112,14 @@ public class ParamServiceImpl implements ParamService {
             return false;
         }
         return this.booleanParamValueParser.getValue(param.getValue());
+    }
+
+    private LocalDate findParamAsLocalDate(ParamNameEnum paramName) {
+        ParamEntity param = this.paramRepository.findByName(paramName);
+        if (param == null || StringUtils.EMPTY.equals(param.getValue())) {
+            return null;
+        }
+        return this.dateParamValueParser.getValue(param.getValue());
     }
 
 }
