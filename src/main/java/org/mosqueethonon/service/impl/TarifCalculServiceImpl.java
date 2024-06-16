@@ -51,7 +51,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         // Calcul du tarif par enfant
         criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS.name())
                 .type(TypeTarifEnum.ENFANT.name()).adherent(adherent)
-                .nbEnfant(nbEnfants).atDate(LocalDate.now()).build();
+                .nbEnfant(nbEnfants).atDate(atDate).build();
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
         if(CollectionUtils.isEmpty(tarifsEnfant)) {
             // Si pas de tarif enfant trouvé, alors on ne peut pas donner de tarif à l'utilisateur

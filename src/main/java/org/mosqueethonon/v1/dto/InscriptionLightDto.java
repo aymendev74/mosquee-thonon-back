@@ -17,11 +17,18 @@ public class InscriptionLightDto {
     private Long idInscription;
     private String nom;
     private String prenom;
+    private String nomResponsableLegal;
+    private String prenomResponsableLegal;
+    private String nomContactUrgence;
+    private String prenomContactUrgence;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private String niveau;
     private String niveauInterne;
     private String mobile;
+    private String mobileContactUrgence;
+    private Boolean autorisationAutonomie;
+    private Boolean autorisationMedia;
     private StatutInscription statut;
     private String ville;
     private String noInscription;

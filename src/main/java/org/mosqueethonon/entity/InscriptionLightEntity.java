@@ -26,6 +26,14 @@ public class InscriptionLightEntity {
     private String nom;
     @Column(name = "prenom")
     private String prenom;
+    @Column(name = "nomresponsablelegal")
+    private String nomResponsableLegal;
+    @Column(name = "prenomresponsablelegal")
+    private String prenomResponsableLegal;
+    @Column(name = "nomcontacturgence")
+    private String nomContactUrgence;
+    @Column(name = "prenomcontacturgence")
+    private String prenomContactUrgence;
     @Column(name = "datenaissance")
     private LocalDate dateNaissance;
     @Column(name = "niveau")
@@ -36,6 +44,12 @@ public class InscriptionLightEntity {
     private NiveauInterneEnum niveauInterne;
     @Column(name = "mobile")
     private String mobile;
+    @Column(name = "autorisationautonomie")
+    private Boolean autorisationAutonomie;
+    @Column(name = "autorisationmedia")
+    private Boolean autorisationMedia;
+    @Column(name = "mobilecontacturgence")
+    private String mobileContactUrgence;
     @Column(name = "statut")
     @Enumerated(EnumType.STRING)
     private StatutInscription statut;
