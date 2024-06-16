@@ -63,7 +63,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
-        TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription);
+        TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription, criteria.getIsAdmin());
         this.computeStatutInscription(inscription, tarifs.isListeAttente());
         InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
         if(entity.getDateInscription()==null) {
@@ -125,10 +125,13 @@ public class InscriptionServiceImpl implements InscriptionService {
         return true;
     }
 
-    private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription) {
+    private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription, Boolean isAdmin) {
         Integer nbEleves = inscription.getEleves().size();
+        LocalDate atDate = inscription.getDateInscription() != null ?
+                inscription.getDateInscription().toLocalDate() : LocalDate.now();
         InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().nbEleves(nbEleves)
-                .adherent(inscription.getResponsableLegal().getAdherent()).build();
+                .adherent(inscription.getResponsableLegal().getAdherent())
+                .isAdmin(isAdmin).atDate(atDate).build();
         TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
         if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
