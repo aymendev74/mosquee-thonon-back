@@ -1,0 +1,121 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  007-createTable-enseignant-classe-lienclasseenseignant
+       author:  Aymen
+       changes:
+         -  createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: enseignant_pkey
+                    name: idense
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: txensenom
+                    type: varchar(50)
+                - column:
+                    name: txenseprenom
+                    type: varchar(50)
+                - column:
+                    name: txensemobile
+                    type: varchar(20)
+                - column:
+                    name: oh_date_cre
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_cre
+                    type: VARCHAR(20)
+                - column:
+                    name: oh_date_mod
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_mod
+                    type: VARCHAR(20)
+              tableName:  enseignant
+
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: classe_pkey
+                   name: idclas
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: noclasnum
+                   type: varchar(50)
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: classe
+
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: lien_classe_enseignant_pkey
+                   name: idlice
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: idclas
+                   type: BIGINT
+               - column:
+                   name: idense
+                   type: BIGINT
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: lien_classe_enseignant
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idclas
+             baseTableName: lien_classe_enseignant
+             constraintName: fk_idclas
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idclas
+             referencedTableName: classe
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idense
+             baseTableName: lien_classe_enseignant
+             constraintName: fk_idense
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idense
+             referencedTableName: enseignant
+             validate: true
