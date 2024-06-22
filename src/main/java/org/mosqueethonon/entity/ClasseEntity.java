@@ -18,8 +18,11 @@ public class ClasseEntity implements Auditable {
     @Column(name = "noclasnum")
     private String numero;
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idclas")
-    private List<LienClasseEnseignantEntity> lienClasseEnseignantEntities;
+    @JoinColumn(name = "idclas", nullable = false)
+    private List<LienClasseEnseignantEntity> liensClasseEnseignants;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idclas", nullable = false)
+    private List<LienClasseEleveEntity> liensClasseEleves;
     @Embedded
     private Signature signature;
 

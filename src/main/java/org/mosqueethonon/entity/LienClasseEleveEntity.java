@@ -5,17 +5,17 @@ import lombok.Data;
 
 @Entity
 @EntityListeners(EntityListener.class)
-@Table(name = "lien_classe_enseignant", schema = "moth")
+@Table(name = "lien_classe_eleve", schema = "moth")
 @Data
-public class LienClasseEnseignantEntity implements Auditable {
+public class LienClasseEleveEntity implements Auditable {
 
     @Id
-    @Column(name = "idlice")
+    @Column(name = "idlcel")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne
-    @JoinColumn(name = "idense")
-    private EnseignantEntity enseignant;
+    @JoinColumn(name = "idelev")
+    private EleveEntity eleve;
     @Embedded
     private Signature signature;
 

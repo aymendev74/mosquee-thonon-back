@@ -1,6 +1,6 @@
 databaseChangeLog:
   -  changeSet:
-       id:  007-createTable-enseignant-classe-lienclasseenseignant
+       id:  007-createTable-enseignant-classe-liens
        author:  Aymen
        changes:
          -  createTable:
@@ -78,9 +78,13 @@ databaseChangeLog:
                    type: BIGINT
                - column:
                    name: idclas
+                   constraints:
+                     nullable: false
                    type: BIGINT
                - column:
                    name: idense
+                   constraints:
+                     nullable: false
                    type: BIGINT
                - column:
                    name: oh_date_cre
@@ -95,6 +99,41 @@ databaseChangeLog:
                    name: oh_vis_mod
                    type: VARCHAR(20)
              tableName: lien_classe_enseignant
+
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: lien_classe_eleve_pkey
+                   name: idlcel
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: idclas
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: idelev
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: lien_classe_eleve
 
          - addForeignKeyConstraint:
              baseColumnNames: idclas
@@ -118,4 +157,28 @@ databaseChangeLog:
              onUpdate: NO ACTION
              referencedColumnNames: idense
              referencedTableName: enseignant
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idclas
+             baseTableName: lien_classe_eleve
+             constraintName: fk_idclas
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idclas
+             referencedTableName: classe
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idelev
+             baseTableName: lien_classe_eleve
+             constraintName: fk_idelev
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idelev
+             referencedTableName: eleve
              validate: true
