@@ -77,7 +77,7 @@ public class ClasseServiceImpl implements IClasseService {
     private String getNumeroClasse(List<NiveauInterneEnum> niveaux) {
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < niveaux.size(); i++) {
-            sb.append(niveaux.get(0).toString());
+            sb.append(niveaux.get(i).toString());
             if(i < niveaux.size() -1) {
                 sb.append(" + ");
             }
