@@ -1,9 +1,8 @@
 package org.mosqueethonon.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import org.mosqueethonon.v1.enums.StatutInscription;
-
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,8 +11,10 @@ import java.util.List;
 @Entity
 @EntityListeners(EntityListener.class)
 @Table(name = "inscription", schema = "moth")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "cdinsctype", discriminatorType = DiscriminatorType.STRING)
 @Data
-public class InscriptionEntity implements Auditable {
+public abstract class InscriptionEntity implements Auditable {
 
     @Id
     @Column(name = "idinsc")
@@ -27,9 +28,6 @@ public class InscriptionEntity implements Auditable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "idinsc", nullable = false)
-    private List<EleveEntity> eleves;
     @Column(name = "noinscinscription")
     private String noInscription;
     @Column(name = "noinscpositionattente")
@@ -43,5 +41,6 @@ public class InscriptionEntity implements Auditable {
     private String anneeScolaire;
     @Column(name = "mtinsctotal")
     private BigDecimal montantTotal;
-
+    @Column(name = "cdinsctype", insertable = false, updatable = false)
+    private String type;
 }

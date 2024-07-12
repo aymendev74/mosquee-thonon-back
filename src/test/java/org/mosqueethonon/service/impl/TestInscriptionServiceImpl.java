@@ -9,8 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.InscriptionEntity;
-import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.entity.InscriptionEnfantEntity;
+import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.service.ParamService;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class TestInscriptionServiceImpl {
 
     @Mock
-    private InscriptionRepository inscriptionRepository;
+    private InscriptionEnfantRepository inscriptionEnfantRepository;
     @Mock
     private InscriptionMapper inscriptionMapper;
     @Mock
@@ -64,14 +64,14 @@ public class TestInscriptionServiceImpl {
         final String anneeScolaire = "2024/2025";
         final Long numeroInscription = Long.valueOf(1001);
         final InscriptionDto inscriptionDto = createInscription(2);
-        final InscriptionEntity inscriptionEntity = new InscriptionEntity();
+        final InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
         when(this.tarifCalculService.calculTarifInscription(any())).thenReturn(createTarifInscription());
         when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
         when(this.inscriptionMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
-        when(this.inscriptionMapper.fromDtoToEntity(any())).thenReturn(inscriptionEntity);
+        when(this.inscriptionMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
         when(this.paramService.getAnneeScolaireEnCours()).thenReturn(anneeScolaire);
-        when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
-        when(this.inscriptionRepository.save(any())).thenReturn(inscriptionEntity);
+        when(this.inscriptionEnfantRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
+        when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
         when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
@@ -80,9 +80,9 @@ public class TestInscriptionServiceImpl {
 
         // THEN
         verify(this.mailingConfirmationRepository, times(sendMailConfirmation ? 1 : 0)).save(any());
-        assertEquals(anneeScolaire, inscriptionEntity.getAnneeScolaire());
-        assertEquals(new StringBuilder("AMC-").append(numeroInscription).toString(), inscriptionEntity.getNoInscription());
-        assertNotNull(inscriptionEntity.getDateInscription());
+        assertEquals(anneeScolaire, inscriptionEnfantEntity.getAnneeScolaire());
+        assertEquals(new StringBuilder("AMC-").append(numeroInscription).toString(), inscriptionEnfantEntity.getNoInscription());
+        assertNotNull(inscriptionEnfantEntity.getDateInscription());
         assertEquals(BigDecimal.valueOf(189), inscriptionDto.getMontantTotal());
     }
 

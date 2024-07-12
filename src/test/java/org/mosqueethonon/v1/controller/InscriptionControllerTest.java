@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mosqueethonon.entity.InscriptionEntity;
-import org.mosqueethonon.entity.TarifEntity;
+import org.mosqueethonon.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.dto.EleveDto;
@@ -72,7 +71,7 @@ public class InscriptionControllerTest extends ControllerTest {
         compteur.await();
 
         // Puis on va vérifier que 510 inscriptions ont bien été enregistrés dont 10 avec statut en attente
-        List<InscriptionEntity> allInscriptions = this.inscriptionRepository.findAll();
+        List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
         assertEquals(510, allInscriptions.size());
         Long nbInscriptionEnAttente = allInscriptions.stream().filter(inscription ->
                 inscription.getStatut() == StatutInscription.LISTE_ATTENTE).count();

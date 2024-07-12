@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
-import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.repository.ReinscriptionPrioritaireRepository;
@@ -38,7 +38,8 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InscriptionServiceImpl.class);
 
-    private InscriptionRepository inscriptionRepository;
+    private InscriptionEnfantRepository inscriptionEnfantRepository;
+
     private InscriptionMapper inscriptionMapper;
     private TarifCalculService tarifCalculService;
 
@@ -65,18 +66,18 @@ public class InscriptionServiceImpl implements InscriptionService {
         inscription.normalize();
         TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription, criteria.getIsAdmin());
         this.computeStatutInscription(inscription, tarifs.isListeAttente());
-        InscriptionEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
+        InscriptionEnfantEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
         if(entity.getDateInscription()==null) {
             entity.setDateInscription(LocalDateTime.now());
         }
         if(entity.getNoInscription() == null) {
-            Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
+            Long noInscription = this.inscriptionEnfantRepository.getNextNumeroInscription();
             entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
         }
         if(entity.getAnneeScolaire() == null) {
             entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
         }
-        entity = this.inscriptionRepository.save(entity);
+        entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionMapper.fromEntityToDto(entity);
         if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
@@ -147,16 +148,16 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     private Integer calculPositionAttente() {
-        Integer lastPosition = this.inscriptionRepository.getLastPositionAttente(LocalDate.now());
+        Integer lastPosition = this.inscriptionEnfantRepository.getLastPositionAttente(LocalDate.now());
         return lastPosition != null ? ++lastPosition : 1;
     }
 
     @Override
     public InscriptionDto findInscriptionById(Long id) {
-        InscriptionEntity inscriptionEntity = this.inscriptionRepository.findById(id).orElse(null);
-        if(inscriptionEntity !=null) {
-            this.inscriptionMapper.fromEntityToDto(inscriptionEntity);
-            return this.inscriptionMapper.fromEntityToDto(inscriptionEntity);
+        InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
+        if(inscriptionEnfantEntity !=null) {
+            this.inscriptionMapper.fromEntityToDto(inscriptionEnfantEntity);
+            return this.inscriptionMapper.fromEntityToDto(inscriptionEnfantEntity);
         }
         return null;
     }
@@ -164,9 +165,9 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public Set<Long> validateInscriptions(Set<Long> ids) {
-        List<InscriptionEntity> inscriptionsToUpdate = new ArrayList<>();
+        List<InscriptionEnfantEntity> inscriptionsToUpdate = new ArrayList<>();
         for (Long id : ids) {
-            InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
+            InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(id).orElse(null);
             if(inscription!=null) {
                 inscription.setStatut(StatutInscription.VALIDEE);
                 inscription.setNoPositionAttente(null);
@@ -174,8 +175,8 @@ public class InscriptionServiceImpl implements InscriptionService {
             }
         }
         if(!CollectionUtils.isEmpty(inscriptionsToUpdate)) {
-            inscriptionsToUpdate = this.inscriptionRepository.saveAll(inscriptionsToUpdate);
-            return inscriptionsToUpdate.stream().map(InscriptionEntity::getId).collect(Collectors.toSet());
+            inscriptionsToUpdate = this.inscriptionEnfantRepository.saveAll(inscriptionsToUpdate);
+            return inscriptionsToUpdate.stream().map(InscriptionEnfantEntity::getId).collect(Collectors.toSet());
         }
         return Collections.emptySet();
     }
@@ -183,7 +184,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
-        this.inscriptionRepository.deleteAllById(ids);
+        this.inscriptionEnfantRepository.deleteAllById(ids);
         // Maintenant que des inscriptions ont été supprimés, il faut aller voir si des inscriptions sont en liste d'attente et
         // les changer de statut => provisoire
         this.updateListeAttentePeriode(null);
@@ -194,9 +195,9 @@ public class InscriptionServiceImpl implements InscriptionService {
     public void updateListeAttentePeriode(Long idPeriode) {
         Integer lastPositionAttente = null;
         if(idPeriode != null) {
-            lastPositionAttente = inscriptionRepository.getLastPositionAttente(idPeriode);
+            lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
         } else {
-            lastPositionAttente = inscriptionRepository.getLastPositionAttente(LocalDate.now());
+            lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(LocalDate.now());
         }
         if(lastPositionAttente != null) {
             PeriodeEntity periode = null;
@@ -205,11 +206,11 @@ public class InscriptionServiceImpl implements InscriptionService {
             } else {
                 periode = this.periodeRepository.findPeriodeCoursAtDate(LocalDate.now());
             }
-            Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId());
+            Integer nbElevesInscrits = this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(periode.getId());
             if(nbElevesInscrits < periode.getNbMaxInscription()) {
-                List<InscriptionEntity> inscriptionsEnAttente = this.inscriptionRepository.getInscriptionEnAttenteByPeriode(periode.getId());
+                List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(periode.getId());
                 int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
-                    for(InscriptionEntity inscriptionEnAttente: inscriptionsEnAttente) {
+                    for(InscriptionEnfantEntity inscriptionEnAttente: inscriptionsEnAttente) {
                         Integer nbEleveInscription = inscriptionEnAttente.getEleves().size();
                         if(nbEleveInscription <= nbPlacesDisponibles) {
                             // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
@@ -220,19 +221,19 @@ public class InscriptionServiceImpl implements InscriptionService {
                             break;
                         }
                     }
-                    this.inscriptionRepository.saveAll(inscriptionsEnAttente);
+                    this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
             }
         }
     }
 
     @Override
     public Integer findNbInscriptionsByPeriode(Long idPeriode) {
-        return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode);
+        return this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(idPeriode);
     }
 
     @Override
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto) {
-        Integer nbInscriptionOutside = this.inscriptionRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
+        Integer nbInscriptionOutside = this.inscriptionEnfantRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
                 periodeDto.getDateDebut(), periodeDto.getDateFin());
         return nbInscriptionOutside != null && nbInscriptionOutside > 0;
     }
@@ -251,7 +252,7 @@ public class InscriptionServiceImpl implements InscriptionService {
             }
             for(EleveDto eleve : inscriptionDto.getEleves()) {
                 if(eleve.getPrenom() != null && eleve.getNom() != null) {
-                    List<InscriptionEntity> matchedInscriptions = this.inscriptionRepository.findInscriptionsWithEleve(eleve.getPrenom(),
+                    List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
                             eleve.getNom(), atDate, inscriptionDto.getId());
                     if(!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;

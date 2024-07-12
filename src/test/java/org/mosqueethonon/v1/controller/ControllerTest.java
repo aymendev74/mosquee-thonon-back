@@ -7,9 +7,8 @@ import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.entity.UtilisateurEntity;
-import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.ParamNameEnum;
-import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.ParamRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.repository.TarifRepository;
@@ -33,7 +32,7 @@ public class ControllerTest {
     protected TarifRepository tarifRepository;
 
     @Autowired
-    protected InscriptionRepository inscriptionRepository;
+    protected InscriptionEnfantRepository inscriptionEnfantRepository;
 
     @Autowired
     private ParamRepository paramRepository;
@@ -53,7 +52,7 @@ public class ControllerTest {
 
     @BeforeEach
     protected void deleteInscription() {
-        this.inscriptionRepository.deleteAll();
+        this.inscriptionEnfantRepository.deleteAll();
     }
 
     private void initTarifsCours(PeriodeEntity periode) {

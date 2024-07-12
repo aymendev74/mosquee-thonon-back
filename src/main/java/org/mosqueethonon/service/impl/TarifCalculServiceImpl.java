@@ -3,7 +3,7 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
-import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.service.TarifService;
@@ -20,7 +20,7 @@ import java.util.List;
 public class TarifCalculServiceImpl implements TarifCalculService {
 
     private TarifService tarifService;
-    private InscriptionRepository inscriptionRepository;
+    private InscriptionEnfantRepository inscriptionEnfantRepository;
 
     private ParamService paramService;
 
@@ -63,7 +63,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         TarifDto tarifBase = tarifsBase.get(0);
         TarifDto tarifEnfant = tarifsEnfant.get(0);
         PeriodeInfoDto periode = tarifEnfant.getPeriode();
-        Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId());
+        Integer nbElevesInscrits = this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(periode.getId());
         boolean isListeAttente = nbEnfants + nbElevesInscrits > periode.getNbMaxInscription();
 
         return TarifInscriptionDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
