@@ -4,18 +4,23 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mosqueethonon.annotations.DataBaseParam;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.enums.ParamTypeEnum;
 import org.mosqueethonon.params.BooleanParamValueParser;
 import org.mosqueethonon.params.DateParamValueParser;
+import org.mosqueethonon.params.ParamParser;
 import org.mosqueethonon.repository.ParamRepository;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.v1.dto.ParamDto;
 import org.mosqueethonon.v1.dto.ParamsDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,10 +30,14 @@ import java.util.List;
 @Service
 public class ParamServiceImpl implements ParamService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParamServiceImpl.class);
+
     private ParamRepository paramRepository;
     private BooleanParamValueParser booleanParamValueParser;
 
     private DateParamValueParser dateParamValueParser;
+
+    private ParamParser paramParser;
 
     @Override
     public boolean isReinscriptionPrioritaireEnabled() {
@@ -83,21 +92,31 @@ public class ParamServiceImpl implements ParamService {
     @Override
     public ParamsDto getParams() {
         ParamsDto paramsDto = new ParamsDto();
+        Field[] paramFields = ParamsDto.class.getDeclaredFields();
         List<ParamEntity> params = this.paramRepository.findAll();
-        if(CollectionUtils.isNotEmpty(params)) {
-            for(ParamEntity param : params) {
-                if(param.getName() == ParamNameEnum.REINSCRIPTION_ENABLED) {
-                    paramsDto.setReinscriptionPrioritaire(this.booleanParamValueParser.getValue(param.getValue()));
-                }
-                if(param.getName() == ParamNameEnum.ANNEE_SCOLAIRE) {
-                    paramsDto.setAnneeScolaire(param.getValue());
-                }
-                if(param.getName() == ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE) {
-                    paramsDto.setInscriptionEnabledFromDate(this.dateParamValueParser.getValue(param.getValue()));
+        for (Field field : paramFields) {
+            DataBaseParam annotation = field.getAnnotation(DataBaseParam.class);
+            if (annotation != null) {
+                ParamNameEnum paramName = annotation.name();
+                for (ParamEntity paramEntity : params) {
+                    if (paramName == paramEntity.getName()) {
+                        field.setAccessible(true);
+                        setFieldValue(paramsDto, field, paramEntity.getValue());
+                    }
                 }
             }
         }
         return paramsDto;
+    }
+
+    private void setFieldValue(ParamsDto paramsDto, Field field, String value) {
+        try {
+            Object parsedValue = field.getType() == String.class ? value : this.paramParser.parseValue(value, field.getType());
+            field.set(paramsDto, parsedValue);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Erreur lors de la récupération des paramètres. paramName = " + field.getName());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
