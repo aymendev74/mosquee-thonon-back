@@ -6,7 +6,7 @@ import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.PeriodeInfoEntity;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.service.PeriodeService;
 import org.mosqueethonon.utils.DateUtils;
 import org.mosqueethonon.v1.dto.PeriodeDto;
@@ -17,7 +17,6 @@ import org.mosqueethonon.v1.mapper.PeriodeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     private PeriodeInfoMapper periodeInfoMapper;
     private PeriodeMapper periodeMapper;
 
-    private InscriptionService inscriptionService;
+    private InscriptionEnfantService inscriptionEnfantService;
 
     private static final String PERIODE_APPLICATION_COURS = "COURS";
 
@@ -49,7 +48,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     public PeriodeDto savePeriode(PeriodeDto periode) {
         PeriodeEntity periodeEntity = this.periodeRepository.save(this.periodeMapper.fromDtoToEntity(periode));
-        this.inscriptionService.updateListeAttentePeriode(periode.getId());
+        this.inscriptionEnfantService.updateListeAttentePeriode(periode.getId());
         return this.periodeMapper.fromEntityToDto(periodeEntity);
     }
 
@@ -78,7 +77,7 @@ public class PeriodeServiceImpl implements PeriodeService {
 
     private boolean checkNbInscriptionVsMaxPeriode(PeriodeDto periode) {
         if(periode.getId() != null && periode.getNbMaxInscription() != null) {
-            Integer nbInscription = inscriptionService.findNbInscriptionsByPeriode(periode.getId());
+            Integer nbInscription = inscriptionEnfantService.findNbInscriptionsByPeriode(periode.getId());
             if(nbInscription != null) {
                 return nbInscription <= periode.getNbMaxInscription();
             }
@@ -87,7 +86,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     }
 
     private boolean checkNoInscriptionOutsidePeriode(PeriodeDto periode) {
-        return !this.inscriptionService.isInscriptionOutsideRange(periode);
+        return !this.inscriptionEnfantService.isInscriptionOutsideRange(periode);
     }
 
     private boolean checkNoOverlap(PeriodeDto periode) {

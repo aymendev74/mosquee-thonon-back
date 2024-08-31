@@ -1,10 +1,8 @@
 package org.mosqueethonon.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Singular;
 import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.entity.Signature;
@@ -13,14 +11,13 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class InscriptionDto {
+public class InscriptionEnfantDto {
 
     private Long id;
     private StatutInscription statut;

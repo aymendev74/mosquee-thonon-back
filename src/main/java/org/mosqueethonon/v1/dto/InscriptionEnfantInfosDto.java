@@ -8,13 +8,12 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.configuration.APIDateFormats;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InscriptionInfosDto {
+public class InscriptionEnfantInfosDto {
 
     private Boolean adherent;
     private Integer nbEleves;

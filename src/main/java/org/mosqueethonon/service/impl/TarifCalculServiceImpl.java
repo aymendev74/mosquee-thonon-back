@@ -25,7 +25,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     private ParamService paramService;
 
     @Override
-    public TarifInscriptionDto calculTarifInscription(InscriptionInfosDto inscriptionInfos) {
+    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(InscriptionEnfantInfosDto inscriptionInfos) {
         // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
         if(!Boolean.TRUE.equals(inscriptionInfos.getIsAdmin())) {
             boolean isInscriptionEnabled = this.paramService.isInscriptionEnabled();
@@ -66,9 +66,19 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         Integer nbElevesInscrits = this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(periode.getId());
         boolean isListeAttente = nbEnfants + nbElevesInscrits > periode.getNbMaxInscription();
 
-        return TarifInscriptionDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
+        return TarifInscriptionEnfantDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
                 .tarifEleve(tarifEnfant.getMontant()).idTariEleve(tarifEnfant.getId())
                 .listeAttente(isListeAttente).build();
     }
 
+    @Override
+    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(LocalDate atDate) {
+        TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ADULTE.name()).atDate(atDate).build();
+        List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
+        if(!CollectionUtils.isEmpty(tarifsBase)) {
+            TarifDto tarif = tarifsBase.get(0);
+            return TarifInscriptionAdulteDto.builder().idTari(tarif.getId()).tarif(tarif.getMontant()).build();
+        }
+        return null;
+    }
 }

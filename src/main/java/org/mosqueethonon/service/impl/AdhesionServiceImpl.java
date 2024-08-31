@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.AdhesionEntity;
 import org.mosqueethonon.entity.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
-import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
@@ -14,7 +13,6 @@ import org.mosqueethonon.v1.mapper.AdhesionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;

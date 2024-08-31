@@ -7,18 +7,19 @@ import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.utils.StringUtils;
 import org.mosqueethonon.v1.enums.StatutInscription;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@SuperBuilder
 @NoArgsConstructor
-public class AdhesionDto implements IMailObject {
+public class InscriptionAdulteDto implements IMailObject {
 
     private Long id;
-    private String titre;
+    private Long idEleve;
+    private Long idResponsableLegal;
     private String nom;
     private String prenom;
     private String email;
@@ -29,16 +30,18 @@ public class AdhesionDto implements IMailObject {
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;
-    private BigDecimal montantAutre;
     private StatutInscription statut;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
     private LocalDateTime dateInscription;
     private BigDecimal montant;
-    private Integer noMembre;
     private SignatureDto signature;
+    private SignatureDto signatureEleve;
+    private SignatureDto signatureResponsableLegal;
+    private String anneeScolaire;
+    private BigDecimal montantTotal;
 
     public void normalize() {
-        this.setNom(StringUtils.normalize(this.getNom()));
-        this.setPrenom(StringUtils.normalize(this.getPrenom()));
+        this.nom = StringUtils.normalize(StringUtils.normalize(nom));
+        this.prenom = StringUtils.normalize(StringUtils.normalize(prenom));
     }
 }

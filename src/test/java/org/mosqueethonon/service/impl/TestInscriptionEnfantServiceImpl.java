@@ -11,23 +11,26 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
+import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.*;
-import org.mosqueethonon.v1.mapper.InscriptionMapper;
+import org.mosqueethonon.v1.mapper.InscriptionEnfantMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
 @ExtendWith(MockitoExtension.class)
-public class TestInscriptionServiceImpl {
+public class TestInscriptionEnfantServiceImpl {
 
     @Mock
     private InscriptionEnfantRepository inscriptionEnfantRepository;
     @Mock
-    private InscriptionMapper inscriptionMapper;
+    private InscriptionRepository inscriptionRepository;
+    @Mock
+    private InscriptionEnfantMapper inscriptionEnfantMapper;
     @Mock
     private TarifCalculService tarifCalculService;
     @Mock
@@ -37,7 +40,7 @@ public class TestInscriptionServiceImpl {
     @Mock
     private ParamService paramService;
     @InjectMocks
-    private InscriptionServiceImpl underTest;
+    private InscriptionEnfantServiceImpl underTest;
 
     @Test
     public void testSaveInscriptionSendEmailConfirmation() {
@@ -63,19 +66,19 @@ public class TestInscriptionServiceImpl {
         // GIVEN
         final String anneeScolaire = "2024/2025";
         final Long numeroInscription = Long.valueOf(1001);
-        final InscriptionDto inscriptionDto = createInscription(2);
+        final InscriptionEnfantDto inscriptionEnfantDto = createInscription(2);
         final InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
-        when(this.tarifCalculService.calculTarifInscription(any())).thenReturn(createTarifInscription());
+        when(this.tarifCalculService.calculTarifInscriptionEnfant(any())).thenReturn(createTarifInscription());
         when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
-        when(this.inscriptionMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
-        when(this.inscriptionMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
+        when(this.inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionEnfantDto);
+        when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
         when(this.paramService.getAnneeScolaireEnCours()).thenReturn(anneeScolaire);
-        when(this.inscriptionEnfantRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
+        when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
         when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
         when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
-        this.underTest.saveInscription(inscriptionDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
+        this.underTest.saveInscription(inscriptionEnfantDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
                 .build());
 
         // THEN
@@ -83,22 +86,22 @@ public class TestInscriptionServiceImpl {
         assertEquals(anneeScolaire, inscriptionEnfantEntity.getAnneeScolaire());
         assertEquals(new StringBuilder("AMC-").append(numeroInscription).toString(), inscriptionEnfantEntity.getNoInscription());
         assertNotNull(inscriptionEnfantEntity.getDateInscription());
-        assertEquals(BigDecimal.valueOf(189), inscriptionDto.getMontantTotal());
+        assertEquals(BigDecimal.valueOf(189), inscriptionEnfantDto.getMontantTotal());
     }
 
-    private TarifInscriptionDto createTarifInscription() {
-        return TarifInscriptionDto.builder().idTariEleve(1L).idTariBase(2L)
+    private TarifInscriptionEnfantDto createTarifInscription() {
+        return TarifInscriptionEnfantDto.builder().idTariEleve(1L).idTariBase(2L)
                 .tarifEleve(BigDecimal.valueOf(12)).tarifBase(BigDecimal.valueOf(165))
                 .listeAttente(Boolean.FALSE).build();
     }
 
-    private InscriptionDto createInscription(int nbEleves) {
-        InscriptionDto inscriptionDto = new InscriptionDto();
-        inscriptionDto.setResponsableLegal(ResponsableLegalDto.builder().adherent(Boolean.TRUE).build());
-        inscriptionDto.setEleves(new ArrayList<>());
+    private InscriptionEnfantDto createInscription(int nbEleves) {
+        InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().adherent(Boolean.TRUE).build());
+        inscriptionEnfantDto.setEleves(new ArrayList<>());
         for(int i = 0; i < nbEleves ; i++) {
-            inscriptionDto.getEleves().add(EleveDto.builder().build());
+            inscriptionEnfantDto.getEleves().add(EleveDto.builder().build());
         }
-        return inscriptionDto;
+        return inscriptionEnfantDto;
     }
 }

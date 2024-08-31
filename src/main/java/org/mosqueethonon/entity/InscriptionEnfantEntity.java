@@ -11,8 +11,4 @@ import java.util.List;
 @Data
 public class InscriptionEnfantEntity extends InscriptionEntity {
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "idinsc", nullable = false)
-    private List<EleveEntity> eleves;
-
 }

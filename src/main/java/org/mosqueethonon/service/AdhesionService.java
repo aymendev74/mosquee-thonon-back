@@ -2,7 +2,6 @@ package org.mosqueethonon.service;
 
 import org.mosqueethonon.v1.dto.AdhesionDto;
 
-import java.util.List;
 import java.util.Set;
 
 public interface AdhesionService {

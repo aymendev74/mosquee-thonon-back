@@ -5,17 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
-import org.mosqueethonon.repository.InscriptionEnfantRepository;
-import org.mosqueethonon.repository.MailingConfirmationRepository;
-import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.repository.ReinscriptionPrioritaireRepository;
-import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.repository.*;
+import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.*;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
-import org.mosqueethonon.v1.mapper.InscriptionMapper;
+import org.mosqueethonon.v1.mapper.InscriptionEnfantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +31,15 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
-public class InscriptionServiceImpl implements InscriptionService {
+public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InscriptionServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InscriptionEnfantServiceImpl.class);
 
     private InscriptionEnfantRepository inscriptionEnfantRepository;
 
-    private InscriptionMapper inscriptionMapper;
+    private InscriptionRepository inscriptionRepository;
+
+    private InscriptionEnfantMapper inscriptionEnfantMapper;
     private TarifCalculService tarifCalculService;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
@@ -52,7 +51,7 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     @Transactional
     @Override
-    public InscriptionDto saveInscription(InscriptionDto inscription, InscriptionSaveCriteria criteria) {
+    public InscriptionEnfantDto saveInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
         // Si pas en mode admin, on check si les inscriptions sont activées
         if(!Boolean.TRUE.equals(criteria.getIsAdmin())) {
             if(!this.paramService.isInscriptionEnabled()) {
@@ -64,21 +63,21 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
-        TarifInscriptionDto tarifs = this.doCalculTarifInscription(inscription, criteria.getIsAdmin());
+        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(inscription, criteria.getIsAdmin());
         this.computeStatutInscription(inscription, tarifs.isListeAttente());
-        InscriptionEnfantEntity entity = this.inscriptionMapper.fromDtoToEntity(inscription);
+        InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
         if(entity.getDateInscription()==null) {
             entity.setDateInscription(LocalDateTime.now());
         }
         if(entity.getNoInscription() == null) {
-            Long noInscription = this.inscriptionEnfantRepository.getNextNumeroInscription();
+            Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
             entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
         }
         if(entity.getAnneeScolaire() == null) {
             entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
         }
         entity = this.inscriptionEnfantRepository.save(entity);
-        inscription = this.inscriptionMapper.fromEntityToDto(entity);
+        inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
         if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
                     .statut(MailingConfirmationStatut.PENDING).build());
@@ -86,7 +85,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         return inscription;
     }
 
-    private void computeStatutInscription(InscriptionDto inscription, boolean isListeAttente) {
+    private void computeStatutInscription(InscriptionEnfantDto inscription, boolean isListeAttente) {
         boolean isReinscriptionEnabled = this.paramService.isReinscriptionPrioritaireEnabled();
         if(isReinscriptionEnabled && inscription.getStatut() == null) {
             if(isReinscriptionValide(inscription)) {
@@ -116,7 +115,7 @@ public class InscriptionServiceImpl implements InscriptionService {
         }
     }
 
-    private boolean isReinscriptionValide(InscriptionDto inscription) {
+    private boolean isReinscriptionValide(InscriptionEnfantDto inscription) {
         for(EleveDto eleve : inscription.getEleves()) {
             ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomAndPrenomPhonetique(eleve.getNom(), eleve.getPrenom());
             if(reinscriptionPrio == null) {
@@ -126,14 +125,14 @@ public class InscriptionServiceImpl implements InscriptionService {
         return true;
     }
 
-    private TarifInscriptionDto doCalculTarifInscription(InscriptionDto inscription, Boolean isAdmin) {
+    private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantDto inscription, Boolean isAdmin) {
         Integer nbEleves = inscription.getEleves().size();
         LocalDate atDate = inscription.getDateInscription() != null ?
                 inscription.getDateInscription().toLocalDate() : LocalDate.now();
-        InscriptionInfosDto inscriptionInfos = InscriptionInfosDto.builder().nbEleves(nbEleves)
+        InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
                 .adherent(inscription.getResponsableLegal().getAdherent())
                 .isAdmin(isAdmin).atDate(atDate).build();
-        TarifInscriptionDto tarifs = this.tarifCalculService.calculTarifInscription(inscriptionInfos);
+        TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscriptionInfos);
         if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
         }
@@ -153,11 +152,11 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     @Override
-    public InscriptionDto findInscriptionById(Long id) {
+    public InscriptionEnfantDto findInscriptionById(Long id) {
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
         if(inscriptionEnfantEntity !=null) {
-            this.inscriptionMapper.fromEntityToDto(inscriptionEnfantEntity);
-            return this.inscriptionMapper.fromEntityToDto(inscriptionEnfantEntity);
+            this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
+            return this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
         }
         return null;
     }
@@ -239,21 +238,21 @@ public class InscriptionServiceImpl implements InscriptionService {
     }
 
     @Override
-    public String checkCoherence(InscriptionDto inscriptionDto) {
-        inscriptionDto.normalize();
-        return this.isAlreadyExistingEleves(inscriptionDto);
+    public String checkCoherence(InscriptionEnfantDto inscriptionEnfantDto) {
+        inscriptionEnfantDto.normalize();
+        return this.isAlreadyExistingEleves(inscriptionEnfantDto);
     }
 
-    private String isAlreadyExistingEleves(InscriptionDto inscriptionDto) {
-        if(!CollectionUtils.isEmpty(inscriptionDto.getEleves())) {
-            LocalDateTime atDate = inscriptionDto.getDateInscription();
+    private String isAlreadyExistingEleves(InscriptionEnfantDto inscriptionEnfantDto) {
+        if(!CollectionUtils.isEmpty(inscriptionEnfantDto.getEleves())) {
+            LocalDateTime atDate = inscriptionEnfantDto.getDateInscription();
             if(atDate == null) {
                 atDate = LocalDateTime.now();
             }
-            for(EleveDto eleve : inscriptionDto.getEleves()) {
+            for(EleveDto eleve : inscriptionEnfantDto.getEleves()) {
                 if(eleve.getPrenom() != null && eleve.getNom() != null) {
                     List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
-                            eleve.getNom(), atDate, inscriptionDto.getId());
+                            eleve.getNom(), atDate, inscriptionEnfantDto.getId());
                     if(!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;
                     }

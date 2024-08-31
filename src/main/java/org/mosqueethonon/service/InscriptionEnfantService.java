@@ -1,14 +1,14 @@
 package org.mosqueethonon.service;
 
-import org.mosqueethonon.v1.dto.InscriptionDto;
+import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.PeriodeDto;
 import java.util.Set;
 
-public interface InscriptionService {
+public interface InscriptionEnfantService {
 
-    public InscriptionDto saveInscription(InscriptionDto personne, InscriptionSaveCriteria criteria);
-    public InscriptionDto findInscriptionById(Long id);
+    public InscriptionEnfantDto saveInscription(InscriptionEnfantDto personne, InscriptionSaveCriteria criteria);
+    public InscriptionEnfantDto findInscriptionById(Long id);
     public Set<Long> validateInscriptions(Set<Long> ids);
     public Set<Long> deleteInscriptions(Set<Long> ids);
 
@@ -17,6 +17,6 @@ public interface InscriptionService {
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto);
     public void updateListeAttentePeriode(Long idPeriode);
 
-    public String checkCoherence(InscriptionDto inscriptionDto);
+    public String checkCoherence(InscriptionEnfantDto inscriptionEnfantDto);
 
 }

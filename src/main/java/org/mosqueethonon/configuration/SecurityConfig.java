@@ -39,7 +39,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/v1/user/auth").permitAll()
-                .requestMatchers(HttpMethod.POST, "/v1/inscriptions/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
                 .requestMatchers("/v1/tarifs").permitAll()
                 .requestMatchers("/v1/tarifs-inscription").permitAll()

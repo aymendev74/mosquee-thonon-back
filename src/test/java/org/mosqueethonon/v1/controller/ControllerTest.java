@@ -8,10 +8,7 @@ import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.entity.UtilisateurEntity;
 import org.mosqueethonon.enums.ParamNameEnum;
-import org.mosqueethonon.repository.InscriptionEnfantRepository;
-import org.mosqueethonon.repository.ParamRepository;
-import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.repository.TarifRepository;
+import org.mosqueethonon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -35,6 +32,9 @@ public class ControllerTest {
     protected InscriptionEnfantRepository inscriptionEnfantRepository;
 
     @Autowired
+    protected InscriptionAdulteRepository inscriptionAdulteRepository;
+
+    @Autowired
     private ParamRepository paramRepository;
 
     protected String generateToken() {
@@ -47,7 +47,8 @@ public class ControllerTest {
     @BeforeAll
     protected void initReferentiel() {
         this.initParams();
-        this.initTarifsCours(this.initPeriode());
+        this.initTarifsCoursEnfant(this.initPeriodeCoursEnfant());
+        this.initTarifsCoursAdulte(this.initPeriodeCoursAdulte());
     }
 
     @BeforeEach
@@ -55,7 +56,7 @@ public class ControllerTest {
         this.inscriptionEnfantRepository.deleteAll();
     }
 
-    private void initTarifsCours(PeriodeEntity periode) {
+    private void initTarifsCoursEnfant(PeriodeEntity periode) {
         List<TarifEntity> tarifsCours = new ArrayList<>();
         // tarifs base
         tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(true)
@@ -93,13 +94,32 @@ public class ControllerTest {
         tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(false)
                 .type("ENFANT").code("ENFANT_4_ENFANT").montant(bd(15)).build());
 
+        // tarifs adultes
+        tarifsCours.add(TarifEntity.builder().periode(periode).type("COURS").montant(bd(15)).build());
+
         this.tarifRepository.saveAll(tarifsCours);
     }
 
-    private PeriodeEntity initPeriode() {
+    private void initTarifsCoursAdulte(PeriodeEntity periode) {
+        List<TarifEntity> tarifsCours = new ArrayList<>();
+
+        // tarifs adultes
+        tarifsCours.add(TarifEntity.builder().periode(periode).type("ADULTE").montant(bd(15)).build());
+
+        this.tarifRepository.saveAll(tarifsCours);
+    }
+
+    private PeriodeEntity initPeriodeCoursEnfant() {
         LocalDate today = LocalDate.now();
         PeriodeEntity periode = PeriodeEntity.builder().application("COURS").dateDebut(today.minusDays(1))
                 .dateFin(today.plusDays(1)).nbMaxInscription(500).build();
+        return this.periodeRepository.save(periode);
+    }
+
+    private PeriodeEntity initPeriodeCoursAdulte() {
+        LocalDate today = LocalDate.now();
+        PeriodeEntity periode = PeriodeEntity.builder().application("COURS_ADULTE").dateDebut(today.minusDays(1))
+                .dateFin(today.plusDays(1)).build();
         return this.periodeRepository.save(periode);
     }
 

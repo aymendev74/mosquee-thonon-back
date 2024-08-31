@@ -10,13 +10,14 @@ import org.mosqueethonon.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.dto.EleveDto;
-import org.mosqueethonon.v1.dto.InscriptionDto;
+import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.ResponsableLegalDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,7 +31,8 @@ import java.util.concurrent.CountDownLatch;
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
-public class InscriptionControllerTest extends ControllerTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+public class InscriptionEnfantControllerTest extends ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,7 +42,7 @@ public class InscriptionControllerTest extends ControllerTest {
 
     @Test
     public void testFindInscriptionsByCriteriaReturn200() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions")
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions-enfants")
                         .header("Authorization", generateToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -53,7 +55,7 @@ public class InscriptionControllerTest extends ControllerTest {
         for (int i = 0; i < nbThreads; i++) {
             new Thread(() -> {
                 try {
-                    mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions")
+                    mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
                                     .header("Authorization", generateToken())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonMapper.writeValueAsString(this.createInscription())))
@@ -81,8 +83,8 @@ public class InscriptionControllerTest extends ControllerTest {
         assertEquals(10, nbInscriptionEnAttente);
     }
 
-    private InscriptionDto createInscription() {
-        return InscriptionDto.builder().eleves(this.createEleve())
+    private InscriptionEnfantDto createInscription() {
+        return InscriptionEnfantDto.builder().eleves(this.createEleve())
                 .responsableLegal(createResponsableLegal()).build();
     }
 

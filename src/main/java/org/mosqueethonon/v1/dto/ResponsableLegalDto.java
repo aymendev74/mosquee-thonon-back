@@ -1,6 +1,5 @@
 package org.mosqueethonon.v1.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -9,9 +8,12 @@ import org.mosqueethonon.entity.Signature;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class ResponsableLegalDto extends MailObjectDto {
+public class ResponsableLegalDto implements IMailObject {
 
     private Long id;
+    private String nom;
+    private String prenom;
+    private String email;
     private String mobile;
     private String numeroEtRue;
     private Integer codePostal;

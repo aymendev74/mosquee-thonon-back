@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestInscriptionDto {
+public class TestInscriptionEnfantDto {
 
     @Test
     public void testNormalize() {
@@ -13,10 +13,10 @@ public class TestInscriptionDto {
         ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder().nom(" eL yahyaouI ").prenom("shAms edDine ")
                 .nomAutre("eL yahyaouI ").prenomAutre("shAms edDine ").build();
         EleveDto eleve = EleveDto.builder().nom(" eL yahyaouI ").prenom("shAms edDine ").build();
-        InscriptionDto inscriptionDto = InscriptionDto.builder().responsableLegal(responsableLegalDto).eleves(Lists.newArrayList(eleve)).build();
+        InscriptionEnfantDto inscriptionEnfantDto = InscriptionEnfantDto.builder().responsableLegal(responsableLegalDto).eleves(Lists.newArrayList(eleve)).build();
 
         // WHEN
-        inscriptionDto.normalize();
+        inscriptionEnfantDto.normalize();
 
         // THEN
         assertEquals("El Yahyaoui", responsableLegalDto.getNom());

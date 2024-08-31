@@ -43,4 +43,8 @@ public abstract class InscriptionEntity implements Auditable {
     private BigDecimal montantTotal;
     @Column(name = "cdinsctype", insertable = false, updatable = false)
     private String type;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "idinsc", nullable = false)
+    private List<EleveEntity> eleves;
+
 }

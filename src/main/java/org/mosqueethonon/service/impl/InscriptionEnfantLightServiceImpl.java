@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.InscriptionLightEntity;
 import org.mosqueethonon.repository.InscriptionLightRepository;
 import org.mosqueethonon.repository.specifications.InscriptionLightEntitySpecifications;
-import org.mosqueethonon.service.InscriptionLightService;
+import org.mosqueethonon.service.InscriptionEnfantLightService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
-import org.mosqueethonon.v1.dto.InscriptionLightDto;
-import org.mosqueethonon.v1.mapper.InscriptionLightMapper;
+import org.mosqueethonon.v1.dto.InscriptionEnfantLightDto;
+import org.mosqueethonon.v1.mapper.InscriptionEnfantLightMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -17,16 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class InscriptionLightServiceImpl implements InscriptionLightService {
+public class InscriptionEnfantLightServiceImpl implements InscriptionEnfantLightService {
 
     private InscriptionLightRepository inscriptionLightRepository;
-    private InscriptionLightMapper inscriptionLightMapper;
+    private InscriptionEnfantLightMapper inscriptionEnfantLightMapper;
 
     @Override
-    public List<InscriptionLightDto> findInscriptionsLightByCriteria(InscriptionCriteria criteria) {
+    public List<InscriptionEnfantLightDto> findInscriptionsEnfantLightByCriteria(InscriptionCriteria criteria) {
         List<InscriptionLightEntity> personnes = this.inscriptionLightRepository.findAll(InscriptionLightEntitySpecifications.withCriteria(criteria));
         if(!CollectionUtils.isEmpty(personnes)) {
-            return personnes.stream().map(this.inscriptionLightMapper::fromEntityToDto).collect(Collectors.toList());
+            return personnes.stream().map(this.inscriptionEnfantLightMapper::fromEntityToDto).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }

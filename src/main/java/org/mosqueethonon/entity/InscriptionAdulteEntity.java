@@ -8,8 +8,4 @@ import lombok.Data;
 @Data
 public class InscriptionAdulteEntity extends InscriptionEntity {
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idinsc", nullable = false)
-    private EleveEntity eleve;
-
 }

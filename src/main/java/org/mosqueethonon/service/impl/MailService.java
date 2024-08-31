@@ -7,10 +7,10 @@ import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
-import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
-import org.mosqueethonon.v1.dto.InscriptionDto;
-import org.mosqueethonon.v1.dto.MailObjectDto;
+import org.mosqueethonon.v1.dto.IMailObject;
+import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class MailService {
 
     private AdhesionService adhesionService;
 
-    private InscriptionService inscriptionService;
+    private InscriptionEnfantService inscriptionEnfantService;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
 
@@ -81,7 +81,7 @@ public class MailService {
 
     private SimpleMailMessage createMailInscription(Long idInscription) {
         LOGGER.info("Envoi du mail pour l'inscription idinsc = " + idInscription);
-        InscriptionDto inscription = this.inscriptionService.findInscriptionById(idInscription);
+        InscriptionEnfantDto inscription = this.inscriptionEnfantService.findInscriptionById(idInscription);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(inscription.getResponsableLegal().getEmail());
         message.setSubject(getEmailSubject(TypeMailEnum.COURS));
@@ -114,7 +114,7 @@ public class MailService {
         return mailSubject;
     }
 
-    private String getEmailInscriptionBody(MailObjectDto mailObject, String noInscription, StatutInscription statutInscription) {
+    private String getEmailInscriptionBody(IMailObject mailObject, String noInscription, StatutInscription statutInscription) {
         StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
                 .append(" ").append(mailObject.getNom()).append(", \n\n");
 
@@ -153,7 +153,7 @@ public class MailService {
     }
 
 
-    private String getEmailAdhesionBody(MailObjectDto mailObject) {
+    private String getEmailAdhesionBody(IMailObject mailObject) {
         StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
                 .append(" ").append(mailObject.getNom()).append(", \n\n");
         sbMailBody.append("Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.");
