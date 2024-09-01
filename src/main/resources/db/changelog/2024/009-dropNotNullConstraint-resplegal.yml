@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-dropNotNullConstraint-resplegal
+      author: Aymen
+      changes:
+        - dropNotNullConstraint:
+            tableName: resplegal
+            columnName: lorespadherent
+            columnDataType: BOOLEAN
+        - dropNotNullConstraint:
+            tableName: resplegal
+            columnName: lorespautonomie
+            columnDataType: BOOLEAN
+        - dropNotNullConstraint:
+            tableName: resplegal
+            columnName: lorespmedia
+            columnDataType: BOOLEAN

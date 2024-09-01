@@ -34,8 +34,12 @@ public abstract class InscriptionAdulteMapper {
         if(CollectionUtils.isNotEmpty(entity.getEleves())) {
             EleveEntity eleve = entity.getEleves().get(0);
             dto.setDateNaissance(eleve.getDateNaissance());
+            dto.setSexe(eleve.getSexe());
+            dto.setNiveauInterne(eleve.getNiveauInterne());
             dto.setSignatureEleve(signatureMapper.fromEntityToDto(eleve.getSignature()));
             dto.setIdEleve(eleve.getId());
+            dto.setIdTarif(eleve.getIdTarif());
+            dto.setSignatureResponsableLegal(signatureMapper.fromEntityToDto(entity.getResponsableLegal().getSignature()));
         }
     }
 
@@ -47,6 +51,10 @@ public abstract class InscriptionAdulteMapper {
         eleveEntity.setNom(dto.getNom());
         eleveEntity.setDateNaissance(dto.getDateNaissance());
         eleveEntity.setSignature(signatureMapper.fromDtoToEntity(dto.getSignatureEleve()));
+        eleveEntity.setSexe(dto.getSexe());
+        eleveEntity.setNiveauInterne(dto.getNiveauInterne());
+        eleveEntity.setIdTarif(dto.getIdTarif());
+        entity.getResponsableLegal().setSignature(signatureMapper.fromDtoToEntity(dto.getSignatureResponsableLegal()));
         entity.setEleves(new ArrayList<>());
         entity.getEleves().add(eleveEntity);
     }
