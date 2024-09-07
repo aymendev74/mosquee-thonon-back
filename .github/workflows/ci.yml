@@ -51,7 +51,7 @@ jobs:
         JWT_SECRET: aQcdTAjklNOPWTVWGdnwdealdjDHkqddldjkkdkdjDNnWidjheggDDwszgUkWDzhDKllDDUkDPDKDCXAJxxsbbd    
       run: mvn -B package --file pom.xml
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: mosqueethononapi
         path: target/*.jar
@@ -64,7 +64,7 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: mosqueethononapi
 
