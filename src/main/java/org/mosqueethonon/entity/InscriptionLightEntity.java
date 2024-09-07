@@ -59,5 +59,7 @@ public class InscriptionLightEntity {
     private String noInscription;
     @Column(name = "idperiode")
     private Long idPeriode;
+    @Column(name = "email")
+    private String email;
 
 }
