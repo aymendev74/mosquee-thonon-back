@@ -32,5 +32,6 @@ public class InscriptionLightDto {
     private StatutInscription statut;
     private String ville;
     private String noInscription;
+    private String email;
 
 }
