@@ -2,16 +2,15 @@ package org.mosqueethonon.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.InfoMailInscriptionEntity;
 import org.mosqueethonon.entity.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeMailEnum;
+import org.mosqueethonon.repository.InfoMailInscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
-import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.IMailObject;
-import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
-import org.mosqueethonon.v1.enums.StatutInscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -33,7 +32,7 @@ public class MailService {
 
     private AdhesionService adhesionService;
 
-    private InscriptionEnfantService inscriptionEnfantService;
+    private InfoMailInscriptionRepository infoMailInscriptionRepository;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
 
@@ -55,7 +54,10 @@ public class MailService {
             } else {
                 mail = this.createMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
             }
-            this.sendEmail(mailingConfirmationEntity, mail);
+
+            if(mail != null) {
+                this.sendEmail(mailingConfirmationEntity, mail);
+            }
         } else {
             LOGGER.info("Pas normal, ni idInscription ni idAdhesion... idmaco = " + mailingConfirmationEntity.getId());
             mailingConfirmationEntity.setStatut(MailingConfirmationStatut.ERROR);
@@ -76,16 +78,19 @@ public class MailService {
             mailingConfirmationEntity.setStatut(MailingConfirmationStatut.ERROR);
             LOGGER.error(messageLog, e);
         }
-
     }
 
     private SimpleMailMessage createMailInscription(Long idInscription) {
         LOGGER.info("Envoi du mail pour l'inscription idinsc = " + idInscription);
-        InscriptionEnfantDto inscription = this.inscriptionEnfantService.findInscriptionById(idInscription);
+        InfoMailInscriptionEntity infoMail = this.infoMailInscriptionRepository.findById(idInscription).orElse(null);
+        if(infoMail == null) {
+            LOGGER.error("Pas de données (infos mail) pour l'inscription idinsc = " + idInscription);
+            return null;
+        }
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(inscription.getResponsableLegal().getEmail());
+        message.setTo(infoMail.getEmail());
         message.setSubject(getEmailSubject(TypeMailEnum.COURS));
-        message.setText(getEmailInscriptionBody(inscription.getResponsableLegal(), inscription.getNoInscription(), inscription.getStatut()));
+        message.setText(getEmailInscriptionBody(infoMail));
         return message;
     }
 
@@ -114,11 +119,11 @@ public class MailService {
         return mailSubject;
     }
 
-    private String getEmailInscriptionBody(IMailObject mailObject, String noInscription, StatutInscription statutInscription) {
-        StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(mailObject.getPrenom())
-                .append(" ").append(mailObject.getNom()).append(", \n\n");
+    private String getEmailInscriptionBody(InfoMailInscriptionEntity infoMail) {
+        StringBuilder sbMailBody = new StringBuilder("Assalam aleykoum ").append(infoMail.getPrenom())
+                .append(" ").append(infoMail.getNom()).append(", \n\n");
 
-        switch(statutInscription) {
+        switch(infoMail.getStatut()) {
             case PROVISOIRE:
                 sbMailBody.append("Nous vous remercions pour votre demande d'inscription aux cours.\n");
                 sbMailBody.append("Votre inscription a été prise en compte, vous serez contacté rapidement par l'AMC pour la finaliser.");
@@ -141,11 +146,11 @@ public class MailService {
                 break;
 
             default:
-                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! statutInscription = " + statutInscription);
+                throw new IllegalArgumentException("La valeur n'est pas gérée ici ! statutInscription = " + infoMail.getStatut());
         }
         sbMailBody.append("\n\n");
         sbMailBody.append("Pour toute communication, voici la référence de votre inscription: ");
-        sbMailBody.append(noInscription);
+        sbMailBody.append(infoMail.getNoInscription());
         sbMailBody.append("\n\n");
         sbMailBody.append("Cordialement,\n");
         sbMailBody.append("L'équipe de l'Association Musulmane du Chablais,\n");

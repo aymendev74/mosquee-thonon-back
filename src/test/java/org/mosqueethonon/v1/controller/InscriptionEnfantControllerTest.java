@@ -41,13 +41,6 @@ public class InscriptionEnfantControllerTest extends ControllerTest {
     private ObjectMapper jsonMapper;
 
     @Test
-    public void testFindInscriptionsByCriteriaReturn200() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions-enfants")
-                        .header("Authorization", generateToken()))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    @Test
     public void testSaveInscriptionMultiThreading() throws Exception {
         int nbThreads = 510;
         CountDownLatch compteur = new CountDownLatch(nbThreads);

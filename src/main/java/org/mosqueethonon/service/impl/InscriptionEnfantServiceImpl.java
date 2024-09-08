@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.service.ParamService;
@@ -155,39 +156,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     public InscriptionEnfantDto findInscriptionById(Long id) {
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
         if(inscriptionEnfantEntity !=null) {
-            this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
             return this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
         }
         return null;
-    }
-
-    @Transactional
-    @Override
-    public Set<Long> validateInscriptions(Set<Long> ids) {
-        List<InscriptionEnfantEntity> inscriptionsToUpdate = new ArrayList<>();
-        for (Long id : ids) {
-            InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(id).orElse(null);
-            if(inscription!=null) {
-                inscription.setStatut(StatutInscription.VALIDEE);
-                inscription.setNoPositionAttente(null);
-                inscriptionsToUpdate.add(inscription);
-            }
-        }
-        if(!CollectionUtils.isEmpty(inscriptionsToUpdate)) {
-            inscriptionsToUpdate = this.inscriptionEnfantRepository.saveAll(inscriptionsToUpdate);
-            return inscriptionsToUpdate.stream().map(InscriptionEnfantEntity::getId).collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
-    }
-
-    @Transactional
-    @Override
-    public Set<Long> deleteInscriptions(Set<Long> ids) {
-        this.inscriptionEnfantRepository.deleteAllById(ids);
-        // Maintenant que des inscriptions ont été supprimés, il faut aller voir si des inscriptions sont en liste d'attente et
-        // les changer de statut => provisoire
-        this.updateListeAttentePeriode(null);
-        return ids;
     }
 
     @Override
@@ -205,7 +176,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             } else {
                 periode = this.periodeRepository.findPeriodeCoursAtDate(LocalDate.now());
             }
-            Integer nbElevesInscrits = this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(periode.getId());
+            Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId(), TypeInscriptionEnum.ENFANT.name());
             if(nbElevesInscrits < periode.getNbMaxInscription()) {
                 List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(periode.getId());
                 int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
@@ -227,13 +198,13 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     @Override
     public Integer findNbInscriptionsByPeriode(Long idPeriode) {
-        return this.inscriptionEnfantRepository.getNbElevesInscritsByIdPeriode(idPeriode);
+        return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ENFANT.name());
     }
 
     @Override
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto) {
-        Integer nbInscriptionOutside = this.inscriptionEnfantRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
-                periodeDto.getDateDebut(), periodeDto.getDateFin());
+        Integer nbInscriptionOutside = this.inscriptionRepository.getNbInscriptionOutsideRange(periodeDto.getId(),
+                periodeDto.getDateDebut(), periodeDto.getDateFin(), TypeInscriptionEnum.ENFANT.name());
         return nbInscriptionOutside != null && nbInscriptionOutside > 0;
     }
 

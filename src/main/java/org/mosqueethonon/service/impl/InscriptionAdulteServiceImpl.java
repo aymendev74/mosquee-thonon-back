@@ -69,10 +69,10 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         }
         entity = this.inscriptionAdulteRepository.save(entity);
         inscription = this.inscriptionAdulteMapper.fromEntityToDto(entity);
-        /*if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
                     .statut(MailingConfirmationStatut.PENDING).build());
-        }*/
+        }
         return inscription;
     }
 }

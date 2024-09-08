@@ -71,6 +71,10 @@ public class InscriptionLightEntitySpecifications {
                 predicatesAND.add(builder.equal(root.get("statut"), criteria.getStatut()));
             }
 
+            if(criteria.getType() != null) {
+                predicatesAND.add(builder.equal(root.get("type"), criteria.getType()));
+            }
+
             if(!predicatesOR.isEmpty()) {
                 finalPredicateOR = builder.or(predicatesOR.toArray(new Predicate[predicatesOR.size()]));
             }

@@ -7,7 +7,9 @@ import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.entity.PeriodeEntity;
 import org.mosqueethonon.entity.TarifEntity;
 import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,42 +62,42 @@ public class ControllerTest {
         List<TarifEntity> tarifsCours = new ArrayList<>();
         // tarifs base
         tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(true)
-                .type("BASE").code("BASE_ADHERENT_1_ENFANT").montant(bd(120)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_ADHERENT_1_ENFANT").montant(bd(120)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(false)
-                .type("BASE").code("BASE_1_ENFANT").montant(bd(240)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_1_ENFANT").montant(bd(240)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(true)
-                .type("BASE").code("BASE_ADHERENT_2_ENFANT").montant(bd(160)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_ADHERENT_2_ENFANT").montant(bd(160)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(false)
-                .type("BASE").code("BASE_2_ENFANT").montant(bd(280)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_2_ENFANT").montant(bd(280)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(true)
-                .type("BASE").code("BASE_ADHERENT_3_ENFANT").montant(bd(200)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_ADHERENT_3_ENFANT").montant(bd(200)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(false)
-                .type("BASE").code("BASE_3_ENFANT").montant(bd(320)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_3_ENFANT").montant(bd(320)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(true)
-                .type("BASE").code("BASE_ADHERENT_4_ENFANT").montant(bd(240)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_ADHERENT_4_ENFANT").montant(bd(240)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(false)
-                .type("BASE").code("BASE_4_ENFANT").montant(bd(360)).build());
+                .type(TypeTarifEnum.BASE.name()).code("BASE_4_ENFANT").montant(bd(360)).build());
 
         // tarifs par enfant
         tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(true)
-                .type("ENFANT").code("ENFANT_ADHERENT_1_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_ADHERENT_1_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(false)
-                .type("ENFANT").code("ENFANT_1_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_1_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(true)
-                .type("ENFANT").code("ENFANT_ADHERENT_2_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_ADHERENT_2_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(false)
-                .type("ENFANT").code("ENFANT_2_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_2_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(true)
-                .type("ENFANT").code("ENFANT_ADHERENT_3_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_ADHERENT_3_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(false)
-                .type("ENFANT").code("ENFANT_3_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_3_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(true)
-                .type("ENFANT").code("ENFANT_ADHERENT_4_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_ADHERENT_4_ENFANT").montant(bd(15)).build());
         tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(false)
-                .type("ENFANT").code("ENFANT_4_ENFANT").montant(bd(15)).build());
+                .type(TypeTarifEnum.ENFANT.name()).code("ENFANT_4_ENFANT").montant(bd(15)).build());
 
         // tarifs adultes
-        tarifsCours.add(TarifEntity.builder().periode(periode).type("COURS").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().periode(periode).type(TypeTarifEnum.ADULTE.name()).montant(bd(15)).build());
 
         this.tarifRepository.saveAll(tarifsCours);
     }
@@ -104,21 +106,21 @@ public class ControllerTest {
         List<TarifEntity> tarifsCours = new ArrayList<>();
 
         // tarifs adultes
-        tarifsCours.add(TarifEntity.builder().periode(periode).type("ADULTE").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().periode(periode).type(TypeTarifEnum.ADULTE.name()).montant(bd(15)).build());
 
         this.tarifRepository.saveAll(tarifsCours);
     }
 
     private PeriodeEntity initPeriodeCoursEnfant() {
         LocalDate today = LocalDate.now();
-        PeriodeEntity periode = PeriodeEntity.builder().application("COURS").dateDebut(today.minusDays(1))
+        PeriodeEntity periode = PeriodeEntity.builder().application(ApplicationTarifEnum.COURS_ENFANT.name()).dateDebut(today.minusDays(1))
                 .dateFin(today.plusDays(1)).nbMaxInscription(500).build();
         return this.periodeRepository.save(periode);
     }
 
     private PeriodeEntity initPeriodeCoursAdulte() {
         LocalDate today = LocalDate.now();
-        PeriodeEntity periode = PeriodeEntity.builder().application("COURS_ADULTE").dateDebut(today.minusDays(1))
+        PeriodeEntity periode = PeriodeEntity.builder().application(ApplicationTarifEnum.COURS_ADULTE.name()).dateDebut(today.minusDays(1))
                 .dateFin(today.plusDays(1)).build();
         return this.periodeRepository.save(periode);
     }

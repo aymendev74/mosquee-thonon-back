@@ -1,3 +1,9 @@
+#logging:
+#    level:
+#        org.springframework.security: DEBUG
+#        org.springframework.security.web.access: DEBUG  # Pour déboguer l'accès aux endpoints
+#        org.springframework.security.authentication: DEBUG
+
 app:
     jwt:
         secret: ${JWT_SECRET}

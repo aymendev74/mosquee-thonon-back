@@ -9,8 +9,6 @@ public interface InscriptionEnfantService {
 
     public InscriptionEnfantDto saveInscription(InscriptionEnfantDto personne, InscriptionSaveCriteria criteria);
     public InscriptionEnfantDto findInscriptionById(Long id);
-    public Set<Long> validateInscriptions(Set<Long> ids);
-    public Set<Long> deleteInscriptions(Set<Long> ids);
 
     public Integer findNbInscriptionsByPeriode(Long idPeriode);
 

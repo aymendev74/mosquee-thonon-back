@@ -2,6 +2,6 @@ package org.mosqueethonon.enums;
 
 public enum ApplicationTarifEnum {
 
-    ADHESION, COURS, COURS_ADULTE;
+    ADHESION, COURS_ENFANT, COURS_ADULTE;
 
 }

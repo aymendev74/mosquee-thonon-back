@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PeriodeService {
 
-    List<PeriodeInfoDto> findAllPeriodes();
+    List<PeriodeInfoDto> findPeriodesByApplication(String application);
 
     PeriodeDto savePeriode(PeriodeDto periode);
 

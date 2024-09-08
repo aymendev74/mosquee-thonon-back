@@ -36,8 +36,8 @@ public class PeriodeServiceImpl implements PeriodeService {
     private static final String PERIODE_APPLICATION_COURS = "COURS";
 
     @Override
-    public List<PeriodeInfoDto> findAllPeriodes() {
-        List<PeriodeInfoEntity> periodeEntities = this.periodeInfoRepository.findByApplicationOrderByDateDebutDesc("COURS");
+    public List<PeriodeInfoDto> findPeriodesByApplication(String application) {
+        List<PeriodeInfoEntity> periodeEntities = this.periodeInfoRepository.findByApplicationOrderByDateDebutDesc(application);
         if(!CollectionUtils.isEmpty(periodeEntities)) {
             return periodeEntities.stream().map(this.periodeInfoMapper::fromEntityToDto).collect(Collectors.toList());
         }

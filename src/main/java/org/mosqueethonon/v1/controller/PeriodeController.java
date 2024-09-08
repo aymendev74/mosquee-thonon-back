@@ -22,8 +22,8 @@ public class PeriodeController {
     private LockManager lockManager;
 
     @GetMapping
-    public ResponseEntity<List<PeriodeInfoDto>> findPeriodes() {
-        List<PeriodeInfoDto> periodes = this.periodeService.findAllPeriodes();
+    public ResponseEntity<List<PeriodeInfoDto>> findPeriodesByApplication(@RequestParam(name = "application") String application) {
+        List<PeriodeInfoDto> periodes = this.periodeService.findPeriodesByApplication(application);
         return ResponseEntity.ok(periodes);
     }
 
