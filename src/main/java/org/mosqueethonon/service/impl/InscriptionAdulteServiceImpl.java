@@ -13,6 +13,7 @@ import org.mosqueethonon.service.InscriptionAdulteService;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.InscriptionAdulteDto;
+import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -74,5 +75,14 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
                     .statut(MailingConfirmationStatut.PENDING).build());
         }
         return inscription;
+    }
+
+    @Override
+    public InscriptionAdulteDto findInscriptionById(Long id) {
+        InscriptionAdulteEntity inscriptionAdulteEntity = this.inscriptionAdulteRepository.findById(id).orElse(null);
+        if(inscriptionAdulteEntity !=null) {
+            return this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
+        }
+        return null;
     }
 }

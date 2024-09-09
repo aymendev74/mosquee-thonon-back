@@ -25,4 +25,10 @@ public class InscriptionAdulteController {
         return ResponseEntity.ok(inscription);
     }
 
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<InscriptionAdulteDto> findInscriptionById(@PathVariable("id") Long id) {
+        InscriptionAdulteDto inscription = this.inscriptionAdulteService.findInscriptionById(id);
+        return ResponseEntity.ok(inscription);
+    }
+
 }

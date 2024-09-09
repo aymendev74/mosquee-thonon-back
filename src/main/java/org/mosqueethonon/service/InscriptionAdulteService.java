@@ -8,4 +8,5 @@ public interface InscriptionAdulteService {
 
     public InscriptionAdulteDto saveInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria);
 
+    public InscriptionAdulteDto findInscriptionById(Long id);
 }
