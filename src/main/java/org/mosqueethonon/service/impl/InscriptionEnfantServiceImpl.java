@@ -3,6 +3,7 @@ package org.mosqueethonon.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.mosqueethonon.configuration.ProfileNameProvider;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
@@ -50,46 +51,51 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private ReinscriptionPrioritaireRepository reinscriptionPrioritaireRepository;
 
+    private ProfileNameProvider profileNameProvider;
+
     @Transactional
     @Override
-    public InscriptionEnfantDto saveInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
-        // Si pas en mode admin, on check si les inscriptions sont activées
-        if(!Boolean.TRUE.equals(criteria.getIsAdmin())) {
-            if(!this.paramService.isInscriptionEnabled()) {
-                // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
-                RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
-                LOGGER.error("Les inscriptions sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
-                throw e;
-            }
+    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
+        if (!this.paramService.isInscriptionEnabled()) {
+            // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
+            RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
+            LOGGER.error("Les inscriptions sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
+            throw e;
         }
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
-        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(inscription, criteria.getIsAdmin());
-        this.computeStatutInscription(inscription, tarifs.isListeAttente());
         InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
-        if(entity.getDateInscription()==null) {
-            entity.setDateInscription(LocalDateTime.now());
+        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity, criteria.getIsAdmin());
+        this.computeStatutInscription(entity, tarifs.isListeAttente());
+        entity.setDateInscription(LocalDateTime.now());
+        Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
+        entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
+        entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
+        entity = this.inscriptionEnfantRepository.save(entity);
+        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
+        return this.inscriptionEnfantMapper.fromEntityToDto(entity);
+    }
+
+    @Override
+    public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
+        // Normalisation des chaines de caractères saisies par l'utilisateur
+        inscription.normalize();
+        InscriptionEnfantEntity entity = this.inscriptionEnfantRepository.findById(id).orElse(null);
+        if (entity == null) {
+            throw new IllegalArgumentException("L'inscription n'a pas été trouvée !");
         }
-        if(entity.getNoInscription() == null) {
-            Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
-            entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
-        }
-        if(entity.getAnneeScolaire() == null) {
-            entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
-        }
+        this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
+        this.doCalculTarifInscription(entity, criteria.getIsAdmin());
         entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
-        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
-            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(inscription.getId())
-                    .statut(MailingConfirmationStatut.PENDING).build());
-        }
+        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
         return inscription;
     }
 
-    private void computeStatutInscription(InscriptionEnfantDto inscription, boolean isListeAttente) {
+    private void computeStatutInscription(InscriptionEnfantEntity inscription, boolean isListeAttente) {
         boolean isReinscriptionEnabled = this.paramService.isReinscriptionPrioritaireEnabled();
-        if(isReinscriptionEnabled && inscription.getStatut() == null) {
-            if(isReinscriptionValide(inscription)) {
+        if (isReinscriptionEnabled && inscription.getStatut() == null) {
+            if (isReinscriptionValide(inscription)) {
                 // Si réinscription et que les élèves sont tous reconnus alors on valide directement l'inscription
                 inscription.setStatut(StatutInscription.VALIDEE);
             } else {
@@ -100,33 +106,33 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         }
 
         // S'il ne s'agit pas de réinscription
-        if(inscription.getStatut() == null) {
-            if(isListeAttente) {
+        if (inscription.getStatut() == null) {
+            if (isListeAttente) {
                 inscription.setStatut(StatutInscription.LISTE_ATTENTE);
                 inscription.setNoPositionAttente(this.calculPositionAttente());
             } else {
                 inscription.setStatut(StatutInscription.PROVISOIRE);
             }
         } else {
-            if(inscription.getStatut() == StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() == null) {
+            if (inscription.getStatut() == StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() == null) {
                 inscription.setNoPositionAttente(this.calculPositionAttente());
-            } else if (inscription.getStatut() != StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() != null){
+            } else if (inscription.getStatut() != StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() != null) {
                 inscription.setNoPositionAttente(null);
             }
         }
     }
 
-    private boolean isReinscriptionValide(InscriptionEnfantDto inscription) {
-        for(EleveDto eleve : inscription.getEleves()) {
+    private boolean isReinscriptionValide(InscriptionEnfantEntity inscription) {
+        for (EleveEntity eleve : inscription.getEleves()) {
             ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomAndPrenomPhonetique(eleve.getNom(), eleve.getPrenom());
-            if(reinscriptionPrio == null) {
+            if (reinscriptionPrio == null) {
                 return false;
             }
         }
         return true;
     }
 
-    private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantDto inscription, Boolean isAdmin) {
+    private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription, Boolean isAdmin) {
         Integer nbEleves = inscription.getEleves().size();
         LocalDate atDate = inscription.getDateInscription() != null ?
                 inscription.getDateInscription().toLocalDate() : LocalDate.now();
@@ -134,7 +140,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
                 .adherent(inscription.getResponsableLegal().getAdherent())
                 .isAdmin(isAdmin).atDate(atDate).build();
         TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscriptionInfos);
-        if(tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
+        if (tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
         }
         inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
@@ -155,7 +161,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     @Override
     public InscriptionEnfantDto findInscriptionById(Long id) {
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
-        if(inscriptionEnfantEntity !=null) {
+        if (inscriptionEnfantEntity != null) {
             return this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
         }
         return null;
@@ -164,34 +170,34 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     @Override
     public void updateListeAttentePeriode(Long idPeriode) {
         Integer lastPositionAttente = null;
-        if(idPeriode != null) {
+        if (idPeriode != null) {
             lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
         } else {
             lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(LocalDate.now());
         }
-        if(lastPositionAttente != null) {
+        if (lastPositionAttente != null) {
             PeriodeEntity periode = null;
-            if(idPeriode != null) {
+            if (idPeriode != null) {
                 periode = this.periodeRepository.findById(idPeriode).orElse(null);
             } else {
                 periode = this.periodeRepository.findPeriodeCoursAtDate(LocalDate.now());
             }
             Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId(), TypeInscriptionEnum.ENFANT.name());
-            if(nbElevesInscrits < periode.getNbMaxInscription()) {
+            if (nbElevesInscrits < periode.getNbMaxInscription()) {
                 List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(periode.getId());
                 int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
-                    for(InscriptionEnfantEntity inscriptionEnAttente: inscriptionsEnAttente) {
-                        Integer nbEleveInscription = inscriptionEnAttente.getEleves().size();
-                        if(nbEleveInscription <= nbPlacesDisponibles) {
-                            // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
-                            inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
-                            nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
-                        }
-                        if(nbPlacesDisponibles == 0) {
-                            break;
-                        }
+                for (InscriptionEnfantEntity inscriptionEnAttente : inscriptionsEnAttente) {
+                    Integer nbEleveInscription = inscriptionEnAttente.getEleves().size();
+                    if (nbEleveInscription <= nbPlacesDisponibles) {
+                        // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
+                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
+                        nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
                     }
-                    this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
+                    if (nbPlacesDisponibles == 0) {
+                        break;
+                    }
+                }
+                this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
             }
         }
     }
@@ -215,21 +221,28 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     private String isAlreadyExistingEleves(InscriptionEnfantDto inscriptionEnfantDto) {
-        if(!CollectionUtils.isEmpty(inscriptionEnfantDto.getEleves())) {
+        if (!CollectionUtils.isEmpty(inscriptionEnfantDto.getEleves())) {
             LocalDateTime atDate = inscriptionEnfantDto.getDateInscription();
-            if(atDate == null) {
+            if (atDate == null) {
                 atDate = LocalDateTime.now();
             }
-            for(EleveDto eleve : inscriptionEnfantDto.getEleves()) {
-                if(eleve.getPrenom() != null && eleve.getNom() != null) {
+            for (EleveDto eleve : inscriptionEnfantDto.getEleves()) {
+                if (eleve.getPrenom() != null && eleve.getNom() != null) {
                     List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
-                            eleve.getNom(), atDate, inscriptionEnfantDto.getId());
-                    if(!CollectionUtils.isEmpty(matchedInscriptions)) {
+                            eleve.getNom(), atDate, inscriptionEnfantDto.getNoInscription());
+                    if (!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;
                     }
                 }
             }
         }
         return Incoherences.NO_INCOHERENCE;
+    }
+
+    private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
+        if (profileNameProvider.isProdOrDev() && Boolean.TRUE.equals(sendEmail)) {
+            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
+                    .statut(MailingConfirmationStatut.PENDING).build());
+        }
     }
 }

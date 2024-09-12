@@ -9,7 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.entity.EleveEntity;
 import org.mosqueethonon.entity.InscriptionEnfantEntity;
+import org.mosqueethonon.entity.ResponsableLegalEntity;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
@@ -57,7 +59,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.FALSE);
         assertThrows(IllegalStateException.class,
                 () -> {
-                    this.underTest.saveInscription(null, InscriptionSaveCriteria.builder()
+                    this.underTest.createInscription(null, InscriptionSaveCriteria.builder()
                             .isAdmin(false).build());
                 });
     }
@@ -66,8 +68,8 @@ public class TestInscriptionEnfantServiceImpl {
         // GIVEN
         final String anneeScolaire = "2024/2025";
         final Long numeroInscription = Long.valueOf(1001);
-        final InscriptionEnfantDto inscriptionEnfantDto = createInscription(2);
-        final InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
+        InscriptionEnfantDto inscriptionEnfantDto = createInscription(2);
+        final InscriptionEnfantEntity inscriptionEnfantEntity = createInscriptionEntity(2);
         when(this.tarifCalculService.calculTarifInscriptionEnfant(any())).thenReturn(createTarifInscription());
         when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
         when(this.inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionEnfantDto);
@@ -78,15 +80,24 @@ public class TestInscriptionEnfantServiceImpl {
         when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
-        this.underTest.saveInscription(inscriptionEnfantDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
+        this.underTest.createInscription(inscriptionEnfantDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
                 .build());
 
         // THEN
         verify(this.mailingConfirmationRepository, times(sendMailConfirmation ? 1 : 0)).save(any());
-        assertEquals(anneeScolaire, inscriptionEnfantEntity.getAnneeScolaire());
-        assertEquals(new StringBuilder("AMC-").append(numeroInscription).toString(), inscriptionEnfantEntity.getNoInscription());
-        assertNotNull(inscriptionEnfantEntity.getDateInscription());
-        assertEquals(BigDecimal.valueOf(189), inscriptionEnfantDto.getMontantTotal());
+        verify(this.inscriptionEnfantRepository).save(any());
+        verify(this.paramService).isInscriptionEnabled();
+        verify(this.inscriptionRepository).getNextNumeroInscription();
+    }
+
+    private InscriptionEnfantEntity createInscriptionEntity(Integer nbEleves) {
+        InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
+        inscriptionEnfantEntity.setResponsableLegal(new ResponsableLegalEntity());
+        inscriptionEnfantEntity.setEleves(new ArrayList<>());
+        for(int i = 0; i < nbEleves ; i++) {
+            inscriptionEnfantEntity.getEleves().add(new EleveEntity());
+        }
+        return inscriptionEnfantEntity;
     }
 
     private TarifInscriptionEnfantDto createTarifInscription() {

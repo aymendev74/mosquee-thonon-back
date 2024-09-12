@@ -19,7 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 public class InscriptionEnfantDto {
 
-    private Long id;
     private StatutInscription statut;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
     private LocalDateTime dateInscription;
@@ -27,7 +26,6 @@ public class InscriptionEnfantDto {
     private List<EleveDto> eleves;
     private String noInscription;
     private Integer noPositionAttente;
-    private Signature signature;
     private String anneeScolaire;
     private BigDecimal montantTotal;
 

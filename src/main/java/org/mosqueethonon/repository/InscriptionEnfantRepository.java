@@ -32,8 +32,8 @@ public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEn
             + "and i.cdinscstatut IN ('VALIDEE', 'PROVISOIRE', 'LISTE_ATTENTE') "
             + "and e.txelevprenom = :prenom and e.txelevnom = :nom "
             + "and i.cdinsctype = 'ENFANT' "
-            + "and i.idinsc <> coalesce(:excludedInscription, -1)", nativeQuery = true)
-    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDateTime atDate, Long excludedInscription);
+            + "and i.noinscinscription <> coalesce(:excludedInscription, 'X')", nativeQuery = true)
+    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDateTime atDate, String excludedInscription);
 
 
     @Query(value = "select max(noinscpositionattente) from moth.inscription i "

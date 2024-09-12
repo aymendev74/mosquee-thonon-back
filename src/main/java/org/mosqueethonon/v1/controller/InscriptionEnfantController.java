@@ -26,12 +26,25 @@ public class InscriptionEnfantController {
     private LockManager lockManager;
 
     @PostMapping
-    public ResponseEntity<InscriptionEnfantDto> saveInscription(@RequestBody InscriptionEnfantDto inscription,
-                                                                @ModelAttribute InscriptionSaveCriteria criteria) {
+    public ResponseEntity<InscriptionEnfantDto> createInscription(@RequestBody InscriptionEnfantDto inscription,
+                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            inscription = this.inscriptionEnfantService.saveInscription(inscription, criteria);
+            inscription = this.inscriptionEnfantService.createInscription(inscription, criteria);
+        } finally {
+            lock.unlock();
+        }
+        return ResponseEntity.ok(inscription);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<InscriptionEnfantDto> updateInscription(@PathVariable("id") Long id, @RequestBody InscriptionEnfantDto inscription,
+                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            inscription = this.inscriptionEnfantService.updateInscription(id, inscription, criteria);
         } finally {
             lock.unlock();
         }

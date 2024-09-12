@@ -15,14 +15,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class EleveDto {
 
-    private Long id;
     private String nom;
     private String prenom;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
     private NiveauScolaireEnum niveau;
     private NiveauInterneEnum niveauInterne;
-    private Long idTarif;
-    private Signature signature;
 
 }

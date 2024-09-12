@@ -7,7 +7,10 @@ import java.util.Set;
 
 public interface InscriptionEnfantService {
 
-    public InscriptionEnfantDto saveInscription(InscriptionEnfantDto personne, InscriptionSaveCriteria criteria);
+    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscriptionEnfantDto, InscriptionSaveCriteria criteria);
+
+    public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscriptionEnfantDto, InscriptionSaveCriteria criteria);
+
     public InscriptionEnfantDto findInscriptionById(Long id);
 
     public Integer findNbInscriptionsByPeriode(Long idPeriode);

@@ -19,9 +19,17 @@ public class InscriptionAdulteController {
     private InscriptionAdulteService inscriptionAdulteService;
 
     @PostMapping
-    public ResponseEntity<InscriptionAdulteDto> saveInscription(@RequestBody InscriptionAdulteDto inscription,
-                                                                @ModelAttribute InscriptionSaveCriteria criteria) {
-        inscription = this.inscriptionAdulteService.saveInscription(inscription, criteria);
+    public ResponseEntity<InscriptionAdulteDto> createInscription(@RequestBody InscriptionAdulteDto inscription,
+                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
+        inscription = this.inscriptionAdulteService.createInscription(inscription, criteria);
+        return ResponseEntity.ok(inscription);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<InscriptionAdulteDto> updateInscription(@PathVariable("id") Long id,
+                                                                  @RequestBody InscriptionAdulteDto inscription,
+                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
+        inscription = this.inscriptionAdulteService.updateInscription(id, inscription, criteria);
         return ResponseEntity.ok(inscription);
     }
 

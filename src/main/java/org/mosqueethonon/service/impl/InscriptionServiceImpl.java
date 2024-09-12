@@ -6,6 +6,7 @@ import org.mosqueethonon.entity.InscriptionEntity;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.v1.dto.InscriptionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -26,13 +27,15 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     @Transactional
     @Override
-    public Set<Long> validateInscriptions(Set<Long> ids) {
+    public Set<Long> patchInscriptions(InscriptionPatchDto inscriptionPatchDto) {
         List<InscriptionEntity> inscriptionsToUpdate = new ArrayList<>();
-        for (Long id : ids) {
+        for (Long id : inscriptionPatchDto.getIds()) {
             InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
             if(inscription!=null) {
-                inscription.setStatut(StatutInscription.VALIDEE);
-                inscription.setNoPositionAttente(null);
+                inscription.setStatut(inscriptionPatchDto.getStatut());
+                if(inscriptionPatchDto.getStatut().equals(StatutInscription.VALIDEE)) {
+                    inscription.setNoPositionAttente(null);
+                }
                 inscriptionsToUpdate.add(inscription);
             }
         }

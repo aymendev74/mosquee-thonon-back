@@ -5,6 +5,7 @@ import org.mosqueethonon.service.InscriptionLightService;
 import org.mosqueethonon.service.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.InscriptionLightDto;
+import org.mosqueethonon.v1.dto.InscriptionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +34,13 @@ public class InscriptionController {
     }
 
 
-    @PostMapping(path = "/validation")
-    public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
+    @PatchMapping
+    public ResponseEntity patchInscriptions(@RequestBody InscriptionPatchDto inscriptionPatchDto) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
+        Set<Long> ids = null;
         try {
-            ids = this.inscriptionService.validateInscriptions(ids);
+            ids = this.inscriptionService.patchInscriptions(inscriptionPatchDto);
         } finally {
             lock.unlock();
         }

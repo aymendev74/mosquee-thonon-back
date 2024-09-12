@@ -6,7 +6,9 @@ import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
 
 public interface InscriptionAdulteService {
 
-    public InscriptionAdulteDto saveInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria);
+    public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria);
+
+    public InscriptionAdulteDto updateInscription(Long id, InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria);
 
     public InscriptionAdulteDto findInscriptionById(Long id);
 }

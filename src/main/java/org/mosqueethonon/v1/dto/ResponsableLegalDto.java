@@ -10,7 +10,6 @@ import org.mosqueethonon.entity.Signature;
 @NoArgsConstructor
 public class ResponsableLegalDto implements IMailObject {
 
-    private Long id;
     private String nom;
     private String prenom;
     private String email;
@@ -18,7 +17,6 @@ public class ResponsableLegalDto implements IMailObject {
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;
-    private Long idTarif;
     private Boolean adherent;
     private Boolean autorisationAutonomie;
     private Boolean autorisationMedia;
@@ -26,6 +24,5 @@ public class ResponsableLegalDto implements IMailObject {
     private String prenomAutre;
     private String lienParente;
     private String telephoneAutre;
-    private Signature signature;
 
 }

@@ -17,15 +17,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class InscriptionAdulteDto implements IMailObject {
 
-    private Long id;
-    private Long idEleve;
-    private Long idResponsableLegal;
     private String nom;
     private String prenom;
     private String email;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateNaissance;
-    private Long idTarif;
     private String mobile;
     private String numeroEtRue;
     private Integer codePostal;
@@ -34,9 +30,6 @@ public class InscriptionAdulteDto implements IMailObject {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
     private LocalDateTime dateInscription;
     private BigDecimal montant;
-    private SignatureDto signature;
-    private SignatureDto signatureEleve;
-    private SignatureDto signatureResponsableLegal;
     private String anneeScolaire;
     private BigDecimal montantTotal;
     private NiveauInterneEnum niveauInterne;
