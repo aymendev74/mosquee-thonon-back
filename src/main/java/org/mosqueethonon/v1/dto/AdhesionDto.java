@@ -10,14 +10,12 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 public class AdhesionDto implements IMailObject {
 
-    private Long id;
     private String titre;
     private String nom;
     private String prenom;
@@ -31,11 +29,8 @@ public class AdhesionDto implements IMailObject {
     private String ville;
     private BigDecimal montantAutre;
     private StatutInscription statut;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
-    private LocalDateTime dateInscription;
     private BigDecimal montant;
     private Integer noMembre;
-    private SignatureDto signature;
 
     public void normalize() {
         this.setNom(StringUtils.normalize(this.getNom()));

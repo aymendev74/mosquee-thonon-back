@@ -141,4 +141,8 @@ public class ParamServiceImpl implements ParamService {
         return this.dateParamValueParser.getValue(param.getValue());
     }
 
+    @Override
+    public boolean isSendEmailEnabled() {
+        return this.findParamAsBoolean(ParamNameEnum.SEND_EMAIL_ENABLED);
+    }
 }

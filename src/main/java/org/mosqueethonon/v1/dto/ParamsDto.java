@@ -18,5 +18,7 @@ public class ParamsDto {
     @DataBaseParam(name = ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate inscriptionEnabledFromDate;
+    @DataBaseParam(name = ParamNameEnum.SEND_EMAIL_ENABLED)
+    private boolean sendMailEnabled;
 
 }

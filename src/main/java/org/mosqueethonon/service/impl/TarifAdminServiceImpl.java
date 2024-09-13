@@ -30,7 +30,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
     @Override
     public InfoTarifDto findInfoTarifByPeriode(Long idPeriode) {
         InfoTarifDto infoTarif = InfoTarifDto.builder().idPeriode(idPeriode).build();
-        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndPeriodeApplication(idPeriode, "COURS");
+        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeId(idPeriode);
         if(!CollectionUtils.isEmpty(tarifsByPeriode)) {
             tarifsByPeriode.stream().forEach(tarif -> {
                 setFieldValue(infoTarif, tarif.getCode(), tarif.getMontant());
@@ -43,7 +43,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
     @Override
     public InfoTarifDto saveInfoTarif(InfoTarifDto infoTarifDto) {
         // On récupères les anciens tarifs
-        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeIdAndPeriodeApplication(infoTarifDto.getIdPeriode(), "COURS");
+        List<TarifEntity> tarifsByPeriode = this.tarifRepository.findByPeriodeId(infoTarifDto.getIdPeriode());
         Field[] infoTarifDtoFields = infoTarifDto.getClass().getDeclaredFields();
         Map<String, BigDecimal> mapNewTarifByCode = Arrays.stream(infoTarifDtoFields)
                 .filter(this::existAnnotationCodeTarif).collect(Collectors.toMap(field -> this.getCodeTarif(field, infoTarifDto), field -> this.getMontant(field, infoTarifDto)));

@@ -18,6 +18,6 @@ public interface InscriptionEnfantService {
     public boolean isInscriptionOutsideRange(PeriodeDto periodeDto);
     public void updateListeAttentePeriode(Long idPeriode);
 
-    public String checkCoherence(InscriptionEnfantDto inscriptionEnfantDto);
+    public String checkCoherence(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto);
 
 }

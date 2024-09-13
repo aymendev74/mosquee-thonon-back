@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/params/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
-                .anyRequest().authenticated());
+                .anyRequest().hasRole("ADMIN"));
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

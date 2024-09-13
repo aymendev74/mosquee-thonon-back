@@ -17,4 +17,5 @@ public interface ParamService {
 
     ParamsDto getParams();
 
+    boolean isSendEmailEnabled();
 }

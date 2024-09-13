@@ -27,8 +27,6 @@ public class InscriptionAdulteDto implements IMailObject {
     private Integer codePostal;
     private String ville;
     private StatutInscription statut;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
-    private LocalDateTime dateInscription;
     private BigDecimal montant;
     private String anneeScolaire;
     private BigDecimal montantTotal;

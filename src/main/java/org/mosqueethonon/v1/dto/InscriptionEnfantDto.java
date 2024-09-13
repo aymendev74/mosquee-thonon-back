@@ -20,11 +20,8 @@ import java.util.List;
 public class InscriptionEnfantDto {
 
     private StatutInscription statut;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
-    private LocalDateTime dateInscription;
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
-    private String noInscription;
     private Integer noPositionAttente;
     private String anneeScolaire;
     private BigDecimal montantTotal;

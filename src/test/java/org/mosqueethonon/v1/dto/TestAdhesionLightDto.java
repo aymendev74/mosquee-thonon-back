@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-public class TestAdhesionDto {
+public class TestAdhesionLightDto {
 
     @Test
     public void testNormalizeNotNormalizedString() {
@@ -43,7 +43,7 @@ public class TestAdhesionDto {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        AdhesionDto adhesionDto = new AdhesionDto();
+        AdhesionLightDto adhesionDto = new AdhesionLightDto();
         adhesionDto.setDateInscription(LocalDateTime.of(2024, 5, 17, 6, 15));
 
         // Serialization
@@ -52,7 +52,7 @@ public class TestAdhesionDto {
         assertTrue(jsonString.contains("17.05.2024 06:15:00.000"));
 
         // Deserialization
-        AdhesionDto deserializedAdhesion = objectMapper.readValue(jsonString, AdhesionDto.class);
+        AdhesionLightDto deserializedAdhesion = objectMapper.readValue(jsonString, AdhesionLightDto.class);
         assertNotNull(deserializedAdhesion);
         assertEquals(adhesionDto.getDateInscription(), deserializedAdhesion.getDateInscription());
     }

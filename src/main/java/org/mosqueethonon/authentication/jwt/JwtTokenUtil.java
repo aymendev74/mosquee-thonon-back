@@ -6,7 +6,10 @@ import org.mosqueethonon.entity.UtilisateurEntity;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.mosqueethonon.entity.UtilisateurRoleEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,12 +29,14 @@ public class JwtTokenUtil {
 
     public String generateAccessToken(UtilisateurEntity user) {
         SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+
         return Jwts.builder()
                 .subject(String.format("%s,%s", user.getId(), user.getUsername()))
                 .issuer("MosqueeThonon")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
                 .signWith(key, Jwts.SIG.HS512)
+                .claim("roles", user.getRoles().stream().map(UtilisateurRoleEntity::getRole).collect(Collectors.toList()))
                 .compact();
     }
 
@@ -56,7 +61,7 @@ public class JwtTokenUtil {
 
     private Claims parseClaims(String token) {
         SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-        return  Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
                 .getPayload();
     }
 

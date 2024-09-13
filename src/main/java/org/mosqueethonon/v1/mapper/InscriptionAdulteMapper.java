@@ -15,16 +15,7 @@ public abstract class InscriptionAdulteMapper {
     @Autowired
     protected SignatureMapper signatureMapper;
 
-    @Mapping(source = "nom", target = "responsableLegal.nom")
-    @Mapping(source = "prenom", target = "responsableLegal.prenom")
-    @Mapping(source = "email", target = "responsableLegal.email")
-    @Mapping(source = "mobile", target = "responsableLegal.mobile")
-    @Mapping(source = "numeroEtRue", target = "responsableLegal.numeroEtRue")
-    @Mapping(source = "codePostal", target = "responsableLegal.codePostal")
-    @Mapping(source = "ville", target = "responsableLegal.ville")
-    public abstract InscriptionAdulteEntity fromDtoToEntity(InscriptionAdulteDto inscriptionAdulteDto);
-
-    @InheritInverseConfiguration(name = "fromDtoToEntity")
+    @InheritInverseConfiguration(name = "mapDtoToEntity")
     public abstract InscriptionAdulteDto fromEntityToDto(InscriptionAdulteEntity inscriptionAdulteEntity);
 
     @Mapping(source = "nom", target = "responsableLegal.nom")
@@ -34,7 +25,7 @@ public abstract class InscriptionAdulteMapper {
     @Mapping(source = "numeroEtRue", target = "responsableLegal.numeroEtRue")
     @Mapping(source = "codePostal", target = "responsableLegal.codePostal")
     @Mapping(source = "ville", target = "responsableLegal.ville")
-    public abstract void updateInscriptionEntity(InscriptionAdulteDto dto, @MappingTarget InscriptionAdulteEntity entity);
+    public abstract void mapDtoToEntity(InscriptionAdulteDto dto, @MappingTarget InscriptionAdulteEntity entity);
 
     @AfterMapping
     protected void mapEleveEntityToDto(InscriptionAdulteEntity entity, @MappingTarget InscriptionAdulteDto dto) {

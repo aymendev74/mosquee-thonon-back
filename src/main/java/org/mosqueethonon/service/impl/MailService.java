@@ -9,6 +9,7 @@ import org.mosqueethonon.enums.TypeMailEnum;
 import org.mosqueethonon.repository.InfoMailInscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
+import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.dto.IMailObject;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class MailService {
 
     private MailingConfirmationRepository mailingConfirmationRepository;
 
+    private ParamService paramService;
+
     @Scheduled(fixedDelayString = "${scheduled.confirmation-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void sendEmailConfirmation() {
@@ -55,8 +58,13 @@ public class MailService {
                 mail = this.createMailAdhesion(mailingConfirmationEntity.getIdAdhesion());
             }
 
-            if(mail != null) {
+            if(paramService.isSendEmailEnabled() && mail != null) {
+                LOGGER.info("Envoi du mail en cours");
                 this.sendEmail(mailingConfirmationEntity, mail);
+                LOGGER.info("Envoi du mail effectuée");
+            } else {
+                LOGGER.info("Envoi de mail ignoré");
+                mailingConfirmationEntity.setStatut(MailingConfirmationStatut.NOT_SENT);
             }
         } else {
             LOGGER.info("Pas normal, ni idInscription ni idAdhesion... idmaco = " + mailingConfirmationEntity.getId());
@@ -81,7 +89,7 @@ public class MailService {
     }
 
     private SimpleMailMessage createMailInscription(Long idInscription) {
-        LOGGER.info("Envoi du mail pour l'inscription idinsc = " + idInscription);
+        LOGGER.info("Création du contenu du mail pour l'inscription idinsc = " + idInscription);
         InfoMailInscriptionEntity infoMail = this.infoMailInscriptionRepository.findById(idInscription).orElse(null);
         if(infoMail == null) {
             LOGGER.error("Pas de données (infos mail) pour l'inscription idinsc = " + idInscription);
@@ -95,7 +103,7 @@ public class MailService {
     }
 
     private SimpleMailMessage createMailAdhesion(Long idAdhesion) {
-        LOGGER.info("Envoi du mail pour l'adhésion idadhe = " + idAdhesion);
+        LOGGER.info("Création du contenu du mail pour l'adhésion idadhe = " + idAdhesion);
         AdhesionDto adhesion = this.adhesionService.findAdhesionById(idAdhesion);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(adhesion.getEmail());

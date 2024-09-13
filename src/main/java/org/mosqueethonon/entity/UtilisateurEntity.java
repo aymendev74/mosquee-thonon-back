@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.*;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -23,6 +24,9 @@ public class UtilisateurEntity implements UserDetails, Auditable {
     private String password;
     @Embedded
     private Signature signature;
+    @OneToMany
+    @JoinColumn(name = "txutiluser", referencedColumnName = "txutiluser", updatable = false, insertable = false)
+    private List<UtilisateurRoleEntity> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -48,4 +52,6 @@ public class UtilisateurEntity implements UserDetails, Auditable {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

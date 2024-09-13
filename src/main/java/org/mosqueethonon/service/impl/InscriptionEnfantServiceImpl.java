@@ -3,7 +3,6 @@ package org.mosqueethonon.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.configuration.ProfileNameProvider;
 import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
@@ -24,11 +23,7 @@ import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -51,8 +46,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private ReinscriptionPrioritaireRepository reinscriptionPrioritaireRepository;
 
-    private ProfileNameProvider profileNameProvider;
-
     @Transactional
     @Override
     public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
@@ -66,7 +59,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         inscription.normalize();
         InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
         TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity, criteria.getIsAdmin());
-        this.computeStatutInscription(entity, tarifs.isListeAttente());
+        this.computeStatutNewInscription(entity, tarifs.isListeAttente());
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
@@ -84,7 +77,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         if (entity == null) {
             throw new IllegalArgumentException("L'inscription n'a pas été trouvée !");
         }
+        StatutInscription statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
+        this.checkStatutInscription(entity, statutActuel);
         this.doCalculTarifInscription(entity, criteria.getIsAdmin());
         entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
@@ -92,9 +87,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         return inscription;
     }
 
-    private void computeStatutInscription(InscriptionEnfantEntity inscription, boolean isListeAttente) {
+    private void computeStatutNewInscription(InscriptionEnfantEntity inscription, boolean isListeAttente) {
         boolean isReinscriptionEnabled = this.paramService.isReinscriptionPrioritaireEnabled();
-        if (isReinscriptionEnabled && inscription.getStatut() == null) {
+        if (isReinscriptionEnabled) {
             if (isReinscriptionValide(inscription)) {
                 // Si réinscription et que les élèves sont tous reconnus alors on valide directement l'inscription
                 inscription.setStatut(StatutInscription.VALIDEE);
@@ -105,20 +100,34 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             return;
         }
 
-        // S'il ne s'agit pas de réinscription
-        if (inscription.getStatut() == null) {
-            if (isListeAttente) {
-                inscription.setStatut(StatutInscription.LISTE_ATTENTE);
-                inscription.setNoPositionAttente(this.calculPositionAttente());
-            } else {
-                inscription.setStatut(StatutInscription.PROVISOIRE);
-            }
+        // Si pas réinscription alors soit on est en PROVISOIRE ou alors LISTE_ATTENTE
+        if (isListeAttente) {
+            inscription.setStatut(StatutInscription.LISTE_ATTENTE);
+            inscription.setNoPositionAttente(this.calculPositionAttente());
         } else {
-            if (inscription.getStatut() == StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() == null) {
-                inscription.setNoPositionAttente(this.calculPositionAttente());
-            } else if (inscription.getStatut() != StatutInscription.LISTE_ATTENTE && inscription.getNoPositionAttente() != null) {
+            inscription.setStatut(StatutInscription.PROVISOIRE);
+        }
+    }
+
+    private void checkStatutInscription(InscriptionEnfantEntity inscription, StatutInscription ancienStatut) {
+        // Si l'ancien statut est identique au nouveau (pas de changement), on ne fait rien
+        if (inscription.getStatut() == ancienStatut) {
+            return;
+        }
+
+        switch (ancienStatut) {
+            case LISTE_ATTENTE:
                 inscription.setNoPositionAttente(null);
-            }
+                break;
+            case PROVISOIRE:
+            case VALIDEE:
+            case REFUSE:
+                if (inscription.getStatut() == StatutInscription.LISTE_ATTENTE) {
+                    inscription.setNoPositionAttente(this.calculPositionAttente());
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -215,21 +224,24 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     @Override
-    public String checkCoherence(InscriptionEnfantDto inscriptionEnfantDto) {
+    public String checkCoherence(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto) {
         inscriptionEnfantDto.normalize();
-        return this.isAlreadyExistingEleves(inscriptionEnfantDto);
+        return this.isAlreadyExistingEleves(idInscription, inscriptionEnfantDto);
     }
 
-    private String isAlreadyExistingEleves(InscriptionEnfantDto inscriptionEnfantDto) {
+    private String isAlreadyExistingEleves(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto) {
         if (!CollectionUtils.isEmpty(inscriptionEnfantDto.getEleves())) {
-            LocalDateTime atDate = inscriptionEnfantDto.getDateInscription();
-            if (atDate == null) {
-                atDate = LocalDateTime.now();
+            LocalDateTime atDate = LocalDateTime.now();
+            if (idInscription != null) {
+                InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(idInscription).orElse(null);
+                if (inscription != null) {
+                    atDate = inscription.getDateInscription();
+                }
             }
             for (EleveDto eleve : inscriptionEnfantDto.getEleves()) {
                 if (eleve.getPrenom() != null && eleve.getNom() != null) {
                     List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
-                            eleve.getNom(), atDate, inscriptionEnfantDto.getNoInscription());
+                            eleve.getNom(), atDate, idInscription);
                     if (!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;
                     }
@@ -240,7 +252,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
-        if (profileNameProvider.isProdOrDev() && Boolean.TRUE.equals(sendEmail)) {
+        if (Boolean.TRUE.equals(sendEmail)) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
                     .statut(MailingConfirmationStatut.PENDING).build());
         }

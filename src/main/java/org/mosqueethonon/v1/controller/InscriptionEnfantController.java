@@ -59,7 +59,13 @@ public class InscriptionEnfantController {
 
     @PostMapping(path = "/incoherences")
     public ResponseEntity<String> checkCoherence(@RequestBody InscriptionEnfantDto inscriptionEnfantDto) {
-        String incoherence = this.inscriptionEnfantService.checkCoherence(inscriptionEnfantDto);
+        String incoherence = this.inscriptionEnfantService.checkCoherence(null, inscriptionEnfantDto);
+        return ResponseEntity.ok(incoherence);
+    }
+
+    @PostMapping(path = "/{id}/incoherences")
+    public ResponseEntity<String> checkCoherenceInscription(@PathVariable("id") Long idInscription, @RequestBody InscriptionEnfantDto inscriptionEnfantDto) {
+        String incoherence = this.inscriptionEnfantService.checkCoherence(idInscription, inscriptionEnfantDto);
         return ResponseEntity.ok(incoherence);
     }
 

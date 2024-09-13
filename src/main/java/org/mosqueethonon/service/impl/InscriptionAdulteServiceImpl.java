@@ -2,9 +2,7 @@ package org.mosqueethonon.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.configuration.ProfileNameProvider;
 import org.mosqueethonon.entity.InscriptionAdulteEntity;
-import org.mosqueethonon.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
@@ -14,7 +12,6 @@ import org.mosqueethonon.service.InscriptionAdulteService;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.InscriptionAdulteDto;
-import org.mosqueethonon.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -45,15 +42,14 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
     private MailingConfirmationRepository mailingConfirmationRepository;
 
-    private ProfileNameProvider profileNameProvider;
-
     @Override
     public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
 
         // mapping vers l'entité
-        InscriptionAdulteEntity entity = this.inscriptionAdulteMapper.fromDtoToEntity(inscription);
+        InscriptionAdulteEntity entity = new InscriptionAdulteEntity();
+        this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
@@ -61,9 +57,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         entity.setStatut(StatutInscription.PROVISOIRE);
 
         // calcul du tarif
-        LocalDate atDate = inscription.getDateInscription() != null ?
-                inscription.getDateInscription().toLocalDate() : LocalDate.now();
-        this.calculTarif(entity, atDate);
+        this.calculTarif(entity, LocalDate.now());
 
         // On sauvegarde
         entity = this.inscriptionAdulteRepository.save(entity);
@@ -88,7 +82,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         if (entity == null) {
             throw new IllegalArgumentException("Inscription not found ! idinsc = " + id);
         }
-        this.inscriptionAdulteMapper.updateInscriptionEntity(inscription, entity);
+        this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
         this.calculTarif(entity, null);
         entity = this.inscriptionAdulteRepository.save(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
@@ -104,7 +98,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
     }
 
     private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
-        if (profileNameProvider.isProdOrDev() && Boolean.TRUE.equals(sendEmail)) {
+        if (Boolean.TRUE.equals(sendEmail)) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
                     .statut(MailingConfirmationStatut.PENDING).build());
         }

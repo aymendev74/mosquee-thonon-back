@@ -8,6 +8,7 @@ import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.AdhesionService;
 import org.mosqueethonon.v1.dto.AdhesionDto;
+import org.mosqueethonon.v1.dto.AdhesionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.AdhesionMapper;
 import org.springframework.stereotype.Service;
@@ -28,37 +29,24 @@ public class AdhesionServiceImpl implements AdhesionService {
     private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Override
-    public AdhesionDto saveAdhesion(AdhesionDto adhesionDto) {
+    public AdhesionDto createAdhesion(AdhesionDto adhesionDto) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         adhesionDto.normalize();
-        // Si nouvelle adhésion alors on envoi un mail de confirmation à l'adhérent
-        boolean sendMailAdherent = adhesionDto.getId() == null;
-        AdhesionEntity adhesionEntity = this.adhesionMapper.fromDtoToEntity(adhesionDto);
-
-        if(adhesionEntity.getDateInscription() == null) {
-            adhesionEntity.setDateInscription(LocalDateTime.now());
-        }
-        if(adhesionEntity.getStatut() == null) {
-            adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
-        }
-
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        this.adhesionMapper.mapDtoToEntity(adhesionDto, adhesionEntity);
+        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
         adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-
-        if(sendMailAdherent) {
-            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idAdhesion(adhesionDto.getId())
-                    .statut(MailingConfirmationStatut.PENDING).build());
-        }
+        this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idAdhesion(adhesionEntity.getId())
+                .statut(MailingConfirmationStatut.PENDING).build());
         return adhesionDto;
     }
 
     @Override
     public AdhesionDto findAdhesionById(Long id) {
         Optional<AdhesionEntity> optAdhesionEntity = this.adhesionRepository.findById(id);
-        if(optAdhesionEntity.isPresent()) {
-            return this.adhesionMapper.fromEntityToDto(optAdhesionEntity.get());
-        }
-        return null;
+        return optAdhesionEntity.map(adhesion -> this.adhesionMapper.fromEntityToDto(adhesion)).orElse(null);
     }
 
     @Override
@@ -68,19 +56,30 @@ public class AdhesionServiceImpl implements AdhesionService {
     }
 
     @Override
-    public Set<Long> validateAdhesions(Set<Long> ids) {
+    public Set<Long> patchAdhesions(AdhesionPatchDto adhesionPatchDto) {
         List<AdhesionEntity> adhesionsToUpdate = new ArrayList<>();
-        for (Long id : ids) {
+        for (Long id : adhesionPatchDto.getIds()) {
             AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElse(null);
-            if(adhesion!=null) {
-                adhesion.setStatut(StatutInscription.VALIDEE);
+            if (adhesion != null) {
+                adhesion.setStatut(adhesionPatchDto.getStatut());
                 adhesionsToUpdate.add(adhesion);
             }
         }
-        if(!CollectionUtils.isEmpty(adhesionsToUpdate)) {
+        if (!CollectionUtils.isEmpty(adhesionsToUpdate)) {
             adhesionsToUpdate = this.adhesionRepository.saveAll(adhesionsToUpdate);
             return adhesionsToUpdate.stream().map(AdhesionEntity::getId).collect(Collectors.toSet());
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    public AdhesionDto updateAdhesion(Long id, AdhesionDto adhesiondto) {
+        AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElse(null);
+        if (adhesion == null) {
+            throw new IllegalArgumentException("Inscription not found ! idinsc = " + id);
+        }
+        this.adhesionMapper.mapDtoToEntity(adhesiondto, adhesion);
+        adhesion = this.adhesionRepository.save(adhesion);
+        return this.adhesionMapper.fromEntityToDto(adhesion);
     }
 }
