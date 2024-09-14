@@ -7,6 +7,7 @@ import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.repository.*;
+import org.mosqueethonon.security.SecurityContext;
 import org.mosqueethonon.service.InscriptionEnfantService;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
@@ -58,7 +59,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
         InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
-        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity, criteria.getIsAdmin());
+        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity);
         this.computeStatutNewInscription(entity, tarifs.isListeAttente());
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
@@ -80,7 +81,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         StatutInscription statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
         this.checkStatutInscription(entity, statutActuel);
-        this.doCalculTarifInscription(entity, criteria.getIsAdmin());
+        this.doCalculTarifInscription(entity);
         entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
@@ -141,13 +142,13 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         return true;
     }
 
-    private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription, Boolean isAdmin) {
+    private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription) {
         Integer nbEleves = inscription.getEleves().size();
         LocalDate atDate = inscription.getDateInscription() != null ?
                 inscription.getDateInscription().toLocalDate() : LocalDate.now();
         InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
                 .adherent(inscription.getResponsableLegal().getAdherent())
-                .isAdmin(isAdmin).atDate(atDate).build();
+                .atDate(atDate).build();
         TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscriptionInfos);
         if (tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");

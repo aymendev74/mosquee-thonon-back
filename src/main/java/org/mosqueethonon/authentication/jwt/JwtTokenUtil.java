@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.crypto.SecretKey;
 
@@ -29,14 +30,18 @@ public class JwtTokenUtil {
 
     public String generateAccessToken(UtilisateurEntity user) {
         SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-
+        List<UtilisateurRoleEntity> roles = user.getRoles();
+        List<String> rolesList = null;
+        if(!CollectionUtils.isEmpty(roles)) {
+            rolesList = roles.stream().map(UtilisateurRoleEntity::getRole).toList();
+        }
         return Jwts.builder()
                 .subject(String.format("%s,%s", user.getId(), user.getUsername()))
                 .issuer("MosqueeThonon")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
                 .signWith(key, Jwts.SIG.HS512)
-                .claim("roles", user.getRoles().stream().map(UtilisateurRoleEntity::getRole).collect(Collectors.toList()))
+                .claim("roles", rolesList)
                 .compact();
     }
 

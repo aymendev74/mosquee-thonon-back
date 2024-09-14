@@ -2,6 +2,8 @@ package org.mosqueethonon.v1.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mosqueethonon.entity.UtilisateurRoleEntity;
+import org.mosqueethonon.security.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,9 +24,16 @@ public class InscriptionControllerTest extends ControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testFindInscriptionsByCriteriaReturn200() throws Exception {
+    public void testFindInscriptionsByCriteriaNoRoleAdminReturn403() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions")
-                        .header("Authorization", generateToken()))
+                        .header("Authorization", generateToken(null)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    public void testFindInscriptionsByCriteriaRoleAdminReturn200() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions")
+                        .header("Authorization", generateToken(Roles.ROLE_ADMIN)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

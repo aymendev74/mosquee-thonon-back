@@ -9,6 +9,4 @@ public class InscriptionSaveCriteria {
 
     private Boolean sendMailConfirmation;
 
-    private Boolean isAdmin;
-
 }

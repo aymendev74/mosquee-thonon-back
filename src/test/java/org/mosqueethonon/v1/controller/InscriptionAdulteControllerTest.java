@@ -43,7 +43,7 @@ public class InscriptionAdulteControllerTest extends ControllerTest {
             new Thread(() -> {
                 try {
                     mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-adultes")
-                                    .header("Authorization", generateToken())
+                                    .header("Authorization", generateToken(null))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonMapper.writeValueAsString(this.createInscriptionAdulte())))
                             .andExpect(MockMvcResultMatchers.status().isOk());

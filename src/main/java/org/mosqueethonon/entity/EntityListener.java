@@ -1,5 +1,7 @@
 package org.mosqueethonon.entity;
 
+import lombok.AllArgsConstructor;
+import org.mosqueethonon.security.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import jakarta.persistence.PrePersist;
@@ -7,7 +9,10 @@ import jakarta.persistence.PreUpdate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 public class EntityListener {
+
+    private SecurityContext securityContext;
 
     @PrePersist
     public void doBeforeInsert(Auditable auditable) {
@@ -17,24 +22,14 @@ public class EntityListener {
             auditable.setSignature(signature);
         }
         signature.setDateCreation(LocalDateTime.now());
-        signature.setVisaCreation(getVisa());
+        signature.setVisaCreation(securityContext.getVisa());
     }
 
     @PreUpdate
     public void doBeforeUpdate(Auditable auditable) {
         Signature signature = auditable.getSignature();
         signature.setDateModification(LocalDateTime.now());
-        signature.setVisaModification(getVisa());
-    }
-
-    private String getVisa() {
-        if(SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication()!=null) {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principal instanceof UtilisateurEntity) {
-                return ((UtilisateurEntity) principal).getUsername();
-            }
-        }
-        return "anonymous";
+        signature.setVisaModification(securityContext.getVisa());
     }
 
 }

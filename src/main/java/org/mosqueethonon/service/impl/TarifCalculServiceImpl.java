@@ -6,6 +6,7 @@ import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.security.SecurityContext;
 import org.mosqueethonon.service.ParamService;
 import org.mosqueethonon.service.TarifCalculService;
 import org.mosqueethonon.service.TarifService;
@@ -26,10 +27,12 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
     private ParamService paramService;
 
+    private SecurityContext securityContext;
+
     @Override
     public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(InscriptionEnfantInfosDto inscriptionInfos) {
         // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
-        if(!Boolean.TRUE.equals(inscriptionInfos.getIsAdmin())) {
+        if(!this.securityContext.isAdmin()) {
             boolean isInscriptionEnabled = this.paramService.isInscriptionEnabled();
             if(!isInscriptionEnabled) {
                 return null;

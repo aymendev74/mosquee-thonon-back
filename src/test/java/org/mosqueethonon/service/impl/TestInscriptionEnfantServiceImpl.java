@@ -60,7 +60,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertThrows(IllegalStateException.class,
                 () -> {
                     this.underTest.createInscription(null, InscriptionSaveCriteria.builder()
-                            .isAdmin(false).build());
+                            .build());
                 });
     }
 

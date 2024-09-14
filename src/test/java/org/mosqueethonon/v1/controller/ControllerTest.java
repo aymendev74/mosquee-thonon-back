@@ -3,10 +3,7 @@ package org.mosqueethonon.v1.controller;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
-import org.mosqueethonon.entity.ParamEntity;
-import org.mosqueethonon.entity.PeriodeEntity;
-import org.mosqueethonon.entity.TarifEntity;
-import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.entity.*;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
@@ -39,10 +36,15 @@ public class ControllerTest {
     @Autowired
     private ParamRepository paramRepository;
 
-    protected String generateToken() {
+    protected String generateToken(String role) {
         UtilisateurEntity user = new UtilisateurEntity();
         user.setId(1L);
         user.setUsername("aymen");
+        if(role != null) {
+            UtilisateurRoleEntity roleUtilisateur = new UtilisateurRoleEntity();
+            roleUtilisateur.setRole(role);
+            user.setRoles(List.of(roleUtilisateur));
+        }
         return new StringBuilder("Bearer ").append(tokenUtil.generateAccessToken(user)).toString();
     }
 
