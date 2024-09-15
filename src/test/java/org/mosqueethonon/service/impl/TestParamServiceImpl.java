@@ -1,10 +1,8 @@
 package org.mosqueethonon.service.impl;
 
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,11 +14,10 @@ import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.params.DateParamValueParser;
 import org.mosqueethonon.repository.ParamRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mosqueethonon.service.impl.param.ParamServiceImpl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalUnit;
 
 @ExtendWith(MockitoExtension.class)
 public class TestParamServiceImpl {

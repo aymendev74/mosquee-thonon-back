@@ -1,12 +1,12 @@
 package org.mosqueethonon.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.mosqueethonon.service.AdhesionLightService;
-import org.mosqueethonon.service.AdhesionService;
+import org.mosqueethonon.service.adhesion.AdhesionLightService;
+import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
-import org.mosqueethonon.v1.dto.AdhesionDto;
-import org.mosqueethonon.v1.dto.AdhesionLightDto;
-import org.mosqueethonon.v1.dto.AdhesionPatchDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

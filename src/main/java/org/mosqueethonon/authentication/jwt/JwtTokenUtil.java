@@ -2,14 +2,13 @@ package org.mosqueethonon.authentication.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.mosqueethonon.entity.UtilisateurRoleEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

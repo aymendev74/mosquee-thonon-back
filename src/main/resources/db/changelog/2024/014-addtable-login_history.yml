@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-addtable-login_history
+      author: Aymen
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: login_history_pkey
+                  name: idlohi
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: txlohiuser
+                  type: VARCHAR(50)
+              - column:
+                  name: dtlohiconnexion
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: login_history
+        - addForeignKeyConstraint:
+            baseColumnNames: txlohiuser
+            baseTableName: login_history
+            constraintName: fk_login_history_utilisateur
+            referencedColumnNames: txutiluser
+            referencedTableName: utilisateur

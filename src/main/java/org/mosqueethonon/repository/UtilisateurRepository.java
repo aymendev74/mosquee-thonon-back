@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository;
 
-import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

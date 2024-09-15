@@ -1,7 +1,7 @@
 package org.mosqueethonon.v1.controller;
 
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
-import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.authentication.user.AuthRequest;
 import org.mosqueethonon.authentication.user.AuthResponse;
 import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
@@ -40,6 +40,9 @@ public class UserController {
             UtilisateurEntity user = (UtilisateurEntity) authentication.getPrincipal();
             String accessToken = jwtUtil.generateAccessToken(user);
             AuthResponse response = AuthResponse.builder().username(user.getUsername()).accessToken(accessToken).build();
+
+            // On garde une trace de la connexion de l'utilisateur
+            this.userService.saveLoginHistory(user.getUsername());
 
             return ResponseEntity.ok().body(response);
 

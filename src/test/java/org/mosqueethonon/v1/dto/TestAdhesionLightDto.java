@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
 
 import java.time.LocalDateTime;
 

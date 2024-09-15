@@ -1,8 +1,8 @@
 package org.mosqueethonon.v1.controller;
 
-import org.mosqueethonon.service.TarifCalculService;
-import org.mosqueethonon.v1.dto.InscriptionEnfantInfosDto;
-import org.mosqueethonon.v1.dto.TarifInscriptionEnfantDto;
+import org.mosqueethonon.service.referentiel.TarifCalculService;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
+import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

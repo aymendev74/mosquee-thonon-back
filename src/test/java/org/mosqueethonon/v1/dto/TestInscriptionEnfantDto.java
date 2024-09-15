@@ -2,6 +2,9 @@ package org.mosqueethonon.v1.dto;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
+import org.mosqueethonon.v1.dto.inscription.EleveDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
+import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

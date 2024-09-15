@@ -1,8 +1,8 @@
 package org.mosqueethonon.v1.controller;
 
-import org.mosqueethonon.service.ParamService;
-import org.mosqueethonon.v1.dto.ParamDto;
-import org.mosqueethonon.v1.dto.ParamsDto;
+import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.v1.dto.param.ParamDto;
+import org.mosqueethonon.v1.dto.param.ParamsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

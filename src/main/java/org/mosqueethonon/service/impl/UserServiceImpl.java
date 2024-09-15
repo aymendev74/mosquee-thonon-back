@@ -2,8 +2,10 @@ package org.mosqueethonon.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
-import org.mosqueethonon.entity.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
+import org.mosqueethonon.repository.LoginRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -19,6 +23,8 @@ public class UserServiceImpl implements UserService {
     private UtilisateurRepository userRepository;
 
     private PasswordEncoder passwordEncoder;
+
+    private LoginRepository loginRepository;
 
     @Override
     public void changeUserPassword(ChangePasswordRequest changePasswordRequest) throws InvalidOldPasswordException {
@@ -46,5 +52,13 @@ public class UserServiceImpl implements UserService {
 
     private boolean validateOldPassword(String rawPassword, String encodedPassword) {
         return this.passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    @Override
+    public void saveLoginHistory(String username) {
+        LoginHistoryEntity loginHistory = new LoginHistoryEntity();
+        loginHistory.setUsername(username);
+        loginHistory.setDateConnexion(LocalDateTime.now());
+        loginRepository.save(loginHistory);
     }
 }

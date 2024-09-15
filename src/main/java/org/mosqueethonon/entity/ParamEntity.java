@@ -3,7 +3,6 @@ package org.mosqueethonon.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.mosqueethonon.enums.ParamNameEnum;
-import org.mosqueethonon.enums.ParamTypeEnum;
 
 @Entity
 @Table(name = "params", schema = "moth")

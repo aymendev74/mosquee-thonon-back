@@ -2,8 +2,7 @@ package org.mosqueethonon.v1.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mosqueethonon.entity.UtilisateurRoleEntity;
-import org.mosqueethonon.security.Roles;
+import org.mosqueethonon.configuration.security.context.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

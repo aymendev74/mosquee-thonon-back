@@ -1,11 +1,11 @@
 package org.mosqueethonon.v1.controller;
 
 import org.mosqueethonon.concurrent.LockManager;
-import org.mosqueethonon.service.InscriptionLightService;
-import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.inscription.InscriptionLightService;
+import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
-import org.mosqueethonon.v1.dto.InscriptionLightDto;
-import org.mosqueethonon.v1.dto.InscriptionPatchDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

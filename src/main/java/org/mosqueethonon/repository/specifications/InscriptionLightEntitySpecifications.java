@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository.specifications;
 
-import org.mosqueethonon.entity.InscriptionLightEntity;
+import org.mosqueethonon.entity.inscription.InscriptionLightEntity;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;

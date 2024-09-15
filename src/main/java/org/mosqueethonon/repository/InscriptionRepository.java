@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository;
 
-import org.mosqueethonon.entity.InscriptionEntity;
+import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
