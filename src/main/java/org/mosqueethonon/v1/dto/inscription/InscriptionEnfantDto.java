@@ -19,7 +19,6 @@ public class InscriptionEnfantDto {
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
     private Integer noPositionAttente;
-    private String anneeScolaire;
     private BigDecimal montantTotal;
 
     public void normalize() {

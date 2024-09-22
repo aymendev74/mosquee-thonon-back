@@ -93,7 +93,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
     private void calculTarif(InscriptionAdulteEntity inscription, LocalDate atDate) {
         LocalDate datRefCalcul = inscription.getDateInscription() != null ? inscription.getDateInscription().toLocalDate() : atDate;
-        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(datRefCalcul);
+        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(inscription.getId(), datRefCalcul);
         inscription.getResponsableLegal().setIdTarif(tarif.getIdTari());
         inscription.getEleves().forEach(e -> e.setIdTarif(tarif.getIdTari()));
         inscription.setMontantTotal(tarif.getTarif());

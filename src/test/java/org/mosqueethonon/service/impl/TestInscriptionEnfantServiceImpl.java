@@ -75,7 +75,7 @@ public class TestInscriptionEnfantServiceImpl {
         final Long numeroInscription = Long.valueOf(1001);
         InscriptionEnfantDto inscriptionEnfantDto = createInscription(2);
         final InscriptionEnfantEntity inscriptionEnfantEntity = createInscriptionEntity(2);
-        when(this.tarifCalculService.calculTarifInscriptionEnfant(any())).thenReturn(createTarifInscription());
+        when(this.tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
         when(this.inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionEnfantDto);
         when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);

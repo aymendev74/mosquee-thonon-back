@@ -27,8 +27,6 @@ public class InscriptionAdulteDto implements IMailObject {
     private Integer codePostal;
     private String ville;
     private StatutInscription statut;
-    private BigDecimal montant;
-    private String anneeScolaire;
     private BigDecimal montantTotal;
     private NiveauInterneEnum niveauInterne;
     private SexeEnum sexe;

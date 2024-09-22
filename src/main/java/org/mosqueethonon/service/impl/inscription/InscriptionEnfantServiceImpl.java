@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -152,12 +153,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription) {
         Integer nbEleves = inscription.getEleves().size();
-        LocalDate atDate = inscription.getDateInscription() != null ?
-                inscription.getDateInscription().toLocalDate() : LocalDate.now();
         InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
-                .adherent(inscription.getResponsableLegal().getAdherent())
-                .atDate(atDate).build();
-        TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscriptionInfos);
+                .adherent(inscription.getResponsableLegal().getAdherent()).build();
+        TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscription.getId(), inscriptionInfos);
         if (tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
             throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
         }
@@ -168,7 +166,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     private BigDecimal calculMontantTotal(BigDecimal tarifBase, BigDecimal tarifEleve, Integer nbEleves) {
-        return tarifBase.add(tarifEleve.multiply(BigDecimal.valueOf(nbEleves))).setScale(0);
+        return tarifBase.add(tarifEleve.multiply(BigDecimal.valueOf(nbEleves))).setScale(0, RoundingMode.HALF_UP);
     }
 
     private Integer calculPositionAttente() {

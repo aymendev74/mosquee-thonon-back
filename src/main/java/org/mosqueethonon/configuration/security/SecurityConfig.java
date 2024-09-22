@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
                 .requestMatchers("/v1/tarifs").permitAll()
-                .requestMatchers("/v1/tarifs-inscription").permitAll()
+                .requestMatchers(HttpMethod.GET, "/v1/tarifs-inscription/**").permitAll()
                 .requestMatchers("/v1/params/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()

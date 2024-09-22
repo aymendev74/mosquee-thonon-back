@@ -8,8 +8,8 @@ import java.time.LocalDate;
 
 public interface TarifCalculService {
 
-    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(InscriptionEnfantInfosDto inscriptionInfos);
+    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(Long id, InscriptionEnfantInfosDto inscriptionInfos);
 
-    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(LocalDate atDate);
+    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(Long id, LocalDate atDate);
 
 }

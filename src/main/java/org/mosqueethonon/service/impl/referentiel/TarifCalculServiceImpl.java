@@ -1,6 +1,8 @@
 package org.mosqueethonon.service.impl.referentiel;
 
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
@@ -33,7 +35,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     private SecurityContext securityContext;
 
     @Override
-    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(InscriptionEnfantInfosDto inscriptionInfos) {
+    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(Long id, InscriptionEnfantInfosDto inscriptionInfos) {
         // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
         if(!this.securityContext.isAdmin()) {
             boolean isInscriptionEnabled = this.paramService.isInscriptionEnabled();
@@ -42,9 +44,17 @@ public class TarifCalculServiceImpl implements TarifCalculService {
             }
         }
 
+        LocalDate atDate = null;
+        if(id != null) {
+            InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
+            if(inscription == null) {
+                throw new IllegalArgumentException("Inscription non trouvée ! idinsc = " + id);
+            }
+            atDate = inscription.getDateInscription().toLocalDate();
+        }
+
         Boolean adherent = inscriptionInfos.getAdherent();
         Integer nbEnfants = inscriptionInfos.getNbEleves();
-        LocalDate atDate = inscriptionInfos.getAtDate() != null ? inscriptionInfos.getAtDate() : LocalDate.now();
 
         // Calcul du tarif de base
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ENFANT.name())
@@ -80,7 +90,15 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     }
 
     @Override
-    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(LocalDate atDate) {
+    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(Long id, LocalDate atDate) {
+        if(id != null) {
+            InscriptionEntity entity = this.inscriptionRepository.findById(id).orElse(null);
+            if(entity == null) {
+                throw new IllegalArgumentException("Inscription non trouvée ! idinsc = " + id);
+            }
+            atDate = entity.getDateInscription().toLocalDate();
+        }
+
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ADULTE.name())
                 .type(TypeTarifEnum.ADULTE.name()).atDate(atDate).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
