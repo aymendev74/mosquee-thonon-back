@@ -248,7 +248,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             for (EleveDto eleve : inscriptionEnfantDto.getEleves()) {
                 if (eleve.getPrenom() != null && eleve.getNom() != null) {
                     List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
-                            eleve.getNom(), atDate, idInscription);
+                            eleve.getNom(), atDate.toLocalDate(), idInscription);
                     if (!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;
                     }

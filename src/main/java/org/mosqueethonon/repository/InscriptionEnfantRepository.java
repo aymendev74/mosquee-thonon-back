@@ -14,26 +14,26 @@ import java.util.List;
 @Repository
 public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEnfantEntity, Long>, JpaSpecificationExecutor<InscriptionEnfantEntity> {
 
-    @Query(value = "select i.* from moth.inscription i "
-            + "inner join moth.resplegal r on r.idresp = i.idresp "
-            + "inner join moth.tarif t on t.idtari = r.idtari "
-            + "inner join moth.periode p on p.idperi = t.idperi "
-            + "where p.idperi = :idPeriode "
-            + "and i.cdinscstatut IN ('LISTE_ATTENTE') "
-            + "and i.cdinsctype = 'ENFANT' "
-            + "order by i.noinscpositionattente", nativeQuery = true)
+    @Query("select i from InscriptionEnfantEntity i "
+            + "join i.responsableLegal r "
+            + "join TarifEntity t on t.id = r.idTarif "
+            + "join t.periode p "
+            + "where p.id = :idPeriode "
+            + "and i.statut in ('LISTE_ATTENTE') "
+            + "and i.type = 'ENFANT' "
+            + "order by i.noPositionAttente")
     List<InscriptionEnfantEntity> getInscriptionEnAttenteByPeriode(@Param("idPeriode") Long idPeriode);
 
-    @Query(value = "select distinct i.* from moth.inscription i "
-            + "inner join moth.eleve e on e.idinsc = i.idinsc "
-            + "inner join moth.tarif t on t.idtari = e.idtari "
-            + "inner join moth.periode p on p.idperi = t.idperi "
-            + "where :atDate between p.dtperidebut and p.dtperifin "
-            + "and i.cdinscstatut IN ('VALIDEE', 'PROVISOIRE', 'LISTE_ATTENTE') "
-            + "and e.txelevprenom = :prenom and e.txelevnom = :nom "
-            + "and i.cdinsctype = 'ENFANT' "
-            + "and i.idinsc <> coalesce(:excludedInscription, '-1')", nativeQuery = true)
-    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDateTime atDate, Long excludedInscription);
+    @Query("select distinct i from InscriptionEnfantEntity i "
+            + "join i.eleves e "
+            + "join TarifEntity t on t.id = e.idTarif "
+            + "join t.periode p "
+            + "where :atDate between p.dateDebut and p.dateFin "
+            + "and i.statut in ('VALIDEE', 'PROVISOIRE', 'LISTE_ATTENTE') "
+            + "and e.prenom = :prenom and e.nom = :nom "
+            + "and i.type = 'ENFANT' "
+            + "and i.id <> coalesce(:excludedInscription, -1)")
+    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDate atDate, Long excludedInscription);
 
 
     @Query(value = "select max(noinscpositionattente) from moth.inscription i "
