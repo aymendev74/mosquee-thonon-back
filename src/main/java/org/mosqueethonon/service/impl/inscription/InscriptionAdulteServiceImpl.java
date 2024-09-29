@@ -21,6 +21,7 @@ import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
     private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Override
+    @Transactional
     public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();

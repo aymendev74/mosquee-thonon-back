@@ -58,6 +58,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     }
 
     @Override
+    @Transactional
     public PeriodeDto updatePeriode(Long id, PeriodeDto periode) {
         PeriodeEntity periodeEntity = this.periodeRepository.findById(id).orElse(null);
         if(periodeEntity == null) {

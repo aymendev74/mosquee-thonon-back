@@ -1,6 +1,5 @@
 package org.mosqueethonon.service.impl.inscription;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.repository.InscriptionRepository;
@@ -9,6 +8,7 @@ import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;

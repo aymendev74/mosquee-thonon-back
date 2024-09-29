@@ -1,6 +1,5 @@
 package org.mosqueethonon.service.impl.inscription;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.inscription.EleveEntity;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -80,6 +80,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     @Override
+    @Transactional
     public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
