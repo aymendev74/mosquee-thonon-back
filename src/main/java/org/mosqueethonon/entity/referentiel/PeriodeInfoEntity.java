@@ -18,6 +18,10 @@ public class PeriodeInfoEntity {
     private LocalDate dateDebut;
     @Column(name = "datefin")
     private LocalDate dateFin;
+    @Column(name = "anneedebut")
+    private Integer anneeDebut;
+    @Column(name = "anneefin")
+    private Integer anneeFin;
     @Column(name = "nbmaxinscription")
     private Integer nbMaxInscription;
     @Column(name = "existinscription")

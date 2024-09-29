@@ -110,7 +110,11 @@ public class PeriodeServiceImpl implements PeriodeService {
     }
 
     private boolean checkNoInscriptionOutsidePeriode(Long id, PeriodeDto periode) {
-        return !this.inscriptionAdulteService.isInscriptionOutsidePeriode(id, periode);
+        if (periode.getApplication().equals(APPLICATION_COURS_ENFANT)) {
+            return !this.inscriptionEnfantService.isInscriptionOutsidePeriode(id, periode);
+        } else {
+            return !this.inscriptionAdulteService.isInscriptionOutsidePeriode(id, periode);
+        }
     }
 
     private boolean checkNoOverlap(Long id, PeriodeDto periode) {

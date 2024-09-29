@@ -2,6 +2,7 @@ package org.mosqueethonon.entity.inscription;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -41,8 +42,6 @@ public abstract class InscriptionEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "idinsc", updatable = false, insertable = false)
     private List<MailingConfirmationEntity> mailingConfirmations;
-    @Column(name = "txinscanneescolaire")
-    private String anneeScolaire;
     @Column(name = "mtinsctotal")
     private BigDecimal montantTotal;
     @Column(name = "cdinsctype", insertable = false, updatable = false)
@@ -50,5 +49,7 @@ public abstract class InscriptionEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idinsc", nullable = false)
     private List<EleveEntity> eleves;
+    @Formula("(select moth.getAnneeScolaire(idinsc))")
+    private String anneeScolaire;
 
 }

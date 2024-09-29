@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-addColumn-annee-periode
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: periode
+            columns:
+              - column:
+                  name: noperianneedebut
+                  type: int
+              - column:
+                  name: noperianneefin
+                  type: int
+        - dropView:
+            viewName: v_periode_cours
+            ifExists: true
+        - createView:
+            fullDefinition: false
+            selectQuery: |-
+              SELECT DISTINCT peri.idperi AS id,
+                  peri.dtperidebut AS datedebut,
+                  peri.dtperifin AS datefin,
+                  peri.noperianneedebut AS anneeDebut,
+                  peri.noperianneefin AS anneeFin,
+                  peri.nbperimaxinscription AS nbmaxinscription,
+                  moth.existinscriptionforperiode(peri.idperi) AS existinscription,
+                  peri.oh_date_cre,
+                  peri.oh_vis_cre,
+                  peri.oh_date_mod,
+                  peri.oh_vis_mod,
+                  peri.cdperiapplication AS application,
+                      CASE
+                          WHEN ((CURRENT_DATE >= peri.dtperidebut) AND (CURRENT_DATE <= peri.dtperifin)) THEN true
+                          ELSE false
+                      END AS active
+                 FROM moth.periode peri;
+            viewName: v_periode_cours
+        - sqlFile:
+            path: db/changelog/sql/015-addColumn-annee-periode.sql
+            endDelimiter: \nGO
+        - dropColumn:
+            tableName: inscription
+            columns:
+              - column:
+                  name: txinscanneescolaire

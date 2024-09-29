@@ -13,6 +13,8 @@ public class PeriodeDto {
     private LocalDate dateDebut;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateFin;
+    private Integer anneeDebut;
+    private Integer anneeFin;
     private Integer nbMaxInscription;
     private String application;
 

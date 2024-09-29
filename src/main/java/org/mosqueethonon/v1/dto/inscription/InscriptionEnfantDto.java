@@ -20,6 +20,7 @@ public class InscriptionEnfantDto {
     private List<EleveDto> eleves;
     private Integer noPositionAttente;
     private BigDecimal montantTotal;
+    private String anneeScolaire;
 
     public void normalize() {
         if(responsableLegal != null) {
@@ -29,7 +30,7 @@ public class InscriptionEnfantDto {
             responsableLegal.setNomAutre(StringUtils.normalize(responsableLegal.getNomAutre()));
         }
         if(!CollectionUtils.isEmpty(eleves)) {
-            eleves.stream().forEach(eleve -> {
+            eleves.forEach(eleve -> {
                 eleve.setNom(StringUtils.normalize(eleve.getNom()));
                 eleve.setPrenom(StringUtils.normalize(eleve.getPrenom()));
             });

@@ -30,6 +30,7 @@ public class InscriptionAdulteDto implements IMailObject {
     private BigDecimal montantTotal;
     private NiveauInterneEnum niveauInterne;
     private SexeEnum sexe;
+    private String anneeScolaire;
 
     public void normalize() {
         this.nom = StringUtils.normalize(StringUtils.normalize(nom));

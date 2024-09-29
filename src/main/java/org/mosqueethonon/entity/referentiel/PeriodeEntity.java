@@ -29,6 +29,10 @@ public class PeriodeEntity implements Auditable {
     private LocalDate dateDebut;
     @Column(name = "dtperifin")
     private LocalDate dateFin;
+    @Column(name = "noperianneedebut")
+    private Integer anneeDebut;
+    @Column(name = "noperianneefin")
+    private Integer anneeFin;
     @Column(name = "nbperimaxinscription")
     private Integer nbMaxInscription;
     @Column(name = "cdperiapplication")
