@@ -44,15 +44,6 @@ public class ParamServiceImpl implements ParamService {
     }
 
     @Override
-    public String getAnneeScolaireEnCours() {
-        ParamEntity param = this.paramRepository.findByName(ParamNameEnum.ANNEE_SCOLAIRE);
-        if (param == null) {
-            return "!!! NON DEFINIE !!!";
-        }
-        return param.getValue();
-    }
-
-    @Override
     @Transactional
     public void saveParam(List<ParamDto> paramDtos) {
         for(ParamDto paramDto : paramDtos) {

@@ -79,7 +79,6 @@ public class TestInscriptionEnfantServiceImpl {
         when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
         when(this.inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionEnfantDto);
         when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
-        when(this.paramService.getAnneeScolaireEnCours()).thenReturn(anneeScolaire);
         when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
         when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
         when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);

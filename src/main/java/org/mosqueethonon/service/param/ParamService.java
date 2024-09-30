@@ -9,8 +9,6 @@ public interface ParamService {
 
     boolean isReinscriptionPrioritaireEnabled();
 
-    String getAnneeScolaireEnCours();
-
     void saveParam(List<ParamDto> paramDtos);
 
     boolean isInscriptionEnabled();

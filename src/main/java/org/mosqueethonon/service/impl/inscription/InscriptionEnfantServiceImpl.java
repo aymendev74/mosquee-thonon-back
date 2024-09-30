@@ -73,7 +73,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
-        entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
         entity = this.inscriptionEnfantRepository.save(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
         return this.inscriptionEnfantMapper.fromEntityToDto(entity);

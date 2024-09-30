@@ -13,8 +13,6 @@ public class ParamsDto {
 
     @DataBaseParam(name = ParamNameEnum.REINSCRIPTION_ENABLED)
     private boolean reinscriptionPrioritaire;
-    @DataBaseParam(name = ParamNameEnum.ANNEE_SCOLAIRE)
-    private String anneeScolaire;
     @DataBaseParam(name = ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate inscriptionEnabledFromDate;

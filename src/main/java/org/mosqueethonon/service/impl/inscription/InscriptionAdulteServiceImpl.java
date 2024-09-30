@@ -57,7 +57,6 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
-        entity.setAnneeScolaire(this.paramService.getAnneeScolaireEnCours());
         entity.setStatut(StatutInscription.PROVISOIRE);
 
         // calcul du tarif
