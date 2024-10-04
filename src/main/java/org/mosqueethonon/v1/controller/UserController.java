@@ -4,7 +4,6 @@ import org.mosqueethonon.authentication.user.ChangePasswordRequest;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.authentication.user.AuthRequest;
 import org.mosqueethonon.authentication.user.AuthResponse;
-import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.v1.exception.ErrorConstantes;
@@ -23,33 +22,9 @@ public class UserController {
 
     @Autowired
     private AuthenticationManager authManager;
-    @Autowired
-    private JwtTokenUtil jwtUtil;
 
     @Autowired
     private UserService userService;
-
-    @PostMapping("/auth")
-    public ResponseEntity authenticate(@RequestBody AuthRequest request) {
-        try {
-            Authentication authentication = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(), request.getPassword())
-            );
-
-            UtilisateurEntity user = (UtilisateurEntity) authentication.getPrincipal();
-            String accessToken = jwtUtil.generateAccessToken(user);
-            AuthResponse response = AuthResponse.builder().username(user.getUsername()).accessToken(accessToken).build();
-
-            // On garde une trace de la connexion de l'utilisateur
-            this.userService.saveLoginHistory(user.getUsername());
-
-            return ResponseEntity.ok().body(response);
-
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorConstantes.ERROR_INVALID_CREDENTIALS);
-        }
-    }
 
     @PostMapping("/password")
     public ResponseEntity changePassword(@RequestBody ChangePasswordRequest request) {

@@ -3,6 +3,7 @@ package org.mosqueethonon.entity.utilisateur;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.mosqueethonon.entity.audit.EntityListener;
+import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @EntityListeners(EntityListener.class)

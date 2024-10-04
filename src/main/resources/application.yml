@@ -1,8 +1,10 @@
-#logging:
-#    level:
-#        org.springframework.security: DEBUG
-#        org.springframework.security.web.access: DEBUG  # Pour déboguer l'accès aux endpoints
-#        org.springframework.security.authentication: DEBUG
+logging:
+    level:
+        org.springframework.security: DEBUG
+        org.springframework.security.web.access: DEBUG  # Pour déboguer l'accès aux endpoints
+        org.springframework.security.authentication: DEBUG
+        org.springframework.security.oauth2.client: DEBUG
+        org.springframework.security.oauth2.jwt: DEBUG
 
 app:
     jwt:

@@ -27,7 +27,7 @@ public class UtilisateurEntity implements UserDetails, Auditable {
     private String password;
     @Embedded
     private Signature signature;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "txutiluser", referencedColumnName = "txutiluser", updatable = false, insertable = false)
     private List<UtilisateurRoleEntity> roles;
 

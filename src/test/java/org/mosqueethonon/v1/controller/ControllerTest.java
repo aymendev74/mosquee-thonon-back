@@ -2,7 +2,6 @@ package org.mosqueethonon.v1.controller;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.mosqueethonon.authentication.jwt.JwtTokenUtil;
 import org.mosqueethonon.entity.ParamEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;

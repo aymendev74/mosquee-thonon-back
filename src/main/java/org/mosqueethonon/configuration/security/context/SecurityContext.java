@@ -11,7 +11,7 @@ public class SecurityContext {
         if(SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication()!=null
         && SecurityContextHolder.getContext().getAuthentication().getAuthorities() != null) {
             return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                    .anyMatch(a -> a.getAuthority().equals(Roles.ROLE_ADMIN));
         }
         return false;
     }
