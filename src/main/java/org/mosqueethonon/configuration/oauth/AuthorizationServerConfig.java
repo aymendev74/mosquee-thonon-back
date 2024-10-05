@@ -11,6 +11,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -18,12 +20,14 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,9 +58,13 @@ public class AuthorizationServerConfig {
                 .clientId("moth-react-app")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri(getRedirectURI())
-                .scope("ALL")
+                .redirectUri("http://localhost:3000/admin")
+                .redirectUri("http://localhost:3000/adminCours")
+                .redirectUri("http://localhost:3000/adminAdhesion")
+                .redirectUri("http://localhost:3000/adminTarif")
+                .redirectUri("http://localhost:3000/parametres")
+                .scope("ADMIN")
+                .tokenSettings(tokenSettings())
                 .build();
 
         return new InMemoryRegisteredClientRepository(registeredClient);
@@ -101,6 +109,25 @@ public class AuthorizationServerConfig {
             case STAGING -> "https://www.staging.inscription-amc.fr/admin";
             default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
         };
+    }
+
+    @Bean
+    public TokenSettings tokenSettings() {
+        return TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.ofSeconds(30))
+                .build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        String activeProfile = profileProvider.getActiveProfile();
+        String tokenDecoderEndpoint = switch (activeProfile) {
+            case DEVELOPMENT -> "http://localhost:8080/api/oauth2/jwks";
+            case PRODUCTION -> "https://www.inscription-amc.fr/api/oauth2/jwks";
+            case STAGING -> "https://www.staging.inscription-amc.fr/api/oauth2/jwks";
+            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
+        };
+        return NimbusJwtDecoder.withJwkSetUri(tokenDecoderEndpoint).build();
     }
 
 }
