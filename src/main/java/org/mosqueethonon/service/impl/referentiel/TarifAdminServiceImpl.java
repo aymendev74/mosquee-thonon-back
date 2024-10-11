@@ -6,6 +6,7 @@ import org.mosqueethonon.annotations.CodeTarif;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.service.referentiel.TarifAdminService;
@@ -72,7 +73,7 @@ public class TarifAdminServiceImpl implements TarifAdminService {
             tarif = tarifsByPeriode.get(0);
         }
         tarif.setMontant(infoTarifDto.getMontant());
-        tarif.setType(ApplicationTarifEnum.COURS_ADULTE.name());
+        tarif.setType(TypeTarifEnum.ADULTE.name());
         this.tarifRepository.save(tarif);
     }
 
