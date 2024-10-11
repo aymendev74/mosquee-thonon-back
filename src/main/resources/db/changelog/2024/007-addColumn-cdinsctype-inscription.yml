@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-addColumn-cdinsctype
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: inscription
+            columns:
+              - column:
+                  name: cdinsctype
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+        - update:
+            tableName: inscription
+            columns:
+              - column:
+                  name: cdinsctype
+                  value: "ENFANT"
+        - addNotNullConstraint:
+            tableName: inscription
+            columnName: cdinsctype

@@ -30,5 +30,6 @@ public class InscriptionCriteria {
     private List<NiveauInterneEnum> niveauxInternes;
     private String noInscription;
     private Long idPeriode;
+    private String type;
 
 }

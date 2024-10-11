@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository.specifications;
 
-import org.mosqueethonon.entity.AdhesionLightEntity;
+import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -9,7 +9,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.time.LocalDate;
+
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;

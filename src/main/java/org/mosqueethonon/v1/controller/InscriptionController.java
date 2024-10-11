@@ -1,12 +1,11 @@
 package org.mosqueethonon.v1.controller;
 
 import org.mosqueethonon.concurrent.LockManager;
-import org.mosqueethonon.service.InscriptionLightService;
-import org.mosqueethonon.service.InscriptionService;
+import org.mosqueethonon.service.inscription.InscriptionLightService;
+import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
-import org.mosqueethonon.v1.dto.InscriptionDto;
-import org.mosqueethonon.v1.dto.InscriptionLightDto;
-import org.mosqueethonon.v1.dto.InscriptionSaveCriteria;
+import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,44 +19,28 @@ import java.util.concurrent.locks.Lock;
 public class InscriptionController {
 
     @Autowired
-    private InscriptionService inscriptionService;
-    @Autowired
     private InscriptionLightService inscriptionLightService;
+
+    @Autowired
+    private InscriptionService inscriptionService;
 
     @Autowired
     private LockManager lockManager;
 
-    @PostMapping
-    public ResponseEntity<InscriptionDto> saveInscription(@RequestBody InscriptionDto inscription,
-                                                          @ModelAttribute InscriptionSaveCriteria criteria) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            inscription = this.inscriptionService.saveInscription(inscription, criteria);
-        } finally {
-            lock.unlock();
-        }
-        return ResponseEntity.ok(inscription);
-    }
-
     @GetMapping
-    public ResponseEntity<List<InscriptionLightDto>> findInscriptionsByCriteria(@ModelAttribute InscriptionCriteria criteria) {
-        List<InscriptionLightDto> personnes = this.inscriptionLightService.findInscriptionsLightByCriteria(criteria);
-        return ResponseEntity.ok(personnes);
+    public ResponseEntity<List<InscriptionLightDto>> findInscriptionsLightsByCriteria(@ModelAttribute InscriptionCriteria criteria) {
+        List<InscriptionLightDto> inscriptionLights = this.inscriptionLightService.findInscriptionsEnfantLightByCriteria(criteria);
+        return ResponseEntity.ok(inscriptionLights);
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<InscriptionDto> findInscriptionById(@PathVariable("id") Long id) {
-        InscriptionDto personne = this.inscriptionService.findInscriptionById(id);
-        return ResponseEntity.ok(personne);
-    }
 
-    @PostMapping(path = "/validation")
-    public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
+    @PatchMapping
+    public ResponseEntity patchInscriptions(@RequestBody InscriptionPatchDto inscriptionPatchDto) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
+        Set<Long> ids = null;
         try {
-            ids = this.inscriptionService.validateInscriptions(ids);
+            ids = this.inscriptionService.patchInscriptions(inscriptionPatchDto);
         } finally {
             lock.unlock();
         }
@@ -75,11 +58,4 @@ public class InscriptionController {
         }
         return ResponseEntity.ok(ids);
     }
-
-    @PostMapping(path = "/incoherences")
-    public ResponseEntity<String> checkCoherence(@RequestBody InscriptionDto inscriptionDto) {
-        String incoherence = this.inscriptionService.checkCoherence(inscriptionDto);
-        return ResponseEntity.ok(incoherence);
-    }
-
 }

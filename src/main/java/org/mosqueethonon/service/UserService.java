@@ -8,4 +8,6 @@ public interface UserService extends UserDetailsService {
 
     public void changeUserPassword(ChangePasswordRequest chagePasswordRequest) throws InvalidOldPasswordException;
 
+    public void saveLoginHistory(String username);
+
 }

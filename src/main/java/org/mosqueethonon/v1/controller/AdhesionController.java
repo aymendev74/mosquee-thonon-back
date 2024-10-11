@@ -1,11 +1,12 @@
 package org.mosqueethonon.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.mosqueethonon.service.AdhesionLightService;
-import org.mosqueethonon.service.AdhesionService;
+import org.mosqueethonon.service.adhesion.AdhesionLightService;
+import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
-import org.mosqueethonon.v1.dto.AdhesionDto;
-import org.mosqueethonon.v1.dto.AdhesionLightDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,14 @@ public class AdhesionController {
 
     @Operation(summary = "Sauvegarde d'une adhésion")
     @PostMapping
-    public ResponseEntity<AdhesionDto> saveAdhesion(@RequestBody AdhesionDto adhesion) {
-        adhesion = this.adhesionService.saveAdhesion(adhesion);
+    public ResponseEntity<AdhesionDto> createAdhesion(@RequestBody AdhesionDto adhesion) {
+        adhesion = this.adhesionService.createAdhesion(adhesion);
+        return ResponseEntity.ok(adhesion);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<AdhesionDto> updateAdhesion(@PathVariable("id") Long id, @RequestBody AdhesionDto adhesion) {
+        adhesion = this.adhesionService.updateAdhesion(id, adhesion);
         return ResponseEntity.ok(adhesion);
     }
 
@@ -41,9 +48,9 @@ public class AdhesionController {
         return ResponseEntity.ok(ids);
     }
 
-    @PostMapping(path = "/validation")
-    public ResponseEntity validateInscriptions(@RequestBody Set<Long> ids) {
-        ids = this.adhesionService.validateAdhesions(ids);
+    @PatchMapping
+    public ResponseEntity patchAdhesion(@RequestBody AdhesionPatchDto adhesionPatchDto) {
+        Set<Long> ids = this.adhesionService.patchAdhesions(adhesionPatchDto);
         return ResponseEntity.ok(ids);
     }
 

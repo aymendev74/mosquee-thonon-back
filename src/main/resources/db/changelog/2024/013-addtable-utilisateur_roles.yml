@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-addtable-utilisateur_roles
+      author: Aymen
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: utilisateur_roles_pkey
+                  name: idutro
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: txutiluser
+                  type: VARCHAR(50)
+              - column:
+                  name: cdutrorole
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+            tableName: utilisateur_roles
+        - addUniqueConstraint:
+            tableName: utilisateur
+            columnNames: txutiluser
+            constraintName: unique_txutiluser_constraint
+        - addForeignKeyConstraint:
+            baseColumnNames: txutiluser
+            baseTableName: utilisateur_roles
+            constraintName: fk_utilisateur_roles_utilisateur
+            referencedColumnNames: txutiluser
+            referencedTableName: utilisateur
+        - insert:
+            tableName: utilisateur_roles
+            columns:
+              - column:
+                  name: txutiluser
+                  value: 'aymen'
+              - column:
+                  name: cdutrorole
+                  value: 'ROLE_ADMIN'
+              - column:
+                  name: oh_date_cre
+                  valueComputed: 'NOW()'
+              - column:
+                  name: oh_vis_cre
+                  value: 'aymen'
+        - insert:
+            tableName: utilisateur_roles
+            columns:
+              - column:
+                  name: txutiluser
+                  value: 'noredine'
+              - column:
+                  name: cdutrorole
+                  value: 'ROLE_ADMIN'
+              - column:
+                  name: oh_date_cre
+                  valueComputed: 'NOW()'
+              - column:
+                  name: oh_vis_cre
+                  value: 'aymen'

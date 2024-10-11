@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016-createFunction-getAnneeScolaire
+      author: Aymen
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/016-createFunction-getAnneeScolaire.sql
+            endDelimiter: \nGO

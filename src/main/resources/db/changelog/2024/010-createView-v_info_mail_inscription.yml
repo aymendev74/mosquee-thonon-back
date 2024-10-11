@@ -1,0 +1,19 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  010-createView-v_info_mail_inscription
+       author:  Aymen
+       changes:
+         -  dropView:
+              ifExists:  true
+              viewName:  v_info_mail_inscription
+         - createView:
+             encoding:  UTF-8
+             selectQuery: select i.idinsc as id,
+                          i.cdinscstatut as statut, 
+                          i.noinscinscription as noInscription,
+                          r.txrespnom as nom, 
+                          r.txrespprenom as prenom, 
+                          r.txrespemail as email
+                          from moth.inscription i
+                          inner join moth.resplegal r on r.idresp = i.idresp
+             viewName: v_info_mail_inscription

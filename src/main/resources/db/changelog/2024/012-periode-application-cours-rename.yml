@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-periode-application-cours-rename
+      author: Aymen
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/012-periode-application-cours-rename.sql
+            endDelimiter:  \nGO

@@ -1,7 +1,13 @@
-app:
-    jwt:
-        secret: ${JWT_SECRET}
+#logging:
+#    level:
+#        org.springframework.security: DEBUG
+#        org.springframework.security.web.access: DEBUG
+#        org.springframework.security.authentication: DEBUG
+#        org.springframework.security.oauth2.client: DEBUG
+#        org.springframework.security.oauth2.jwt: DEBUG
+
 server:
+    port: 8080
     servlet:
         context-path: /api
     tomcat:

@@ -1,7 +1,7 @@
 package org.mosqueethonon.repository.specifications;
 
-import org.mosqueethonon.entity.PeriodeEntity;
-import org.mosqueethonon.entity.TarifEntity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.service.criteria.TarifCriteria;
 import org.springframework.data.jpa.domain.Specification;
 

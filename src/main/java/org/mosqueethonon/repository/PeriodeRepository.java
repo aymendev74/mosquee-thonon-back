@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository;
 
-import org.mosqueethonon.entity.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

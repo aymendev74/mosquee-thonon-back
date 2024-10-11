@@ -2,6 +2,6 @@ package org.mosqueethonon.enums;
 
 public enum TypeTarifEnum {
 
-    BASE, ENFANT;
+    BASE, ENFANT, ADULTE;
 
 }

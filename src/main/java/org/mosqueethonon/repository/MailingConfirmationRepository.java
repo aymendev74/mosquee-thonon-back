@@ -1,6 +1,6 @@
 package org.mosqueethonon.repository;
 
-import org.mosqueethonon.entity.MailingConfirmationEntity;
+import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

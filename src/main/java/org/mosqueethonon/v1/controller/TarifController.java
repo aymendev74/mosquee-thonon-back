@@ -1,8 +1,8 @@
 package org.mosqueethonon.v1.controller;
 
-import org.mosqueethonon.service.TarifService;
+import org.mosqueethonon.service.referentiel.TarifService;
 import org.mosqueethonon.service.criteria.TarifCriteria;
-import org.mosqueethonon.v1.dto.TarifDto;
+import org.mosqueethonon.v1.dto.referentiel.TarifDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
