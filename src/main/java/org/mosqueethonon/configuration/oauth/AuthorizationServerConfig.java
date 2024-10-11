@@ -1,12 +1,16 @@
 package org.mosqueethonon.configuration.oauth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.mosqueethonon.configuration.security.ProfileProvider;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -20,6 +24,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -42,28 +47,31 @@ public class AuthorizationServerConfig {
     @Autowired
     private ProfileProvider profileProvider;
 
+    @Value("${server.port}")
+    private String serverPort;
+
 
     @Bean
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http, @Qualifier("corsConfigurationSource") CorsConfigurationSource corsSource) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());
-        return http.formLogin(Customizer.withDefaults()).cors(cors -> cors.configurationSource(corsConfigurationSource)).build();
+        http.cors(cors -> cors.configurationSource(corsSource));
+        return http.formLogin(Customizer.withDefaults())
+                .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID")
+                        .permitAll())
+                .build();
     }
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        // Configuration d'un client OAuth enregistré
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("moth-react-app")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:3000/admin")
-                .redirectUri("http://localhost:3000/adminCours")
-                .redirectUri("http://localhost:3000/adminAdhesion")
-                .redirectUri("http://localhost:3000/adminTarif")
-                .redirectUri("http://localhost:3000/parametres")
-                .scope("ADMIN")
+                .redirectUri(getRedirectURI())
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .tokenSettings(tokenSettings())
                 .build();
 
@@ -94,7 +102,7 @@ public class AuthorizationServerConfig {
     private String getIssuerURI() {
         String activeProfile = profileProvider.getActiveProfile();
         return switch (activeProfile) {
-            case DEVELOPMENT -> "http://localhost:3000";
+            case DEVELOPMENT, TEST  -> "http://localhost:3000";
             case PRODUCTION -> "https://www.inscription-amc.fr";
             case STAGING -> "https://www.staging.inscription-amc.fr";
             default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
@@ -104,7 +112,7 @@ public class AuthorizationServerConfig {
     private String getRedirectURI() {
         String activeProfile = profileProvider.getActiveProfile();
         return switch (activeProfile) {
-            case DEVELOPMENT -> "http://localhost:3000/admin";
+            case DEVELOPMENT, TEST  -> "http://localhost:3000/admin";
             case PRODUCTION -> "https://www.inscription-amc.fr/admin";
             case STAGING -> "https://www.staging.inscription-amc.fr/admin";
             default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
@@ -114,19 +122,18 @@ public class AuthorizationServerConfig {
     @Bean
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofSeconds(30))
+                .accessTokenTimeToLive(Duration.ofHours(1))
                 .build();
     }
 
+    /**
+     * Sert à décoder le token reçue dans les entêtes HTTP
+     * volontairement spécifié en "localhost" (y compris prod et sta) pour ne pas forcer le springboot à ressortir à l'extérieur
+     * @return
+     */
     @Bean
     public JwtDecoder jwtDecoder() {
-        String activeProfile = profileProvider.getActiveProfile();
-        String tokenDecoderEndpoint = switch (activeProfile) {
-            case DEVELOPMENT -> "http://localhost:8080/api/oauth2/jwks";
-            case PRODUCTION -> "https://www.inscription-amc.fr/api/oauth2/jwks";
-            case STAGING -> "https://www.staging.inscription-amc.fr/api/oauth2/jwks";
-            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
-        };
+        String tokenDecoderEndpoint = String.format("http://localhost:%s/api/oauth2/jwks", serverPort);
         return NimbusJwtDecoder.withJwkSetUri(tokenDecoderEndpoint).build();
     }
 

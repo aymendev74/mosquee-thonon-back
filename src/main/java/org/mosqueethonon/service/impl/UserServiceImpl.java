@@ -28,10 +28,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changeUserPassword(ChangePasswordRequest changePasswordRequest) throws InvalidOldPasswordException {
-        UtilisateurEntity user = (UtilisateurEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         // Le user ne contient pas le mot de passe apparement... (sûrement une sécurité spring)
         // Je reload le user depuis la DB pour avoir le mot de passe.
-        user = this.userRepository.findByUsername(user.getUsername()).orElse(null);
+        UtilisateurEntity user = this.userRepository.findByUsername(username).orElse(null);
         if(user == null) {
             // Pas normal, le user existe forcément puisqu'il a été authentifié si on est arrivée là
             throw new IllegalStateException("Le user n'a pas été retrouvé dans la base de données");

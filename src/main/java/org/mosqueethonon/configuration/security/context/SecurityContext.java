@@ -17,19 +17,13 @@ public class SecurityContext {
     }
 
     public String getVisa() {
-        UtilisateurEntity user = this.getUser();
-        if(user != null) {
-            return user.getUsername();
-        }
-        return "anonymous";
+        String username = this.getUser();
+        return username != null ? username : "anonymous";
     }
 
-    private UtilisateurEntity getUser() {
+    private String getUser() {
         if(SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication()!=null) {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principal instanceof UtilisateurEntity) {
-                return ((UtilisateurEntity) principal);
-            }
+            return SecurityContextHolder.getContext().getAuthentication().getName();
         }
         return null;
     }

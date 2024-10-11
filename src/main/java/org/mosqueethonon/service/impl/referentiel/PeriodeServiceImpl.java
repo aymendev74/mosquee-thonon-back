@@ -37,7 +37,6 @@ public class PeriodeServiceImpl implements PeriodeService {
     private InscriptionAdulteService inscriptionAdulteService;
 
     private static final String APPLICATION_COURS_ENFANT = "COURS_ENFANT";
-    private static final String APPLICATION_COURS_ADULTE = "COURS_ADULTE";
 
     @Override
     public List<PeriodeInfoDto> findPeriodesByApplication(String application) {
@@ -103,7 +102,7 @@ public class PeriodeServiceImpl implements PeriodeService {
             } else {
                 nbInscription = inscriptionAdulteService.findNbInscriptionsByPeriode(id);
             }
-            if(nbInscription != null) {
+            if(nbInscription != null && periode.getNbMaxInscription() != null) {
                 return nbInscription <= periode.getNbMaxInscription();
             }
         }

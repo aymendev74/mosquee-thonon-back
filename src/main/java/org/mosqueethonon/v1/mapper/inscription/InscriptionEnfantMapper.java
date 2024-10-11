@@ -2,6 +2,7 @@ package org.mosqueethonon.v1.mapper.inscription;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;

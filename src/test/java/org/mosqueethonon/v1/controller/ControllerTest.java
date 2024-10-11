@@ -20,10 +20,6 @@ import java.util.List;
 
 public class ControllerTest {
 
-
-    @Autowired
-    private JwtTokenUtil tokenUtil;
-
     @Autowired
     protected PeriodeRepository periodeRepository;
 
@@ -38,18 +34,6 @@ public class ControllerTest {
 
     @Autowired
     private ParamRepository paramRepository;
-
-    protected String generateToken(String role) {
-        UtilisateurEntity user = new UtilisateurEntity();
-        user.setId(1L);
-        user.setUsername("aymen");
-        if(role != null) {
-            UtilisateurRoleEntity roleUtilisateur = new UtilisateurRoleEntity();
-            roleUtilisateur.setRole(role);
-            user.setRoles(List.of(roleUtilisateur));
-        }
-        return new StringBuilder("Bearer ").append(tokenUtil.generateAccessToken(user)).toString();
-    }
 
     @BeforeAll
     protected void initReferentiel() {

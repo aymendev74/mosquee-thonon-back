@@ -18,6 +18,8 @@ import org.mosqueethonon.v1.dto.referentiel.TarifDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
@@ -35,6 +37,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     private SecurityContext securityContext;
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(Long id, InscriptionEnfantInfosDto inscriptionInfos) {
         // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
         if(!this.securityContext.isAdmin()) {

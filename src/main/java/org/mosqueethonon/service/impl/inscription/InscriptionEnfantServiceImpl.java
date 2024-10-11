@@ -21,6 +21,7 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
+import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private InscriptionRepository inscriptionRepository;
 
     private InscriptionEnfantMapper inscriptionEnfantMapper;
+
     private TarifCalculService tarifCalculService;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
@@ -89,6 +91,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         }
         StatutInscription statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
+
         this.checkStatutInscription(entity, statutActuel);
         this.doCalculTarifInscription(entity);
         entity = this.inscriptionEnfantRepository.save(entity);

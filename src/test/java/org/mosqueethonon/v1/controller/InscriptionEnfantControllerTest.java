@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,6 +43,7 @@ public class InscriptionEnfantControllerTest extends ControllerTest {
     private ObjectMapper jsonMapper;
 
     @Test
+    @WithMockUser(username = "anonymous")
     public void testSaveInscriptionMultiThreading() throws Exception {
         int nbThreads = 510;
         CountDownLatch compteur = new CountDownLatch(nbThreads);
@@ -49,9 +52,9 @@ public class InscriptionEnfantControllerTest extends ControllerTest {
             new Thread(() -> {
                 try {
                     mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
-                                    .header("Authorization", generateToken(null))
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(jsonMapper.writeValueAsString(this.createInscription())))
+                                    .content(jsonMapper.writeValueAsString(this.createInscription()))
+                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
                             .andExpect(MockMvcResultMatchers.status().isOk());
                 } catch (Exception e) {
                     fail(e);

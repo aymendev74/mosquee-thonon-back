@@ -1,4 +1,4 @@
-package org.mosqueethonon.service.impl;
+package org.mosqueethonon.service.impl.inscription;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
@@ -16,7 +16,6 @@ import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.service.impl.inscription.InscriptionEnfantServiceImpl;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
