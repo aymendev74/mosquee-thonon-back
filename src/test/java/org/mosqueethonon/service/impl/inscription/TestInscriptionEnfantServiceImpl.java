@@ -60,7 +60,7 @@ public class TestInscriptionEnfantServiceImpl {
 
     @Test
     public void testSaveInscriptionExpectIllegalStateExceptionWhenInscriptionDisabled() {
-        when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.FALSE);
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.FALSE);
         assertThrows(IllegalStateException.class,
                 () -> {
                     this.underTest.createInscription(null, InscriptionSaveCriteria.builder()
@@ -80,7 +80,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
         when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(numeroInscription);
         when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
-        when(this.paramService.isInscriptionEnabled()).thenReturn(Boolean.TRUE);
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
         this.underTest.createInscription(inscriptionEnfantDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
@@ -89,7 +89,7 @@ public class TestInscriptionEnfantServiceImpl {
         // THEN
         verify(this.mailingConfirmationRepository, times(sendMailConfirmation ? 1 : 0)).save(any());
         verify(this.inscriptionEnfantRepository).save(any());
-        verify(this.paramService).isInscriptionEnabled();
+        verify(this.paramService).isInscriptionEnfantEnabled();
         verify(this.inscriptionRepository).getNextNumeroInscription();
     }
 

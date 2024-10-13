@@ -21,7 +21,6 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
-import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     @Transactional
     @Override
     public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
-        if (!this.paramService.isInscriptionEnabled()) {
+        if (!this.paramService.isInscriptionEnfantEnabled()) {
             // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
             RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
             LOGGER.error("Les inscriptions sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);

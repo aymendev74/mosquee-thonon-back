@@ -3,7 +3,8 @@ package org.mosqueethonon.enums;
 public enum ParamNameEnum {
 
     REINSCRIPTION_ENABLED(ParamTypeEnum.BOOLEAN),
-    INSCRIPTION_ENABLED_FROM_DATE(ParamTypeEnum.DATE),
+    INSCRIPTION_ENFANT_ENABLED_FROM_DATE(ParamTypeEnum.DATE),
+    INSCRIPTION_ADULTE_ENABLED_FROM_DATE(ParamTypeEnum.DATE),
     SEND_EMAIL_ENABLED(ParamTypeEnum.BOOLEAN)
     ;
 

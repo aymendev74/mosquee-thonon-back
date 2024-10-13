@@ -1,7 +1,6 @@
 package org.mosqueethonon.service.impl.referentiel;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
@@ -41,7 +40,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(Long id, InscriptionEnfantInfosDto inscriptionInfos) {
         // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
         if(!this.securityContext.isAdmin()) {
-            boolean isInscriptionEnabled = this.paramService.isInscriptionEnabled();
+            boolean isInscriptionEnabled = this.paramService.isInscriptionEnfantEnabled();
             if(!isInscriptionEnabled) {
                 return null;
             }
