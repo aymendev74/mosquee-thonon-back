@@ -110,8 +110,8 @@ public class ParamServiceImpl implements ParamService {
     }
 
     @Override
-    public boolean isInscriptionEnabled() {
-        LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ENABLED_FROM_DATE);
+    public boolean isInscriptionEnfantEnabled() {
+        LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE);
         return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
     }
 
