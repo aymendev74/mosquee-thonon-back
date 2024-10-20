@@ -26,6 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
@@ -72,8 +74,15 @@ public class SecurityConfig {
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .formLogin(login -> login.loginPage("/login").permitAll())
                 .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler(logoutSuccessHandler())
                         .permitAll());
         return http.build();
+    }
+
+    private LogoutSuccessHandler logoutSuccessHandler() {
+        SimpleUrlLogoutSuccessHandler handler = new SimpleUrlLogoutSuccessHandler();
+        handler.setDefaultTargetUrl(getRedirectURIAfterLogout());  // Rediriger vers la page d'accueil après déconnexion
+        return handler;
     }
 
     @Bean
@@ -140,6 +149,16 @@ public class SecurityConfig {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowSemicolon(true); // Permettre le point-virgule
         return firewall;
+    }
+
+    private String getRedirectURIAfterLogout() {
+        String activeProfile = profileProvider.getActiveProfile();
+        return switch (activeProfile) {
+            case DEVELOPMENT, TEST -> "http://localhost:3000";
+            case PRODUCTION -> "https://www.inscription-amc.fr";
+            case STAGING -> "https://www.staging.inscription-amc.fr";
+            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
+        };
     }
 
     /*@Bean
