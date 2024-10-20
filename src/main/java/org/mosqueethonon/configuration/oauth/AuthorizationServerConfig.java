@@ -59,8 +59,7 @@ public class AuthorizationServerConfig {
                 .oidc(Customizer.withDefaults());
         http.cors(cors -> cors.configurationSource(corsSource));
         return http.formLogin(Customizer.withDefaults())
-                .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID")
-                        .permitAll())
+                .logout(Customizer.withDefaults())
                 .build();
     }
 
