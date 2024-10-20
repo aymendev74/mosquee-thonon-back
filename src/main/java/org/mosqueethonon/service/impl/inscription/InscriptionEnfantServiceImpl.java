@@ -7,6 +7,7 @@ import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ReinscriptionPrioritaireEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.repository.*;
@@ -51,11 +52,14 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private TarifCalculService tarifCalculService;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
+
     private PeriodeRepository periodeRepository;
 
     private ParamService paramService;
 
-    private ReinscriptionPrioritaireRepository reinscriptionPrioritaireRepository;
+    //private ReinscriptionPrioritaireRepository reinscriptionPrioritaireRepository;
+
+    private TarifRepository tarifRepository;
 
     @Transactional
     @Override
@@ -145,8 +149,13 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private boolean isReinscriptionValide(InscriptionEnfantEntity inscription) {
         for (EleveEntity eleve : inscription.getEleves()) {
-            ReinscriptionPrioritaireEntity reinscriptionPrio = this.reinscriptionPrioritaireRepository.findByNomAndPrenomPhonetique(eleve.getNom(), eleve.getPrenom());
-            if (reinscriptionPrio == null) {
+            TarifEntity tarif = this.tarifRepository.findById(eleve.getIdTarif()).orElse(null);
+            if(tarif == null || tarif.getPeriode() == null) {
+                throw new IllegalArgumentException("Le tarif et la période pour cette inscription n'ont pas pu être déterminés !");
+            }
+            EleveEntity ancienEleve = this.inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(eleve.getNom(), eleve.getPrenom(),
+                    eleve.getDateNaissance(), tarif.getPeriode().getIdPeriodePrecedente());
+            if (ancienEleve == null) {
                 return false;
             }
         }
