@@ -46,7 +46,8 @@ public class TarifCalculServiceImpl implements TarifCalculService {
             }
         }
 
-        LocalDate atDate = null;
+        // Par défaut date du jour
+        LocalDate atDate = LocalDate.now();
         if(id != null) {
             InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
             if(inscription == null) {

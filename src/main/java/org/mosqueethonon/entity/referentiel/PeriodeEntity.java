@@ -37,6 +37,8 @@ public class PeriodeEntity implements Auditable {
     private Integer nbMaxInscription;
     @Column(name = "cdperiapplication")
     private String application;
+    @Column(name = "idperiprevious")
+    private Long idPeriodePrecedente;
     @Embedded
     private Signature signature;
 

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-addColumn-idperiprevious-periode
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: periode
+            columns:
+              - column:
+                  name: idperiprevious
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseColumnNames: idperiprevious
+            baseTableName: periode
+            constraintName: fk_periode_periode
+            referencedColumnNames: idperi
+            referencedTableName: periode

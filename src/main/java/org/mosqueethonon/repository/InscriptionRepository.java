@@ -1,5 +1,6 @@
 package org.mosqueethonon.repository;
 
+import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -34,5 +35,18 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
             + "and not (i.dtinscinscription between :dateDebut and :dateFin)", nativeQuery = true)
     Integer getNbInscriptionOutsideRange(@Param("idPeriode") Long idPeriode, @Param("dateDebut")  LocalDate dateDebut,
                                          @Param("dateFin") LocalDate dateFin,  @Param("type") String type);
+
+    @Query("SELECT e " +
+            "FROM InscriptionEntity i " +
+            "JOIN i.eleves e " +  // On suppose que l'entité Inscription a une relation avec Eleve
+            "JOIN TarifEntity t on t.id = e.idTarif " +  // On suppose que l'entité Eleve a une relation avec Tarif
+            "JOIN t.periode p " + // On suppose que l'entité Tarif a une relation avec Periode
+            "WHERE i.statut = 'VALIDEE' " +
+            "AND UPPER(e.nom) = UPPER(:nom) " +
+            "AND UPPER(e.prenom) = UPPER(:prenom) " +
+            "AND e.dateNaissance = :dateNaissance " +
+            "AND p.id = :idPeriode")
+    EleveEntity findFirstEleveByNomPrenomDateNaissanceIdPeriode(@Param("nom") String nom, @Param("prenom") String prenom, @Param("dateNaissance") LocalDate dateNaissance,
+                                              @Param("idPeriode") Long idPeriode);
 
 }

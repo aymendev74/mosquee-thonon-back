@@ -51,9 +51,17 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     public PeriodeDto createPeriode(PeriodeDto periode) {
         PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setIdPeriodePrecedente(this.getLastPeriodeId(periode.getApplication()));
         this.periodeRepository.save(this.periodeMapper.mapDtoToEntity(periode, periodeEntity));
-        //
         return this.periodeMapper.fromEntityToDto(periodeEntity);
+    }
+
+    private Long getLastPeriodeId(String application) {
+        PeriodeEntity periode = this.periodeRepository.findFirstByApplicationOrderByDateDebutDesc(application);
+        if(periode != null) {
+            return periode.getId();
+        }
+        return null;
     }
 
     @Override

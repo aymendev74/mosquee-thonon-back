@@ -20,4 +20,6 @@ public interface PeriodeRepository extends JpaRepository<PeriodeEntity, Long> {
             "and p.application = 'COURS'")
     PeriodeEntity findPeriodeCoursAtDate(LocalDate atDate);
 
+    PeriodeEntity findFirstByApplicationOrderByDateDebutDesc(String application);
+
 }
