@@ -1,10 +1,13 @@
 package org.mosqueethonon.service.impl.referentiel;
 
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.service.param.ParamService;
@@ -30,6 +33,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
     private TarifService tarifService;
     private InscriptionRepository inscriptionRepository;
+    private InscriptionAdulteRepository inscriptionAdulteRepository;
 
     private ParamService paramService;
 
@@ -61,7 +65,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
         // Calcul du tarif de base
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ENFANT.name())
-                .type(TypeTarifEnum.BASE.name()).adherent(adherent)
+                .type(TypeTarifEnum.BASE).adherent(adherent)
                 .nbEnfant(nbEnfants).atDate(atDate).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
         if(CollectionUtils.isEmpty(tarifsBase)) {
@@ -71,7 +75,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
 
         // Calcul du tarif par enfant
         criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ENFANT.name())
-                .type(TypeTarifEnum.ENFANT.name()).adherent(adherent)
+                .type(TypeTarifEnum.ENFANT).adherent(adherent)
                 .nbEnfant(nbEnfants).atDate(atDate).build();
         List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
         if(CollectionUtils.isEmpty(tarifsEnfant)) {
@@ -93,9 +97,9 @@ public class TarifCalculServiceImpl implements TarifCalculService {
     }
 
     @Override
-    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(Long id, LocalDate atDate) {
+    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(Long id, LocalDate atDate, StatutProfessionnelEnum statutPro) {
         if(id != null) {
-            InscriptionEntity entity = this.inscriptionRepository.findById(id).orElse(null);
+            InscriptionAdulteEntity entity = this.inscriptionAdulteRepository.findById(id).orElse(null);
             if(entity == null) {
                 throw new IllegalArgumentException("Inscription non trouvée ! idinsc = " + id);
             }
@@ -103,7 +107,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         }
 
         TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ADULTE.name())
-                .type(TypeTarifEnum.ADULTE.name()).atDate(atDate).build();
+                .type(TypeTarifEnum.valueOf(statutPro.name())).atDate(atDate).build();
         List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
         if(!CollectionUtils.isEmpty(tarifsBase)) {
             TarifDto tarif = tarifsBase.get(0);

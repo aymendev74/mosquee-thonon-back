@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
@@ -67,6 +68,7 @@ public class TestInscriptionAdulteServiceImpl {
         inscriptionDto = new InscriptionAdulteDto();
         inscriptionDto.setNom("Test Nom");
         inscriptionDto.setPrenom("Test Prenom");
+        inscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
 
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
@@ -82,7 +84,7 @@ public class TestInscriptionAdulteServiceImpl {
         when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
 
         TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
-        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class))).thenReturn(tarifDto);
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
 
         InscriptionAdulteDto result = inscriptionAdulteService.createInscription(inscriptionDto, criteria);
 
@@ -110,7 +112,7 @@ public class TestInscriptionAdulteServiceImpl {
         when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
 
         TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
-        when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class))).thenReturn(tarifDto);
+        when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
 
         // Act
         InscriptionAdulteDto result = inscriptionAdulteService.updateInscription(1L, inscriptionDto, criteria);

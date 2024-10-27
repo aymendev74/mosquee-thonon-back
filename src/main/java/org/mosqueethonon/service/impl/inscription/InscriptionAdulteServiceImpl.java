@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
@@ -60,7 +62,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         entity.setStatut(StatutInscription.PROVISOIRE);
 
         // calcul du tarif
-        this.calculTarif(entity, LocalDate.now());
+        this.calculTarif(entity, LocalDate.now(), inscription.getStatutProfessionnel());
 
         // On sauvegarde
         entity = this.inscriptionAdulteRepository.save(entity);
@@ -86,15 +88,15 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
             throw new IllegalArgumentException("Inscription not found ! idinsc = " + id);
         }
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
-        this.calculTarif(entity, null);
+        this.calculTarif(entity, null, inscription.getStatutProfessionnel());
         entity = this.inscriptionAdulteRepository.save(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
         return this.inscriptionAdulteMapper.fromEntityToDto(entity);
     }
 
-    private void calculTarif(InscriptionAdulteEntity inscription, LocalDate atDate) {
+    private void calculTarif(InscriptionAdulteEntity inscription, LocalDate atDate, StatutProfessionnelEnum statutPro) {
         LocalDate datRefCalcul = inscription.getDateInscription() != null ? inscription.getDateInscription().toLocalDate() : atDate;
-        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(inscription.getId(), datRefCalcul);
+        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(inscription.getId(), datRefCalcul, statutPro);
         inscription.getResponsableLegal().setIdTarif(tarif.getIdTari());
         inscription.getEleves().forEach(e -> e.setIdTarif(tarif.getIdTari()));
         inscription.setMontantTotal(tarif.getTarif());

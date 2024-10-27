@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
@@ -36,8 +37,8 @@ public class TarifInscriptionController {
     }
 
     @GetMapping(path = "/adulte")
-    public ResponseEntity<TarifInscriptionAdulteDto> calculTarifInscriptionAdulte() {
-        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(null, LocalDate.now());
+    public ResponseEntity<TarifInscriptionAdulteDto> calculTarifInscriptionAdulte(@RequestParam("statutProfessionnel") StatutProfessionnelEnum statutPro) {
+        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(null, LocalDate.now(), statutPro);
         if(tarif == null) {
             return ResponseEntity.noContent().build();
         }
@@ -45,8 +46,9 @@ public class TarifInscriptionController {
     }
 
     @GetMapping(path = "/adulte/{id}")
-    public ResponseEntity<TarifInscriptionAdulteDto> calculTarifInscriptionAdulte(@PathVariable ("id") Long id) {
-        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(id, null);
+    public ResponseEntity<TarifInscriptionAdulteDto> calculTarifInscriptionAdulte(@PathVariable ("id") Long id,
+                                                                                  @RequestParam("statutProfessionnel") StatutProfessionnelEnum statutPro) {
+        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(id, null, statutPro);
         if(tarif == null) {
             return ResponseEntity.noContent().build();
         }
