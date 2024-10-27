@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,7 @@ public class InscriptionAdulteControllerTest extends ControllerTest {
         inscriptionDto.setCodePostal(74200);
         inscriptionDto.setVille("Thonon");
         inscriptionDto.setDateNaissance(LocalDate.of(1990, 1, 1));
+        inscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
         return inscriptionDto;
     }
 

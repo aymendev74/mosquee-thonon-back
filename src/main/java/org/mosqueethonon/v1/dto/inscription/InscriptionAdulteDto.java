@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.SexeEnum;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.utils.StringUtils;
 import org.mosqueethonon.v1.dto.IMailObject;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -31,6 +32,7 @@ public class InscriptionAdulteDto implements IMailObject {
     private NiveauInterneEnum niveauInterne;
     private SexeEnum sexe;
     private String anneeScolaire;
+    private StatutProfessionnelEnum statutProfessionnel;
 
     public void normalize() {
         this.nom = StringUtils.normalize(StringUtils.normalize(nom));

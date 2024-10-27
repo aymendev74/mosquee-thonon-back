@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.enums.TypeTarifEnum;
 
 import java.math.BigDecimal;
 
@@ -29,7 +30,8 @@ public class TarifEntity implements Auditable {
     @JoinColumn(name="idperi", nullable=false)
     private PeriodeEntity periode;
     @Column(name = "cdtaritype")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private TypeTarifEnum type;
     @Column(name = "lotariadherent")
     private Boolean adherent;
     @Column(name = "nbtarienfant")

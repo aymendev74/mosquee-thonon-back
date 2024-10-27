@@ -2,6 +2,9 @@ package org.mosqueethonon.enums;
 
 public enum TypeTarifEnum {
 
-    BASE, ENFANT, ADULTE;
+    // cours enfant
+    BASE, ENFANT,
 
+    // cours adulte
+    ETUDIANT, AVEC_ACTIVITE, SANS_ACTIVITE;
 }
