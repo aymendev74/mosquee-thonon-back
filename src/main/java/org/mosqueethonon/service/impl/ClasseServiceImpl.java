@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.bean.EleveBean;
 import org.mosqueethonon.bean.GroupeElevesBean;
-import org.mosqueethonon.entity.ClasseEntity;
-import org.mosqueethonon.entity.EleveEntity;
-import org.mosqueethonon.entity.InscriptionEntity;
-import org.mosqueethonon.entity.LienClasseEleveEntity;
+import org.mosqueethonon.entity.classe.ClasseEntity;
+import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
+import org.mosqueethonon.entity.inscription.EleveEntity;
+import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveRepository;
@@ -34,7 +34,8 @@ public class ClasseServiceImpl implements IClasseService {
 
     @Override
     public void createClasses(CreateClasseCriteria criteria) {
-        List<InscriptionEntity> inscriptionsValidees = this.inscriptionRepository.getInscriptionsValideesByIdPeriode(criteria.getIdPeriode());
+        // List<InscriptionEntity> inscriptionsValidees = this.inscriptionRepository.getInscriptionsValideesByIdPeriode(criteria.getIdPeriode());
+        List<InscriptionEntity> inscriptionsValidees = new ArrayList<>();
         if(!CollectionUtils.isEmpty(inscriptionsValidees)) {
             List<EleveBean> eleveBeans = this.mapToEleveBeans(inscriptionsValidees);
             List<GroupeElevesBean> groupeEleves = new ArrayList<>();
