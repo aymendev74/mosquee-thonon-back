@@ -16,6 +16,8 @@ public class EnseignantEntity implements Auditable {
     @Column(name = "idense")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "txenseusername")
+    private String username;
     @Column(name = "txensenom")
     private String nom;
     @Column(name = "txenseprenom")

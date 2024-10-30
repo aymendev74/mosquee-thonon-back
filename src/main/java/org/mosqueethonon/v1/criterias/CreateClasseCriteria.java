@@ -14,8 +14,8 @@ import java.util.List;
 @Builder
 public class CreateClasseCriteria {
 
-    private Long idPeriode;
-    private Integer nbMaxEleve;
-    private List<List<NiveauInterneEnum>> groupesNiveaux;
+    private Integer debutAnneeScolaire;
+    private Integer finAnneeScolaire;
+    private Integer nbMaxEleveParClasse;
 
 }

@@ -1,6 +1,6 @@
 databaseChangeLog:
   -  changeSet:
-       id:  007-createTable-enseignant-classe-liens
+       id:  020-createTable-enseignant-classe-liens
        author:  Aymen
        changes:
          -  createTable:
@@ -19,6 +19,9 @@ databaseChangeLog:
                     type: varchar(50)
                 - column:
                     name: txenseprenom
+                    type: varchar(50)
+                - column:
+                    name: txensusername
                     type: varchar(50)
                 - column:
                     name: txensemobile
@@ -49,8 +52,23 @@ databaseChangeLog:
                    startWith: 1
                    type: BIGINT
                - column:
-                   name: noclasnum
-                   type: varchar(50)
+                   name: idense
+                   type: BIGINT
+               - column:
+                   name: noclasanneedebut
+                   type: INT
+               - column:
+                   name: noclasanneefin
+                   type: INT
+               - column:
+                   name: cdclasniveau
+                   type: varchar(20)
+               - column:
+                   name: txclaslibelle
+                   type: varchar(100)
+               - column:
+                   name: cdclasniveau
+                   type: varchar(30)
                - column:
                    name: oh_date_cre
                    type: TIMESTAMP WITHOUT TIME ZONE
@@ -64,41 +82,6 @@ databaseChangeLog:
                    name: oh_vis_mod
                    type: VARCHAR(20)
              tableName: classe
-
-         - createTable:
-             columns:
-               - column:
-                   autoIncrement: true
-                   constraints:
-                     nullable: false
-                     primaryKey: true
-                     primaryKeyName: lien_classe_enseignant_pkey
-                   name: idlice
-                   startWith: 1
-                   type: BIGINT
-               - column:
-                   name: idclas
-                   constraints:
-                     nullable: false
-                   type: BIGINT
-               - column:
-                   name: idense
-                   constraints:
-                     nullable: false
-                   type: BIGINT
-               - column:
-                   name: oh_date_cre
-                   type: TIMESTAMP WITHOUT TIME ZONE
-               - column:
-                   name: oh_vis_cre
-                   type: VARCHAR(20)
-               - column:
-                   name: oh_date_mod
-                   type: TIMESTAMP WITHOUT TIME ZONE
-               - column:
-                   name: oh_vis_mod
-                   type: VARCHAR(20)
-             tableName: lien_classe_enseignant
 
          - createTable:
              columns:
@@ -135,34 +118,43 @@ databaseChangeLog:
                    type: VARCHAR(20)
              tableName: lien_classe_eleve
 
-         - addForeignKeyConstraint:
-             baseColumnNames: idclas
-             baseTableName: lien_classe_enseignant
-             constraintName: fk_idclas
-             deferrable: false
-             initiallyDeferred: false
-             onDelete: NO ACTION
-             onUpdate: NO ACTION
-             referencedColumnNames: idclas
-             referencedTableName: classe
-             validate: true
-
-         - addForeignKeyConstraint:
-             baseColumnNames: idense
-             baseTableName: lien_classe_enseignant
-             constraintName: fk_idense
-             deferrable: false
-             initiallyDeferred: false
-             onDelete: NO ACTION
-             onUpdate: NO ACTION
-             referencedColumnNames: idense
-             referencedTableName: enseignant
-             validate: true
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: classe_activite_pkey
+                   name: idclac
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: idclas
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: cdclacjour
+                   type: VARCHAR(30)
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: classe_activite
 
          - addForeignKeyConstraint:
              baseColumnNames: idclas
              baseTableName: lien_classe_eleve
-             constraintName: fk_idclas
+             constraintName: fk_idclas_lien_classe_eleve
              deferrable: false
              initiallyDeferred: false
              onDelete: NO ACTION
@@ -181,4 +173,28 @@ databaseChangeLog:
              onUpdate: NO ACTION
              referencedColumnNames: idelev
              referencedTableName: eleve
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idense
+             baseTableName: classe
+             constraintName: fk_idense
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idense
+             referencedTableName: enseignant
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idclas
+             baseTableName: classe_activite
+             constraintName: fk_idclas_activite
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idclas
+             referencedTableName: classe
              validate: true

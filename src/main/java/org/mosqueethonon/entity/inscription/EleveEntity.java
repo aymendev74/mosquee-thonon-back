@@ -22,6 +22,8 @@ public class EleveEntity implements Auditable {
     @Column(name = "idelev")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "idinsc", insertable = false, updatable = false)
+    private Long idInscription;
     @Column(name = "txelevnom")
     private String nom;
     @Column(name = "txelevprenom")

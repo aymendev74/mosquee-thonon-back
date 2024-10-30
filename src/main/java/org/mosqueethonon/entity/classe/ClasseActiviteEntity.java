@@ -1,24 +1,26 @@
 package org.mosqueethonon.entity.classe;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.enums.JourActiviteEnum;
 
 @Entity
 @EntityListeners(EntityListener.class)
-@Table(name = "lien_classe_enseignant", schema = "moth")
+@Table(name = "classe_activite", schema = "moth")
 @Data
-public class LienClasseEnseignantEntity implements Auditable {
+@Builder
+public class ClasseActiviteEntity implements Auditable {
 
     @Id
-    @Column(name = "idlice")
+    @Column(name = "idclac")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
-    @JoinColumn(name = "idense")
-    private EnseignantEntity enseignant;
+    @Column(name = "cdclacjour")
+    private JourActiviteEnum jour;
     @Embedded
     private Signature signature;
 
