@@ -30,4 +30,9 @@ public class EnseignantController {
         return ResponseEntity.ok(this.enseignantService.updateEnseignantDto(id, enseignantDto));
     }
 
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Boolean> deleteEnseignant(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(this.enseignantService.deleteEnseignant(id));
+    }
+
 }

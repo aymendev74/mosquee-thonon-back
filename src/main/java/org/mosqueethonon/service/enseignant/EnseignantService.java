@@ -12,4 +12,6 @@ public interface EnseignantService {
 
     EnseignantDto updateEnseignantDto(Long id, EnseignantDto enseignantDto);
 
+    boolean deleteEnseignant(Long id);
+
 }

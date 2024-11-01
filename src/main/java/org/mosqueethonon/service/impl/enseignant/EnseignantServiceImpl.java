@@ -39,4 +39,10 @@ public class EnseignantServiceImpl implements EnseignantService {
         this.enseignantMapper.updateEnseignantEntity(enseignantDto, enseignantEntity);
         return this.enseignantMapper.fromEntityToDto(this.enseignantRepository.save(enseignantEntity));
     }
+
+    @Override
+    public boolean deleteEnseignant(Long id) {
+        this.enseignantRepository.deleteById(id);
+        return true;
+    }
 }

@@ -2,6 +2,7 @@ package org.mosqueethonon.entity.classe;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -24,6 +25,8 @@ public class EnseignantEntity implements Auditable {
     private String prenom;
     @Column(name = "txensemobile")
     private String mobile;
+    @Formula("(select true from moth.classe clas where clas.idense = idense limit 1)")
+    private Boolean hasClasse;
     @Embedded
     private Signature signature;
 

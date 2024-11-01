@@ -10,5 +10,6 @@ public class EnseignantDto {
     private String nom;
     private String prenom;
     private String mobile;
+    private Boolean hasClasse;
 
 }

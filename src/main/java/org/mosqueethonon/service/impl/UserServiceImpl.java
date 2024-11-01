@@ -4,10 +4,14 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
 import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.repository.LoginRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.repository.UtilisateurRoleRepository;
 import org.mosqueethonon.service.UserService;
+import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.v1.mapper.user.UserMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,6 +27,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private UtilisateurRepository userRepository;
+
+    private UtilisateurRoleRepository userRoleRepository;
+
+    private UserMapper userMapper;
 
     private PasswordEncoder passwordEncoder;
 
@@ -70,4 +78,15 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public Set<String> getAllRoles() {
+        return this.userRoleRepository.findAll().stream().map(UtilisateurRoleEntity::getRole)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public UserDto createUser(UserDto user) {
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        return this.userMapper.fromEntityToDto(this.userRepository.save(this.userMapper.fromDtoToEntity(user)));
+    }
 }
