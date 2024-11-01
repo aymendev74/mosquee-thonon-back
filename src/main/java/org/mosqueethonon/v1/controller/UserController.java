@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
-@RequestMapping(path = "/v1/user")
+@RequestMapping(path = "/v1/users")
 public class UserController {
 
     @Autowired
@@ -29,4 +31,10 @@ public class UserController {
         }
         return ResponseEntity.ok(true);
     }
+
+    @GetMapping
+    public ResponseEntity<Set<String>> getUsers() {
+        return ResponseEntity.ok(this.userService.getAllUsernames());
+    }
+
 }

@@ -14,7 +14,7 @@ public interface EleveRepository extends JpaRepository<EleveEntity, Long> {
     @Query("SELECT e FROM EleveEntity e "
             + "join InscriptionEntity i on i.id = e.idInscription "
             + "join TarifEntity t on t.id = e.idTarif "
-            + "join t.periode p"
+            + "join t.periode p "
             + "where p.anneeDebut = :anneeDebut "
             + "and p.anneeFin = :anneeFin "
             + "and i.type = 'ENFANT' "

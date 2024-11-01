@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -61,4 +63,11 @@ public class UserServiceImpl implements UserService {
         loginHistory.setDateConnexion(LocalDateTime.now());
         loginRepository.save(loginHistory);
     }
+
+    @Override
+    public Set<String> getAllUsernames() {
+        return this.userRepository.findAll().stream().map(UtilisateurEntity::getUsername)
+                .collect(Collectors.toSet());
+    }
+
 }

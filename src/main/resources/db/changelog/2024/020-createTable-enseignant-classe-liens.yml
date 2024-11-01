@@ -21,7 +21,7 @@ databaseChangeLog:
                     name: txenseprenom
                     type: varchar(50)
                 - column:
-                    name: txensusername
+                    name: txenseusername
                     type: varchar(50)
                 - column:
                     name: txensemobile
@@ -60,9 +60,6 @@ databaseChangeLog:
                - column:
                    name: noclasanneefin
                    type: INT
-               - column:
-                   name: cdclasniveau
-                   type: varchar(20)
                - column:
                    name: txclaslibelle
                    type: varchar(100)
