@@ -3,12 +3,12 @@ package org.mosqueethonon.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
 import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
+import org.mosqueethonon.entity.utilisateur.RoleEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.repository.LoginRepository;
+import org.mosqueethonon.repository.RoleRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
-import org.mosqueethonon.repository.UtilisateurRoleRepository;
 import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.v1.dto.user.UserDto;
 import org.mosqueethonon.v1.mapper.user.UserMapper;
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private UtilisateurRepository userRepository;
 
-    private UtilisateurRoleRepository userRoleRepository;
+    private RoleRepository roleRepository;
 
     private UserMapper userMapper;
 
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Set<String> getAllRoles() {
-        return this.userRoleRepository.findAll().stream().map(UtilisateurRoleEntity::getRole)
+        return this.roleRepository.findAll().stream().map(RoleEntity::getRole)
                 .collect(Collectors.toSet());
     }
 

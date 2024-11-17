@@ -7,7 +7,6 @@ import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.enums.NiveauInterneEnum;
-
 import java.util.List;
 
 @Entity
@@ -26,17 +25,16 @@ public class ClasseEntity implements Auditable {
     @Column(name = "cdclasniveau")
     @Enumerated(EnumType.STRING)
     private NiveauInterneEnum niveau;
-    @ManyToOne
-    @JoinColumn(name = "idense", nullable = false)
-    private EnseignantEntity enseignant;
-    @OneToMany(cascade = CascadeType.ALL)
+    @Column(name = "idense")
+    private Long idEnseignant;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<LienClasseEleveEntity> liensClasseEleves;
     @Column(name = "noclasanneedebut")
     private Integer debutAnneeScolaire;
     @Column(name = "noclasanneefin")
     private Integer finAnneeScolaire;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<ClasseActiviteEntity> activites;
     @Embedded

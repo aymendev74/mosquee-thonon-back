@@ -11,10 +11,14 @@ import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.JourActiviteEnum;
 import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.service.IClasseService;
 import org.mosqueethonon.v1.criterias.CreateClasseCriteria;
+import org.mosqueethonon.v1.criterias.SearchClasseCriteria;
+import org.mosqueethonon.v1.dto.classe.ClasseDto;
+import org.mosqueethonon.v1.mapper.classe.ClasseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,6 +32,7 @@ public class ClasseServiceImpl implements IClasseService {
 
     private ClasseRepository classeRepository;
     private EleveRepository eleveRepository;
+    private ClasseMapper classeMapper;
     private static final Set<JourActiviteEnum> JOURS_CLASSE = Sets.newHashSet(JourActiviteEnum.values());
 
     @Override
@@ -136,6 +141,33 @@ public class ClasseServiceImpl implements IClasseService {
             }
         }
         return null;
+    }
+
+    @Override
+    public ClasseDto createClasse(ClasseDto classe) {
+        ClasseEntity classeEntity = this.classeMapper.fromDtoToEntity(classe);
+        classeEntity = this.classeRepository.save(classeEntity);
+        return this.classeMapper.fromEntityToDto(classeEntity);
+    }
+
+    @Override
+    public ClasseDto updateClasse(Long id, ClasseDto classe) {
+        ClasseEntity classeEntity = this.classeRepository.findById(id).orElse(null);
+        if(classeEntity == null) {
+            throw new ResourceNotFoundException("La classe n'a pas été trouvée, id = " + id);
+        }
+        this.classeMapper.updateClasseEntity(classe, classeEntity);
+        classeEntity = this.classeRepository.save(classeEntity);
+        return this.classeMapper.fromEntityToDto(classeEntity);
+    }
+
+    @Override
+    public List<ClasseDto> findClassesByCriteria(SearchClasseCriteria criteria) {
+        List<ClasseEntity> classes = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin());
+        if(!CollectionUtils.isEmpty(classes)) {
+            return classes.stream().map(this.classeMapper::fromEntityToDto).collect(Collectors.toList());
+        }
+        return List.of();
     }
 
 }
