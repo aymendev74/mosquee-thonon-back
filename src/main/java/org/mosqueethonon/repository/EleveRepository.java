@@ -19,7 +19,7 @@ public interface EleveRepository extends JpaRepository<EleveEntity, Long> {
             + "and p.anneeFin = :anneeFin "
             + "and i.type = 'ENFANT' "
             + "and i.statut = 'VALIDEE' "
-            + "and e.niveauInterne != null")
+            + "and e.niveauInterne IS NOT NULL")
     List<EleveEntity> findElevesEnfantByAnneeScolaire(@Param("anneeDebut") Integer anneeDebut, @Param("anneeFin") Integer anneeFin);
 
 }

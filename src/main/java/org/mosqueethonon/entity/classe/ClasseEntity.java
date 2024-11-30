@@ -1,8 +1,10 @@
 package org.mosqueethonon.entity.classe;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -14,6 +16,8 @@ import java.util.List;
 @Table(name = "classe", schema = "moth")
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ClasseEntity implements Auditable {
 
     @Id
