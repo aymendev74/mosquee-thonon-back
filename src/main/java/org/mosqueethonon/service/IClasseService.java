@@ -16,4 +16,5 @@ public interface IClasseService {
 
     List<ClasseDto> findClassesByCriteria(SearchClasseCriteria criteria);
 
+    void deleteClasse(Long id);
 }

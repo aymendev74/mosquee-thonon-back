@@ -22,12 +22,12 @@ public class EnseignantController {
 
     @PostMapping
     public ResponseEntity<EnseignantDto> createEnseignant(@RequestBody EnseignantDto enseignantDto) {
-        return ResponseEntity.ok(this.enseignantService.createEnseignantDto(enseignantDto));
+        return ResponseEntity.ok(this.enseignantService.createEnseignant(enseignantDto));
     }
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<EnseignantDto> updateEnseignant(@PathVariable("id") Long id, @RequestBody EnseignantDto enseignantDto) {
-        return ResponseEntity.ok(this.enseignantService.updateEnseignantDto(id, enseignantDto));
+        return ResponseEntity.ok(this.enseignantService.updateEnseignant(id, enseignantDto));
     }
 
     @DeleteMapping(path = "/{id}")

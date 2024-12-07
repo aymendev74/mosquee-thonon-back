@@ -9,6 +9,7 @@ import org.mosqueethonon.v1.dto.enseignant.EnseignantDto;
 import org.mosqueethonon.v1.mapper.enseignant.EnseignantMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,12 +27,14 @@ public class EnseignantServiceImpl implements EnseignantService {
     }
 
     @Override
-    public EnseignantDto createEnseignantDto(EnseignantDto enseignantDto) {
+    @Transactional
+    public EnseignantDto createEnseignant(EnseignantDto enseignantDto) {
         return this.enseignantMapper.fromEntityToDto(this.enseignantRepository.save(this.enseignantMapper.fromDtoToEntity(enseignantDto)));
     }
 
     @Override
-    public EnseignantDto updateEnseignantDto(Long id, EnseignantDto enseignantDto) {
+    @Transactional
+    public EnseignantDto updateEnseignant(Long id, EnseignantDto enseignantDto) {
         EnseignantEntity enseignantEntity = this.enseignantRepository.findById(id).orElse(null);
         if(enseignantEntity == null) {
             throw new IllegalArgumentException("Enseignant inexistant pour l'id : " + id);

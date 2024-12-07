@@ -12,6 +12,7 @@ import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class AdhesionServiceImpl implements AdhesionService {
     private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Override
+    @Transactional
     public AdhesionDto createAdhesion(AdhesionDto adhesionDto) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         adhesionDto.normalize();
@@ -50,12 +52,14 @@ public class AdhesionServiceImpl implements AdhesionService {
     }
 
     @Override
+    @Transactional
     public Set<Long> deleteAdhesions(Set<Long> ids) {
         this.adhesionRepository.deleteAllById(ids);
         return ids;
     }
 
     @Override
+    @Transactional
     public Set<Long> patchAdhesions(AdhesionPatchDto adhesionPatchDto) {
         List<AdhesionEntity> adhesionsToUpdate = new ArrayList<>();
         for (Long id : adhesionPatchDto.getIds()) {
@@ -73,6 +77,7 @@ public class AdhesionServiceImpl implements AdhesionService {
     }
 
     @Override
+    @Transactional
     public AdhesionDto updateAdhesion(Long id, AdhesionDto adhesiondto) {
         AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElse(null);
         if (adhesion == null) {

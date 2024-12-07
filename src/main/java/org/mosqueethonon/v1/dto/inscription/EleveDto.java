@@ -21,5 +21,6 @@ public class EleveDto {
     private LocalDate dateNaissance;
     private NiveauScolaireEnum niveau;
     private NiveauInterneEnum niveauInterne;
+    private Long classeId;
 
 }

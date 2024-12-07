@@ -16,6 +16,7 @@ public class JourActiviteConverter implements AttributeConverter<JourActiviteEnu
 
     @Override
     public JourActiviteEnum convertToEntityAttribute(String s) {
+        if(s == null) return null;
         return Stream.of(JourActiviteEnum.values()).filter(enumVal -> enumVal.getValue().equals(s))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);

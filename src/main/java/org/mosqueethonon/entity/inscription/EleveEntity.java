@@ -1,6 +1,7 @@
 package org.mosqueethonon.entity.inscription;
 
 import lombok.Data;
+import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -41,6 +42,8 @@ public class EleveEntity implements Auditable {
     @Column(name = "cdelevsexe")
     @Enumerated(EnumType.STRING)
     private SexeEnum sexe;
+    @Formula("(select lien.idclas from moth.lien_classe_eleve lien where lien.idelev = idelev limit 1)")
+    private Long classeId;
     @Embedded
     private Signature signature;
 

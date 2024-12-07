@@ -38,4 +38,10 @@ public class ClasseController {
         return ResponseEntity.ok(this.classeService.findClassesByCriteria(criteria));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteClasse(@PathVariable("id") Long id) {
+        this.classeService.deleteClasse(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

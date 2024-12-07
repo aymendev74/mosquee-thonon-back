@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.bean.GroupeElevesBean;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.classe.ClasseActiviteEntity;
 import org.mosqueethonon.entity.classe.ClasseEntity;
 import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
@@ -21,6 +22,7 @@ import org.mosqueethonon.v1.dto.classe.ClasseDto;
 import org.mosqueethonon.v1.mapper.classe.ClasseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,8 +36,10 @@ public class ClasseServiceImpl implements IClasseService {
     private EleveRepository eleveRepository;
     private ClasseMapper classeMapper;
     private static final Set<JourActiviteEnum> JOURS_CLASSE = Sets.newHashSet(JourActiviteEnum.values());
+    private SecurityContext securityContext;
 
     @Override
+    @Transactional
     public void createClasses(CreateClasseCriteria criteria) {
         // Récupérer tous les élèves inscrits durant la période scolaire
         List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getDebutAnneeScolaire(), criteria.getFinAnneeScolaire());
@@ -144,13 +148,16 @@ public class ClasseServiceImpl implements IClasseService {
     }
 
     @Override
+    @Transactional
     public ClasseDto createClasse(ClasseDto classe) {
         ClasseEntity classeEntity = this.classeMapper.fromDtoToEntity(classe);
         classeEntity = this.classeRepository.save(classeEntity);
+        this.syncOtherClasses(classeEntity);
         return this.classeMapper.fromEntityToDto(classeEntity);
     }
 
     @Override
+    @Transactional
     public ClasseDto updateClasse(Long id, ClasseDto classe) {
         ClasseEntity classeEntity = this.classeRepository.findById(id).orElse(null);
         if(classeEntity == null) {
@@ -158,16 +165,42 @@ public class ClasseServiceImpl implements IClasseService {
         }
         this.classeMapper.updateClasseEntity(classe, classeEntity);
         classeEntity = this.classeRepository.save(classeEntity);
+        this.syncOtherClasses(classeEntity);
         return this.classeMapper.fromEntityToDto(classeEntity);
+    }
+
+    /**
+     * Synchronise l'effectif des autres classes, de manière à ce que tout élève ne figure que dans une seule classe
+     * @param classeEntity la classe en cours de sauvegarde et dont l'effectif est potentiellement modifié
+     */
+    private void syncOtherClasses(ClasseEntity classeEntity) {
+        // On récupère toutes les autres classes de la même période
+        List<ClasseEntity> allOtherClasses = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(classeEntity.getDebutAnneeScolaire(),
+                classeEntity.getFinAnneeScolaire()).stream().filter(classe -> !classe.getId().equals(classeEntity.getId())).toList();
+        Set<Long> idEleves = classeEntity.getLiensClasseEleves().stream().map(LienClasseEleveEntity::getEleve).map(EleveEntity::getId).collect(Collectors.toSet());
+        // On ne garde dans chacune de ces classes, que les élèves qui ne sont pas dans la classe en cours de sauvegarde
+        for(ClasseEntity otherClasse : allOtherClasses) {
+            boolean removed = otherClasse.getLiensClasseEleves().removeIf(lienClasseEleve -> idEleves.contains(lienClasseEleve.getEleve().getId()));
+            if(removed) {
+                this.classeRepository.save(otherClasse);
+            }
+        }
     }
 
     @Override
     public List<ClasseDto> findClassesByCriteria(SearchClasseCriteria criteria) {
-        List<ClasseEntity> classes = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin());
-        if(!CollectionUtils.isEmpty(classes)) {
-            return classes.stream().map(this.classeMapper::fromEntityToDto).collect(Collectors.toList());
+        List<ClasseEntity> classes = null;
+        if(this.securityContext.isAdmin()) {
+            classes = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin());
+        } else {
+            String username = this.securityContext.getVisa();
+            classes = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaireAndEnseignantUsername(criteria.getAnneeDebut(), criteria.getAnneeFin(), username);
         }
-        return List.of();
+        return classes.stream().map(this.classeMapper::fromEntityToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteClasse(Long id) {
+        this.classeRepository.deleteById(id);
+    }
 }

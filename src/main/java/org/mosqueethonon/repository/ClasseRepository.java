@@ -11,4 +11,6 @@ public interface ClasseRepository extends JpaRepository<ClasseEntity, Long> {
 
     List<ClasseEntity> findByDebutAnneeScolaireAndFinAnneeScolaire(Integer debutAnneeScolaire, Integer finAnneeScolaire);
 
+    List<ClasseEntity> findByDebutAnneeScolaireAndFinAnneeScolaireAndEnseignantUsername(Integer debutAnneeScolaire, Integer finAnneeScolaire, String username);
+
 }

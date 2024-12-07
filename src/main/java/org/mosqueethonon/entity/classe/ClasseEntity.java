@@ -31,6 +31,9 @@ public class ClasseEntity implements Auditable {
     private NiveauInterneEnum niveau;
     @Column(name = "idense")
     private Long idEnseignant;
+    @ManyToOne
+    @JoinColumn(name = "idense", insertable = false, updatable = false)
+    private EnseignantEntity enseignant;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<LienClasseEleveEntity> liensClasseEleves;

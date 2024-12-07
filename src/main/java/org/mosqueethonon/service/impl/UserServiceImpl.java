@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private LoginRepository loginRepository;
 
     @Override
+    @Transactional
     public void changeUserPassword(ChangePasswordRequest changePasswordRequest) throws InvalidOldPasswordException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         // Le user ne contient pas le mot de passe apparement... (sûrement une sécurité spring)
@@ -65,6 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void saveLoginHistory(String username) {
         LoginHistoryEntity loginHistory = new LoginHistoryEntity();
         loginHistory.setUsername(username);
@@ -85,6 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto user) {
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         return this.userMapper.fromEntityToDto(this.userRepository.save(this.userMapper.fromDtoToEntity(user)));

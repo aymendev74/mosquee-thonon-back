@@ -8,9 +8,9 @@ public interface EnseignantService {
 
     List<EnseignantDto> findAllEnseignants();
 
-    EnseignantDto createEnseignantDto(EnseignantDto enseignantDto);
+    EnseignantDto createEnseignant(EnseignantDto enseignantDto);
 
-    EnseignantDto updateEnseignantDto(Long id, EnseignantDto enseignantDto);
+    EnseignantDto updateEnseignant(Long id, EnseignantDto enseignantDto);
 
     boolean deleteEnseignant(Long id);
 
