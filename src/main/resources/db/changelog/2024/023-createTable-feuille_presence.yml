@@ -1,0 +1,157 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  023-createTable-feuille_presence
+       author:  Aymen
+       changes:
+         -  createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: feuille_presence_pkey
+                    name: idfepr
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: dtfeprdate
+                    constraints:
+                      nullable: false
+                    type: DATE
+                - column:
+                    name: oh_date_cre
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_cre
+                    type: VARCHAR(20)
+                - column:
+                    name: oh_date_mod
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_mod
+                    type: VARCHAR(20)
+              tableName:  feuille_presence
+
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: lien_classe_feuille_presence_pkey
+                   name: idlcfp
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: idclas
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: idfepr
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: lien_classe_feuille_presence
+
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: lien_eleve_feuille_presence_pkey
+                   name: idlefp
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: idfepr
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: idelev
+                   constraints:
+                     nullable: false
+                   type: BIGINT
+               - column:
+                   name: lolefppresent
+                   constraints:
+                     nullable: false
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_cre
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_cre
+                   type: VARCHAR(20)
+               - column:
+                   name: oh_date_mod
+                   type: TIMESTAMP WITHOUT TIME ZONE
+               - column:
+                   name: oh_vis_mod
+                   type: VARCHAR(20)
+             tableName: lien_eleve_feuille_presence
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idclas
+             baseTableName: lien_classe_feuille_presence
+             constraintName: fk_idclas_lien_classe_feuille_presence
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idclas
+             referencedTableName: classe
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idfepr
+             baseTableName: lien_classe_feuille_presence
+             constraintName: fk_idfepr_lien_classe_feuille_presence
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idfepr
+             referencedTableName: feuille_presence
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idelev
+             baseTableName: lien_eleve_feuille_presence
+             constraintName: fk_idelev_lien_eleve_feuille_presence
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idelev
+             referencedTableName: eleve
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idfepr
+             baseTableName: lien_eleve_feuille_presence
+             constraintName: fk_idfepr_lien_eleve_feuille_presence
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idfepr
+             referencedTableName: feuille_presence
+             validate: true

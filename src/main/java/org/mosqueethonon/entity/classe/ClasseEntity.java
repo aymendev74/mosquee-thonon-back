@@ -44,6 +44,9 @@ public class ClasseEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<ClasseActiviteEntity> activites;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "idclas", insertable = false, updatable = false)
+    private List<ClasseFeuillePresenceEntity> feuillesPresences;
     @Embedded
     private Signature signature;
 

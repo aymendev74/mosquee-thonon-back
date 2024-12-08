@@ -1,4 +1,4 @@
-package org.mosqueethonon.service.impl;
+package org.mosqueethonon.service.impl.classe;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -15,7 +15,7 @@ import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveRepository;
-import org.mosqueethonon.service.IClasseService;
+import org.mosqueethonon.service.classe.IClasseService;
 import org.mosqueethonon.v1.criterias.CreateClasseCriteria;
 import org.mosqueethonon.v1.criterias.SearchClasseCriteria;
 import org.mosqueethonon.v1.dto.classe.ClasseDto;

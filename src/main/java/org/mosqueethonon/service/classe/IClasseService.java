@@ -1,4 +1,4 @@
-package org.mosqueethonon.service;
+package org.mosqueethonon.service.classe;
 
 import org.mosqueethonon.v1.criterias.CreateClasseCriteria;
 import org.mosqueethonon.v1.criterias.SearchClasseCriteria;
