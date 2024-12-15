@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class FeuillePresenceDto {
 
+    private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate date;
     private List<PresenceEleveDto> presenceEleves;

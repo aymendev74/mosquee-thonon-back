@@ -1,12 +1,14 @@
 package org.mosqueethonon.service.impl.classe;
 
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.classe.ClasseEntity;
 import org.mosqueethonon.entity.classe.ClasseFeuillePresenceEntity;
 import org.mosqueethonon.entity.classe.EleveFeuillePresenceEntity;
 import org.mosqueethonon.entity.classe.FeuillePresenceEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.ClasseFeuillePresenceRepository;
 import org.mosqueethonon.repository.ClasseRepository;
+import org.mosqueethonon.repository.FeuillePresenceRepository;
 import org.mosqueethonon.service.classe.IFeuillePresenceService;
 import org.mosqueethonon.v1.dto.classe.FeuillePresenceDto;
 import org.mosqueethonon.v1.dto.classe.PresenceEleveDto;
@@ -21,6 +23,7 @@ public class FeuillePresenceServiceImpl implements IFeuillePresenceService {
 
     private ClasseFeuillePresenceRepository classeFeuillePresenceRepository;
     private ClasseRepository classeRepository;
+    private FeuillePresenceRepository feuillePresenceRepository;
     private FeuillePresenceMapper feuillePresenceMapper;
 
     @Override
@@ -45,4 +48,21 @@ public class FeuillePresenceServiceImpl implements IFeuillePresenceService {
                 .present(presenceEleveDto.isPresent()).build()).toList();
     }
 
+    @Override
+    public List<FeuillePresenceDto> findFeuillePresencesByClasseId(Long idClasse) {
+        ClasseEntity classe = this.classeRepository.findById(idClasse).orElseThrow(
+                () -> new ResourceNotFoundException("La classe n'existe pas - idClas = " + idClasse)
+        );
+        return classe.getFeuillesPresences().stream().map(this.feuillePresenceMapper::fromEntityToDto).toList();
+    }
+
+    @Override
+    public FeuillePresenceDto updateFeuillePresence(Long id, FeuillePresenceDto feuillePresence) {
+        FeuillePresenceEntity feuillePresenceEntity = this.feuillePresenceRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("La feuille de presence n'existe pas - id = " + id)
+        );
+        this.feuillePresenceMapper.updateFeuillePresence(feuillePresence, feuillePresenceEntity);
+        this.feuillePresenceRepository.save(feuillePresenceEntity);
+        return this.feuillePresenceMapper.fromEntityToDto(feuillePresenceEntity);
+    }
 }

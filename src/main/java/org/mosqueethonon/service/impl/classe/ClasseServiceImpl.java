@@ -203,4 +203,12 @@ public class ClasseServiceImpl implements IClasseService {
     public void deleteClasse(Long id) {
         this.classeRepository.deleteById(id);
     }
+
+    @Override
+    public ClasseDto findClasseById(Long id) {
+        ClasseEntity classe = this.classeRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("La classe n'a pas été trouvée, id = " + id)
+        );
+        return this.classeMapper.fromEntityToDto(classe);
+    }
 }
