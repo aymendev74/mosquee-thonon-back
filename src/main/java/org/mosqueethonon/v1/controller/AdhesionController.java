@@ -1,12 +1,12 @@
 package org.mosqueethonon.v1.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import org.mosqueethonon.service.adhesion.AdhesionLightService;
 import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +49,8 @@ public class AdhesionController {
     }
 
     @PatchMapping
-    public ResponseEntity patchAdhesion(@RequestBody AdhesionPatchDto adhesionPatchDto) {
-        Set<Long> ids = this.adhesionService.patchAdhesions(adhesionPatchDto);
+    public ResponseEntity patchAdhesion(@RequestBody JsonNode patchesNode) {
+        Set<Long> ids = this.adhesionService.patchAdhesions(patchesNode);
         return ResponseEntity.ok(ids);
     }
 

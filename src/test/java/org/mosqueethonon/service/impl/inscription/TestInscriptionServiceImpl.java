@@ -4,21 +4,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
+import org.mosqueethonon.exception.BadRequestException;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
-import org.mosqueethonon.v1.dto.inscription.InscriptionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,12 +34,21 @@ public class TestInscriptionServiceImpl {
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
     public void testPatchInscriptions_WhenInscriptionsExist() {
-        // Arrange
-        InscriptionPatchDto inscriptionPatchDto = new InscriptionPatchDto();
-        inscriptionPatchDto.setIds(List.of(1L, 2L));
-        inscriptionPatchDto.setStatut(StatutInscription.VALIDEE);
+        // GIVEN
+        ObjectNode inscriptions = this.objectMapper.createObjectNode();
+        ArrayNode inscriptionsArray = inscriptions.putArray("inscriptions");
+        ObjectNode inscriptionNode1 = this.objectMapper.createObjectNode();
+        inscriptionNode1.put("id", 1L);
+        inscriptionNode1.put("statut", "VALIDEE");
+        inscriptionsArray.add(inscriptionNode1);
+        ObjectNode inscriptionNode2 = this.objectMapper.createObjectNode();
+        inscriptionNode2.put("id", 2L);
+        inscriptionNode2.put("statut", "VALIDEE");
+        inscriptionsArray.add(inscriptionNode2);
 
         InscriptionEntity inscription1 = new InscriptionEnfantEntity();
         inscription1.setId(1L);
@@ -52,43 +62,40 @@ public class TestInscriptionServiceImpl {
 
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
         when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
-        when(inscriptionRepository.saveAll(any())).thenReturn(List.of(inscription1, inscription2));
 
-        // Act
-        Set<Long> result = inscriptionService.patchInscriptions(inscriptionPatchDto);
+        // WHEN
+        Set<Long> result = inscriptionService.patchInscriptions(inscriptions);
 
-        // Assert
+        // THEN
         assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         assertNull(inscription1.getNoPositionAttente()); // Vérifie que la position d'attente est mise à null
         assertNull(inscription2.getNoPositionAttente());
-        verify(inscriptionRepository).saveAll(any());
+        verify(inscriptionRepository, times(2)).save(any());
     }
 
     @Test
     public void testPatchInscriptions_WhenNoInscriptionsExist() {
-        // Arrange
-        InscriptionPatchDto inscriptionPatchDto = new InscriptionPatchDto();
-        inscriptionPatchDto.setIds(List.of(1L, 2L));
-        inscriptionPatchDto.setStatut(StatutInscription.VALIDEE);
+        // GIVEN
+        ObjectNode inscriptions = this.objectMapper.createObjectNode();
+        ArrayNode inscriptionsArray = inscriptions.putArray("inscriptions");
+        ObjectNode inscriptionNode1 = this.objectMapper.createObjectNode();
+        inscriptionNode1.put("id", 1L);
+        inscriptionNode1.put("statut", "VALIDEE");
+        inscriptionsArray.add(inscriptionNode1);
 
+        // WHEN
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.empty());
-        when(inscriptionRepository.findById(2L)).thenReturn(Optional.empty());
 
-        // Act
-        Set<Long> result = inscriptionService.patchInscriptions(inscriptionPatchDto);
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(inscriptionRepository, never()).saveAll(any());
+        // THEN
+        assertThrows(ResourceNotFoundException.class, () -> inscriptionService.patchInscriptions(inscriptions));
     }
 
     @Test
     public void testDeleteInscriptions_WithInscriptionEnfant() {
-        // Arrange
+        // GIVEN
         Set<Long> ids = Set.of(1L, 2L);
         InscriptionEntity inscription1 = new InscriptionEnfantEntity();
         inscription1.setId(1L);
@@ -100,10 +107,10 @@ public class TestInscriptionServiceImpl {
 
         when(inscriptionRepository.findAllById(ids)).thenReturn(List.of(inscription1, inscription2));
 
-        // Act
+        // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
 
-        // Assert
+        // THEN
         assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));
@@ -114,7 +121,7 @@ public class TestInscriptionServiceImpl {
 
     @Test
     public void testDeleteInscriptions_WithoutInscriptionEnfant() {
-        // Arrange
+        // GIVEN
         Set<Long> ids = Set.of(1L, 2L);
         InscriptionEntity inscription1 = new InscriptionAdulteEntity();
         inscription1.setId(1L);
@@ -126,10 +133,10 @@ public class TestInscriptionServiceImpl {
 
         when(inscriptionRepository.findAllById(ids)).thenReturn(List.of(inscription1, inscription2));
 
-        // Act
+        // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
 
-        // Assert
+        // THEN
         assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));

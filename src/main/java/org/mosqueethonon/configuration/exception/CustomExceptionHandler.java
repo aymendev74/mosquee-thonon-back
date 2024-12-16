@@ -1,6 +1,7 @@
 package org.mosqueethonon.configuration.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,9 @@ public class CustomExceptionHandler {
         if(e instanceof ResourceNotFoundException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Resource not found ! " + e.getMessage());
+        } else if (e instanceof BadRequestException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Bad request ! " + e.getMessage());
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

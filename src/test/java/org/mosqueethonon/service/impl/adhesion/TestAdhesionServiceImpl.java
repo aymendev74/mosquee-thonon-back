@@ -5,19 +5,23 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import org.junit.jupiter.api.BeforeEach;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.exception.BadRequestException;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapperImpl;
@@ -36,6 +40,9 @@ public class TestAdhesionServiceImpl {
 
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Test
     public void testCreateAdhesion() {
@@ -106,10 +113,16 @@ public class TestAdhesionServiceImpl {
 
     @Test
     public void testPatchAdhesions_WhenAdhesionsExist() {
-        // Arrange
-        AdhesionPatchDto adhesionPatchDto = new AdhesionPatchDto();
-        adhesionPatchDto.setIds(List.of(1L, 2L));
-        adhesionPatchDto.setStatut(StatutInscription.VALIDEE);
+        ObjectNode adhesions = this.objectMapper.createObjectNode();
+        ArrayNode adhesionsArray = adhesions.putArray("adhesions");
+        ObjectNode adhesionNode1 = this.objectMapper.createObjectNode();
+        adhesionNode1.put("id", 1L);
+        adhesionNode1.put("statut", "VALIDEE");
+        adhesionsArray.add(adhesionNode1);
+        ObjectNode adhesionNode2 = this.objectMapper.createObjectNode();
+        adhesionNode2.put("id", 2L);
+        adhesionNode2.put("statut", "VALIDEE");
+        adhesionsArray.add(adhesionNode2);
 
         AdhesionEntity adhesion1 = new AdhesionEntity();
         adhesion1.setId(1L);
@@ -121,10 +134,9 @@ public class TestAdhesionServiceImpl {
 
         when(adhesionRepository.findById(1L)).thenReturn(Optional.of(adhesion1));
         when(adhesionRepository.findById(2L)).thenReturn(Optional.of(adhesion2));
-        when(adhesionRepository.saveAll(any())).thenReturn(List.of(adhesion1, adhesion2));
 
         // Act
-        Set<Long> result = adhesionService.patchAdhesions(adhesionPatchDto);
+        Set<Long> result = adhesionService.patchAdhesions(adhesions);
 
         // Assert
         assertNotNull(result);
@@ -133,26 +145,21 @@ public class TestAdhesionServiceImpl {
         assertTrue(result.contains(2L));
         assertEquals(StatutInscription.VALIDEE, adhesion1.getStatut());
         assertEquals(StatutInscription.VALIDEE, adhesion2.getStatut());
-        verify(adhesionRepository).saveAll(any());
+        verify(adhesionRepository, times(2)).save(any());
     }
 
     @Test
     public void testPatchAdhesions_WhenNoAdhesionsExist() {
-        // Arrange
-        AdhesionPatchDto adhesionPatchDto = new AdhesionPatchDto();
-        adhesionPatchDto.setIds(List.of(1L, 2L));
-        adhesionPatchDto.setStatut(StatutInscription.VALIDEE);
+        ObjectNode adhesions = this.objectMapper.createObjectNode();
+        ArrayNode adhesionsArray = adhesions.putArray("adhesions");
+        ObjectNode adhesionNode1 = this.objectMapper.createObjectNode();
+        adhesionNode1.put("id", 1L);
+        adhesionNode1.put("statut", "VALIDEE");
+        adhesionsArray.add(adhesionNode1);
 
         when(adhesionRepository.findById(1L)).thenReturn(Optional.empty());
-        when(adhesionRepository.findById(2L)).thenReturn(Optional.empty());
 
-        // Act
-        Set<Long> result = adhesionService.patchAdhesions(adhesionPatchDto);
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(adhesionRepository, never()).saveAll(any());
+        assertThrows(ResourceNotFoundException.class, () -> adhesionService.patchAdhesions(adhesions));
     }
 
     @Test

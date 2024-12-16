@@ -1,23 +1,23 @@
 package org.mosqueethonon.service.impl.adhesion;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.exception.BadRequestException;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionPatchDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -60,20 +60,30 @@ public class AdhesionServiceImpl implements AdhesionService {
 
     @Override
     @Transactional
-    public Set<Long> patchAdhesions(AdhesionPatchDto adhesionPatchDto) {
-        List<AdhesionEntity> adhesionsToUpdate = new ArrayList<>();
-        for (Long id : adhesionPatchDto.getIds()) {
-            AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElse(null);
-            if (adhesion != null) {
-                adhesion.setStatut(adhesionPatchDto.getStatut());
-                adhesionsToUpdate.add(adhesion);
+    public Set<Long> patchAdhesions(JsonNode patchesNode) {
+        Set<Long> ids = new HashSet<>();
+        if(patchesNode.has("adhesions")
+        && patchesNode.get("adhesions").elements().hasNext()) {
+            patchesNode.get("adhesions").forEach(node -> ids.add(this.patchAdhesion(node)));
+        }
+        return ids;
+    }
+
+    private Long patchAdhesion(JsonNode patchNode) {
+        if(!patchNode.has("id") || !patchNode.get("id").isNumber()) {
+            throw new BadRequestException("Missing 'id' field or wrong type (expect Long) to patch adhesion !");
+        }
+        Long id = patchNode.get("id").asLong();
+        AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Adhesion not found ! id = " + id));
+        if (patchNode.has("statut")) {
+            if(patchNode.get("statut").isNull()) {
+                adhesion.setStatut(null);
+            } else {
+                adhesion.setStatut(StatutInscription.valueOf(patchNode.get("statut").asText()));
             }
         }
-        if (!CollectionUtils.isEmpty(adhesionsToUpdate)) {
-            adhesionsToUpdate = this.adhesionRepository.saveAll(adhesionsToUpdate);
-            return adhesionsToUpdate.stream().map(AdhesionEntity::getId).collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
+        this.adhesionRepository.save(adhesion);
+        return id;
     }
 
     @Override
