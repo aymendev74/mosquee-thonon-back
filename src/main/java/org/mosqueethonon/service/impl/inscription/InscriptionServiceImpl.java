@@ -28,6 +28,8 @@ public class InscriptionServiceImpl implements InscriptionService {
         Set<Long> ids = new HashSet<>();
         if(patchesNode.has("inscriptions") && patchesNode.get("inscriptions").elements().hasNext()) {
             patchesNode.get("inscriptions").forEach(node -> ids.add(this.patchInscription(node)));
+        } else {
+            throw new BadRequestException("Missing non empty 'inscriptions' field to patch inscriptions !");
         }
         return ids;
     }

@@ -65,6 +65,8 @@ public class AdhesionServiceImpl implements AdhesionService {
         if(patchesNode.has("adhesions")
         && patchesNode.get("adhesions").elements().hasNext()) {
             patchesNode.get("adhesions").forEach(node -> ids.add(this.patchAdhesion(node)));
+        } else {
+            throw new BadRequestException("Missing non empty 'adhesions' field to patch adhesions !");
         }
         return ids;
     }

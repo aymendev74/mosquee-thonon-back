@@ -9,6 +9,7 @@ import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 
 import jakarta.persistence.*;
+import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.enums.SexeEnum;
 
 import java.time.LocalDate;
@@ -42,6 +43,9 @@ public class EleveEntity implements Auditable {
     @Column(name = "cdelevsexe")
     @Enumerated(EnumType.STRING)
     private SexeEnum sexe;
+    @Column(name = "cdelevresultat")
+    @Enumerated(EnumType.STRING)
+    private ResultatEnum resultat;
     @Formula("(select lien.idclas from moth.lien_classe_eleve lien where lien.idelev = idelev limit 1)")
     private Long classeId;
     @Embedded

@@ -7,7 +7,7 @@ databaseChangeLog:
             tableName: eleve
             columns:
               - column:
-                  name: cdeleveresultat
+                  name: cdelevresultat
                   type: varchar(20)
                   constraints:
                     nullable: true

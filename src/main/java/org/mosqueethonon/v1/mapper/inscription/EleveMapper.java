@@ -14,6 +14,7 @@ public interface EleveMapper {
 
     @Named("fromDtoToEntityIgnoreId")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "resultat", ignore = true)
     public EleveEntity fromDtoToEntityIgnoreId(EleveDto eleveDto) ;
 
     @Named("fromEntityToDtoIgnoreId")
@@ -26,6 +27,7 @@ public interface EleveMapper {
      */
 
     @Named("fromDtoToEntity")
+    @Mapping(target = "resultat", ignore = true)
     public EleveEntity fromDtoToEntity(EleveDto eleveDto) ;
 
     @Named("fromEntityToDto")

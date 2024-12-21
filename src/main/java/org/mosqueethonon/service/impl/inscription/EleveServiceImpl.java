@@ -1,15 +1,23 @@
 package org.mosqueethonon.service.impl.inscription;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.classe.ClasseEntity;
 import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
+import org.mosqueethonon.entity.inscription.EleveEnrichedEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.AffectationEleveEnum;
+import org.mosqueethonon.enums.ResultatEnum;
+import org.mosqueethonon.exception.BadRequestException;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.ClasseRepository;
+import org.mosqueethonon.repository.EleveEnrichedRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.service.inscription.EleveService;
 import org.mosqueethonon.v1.criterias.SearchEleveCriteria;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
+import org.mosqueethonon.v1.dto.inscription.EleveEnrichedDto;
+import org.mosqueethonon.v1.mapper.inscription.EleveEnrichedMapper;
 import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +32,8 @@ public class EleveServiceImpl implements EleveService {
     private ClasseRepository classeRepository;
     private EleveRepository eleveRepository;
     private EleveMapper eleveMapper;
+    private EleveEnrichedMapper eleveEnrichedMapper;
+    private EleveEnrichedRepository eleveEnrichedRepository;
 
     @Override
     public List<EleveDto> findElevesByCriteria(SearchEleveCriteria criteria) {
@@ -60,6 +70,37 @@ public class EleveServiceImpl implements EleveService {
             }
         }
         return resultEleves;
+    }
+
+    @Override
+    public void patchEleves(JsonNode patchesNode) {
+        if(patchesNode.has("eleves") && patchesNode.get("eleves").elements().hasNext()) {
+            patchesNode.get("eleves").forEach(this::patchEleve);
+        } else {
+            throw new BadRequestException("Missing non empty 'eleves' field to patch eleves !");
+        }
+    }
+
+    private void patchEleve(JsonNode patchNode) {
+        if (!patchNode.has("id") || !patchNode.get("id").isNumber()) {
+            throw new BadRequestException("Missing 'id' field or wrong type (expect Long) to patch eleve !");
+        }
+        Long id = patchNode.get("id").asLong();
+        EleveEntity eleve = this.eleveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Eleve with id " + id + " does not exist !"));
+        if (patchNode.has("resultat")) {
+            if (patchNode.get("resultat").isNull()) {
+                eleve.setResultat(null);
+            } else {
+                eleve.setResultat(ResultatEnum.valueOf(patchNode.get("resultat").asText()));
+            }
+        }
+        this.eleveRepository.save(eleve);
+    }
+
+    @Override
+    public List<EleveEnrichedDto> findElevesEnrichedByIdClasse(Long idClasse) {
+        List<EleveEnrichedEntity> eleves = this.eleveEnrichedRepository.findByIdClasse(idClasse);
+        return eleves.stream().map(eleveEnrichedMapper::fromEntityToDto).collect(Collectors.toList());
     }
 
 }

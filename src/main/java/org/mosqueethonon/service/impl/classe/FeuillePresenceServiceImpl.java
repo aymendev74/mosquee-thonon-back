@@ -15,6 +15,8 @@ import org.mosqueethonon.v1.dto.classe.PresenceEleveDto;
 import org.mosqueethonon.v1.mapper.classe.FeuillePresenceMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -53,7 +55,8 @@ public class FeuillePresenceServiceImpl implements IFeuillePresenceService {
         ClasseEntity classe = this.classeRepository.findById(idClasse).orElseThrow(
                 () -> new ResourceNotFoundException("La classe n'existe pas - idClas = " + idClasse)
         );
-        return classe.getFeuillesPresences().stream().map(this.feuillePresenceMapper::fromEntityToDto).toList();
+        return classe.getFeuillesPresences().stream().map(this.feuillePresenceMapper::fromEntityToDto)
+                .sorted(Comparator.comparing(FeuillePresenceDto::getDate)).toList();
     }
 
     @Override
