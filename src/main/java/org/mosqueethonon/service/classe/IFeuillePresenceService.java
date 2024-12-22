@@ -12,4 +12,6 @@ public interface IFeuillePresenceService {
 
     FeuillePresenceDto updateFeuillePresence(Long id, FeuillePresenceDto feuillePresence);
 
+    void deleteFeuillePresence(Long id);
+
 }

@@ -14,8 +14,8 @@ import org.mosqueethonon.v1.dto.classe.FeuillePresenceDto;
 import org.mosqueethonon.v1.dto.classe.PresenceEleveDto;
 import org.mosqueethonon.v1.mapper.classe.FeuillePresenceMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
@@ -68,4 +68,17 @@ public class FeuillePresenceServiceImpl implements IFeuillePresenceService {
         this.feuillePresenceRepository.save(feuillePresenceEntity);
         return this.feuillePresenceMapper.fromEntityToDto(feuillePresenceEntity);
     }
+
+    @Override
+    @Transactional
+    public void deleteFeuillePresence(Long id) {
+        FeuillePresenceEntity feuillePresenceEntity = this.feuillePresenceRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("La feuille de presence n'existe pas - id = " + id)
+        );
+        // Avant de supprimer la feuille, il faut supprimer le lien avec la classe
+        ClasseFeuillePresenceEntity classeFeuillePresenceEntity = this.classeFeuillePresenceRepository.findByFeuillePresenceId(id);
+        this.classeFeuillePresenceRepository.delete(classeFeuillePresenceEntity);
+        this.feuillePresenceRepository.delete(feuillePresenceEntity);
+    }
+
 }

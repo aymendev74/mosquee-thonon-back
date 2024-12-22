@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClasseFeuillePresenceRepository extends JpaRepository<ClasseFeuillePresenceEntity, Long> {
 
+    ClasseFeuillePresenceEntity findByFeuillePresenceId(Long idFeuillePresence);
+
 }

@@ -20,4 +20,10 @@ public class FeuillePresenceController {
         return ResponseEntity.ok(feuillePresence);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFeuillePresence(@PathVariable("id") Long id) {
+        this.feuillePresenceService.deleteFeuillePresence(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
