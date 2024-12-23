@@ -11,6 +11,7 @@ public class ClasseDto {
     private String libelle;
     private NiveauInterneEnum niveau;
     private Long idEnseignant;
+    private String nomPrenomEnseignant;
     private List<LienClasseEleveDto> liensClasseEleves;
     private Integer debutAnneeScolaire;
     private Integer finAnneeScolaire;

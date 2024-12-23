@@ -1,0 +1,34 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  025-createTable-ref_niveau
+       author:  Aymen
+       changes:
+         -  createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: ref_niveau_pkey
+                    name: idreni
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: cdreniniveau
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(20)
+                - column:
+                    name: cdreniniveausup
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(20)
+              tableName:  ref_niveau
+         - addUniqueConstraint:
+             tableName: ref_niveau
+             columnNames: cdreniniveau
+             constraintName: unique_cdreniniveau_constraint
+         - sqlFile:
+             path: db/changelog/sql/025-createTable-ref_niveau.sql
+             endDelimiter: \nGO

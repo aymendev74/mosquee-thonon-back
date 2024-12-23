@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -47,6 +48,8 @@ public class ClasseEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", insertable = false, updatable = false)
     private List<ClasseFeuillePresenceEntity> feuillesPresences;
+    @Formula("(select concat(ens.txenseprenom, ' ', ens.txensenom) from moth.enseignant ens where ens.idense = idense limit 1)")
+    private String nomPrenomEnseignant;
     @Embedded
     private Signature signature;
 
