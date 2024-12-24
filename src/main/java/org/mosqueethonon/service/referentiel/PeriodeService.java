@@ -16,5 +16,6 @@ public interface PeriodeService {
 
     PeriodeDto updatePeriode(Long id, PeriodeDto periode);
 
+    void updateListeAttente(Long idPeriode);
 
 }

@@ -2,15 +2,18 @@ package org.mosqueethonon.service.impl.inscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionService;
+import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -19,8 +22,8 @@ import java.util.*;
 public class InscriptionServiceImpl implements InscriptionService {
 
     private InscriptionRepository inscriptionRepository;
-
     private InscriptionEnfantService inscriptionEnfantService;
+    private PeriodeService periodeService;
 
     @Transactional
     @Override
@@ -59,12 +62,16 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
         List<InscriptionEntity> inscriptions = this.inscriptionRepository.findAllById(ids);
-        boolean isInscriptionEnfant = inscriptions.stream().anyMatch(i -> i.getType().equals("ENFANT"));
+        List<InscriptionEntity> inscriptionsEnfants = inscriptions.stream().filter(i -> i.getType().equals("ENFANT")).toList();
         this.inscriptionRepository.deleteAllById(ids);
         // Maintenant que des inscriptions ont été supprimés, il faut aller voir si des inscriptions sont en liste d'attente et
         // les changer de statut => provisoire
-        if(isInscriptionEnfant) { // uniquement si inscription enfant, car pas de liste d'attente pour les adultes
-            this.inscriptionEnfantService.updateListeAttentePeriode(null);
+        if(!CollectionUtils.isEmpty(inscriptionsEnfants)) { // uniquement si inscription enfant, car pas de liste d'attente pour les adultes
+            Set<Long> idsPeriodes = new HashSet<>();
+            for(InscriptionEntity inscription : inscriptions) {
+                idsPeriodes.add(inscription.getEleves().get(0).getTarif().getPeriode().getId());
+            }
+            idsPeriodes.forEach(this.periodeService::updateListeAttente);
         }
         return ids;
     }

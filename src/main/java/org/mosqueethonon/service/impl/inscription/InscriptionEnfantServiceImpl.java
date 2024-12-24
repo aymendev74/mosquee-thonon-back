@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
+import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
@@ -12,6 +13,7 @@ import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.param.ParamService;
@@ -30,15 +32,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -216,41 +221,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     @Override
-    public void updateListeAttentePeriode(Long idPeriode) {
-        Integer lastPositionAttente = null;
-        if (idPeriode != null) {
-            lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
-        } else {
-            lastPositionAttente = inscriptionEnfantRepository.getLastPositionAttente(LocalDate.now());
-        }
-        if (lastPositionAttente != null) {
-            PeriodeEntity periode = null;
-            if (idPeriode != null) {
-                periode = this.periodeRepository.findById(idPeriode).orElse(null);
-            } else {
-                periode = this.periodeRepository.findPeriodeCoursAtDate(LocalDate.now());
-            }
-            Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId(), TypeInscriptionEnum.ENFANT.name());
-            if (nbElevesInscrits < periode.getNbMaxInscription()) {
-                List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(periode.getId());
-                int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
-                for (InscriptionEnfantEntity inscriptionEnAttente : inscriptionsEnAttente) {
-                    Integer nbEleveInscription = inscriptionEnAttente.getEleves().size();
-                    if (nbEleveInscription <= nbPlacesDisponibles) {
-                        // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
-                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
-                        nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
-                    }
-                    if (nbPlacesDisponibles == 0) {
-                        break;
-                    }
-                }
-                this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
-            }
-        }
-    }
-
-    @Override
     public Integer findNbInscriptionsByPeriode(Long idPeriode) {
         return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ENFANT.name());
     }
@@ -295,5 +265,40 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
                     .statut(MailingConfirmationStatut.PENDING).build());
         }
+    }
+
+    @Override
+    public Integer getLastPositionAttenteByPeriode(Long idPeriode) {
+        return this.inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
+    }
+
+    @Override
+    public Integer getNbElevesInscritsByIdPeriode(Long idPeriode) {
+        return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ENFANT.name());
+    }
+
+    @Override
+    public List<InscriptionEnfantDto> getInscriptionEnAttenteByPeriode(Long idPeriode) {
+        List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(idPeriode);
+        if (!CollectionUtils.isEmpty(inscriptionsEnAttente)) {
+            return inscriptionsEnAttente.stream().map(this.inscriptionEnfantMapper::fromEntityToDto).collect(Collectors.toList());
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<InscriptionEnfantDto> updateInscriptions(List<InscriptionEnfantDto> inscriptions) {
+        List<InscriptionEnfantDto> updatedInscriptions = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inscriptions)) {
+            for(InscriptionEnfantDto inscription : inscriptions) {
+                Assert.notNull(inscription.getId(), "L'inscription doit avoir un id !");
+                InscriptionEnfantEntity inscriptionEntity = this.inscriptionEnfantRepository.findById(inscription.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("L'inscription n'a pas été trouvée ! id = " + inscription.getId()));
+                this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, inscriptionEntity);
+                inscriptionEntity = this.inscriptionEnfantRepository.save(inscriptionEntity);
+                updatedInscriptions.add(this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEntity));
+            }
+        }
+        return updatedInscriptions;
     }
 }

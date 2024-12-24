@@ -5,6 +5,7 @@ import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 
@@ -40,6 +41,9 @@ public class EleveEntity implements Auditable {
     private NiveauInterneEnum niveauInterne;
     @Column(name = "idtari")
     private Long idTarif;
+    @ManyToOne
+    @JoinColumn(name = "idtari", insertable = false, updatable = false)
+    private TarifEntity tarif;
     @Column(name = "cdelevsexe")
     @Enumerated(EnumType.STRING)
     private SexeEnum sexe;

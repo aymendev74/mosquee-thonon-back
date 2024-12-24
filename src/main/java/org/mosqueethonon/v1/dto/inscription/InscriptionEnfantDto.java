@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class InscriptionEnfantDto {
 
+    private Long id;
     private StatutInscription statut;
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
