@@ -82,6 +82,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
     }
 
     @Override
+    @Transactional
     public InscriptionAdulteDto updateInscription(Long id, InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria) {
         InscriptionAdulteEntity entity = this.inscriptionAdulteRepository.findById(id).orElse(null);
         if (entity == null) {

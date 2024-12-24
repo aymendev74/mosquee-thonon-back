@@ -1,11 +1,11 @@
 package org.mosqueethonon.v1.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionLightService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionPatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,12 +35,12 @@ public class InscriptionController {
 
 
     @PatchMapping
-    public ResponseEntity patchInscriptions(@RequestBody InscriptionPatchDto inscriptionPatchDto) {
+    public ResponseEntity patchInscriptions(@RequestBody JsonNode patchesNode) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         Set<Long> ids = null;
         try {
-            ids = this.inscriptionService.patchInscriptions(inscriptionPatchDto);
+            ids = this.inscriptionService.patchInscriptions(patchesNode);
         } finally {
             lock.unlock();
         }

@@ -1,9 +1,12 @@
 package org.mosqueethonon.configuration.security;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.mosqueethonon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -20,12 +23,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.firewall.HttpFirewall;
@@ -34,6 +40,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,8 +52,9 @@ import static org.mosqueethonon.configuration.security.ProfileProvider.STAGING;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
     private ProfileProvider profileProvider;
+
+    private UserService userService;
 
     private static final String[] AUTH_WHITE_LIST = {
             "/v3/api-docs/**",
@@ -66,17 +74,35 @@ public class SecurityConfig {
                 .requestMatchers("/v1/tarifs").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/tarifs-inscription/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/v1/params/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/v1/classes/**").hasRole("ENSEIGNANT")
+                .requestMatchers(HttpMethod.POST,"/v1/classes/**/presences").hasRole("ENSEIGNANT")
+                .requestMatchers(HttpMethod.PUT,"/v1/classes/**/presences").hasRole("ENSEIGNANT")
+                .requestMatchers("/v1/presences/**").hasRole("ENSEIGNANT")
+                .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                 .requestMatchers(HttpMethod.GET,"/logout").permitAll()
-                        .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .formLogin(login -> login.loginPage("/login").permitAll())
+                .formLogin(login -> login.loginPage("/login").successHandler(loginSuccessHandler()).permitAll())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
                 .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID")
                         .logoutSuccessHandler(logoutSuccessHandler())
                         .permitAll());
         return http.build();
+    }
+
+    private AuthenticationSuccessHandler loginSuccessHandler() {
+        return new SavedRequestAwareAuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                                Authentication authentication) throws IOException, ServletException {
+                String username = authentication.getName();
+                userService.saveLoginHistory(username);
+                super.onAuthenticationSuccess(request, response, authentication);
+            }
+        };
     }
 
     private LogoutSuccessHandler logoutSuccessHandler() {
@@ -86,10 +112,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailService){
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authProvider);
     }
 
@@ -99,12 +125,6 @@ public class SecurityConfig {
         r.setHierarchy("ROLE_ADMIN > ROLE_ENSEIGNANT");
         return r;
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

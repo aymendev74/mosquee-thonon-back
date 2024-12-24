@@ -4,7 +4,7 @@
 
     <groupId>org.mosqueethonon</groupId>
     <artifactId>mosquee-thonon-back</artifactId>
-    <version>2.0.7</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>Mosquée Thonon - services</name>
@@ -101,6 +101,11 @@
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

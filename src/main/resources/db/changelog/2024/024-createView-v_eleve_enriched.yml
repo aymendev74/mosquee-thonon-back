@@ -1,0 +1,21 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  024-createView-v_eleve_enriched
+       author:  Aymen
+       changes:
+         -  dropView:
+              ifExists:  true
+              viewName:  v_eleve_enriched
+         - createView:
+             encoding:  UTF-8
+             selectQuery: select e.idelev as id, c.idclas as idclasse, e.txelevnom as nom, e.txelevprenom as prenom, e.dtelevnaissance as datenaissance,
+                           e.cdelevniveauinterne as niveauinterne, r.txrespmobile as mobile, r.txrespphoneautre as mobilecontacturgence,
+                           r.lorespautonomie as autorisationautonomie, r.lorespmedia as autorisationmedia, r.txrespnom as nomresponsablelegal,
+                           r.txrespprenom as prenomresponsablelegal, r.txrespnomautre as nomcontacturgence, r.txrespprenomautre as prenomcontacturgence,
+                           e.cdelevresultat as resultat
+                           from moth.classe c
+                           inner join moth.lien_classe_eleve lce on lce.idclas = c.idclas
+                           inner join moth.eleve e on e.idelev = lce.idelev
+                           inner join moth.inscription i on i.idinsc = e.idinsc
+                           inner join moth.resplegal r on r.idresp = i.idresp;
+             viewName: v_eleve_enriched

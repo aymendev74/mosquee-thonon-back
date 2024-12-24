@@ -38,9 +38,9 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
 
     @Query("SELECT e " +
             "FROM InscriptionEntity i " +
-            "JOIN i.eleves e " +  // On suppose que l'entité Inscription a une relation avec Eleve
-            "JOIN TarifEntity t on t.id = e.idTarif " +  // On suppose que l'entité Eleve a une relation avec Tarif
-            "JOIN t.periode p " + // On suppose que l'entité Tarif a une relation avec Periode
+            "JOIN i.eleves e " +
+            "JOIN TarifEntity t on t.id = e.idTarif " +
+            "JOIN t.periode p " +
             "WHERE i.statut = 'VALIDEE' " +
             "AND UPPER(e.nom) = UPPER(:nom) " +
             "AND UPPER(e.prenom) = UPPER(:prenom) " +

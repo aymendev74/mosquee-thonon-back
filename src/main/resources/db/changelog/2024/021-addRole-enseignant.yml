@@ -1,0 +1,42 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  021-addRole-enseignant
+       author:  Aymen
+       changes:
+         - createTable:
+             columns:
+               - column:
+                   autoIncrement: true
+                   constraints:
+                     nullable: false
+                     primaryKey: true
+                     primaryKeyName: role_pkey
+                   name: idrole
+                   startWith: 1
+                   type: BIGINT
+               - column:
+                   name: cdrole
+                   type: VARCHAR(50)
+             tableName: role
+         - insert:
+             tableName: role
+             columns:
+               - column:
+                   name: cdrole
+                   value: 'ROLE_ADMIN'
+         - insert:
+             tableName: role
+             columns:
+               - column:
+                   name: cdrole
+                   value: 'ROLE_ENSEIGNANT'
+         - addUniqueConstraint:
+            tableName: role
+            columnNames: cdrole
+            constraintName: unique_cdrole_constraint
+         - addForeignKeyConstraint:
+             baseColumnNames: cdutrorole
+             baseTableName: utilisateur_roles
+             constraintName: fk_utilisateur_roles_role
+             referencedColumnNames: cdrole
+             referencedTableName: role

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 022-addColumn-cdeleveresultat-eleve
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: eleve
+            columns:
+              - column:
+                  name: cdelevresultat
+                  type: varchar(20)
+                  constraints:
+                    nullable: true

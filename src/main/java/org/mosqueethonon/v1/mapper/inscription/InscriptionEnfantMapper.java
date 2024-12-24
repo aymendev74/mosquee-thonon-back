@@ -10,10 +10,15 @@ import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 @Mapper(componentModel = "spring", uses = { EleveMapper.class, ResponsableLegalMapper.class })
 public interface InscriptionEnfantMapper {
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "eleves", source = "eleves", qualifiedByName = "fromDtoToEntityIgnoreId")
     public InscriptionEnfantEntity fromDtoToEntity(InscriptionEnfantDto inscriptionEnfantDto) ;
 
     @InheritInverseConfiguration(name = "fromDtoToEntity")
+    @Mapping(target = "eleves", source = "eleves", qualifiedByName = "fromEntityToDtoIgnoreId")
     public InscriptionEnfantDto fromEntityToDto(InscriptionEnfantEntity inscriptionEnfantEntity);
 
+    @Mapping(target = "eleves", source = "eleves", qualifiedByName = "fromDtoToEntityIgnoreId")
     public void updateInscriptionEntity(InscriptionEnfantDto inscriptionEnfantDto, @MappingTarget InscriptionEnfantEntity inscriptionEnfantEntity);
+
 }
