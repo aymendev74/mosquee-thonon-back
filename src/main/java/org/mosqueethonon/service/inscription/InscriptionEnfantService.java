@@ -3,6 +3,7 @@ package org.mosqueethonon.service.inscription;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
+import java.util.List;
 
 public interface InscriptionEnfantService {
 
@@ -16,8 +17,14 @@ public interface InscriptionEnfantService {
 
     public boolean isInscriptionOutsidePeriode(Long id, PeriodeDto periodeDto);
 
-    public void updateListeAttentePeriode(Long idPeriode);
-
     public String checkCoherence(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto);
+
+    public Integer getLastPositionAttenteByPeriode(Long idPeriode);
+
+    Integer getNbElevesInscritsByIdPeriode(Long idPeriode);
+
+    List<InscriptionEnfantDto> getInscriptionEnAttenteByPeriode(Long idPeriode);
+
+    List<InscriptionEnfantDto> updateInscriptions(List<InscriptionEnfantDto> inscriptions);
 
 }

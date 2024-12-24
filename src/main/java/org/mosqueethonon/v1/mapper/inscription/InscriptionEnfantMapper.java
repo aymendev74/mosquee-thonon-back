@@ -19,6 +19,7 @@ public interface InscriptionEnfantMapper {
     public InscriptionEnfantDto fromEntityToDto(InscriptionEnfantEntity inscriptionEnfantEntity);
 
     @Mapping(target = "eleves", source = "eleves", qualifiedByName = "fromDtoToEntityIgnoreId")
+    @Mapping(target = "id", ignore = true)
     public void updateInscriptionEntity(InscriptionEnfantDto inscriptionEnfantDto, @MappingTarget InscriptionEnfantEntity inscriptionEnfantEntity);
 
 }

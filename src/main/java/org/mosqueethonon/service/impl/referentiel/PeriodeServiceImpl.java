@@ -2,22 +2,28 @@ package org.mosqueethonon.service.impl.referentiel;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
+import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.utils.DateUtils;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeValidationResultDto;
+import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.referentiel.PeriodeInfoMapper;
 import org.mosqueethonon.v1.mapper.referentiel.PeriodeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,9 +37,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     private PeriodeRepository periodeRepository;
     private PeriodeInfoMapper periodeInfoMapper;
     private PeriodeMapper periodeMapper;
-
     private InscriptionEnfantService inscriptionEnfantService;
-
     private InscriptionAdulteService inscriptionAdulteService;
 
     private static final String APPLICATION_COURS_ENFANT = "COURS_ENFANT";
@@ -67,13 +71,11 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     @Transactional
     public PeriodeDto updatePeriode(Long id, PeriodeDto periode) {
-        PeriodeEntity periodeEntity = this.periodeRepository.findById(id).orElse(null);
-        if(periodeEntity == null) {
-            throw new IllegalArgumentException("Periode non trouvée ! idperi = " + id);
-        }
+        PeriodeEntity periodeEntity = this.periodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
         this.periodeMapper.mapDtoToEntity(periode, periodeEntity);
         periodeEntity = this.periodeRepository.save(periodeEntity);
-        this.inscriptionEnfantService.updateListeAttentePeriode(id);
+        this.updateListeAttente(periodeEntity.getId());
         return this.periodeMapper.fromEntityToDto(periodeEntity);
     }
 
@@ -135,5 +137,30 @@ public class PeriodeServiceImpl implements PeriodeService {
         Optional<PeriodeEntity> optPeriodeOverlaps = periodes.stream().filter(existingPeriode -> DateUtils.isOverlap(existingPeriode.getDateDebut(), existingPeriode.getDateFin(),
                 periode.getDateDebut(), periode.getDateFin())).findFirst();
         return !optPeriodeOverlaps.isPresent();
+    }
+
+    @Override
+    public void updateListeAttente(Long idPeriode) {
+        PeriodeEntity periode = this.periodeRepository.findById(idPeriode).orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + idPeriode));
+        Integer lastPositionAttente = this.inscriptionEnfantService.getLastPositionAttenteByPeriode(idPeriode);
+        if (lastPositionAttente != null) {
+            Integer nbElevesInscrits = this.inscriptionEnfantService.getNbElevesInscritsByIdPeriode(periode.getId());
+            if (periode.getNbMaxInscription() != null && nbElevesInscrits < periode.getNbMaxInscription()) {
+                List<InscriptionEnfantDto> inscriptionsEnAttente = this.inscriptionEnfantService.getInscriptionEnAttenteByPeriode(periode.getId());
+                int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
+                for (InscriptionEnfantDto inscriptionEnAttente : inscriptionsEnAttente) {
+                    int nbEleveInscription = inscriptionEnAttente.getEleves().size();
+                    if (nbEleveInscription <= nbPlacesDisponibles) {
+                        // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
+                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
+                        nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
+                    }
+                    if (nbPlacesDisponibles == 0) {
+                        break;
+                    }
+                }
+                this.inscriptionEnfantService.updateInscriptions(inscriptionsEnAttente);
+            }
+        }
     }
 }

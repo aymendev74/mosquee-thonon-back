@@ -12,14 +12,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
+import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,10 +32,10 @@ public class TestInscriptionServiceImpl {
 
     @Mock
     private InscriptionRepository inscriptionRepository;
-
     @Mock
     private InscriptionEnfantService inscriptionEnfantService;
-
+    @Mock
+    PeriodeService periodeService;
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
@@ -96,14 +101,24 @@ public class TestInscriptionServiceImpl {
     @Test
     public void testDeleteInscriptions_WithInscriptionEnfant() {
         // GIVEN
+        TarifEntity tarif = new TarifEntity();
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        tarif.setPeriode(periode);
         Set<Long> ids = Set.of(1L, 2L);
+        List<EleveEntity> eleves = new ArrayList<>();
+        EleveEntity eleve1 = new EleveEntity();
+        eleve1.setTarif(tarif);
+        eleves.add(eleve1);
         InscriptionEntity inscription1 = new InscriptionEnfantEntity();
         inscription1.setId(1L);
         inscription1.setType("ENFANT");
+        inscription1.setEleves(eleves);
 
         InscriptionEntity inscription2 = new InscriptionAdulteEntity();
         inscription2.setId(2L);
         inscription2.setType("ADULTE");
+        inscription2.setEleves(eleves);
 
         when(inscriptionRepository.findAllById(ids)).thenReturn(List.of(inscription1, inscription2));
 
@@ -116,7 +131,7 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
-        verify(inscriptionEnfantService).updateListeAttentePeriode(null);
+        verify(periodeService).updateListeAttente(Mockito.eq(1L));
     }
 
     @Test
@@ -142,6 +157,6 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
-        verify(inscriptionEnfantService, never()).updateListeAttentePeriode(null); // Vérifie que la méthode n'est pas appelée
+        verify(periodeService, never()).updateListeAttente(Mockito.any()); // Vérifie que la méthode n'est pas appelée
     }
 }

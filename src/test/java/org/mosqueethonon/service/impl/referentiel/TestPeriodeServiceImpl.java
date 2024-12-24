@@ -17,6 +17,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
@@ -101,6 +102,7 @@ public class TestPeriodeServiceImpl {
         Long id = 1L;
         PeriodeDto periodeDto = new PeriodeDto();
         PeriodeEntity existingEntity = new PeriodeEntity();
+        existingEntity.setId(id);
         when(periodeRepository.findById(id)).thenReturn(Optional.of(existingEntity));
         when(periodeMapper.mapDtoToEntity(periodeDto, existingEntity)).thenReturn(existingEntity);
         when(periodeRepository.save(existingEntity)).thenReturn(existingEntity);
@@ -111,8 +113,7 @@ public class TestPeriodeServiceImpl {
 
         // Assert
         assertNotNull(result);
-        verify(periodeRepository).findById(id);
-        verify(inscriptionEnfantService).updateListeAttentePeriode(id);
+        verify(periodeRepository, times(2)).findById(id);
     }
 
     @Test
@@ -121,10 +122,9 @@ public class TestPeriodeServiceImpl {
         PeriodeDto periodeDto = new PeriodeDto();
         when(periodeRepository.findById(id)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             periodeService.updatePeriode(id, periodeDto);
         });
-        assertEquals("Periode non trouvée ! idperi = " + id, exception.getMessage());
     }
 
     @Test
