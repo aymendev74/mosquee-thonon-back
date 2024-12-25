@@ -82,6 +82,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                 .requestMatchers(HttpMethod.GET,"/logout").permitAll()
+                .requestMatchers(HttpMethod.POST,"/v1/users/password").authenticated()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
