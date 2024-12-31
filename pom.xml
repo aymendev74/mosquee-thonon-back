@@ -26,8 +26,8 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git://github.com/aymendev74/ton-repository.git</connection>
-        <developerConnection>scm:git:ssh://github.com/aymendev74/mosquee-thonon-back.git</developerConnection>
+        <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
+        <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
         <url>https://github.com/aymendev74/mosquee-thonon-back</url>
     </scm>
 
