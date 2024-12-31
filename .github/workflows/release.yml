@@ -55,7 +55,7 @@ jobs:
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')                                    
-          NEXT_SNAPSHOT_VERSION=$(echo RELEASE_VERSION | awk -F. '{$2+=1; print $1"."$2"-SNAPSHOT"}')              
+          NEXT_SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$2+=1; print $1"."$2"-SNAPSHOT"}')              
           mvn release:prepare -B -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEXT_SNAPSHOT_VERSION           
           #performRelease=false va permettre de skipper le déploiement vers un repo
           mvn release:perform -Dmaven.deploy.skip=true
