@@ -6,7 +6,7 @@ permissions:
 
 jobs:
 
-  release:
+  prepare release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,8 +21,8 @@ jobs:
           echo "🛠 Vérification de la branche actuelle..."
           CURRENT_BRANCH=${GITHUB_REF_NAME}
 
-          if [ "$CURRENT_BRANCH" =~ ^release-.*$ ]; then
-            echo "❌ Release non autorisée : la branche actuelle ($CURRENT_BRANCH) n'est pas une branche préparée pour des releases"
+          if ["$CURRENT_BRANCH" != "master"]; then
+            echo "❌ Prepare Release non autorisée : la branche sélectionnée ($CURRENT_BRANCH) n'est pas le 'master'"
             exit 1
           fi
 
@@ -54,7 +54,6 @@ jobs:
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')                                    
-          NEXT_SNAPSHOT_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$2+=1; print $1"."$2"-SNAPSHOT"}')              
-          mvn release:prepare -B -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEXT_SNAPSHOT_VERSION            
-          mvn release:perform
+          RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          NEXT_SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$1+=1; $2=0; print $1"."$2"-SNAPSHOT"}')              
+          mvn release:branch -DbranchName="release-$RELEASE_VERSION" -DdevelopmentVersion=$NEXT_SNAPSHOT_VERSION
