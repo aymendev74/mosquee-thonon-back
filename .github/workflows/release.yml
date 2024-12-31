@@ -21,7 +21,7 @@ jobs:
           echo "🛠 Vérification de la branche actuelle..."
           CURRENT_BRANCH=${GITHUB_REF_NAME}
 
-          if [ !["$CURRENT_BRANCH" =~ ^release-.*$] ]; then
+          if [[ ! "$CURRENT_BRANCH" =~ ^release-.*$]]; then
             echo "❌ Release non autorisée : la branche actuelle ($CURRENT_BRANCH) n'est pas une branche préparée pour des releases"
             exit 1
           fi
