@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
@@ -23,7 +23,10 @@ import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
+import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
+import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapperImpl;
+import org.mosqueethonon.v1.mapper.inscription.ResponsableLegalMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,7 +39,11 @@ public class TestInscriptionEnfantServiceImpl {
     @Mock
     private InscriptionRepository inscriptionRepository;
     @Mock
-    private InscriptionEnfantMapper inscriptionEnfantMapper;
+    private ResponsableLegalMapper responsableLegalMapper;
+    @Mock
+    private EleveMapper eleveMapper;
+    @Spy
+    private InscriptionEnfantMapper inscriptionEnfantMapper = new InscriptionEnfantMapperImpl(eleveMapper, responsableLegalMapper);
     @Mock
     private TarifCalculService tarifCalculService;
     @Mock
@@ -45,6 +52,8 @@ public class TestInscriptionEnfantServiceImpl {
     private PeriodeRepository periodeRepository;
     @Mock
     private ParamService paramService;
+    @Captor
+    private ArgumentCaptor<InscriptionEnfantEntity> inscriptionCaptor;
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
 
@@ -118,4 +127,14 @@ public class TestInscriptionEnfantServiceImpl {
         }
         return inscriptionEnfantDto;
     }
+
+    @Test
+    public void testUpdateInscriptionExpectResourceNotFoundExceptionWhenInscriptionDoesNotExist() {
+        InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        assertThrows(ResourceNotFoundException.class,
+                () -> {
+                    this.underTest.updateInscription(null, inscriptionEnfantDto, InscriptionSaveCriteria.builder().build());
+                });
+    }
+
 }
