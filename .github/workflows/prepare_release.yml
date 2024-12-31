@@ -17,7 +17,6 @@ jobs:
       - name: Validate Branch
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
-        shell: bash
         run: |
           echo "🛠 Vérification de la branche actuelle..."
           CURRENT_BRANCH=${GITHUB_REF_NAME}
