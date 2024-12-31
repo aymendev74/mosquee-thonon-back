@@ -26,6 +26,7 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
+import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,8 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private InscriptionRepository inscriptionRepository;
 
     private InscriptionEnfantMapper inscriptionEnfantMapper;
+
+    private EleveMapper eleveMapper;
 
     private TarifCalculService tarifCalculService;
 
@@ -96,10 +99,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
-        InscriptionEnfantEntity entity = this.inscriptionEnfantRepository.findById(id).orElse(null);
-        if (entity == null) {
-            throw new IllegalArgumentException("L'inscription n'a pas été trouvée !");
-        }
+        InscriptionEnfantEntity entity = this.inscriptionEnfantRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'inscription n'a pas été trouvée ! id = " + id));
         StatutInscription statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
 
