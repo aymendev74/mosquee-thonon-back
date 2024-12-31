@@ -60,7 +60,7 @@ jobs:
             # Récupère la version actuelle du pom.xml
             CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           
-            ssh -T aymendev74@github.com
+            ssh -T git@github.com
             
             # Détermine les versions
             if [[ "$CURRENT_BRANCH" == "master" ]]; then
