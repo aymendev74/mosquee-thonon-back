@@ -1,26 +1,42 @@
 on:
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: 'Branche de release (préciser uniquement la version majeure)'
-        required: true
 
 permissions:
   contents: write
 
-env:
-  RELEASE_VERSION: "${{ github.event.inputs.release_version }}.0.0"
-  RELEASE_BRANCHE: "release-${{ github.event.inputs.release_version }}.0.0"
-
 jobs:
 
-  create-release-branch:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Branch
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "🛠 Vérification de la branche actuelle..."
+          CURRENT_BRANCH=${GITHUB_REF_NAME}
+
+          if ! echo "$CURRENT_BRANCH" | grep -qE '^release-.*$'; then
+            echo "❌ Release non autorisée : la branche actuelle ($CURRENT_BRANCH) n'est pas une branche préparée pour des releases"
+            exit 1
+          fi
+
+          echo "✅ Branche valide : $CURRENT_BRANCH"
+
+      - name: Set up SSH key for GitHub
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add GitHub to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -29,27 +45,17 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Run tests
-        env: #injection de valeurs bidon pour faire tourner les tests
-          DB_PASSWORD: DB_PASSWORD
-          DB_USERNAME: DB_USERNAME
-          MAIL_SERVICE_USERNAME: MAIL_SERVICE_USERNAME
-          MAIL_SERVICE_PASSWORD: MAIL_SERVICE_PASSWORD
-        run: mvn test       
-
-      - name: Create release branch
+      - name: Configure Git
         run: |
           git config --global user.name "Aymen"
           git config --global user.email "aymen330d@hotmail.fr"
-          git checkout -b $RELEASE_BRANCHE
-          mvn versions:set -DnewVersion=$RELEASE_VERSION  
-          git add pom.xml
-          git commit -m "release branche created ==> $RELEASE_VERSION"
-          git push origin $RELEASE_BRANCHE
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create first Tag
+      - name: Perform Release
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          git tag $RELEASE_VERSION
-          git push origin $RELEASE_VERSION # on pousse le nouveau tag           
+          RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')                                    
+          NEXT_SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$2+=1; print $1"."$2"-SNAPSHOT"}')              
+          mvn release:prepare -B -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEXT_SNAPSHOT_VERSION           
+          #performRelease=false va permettre de skipper le déploiement vers un repo
+          mvn release:perform
