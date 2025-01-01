@@ -29,8 +29,7 @@
         <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
         <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
         <url>https://github.com/aymendev74/mosquee-thonon-back</url>
-      <tag>3.1-SNAPSHOT</tag>
-  </scm>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -177,6 +176,7 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <goals>install</goals>
+                    <tagNameFormat>${project.version}</tagNameFormat>
                 </configuration>
             </plugin>
         </plugins>
