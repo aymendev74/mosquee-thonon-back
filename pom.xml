@@ -25,6 +25,13 @@
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
+        <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
+        <url>https://github.com/aymendev74/mosquee-thonon-back</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
