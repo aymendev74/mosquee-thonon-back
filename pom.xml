@@ -4,7 +4,7 @@
 
     <groupId>org.mosqueethonon</groupId>
     <artifactId>mosquee-thonon-back</artifactId>
-    <version>3.1</version>
+    <version>3.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Mosquée Thonon - services</name>
@@ -177,7 +177,6 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <goals>install</goals>
-                    <tagNameFormat>${project.version}</tagNameFormat>
                 </configuration>
             </plugin>
         </plugins>
