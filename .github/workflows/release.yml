@@ -54,7 +54,9 @@ jobs:
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')                                    
-          NEXT_SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$2+=1; print $1"."$2"-SNAPSHOT"}')              
-          mvn release:prepare -B -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEXT_SNAPSHOT_VERSION           
+          # Pour l'instant on ne gère automatiquement que les release mineures
+          RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')      
+          echo "🚀 Release de la version $RELEASE_VERSION..."
+          NEXT_SNAPSHOT_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$2+=1; print $1"."$2"."$3"-SNAPSHOT"}')              
+          mvn release:prepare -X -B -DreleaseVersion="$RELEASE_VERSION" -DdevelopmentVersion="$NEXT_SNAPSHOT_VERSION"           
           mvn release:perform
