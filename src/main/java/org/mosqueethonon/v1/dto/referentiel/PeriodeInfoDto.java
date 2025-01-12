@@ -2,11 +2,13 @@ package org.mosqueethonon.v1.dto.referentiel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.mosqueethonon.configuration.APIDateFormats;
 
 import java.time.LocalDate;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class PeriodeInfoDto extends PeriodeDto {
 
     private Long id;
