@@ -1,6 +1,5 @@
 package org.mosqueethonon.configuration.oauth;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.mosqueethonon.configuration.security.ProfileProvider;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
@@ -21,7 +20,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -54,11 +52,14 @@ public class AuthorizationServerConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http, @Qualifier("corsConfigurationSource") CorsConfigurationSource corsSource) throws Exception {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults());
-        http.cors(cors -> cors.configurationSource(corsSource));
-        return http.formLogin(Customizer.withDefaults())
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
+        return http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+             .with(authorizationServerConfigurer, (authorizationServer) ->
+                    authorizationServer.oidc(Customizer.withDefaults()))
+             .authorizeHttpRequests((authorize) ->
+                        authorize.anyRequest().authenticated())
+             .cors(cors -> cors.configurationSource(corsSource))
+             .formLogin(Customizer.withDefaults())
                 .logout(Customizer.withDefaults())
                 .build();
     }
