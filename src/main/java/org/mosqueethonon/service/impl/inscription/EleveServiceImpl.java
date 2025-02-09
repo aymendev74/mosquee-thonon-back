@@ -104,4 +104,8 @@ public class EleveServiceImpl implements EleveService {
         return eleves.stream().map(eleveEnrichedMapper::fromEntityToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public EleveDto findEleveById(Long idEleve) {
+        return this.eleveRepository.findById(idEleve).map(this.eleveMapper::fromEntityToDto).orElse(null);
+    }
 }

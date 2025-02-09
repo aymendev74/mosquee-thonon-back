@@ -1,0 +1,149 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  026-createTables-bulletin
+       author:  Aymen
+       changes:
+         -  createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: ref_matiere_pkey
+                    name: idmati
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: cdmaticode
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(30)
+                - column:
+                    name: txmatilibelle
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(100)
+              tableName:  ref_matiere
+
+         - addUniqueConstraint:
+             tableName: ref_matiere
+             columnNames: cdmaticode
+             constraintName: unique_cdmaticode_constraint
+
+         - sqlFile:
+             path: db/changelog/sql/026-add-data-ref_matiere.sql
+             endDelimiter: \nGO
+
+         - createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: bulletin_pkey
+                    name: idbull
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: idelev
+                    type: BIGINT
+                - column:
+                    name: cdbullappreciation
+                    type: VARCHAR(255)
+                - column:
+                    name: nbbullabsences
+                    type: numeric
+                - column:
+                    name: nobullmois
+                    type: numeric
+                - column:
+                    name: nobullannee
+                    type: numeric
+                - column:
+                    name: oh_date_cre
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_cre
+                    type: VARCHAR(20)
+                - column:
+                    name: oh_date_mod
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_mod
+                    type: VARCHAR(20)
+              tableName:  bulletin
+
+         - createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: bulletin_matiere_pkey
+                    name: idbuma
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: idbull
+                    type: BIGINT
+                - column:
+                    name: idmati
+                    type: BIGINT
+                - column:
+                    name: cdbumanote
+                    type: VARCHAR(10)
+                - column:
+                    name: txbumaremarque
+                    type: VARCHAR(255)
+                - column:
+                    name: oh_date_cre
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_cre
+                    type: VARCHAR(20)
+                - column:
+                    name: oh_date_mod
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_mod
+                    type: VARCHAR(20)
+              tableName:  bulletin_matiere
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idelev
+             baseTableName: bulletin
+             constraintName: fk_idelev_bulletin
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idelev
+             referencedTableName: eleve
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idbull
+             baseTableName: bulletin_matiere
+             constraintName: fk_idbull_bulletin_matiere
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idbull
+             referencedTableName: bulletin
+             validate: true
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idmati
+             baseTableName: bulletin_matiere
+             constraintName: fk_idmati_bulletin_matiere
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idmati
+             referencedTableName: ref_matiere
+             validate: true
