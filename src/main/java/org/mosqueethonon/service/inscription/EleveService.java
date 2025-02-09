@@ -15,4 +15,6 @@ public interface EleveService {
 
     List<EleveEnrichedDto> findElevesEnrichedByIdClasse(Long idClasse);
 
+    EleveDto findEleveById(Long idEleve);
+
 }
