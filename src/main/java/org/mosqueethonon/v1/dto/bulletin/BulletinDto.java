@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class BulletinDto {
 
+    private Long id;
     private Long idEleve;
     private String appreciation;
     private Integer nbAbsences;

@@ -19,7 +19,7 @@ public class BulletinEntity implements Auditable {
     @Id
     @Column(name = "idbull")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idBull;
+    private Long id;
     @Column(name = "idelev")
     private Long idEleve;
     @Column(name = "cdbullappreciation")
