@@ -12,4 +12,6 @@ public interface BulletinService {
 
     BulletinDto updateBulletin(Long id, BulletinDto bulletinDto);
 
+    void deleteBulletin(Long id);
+
 }

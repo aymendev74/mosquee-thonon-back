@@ -47,4 +47,9 @@ public class BulletinServiceImpl implements BulletinService {
         bulletinMapper.updateBulletinEntity(bulletinDto, bulletinEntity);
         return bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
     }
+
+    @Override
+    public void deleteBulletin(Long id) {
+        this.bulletinRepository.deleteById(id);
+    }
 }
