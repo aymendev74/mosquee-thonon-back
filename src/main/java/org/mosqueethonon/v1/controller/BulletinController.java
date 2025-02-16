@@ -23,4 +23,10 @@ public class BulletinController {
         return ResponseEntity.ok(this.bulletinService.updateBulletin(id, bulletin));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBulletin(@PathVariable Long id) {
+        this.bulletinService.deleteBulletin(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
