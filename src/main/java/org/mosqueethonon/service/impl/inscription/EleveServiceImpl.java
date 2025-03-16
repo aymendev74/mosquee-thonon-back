@@ -38,7 +38,8 @@ public class EleveServiceImpl implements EleveService {
     @Override
     public List<EleveDto> findElevesByCriteria(SearchEleveCriteria criteria) {
         // On récupère tous les élèves de la période scolaire
-        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin());
+        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin(),
+                criteria.isAvecNiveau());
         if (eleves.isEmpty()) {
             return List.of();
         }
