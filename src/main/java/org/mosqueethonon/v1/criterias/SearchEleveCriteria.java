@@ -9,5 +9,6 @@ public class SearchEleveCriteria {
     private Integer anneeDebut;
     private Integer anneeFin;
     private AffectationEleveEnum affectation;
+    private boolean avecNiveau;
 
 }
