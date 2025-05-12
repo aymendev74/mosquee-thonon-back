@@ -11,6 +11,7 @@ import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.*;
+import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -34,6 +35,9 @@ public class ControllerTest {
 
     @Autowired
     private ParamRepository paramRepository;
+
+    @Autowired
+    protected InscriptionOrchestratorService inscriptionOrchestratorService;
 
     @BeforeAll
     protected void initReferentiel() {

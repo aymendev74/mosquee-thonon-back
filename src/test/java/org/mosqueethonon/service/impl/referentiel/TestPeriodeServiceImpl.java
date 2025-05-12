@@ -113,7 +113,7 @@ public class TestPeriodeServiceImpl {
 
         // Assert
         assertNotNull(result);
-        verify(periodeRepository, times(2)).findById(id);
+        verify(periodeRepository).findById(id);
     }
 
     @Test
@@ -167,5 +167,53 @@ public class TestPeriodeServiceImpl {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("OVERLAP", result.getErrorCode());
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_Updated() {
+        // Given
+        Long idPeriode = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(idPeriode);
+        periodeEntity.setNbMaxInscription(10);
+        Integer nbElevesInscrits = 15;
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.of(periodeEntity));
+        when(inscriptionEnfantService.getNbElevesInscritsByIdPeriode(idPeriode)).thenReturn(nbElevesInscrits);
+
+        // When
+        periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+
+        // Then
+        assertEquals(nbElevesInscrits, periodeEntity.getNbMaxInscription());
+        verify(periodeRepository, times(1)).save(periodeEntity);
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_NoUpdate() {
+        Long idPeriode = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(idPeriode);
+        periodeEntity.setNbMaxInscription(10);
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.of(periodeEntity));
+        when(inscriptionEnfantService.getNbElevesInscritsByIdPeriode(idPeriode)).thenReturn(8);
+
+        // When
+        periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+
+        // Then
+        assertEquals(10, periodeEntity.getNbMaxInscription());
+        verify(periodeRepository, times(0)).save(periodeEntity);
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_PeriodNotFound() {
+        // Given
+        Long idPeriode = 1L;
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+        });
     }
 }

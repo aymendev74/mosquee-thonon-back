@@ -10,6 +10,8 @@ import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.enums.NiveauInterneEnum;
+
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -52,5 +54,20 @@ public class ClasseEntity implements Auditable {
     private String nomPrenomEnseignant;
     @Embedded
     private Signature signature;
+
+    /**
+     * Getter personnalisé car on veut toujours trier la liste des élèves par ordre alphabetique
+     * @return
+     */
+    public List<LienClasseEleveEntity> getLiensClasseEleves() {
+        if (liensClasseEleves != null) {
+            liensClasseEleves.sort(Comparator.comparing(
+                    (LienClasseEleveEntity l) -> l.getEleve().getNom(), Comparator.nullsLast(String::compareToIgnoreCase)
+            ).thenComparing(
+                    l -> l.getEleve().getPrenom(), Comparator.nullsLast(String::compareToIgnoreCase)
+            ));
+        }
+        return liensClasseEleves;
+    }
 
 }

@@ -26,7 +26,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootTest
@@ -70,13 +73,30 @@ public class InscriptionEnfantControllerTest extends ControllerTest {
 
         // Puis on va vérifier que 510 inscriptions ont bien été enregistrés dont 10 avec statut en attente
         List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
-        assertEquals(510, allInscriptions.size());
+        assertInscriptionsAttentes(allInscriptions,  10);
+
+        // Puis on va supprimer 5 inscriptions provisoires pour forcer la mise à jour de la liste d'attente
+        Set<Long> inscriptionsASupprimer = new HashSet<>();
+        for(InscriptionEnfantEntity inscription : allInscriptions) {
+            if(inscriptionsASupprimer.size() == 5) break;
+            if(inscription.getStatut() == StatutInscription.PROVISOIRE) {
+                inscriptionsASupprimer.add(inscription.getId());
+            }
+        }
+        this.inscriptionOrchestratorService.deleteInscriptions(inscriptionsASupprimer);
+        // Puis on va vérifier que 500 inscriptions sont bien toujours provisoires 5 sont en attentes
+        allInscriptions = this.inscriptionEnfantRepository.findAll();
+        assertInscriptionsAttentes(allInscriptions, 5);
+    }
+
+    private void assertInscriptionsAttentes(List<InscriptionEnfantEntity> allInscriptions, Integer nbEnAttente) {
+        assertEquals(500 + nbEnAttente, allInscriptions.size());
         Long nbInscriptionEnAttente = allInscriptions.stream().filter(inscription ->
                 inscription.getStatut() == StatutInscription.LISTE_ATTENTE).count();
         Long nbInscriptionProvisoire = allInscriptions.stream().filter(inscription ->
                 inscription.getStatut() == StatutInscription.PROVISOIRE).count();
         assertEquals(500, nbInscriptionProvisoire);
-        assertEquals(10, nbInscriptionEnAttente);
+        assertEquals(Long.valueOf(nbEnAttente), nbInscriptionEnAttente);
     }
 
     private InscriptionEnfantDto createInscription() {

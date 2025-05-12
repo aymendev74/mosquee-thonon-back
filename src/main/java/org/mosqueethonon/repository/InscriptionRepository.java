@@ -49,4 +49,11 @@ public interface InscriptionRepository extends JpaRepository<InscriptionEntity, 
     EleveEntity findFirstEleveByNomPrenomDateNaissanceIdPeriode(@Param("nom") String nom, @Param("prenom") String prenom, @Param("dateNaissance") LocalDate dateNaissance,
                                               @Param("idPeriode") Long idPeriode);
 
+    @Query(value = "select distinct p.idperi from moth.inscription i "
+            + "inner join moth.eleve e on e.idinsc = i.idinsc "
+            + "inner join moth.tarif t on t.idtari = e.idtari "
+            + "inner join moth.periode p on p.idperi = t.idperi "
+            + "where i.idinsc = :idInscription", nativeQuery = true)
+    Long getIdPeriodeByIdInscription(Long idInscription);
+
 }

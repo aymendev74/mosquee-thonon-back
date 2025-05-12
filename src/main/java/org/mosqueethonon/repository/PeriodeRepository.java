@@ -15,11 +15,6 @@ public interface PeriodeRepository extends JpaRepository<PeriodeEntity, Long> {
 
     List<PeriodeEntity> findByApplication(String application);
 
-    @Query(value = "select p from PeriodeEntity p "
-            + "where p.dateDebut <= :atDate and p.dateFin >= :atDate " +
-            "and p.application = 'COURS'")
-    PeriodeEntity findPeriodeCoursAtDate(LocalDate atDate);
-
     PeriodeEntity findFirstByApplicationOrderByDateDebutDesc(String application);
 
 }

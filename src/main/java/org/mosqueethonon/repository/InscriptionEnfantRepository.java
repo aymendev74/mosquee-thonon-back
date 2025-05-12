@@ -30,10 +30,11 @@ public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEn
             + "join t.periode p "
             + "where :atDate between p.dateDebut and p.dateFin "
             + "and i.statut in ('VALIDEE', 'PROVISOIRE', 'LISTE_ATTENTE') "
-            + "and e.prenom = :prenom and e.nom = :nom "
+            + "and e.prenom = :prenom and e.nom = :nom and e.dateNaissance = :dateNaissance "
             + "and i.type = 'ENFANT' "
             + "and i.id <> coalesce(:excludedInscription, -1)")
-    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDate atDate, Long excludedInscription);
+    List<InscriptionEnfantEntity> findInscriptionsWithEleve(String prenom, String nom, LocalDate dateNaissance,
+                                                            LocalDate atDate, Long excludedInscription);
 
 
     @Query(value = "select max(noinscpositionattente) from moth.inscription i "
