@@ -100,7 +100,7 @@ public class EleveServiceImpl implements EleveService {
 
     @Override
     public List<EleveEnrichedDto> findElevesEnrichedByIdClasse(Long idClasse) {
-        List<EleveEnrichedEntity> eleves = this.eleveEnrichedRepository.findByIdClasse(idClasse);
+        List<EleveEnrichedEntity> eleves = this.eleveEnrichedRepository.findByIdClasseOrderByNomAscPrenomAsc(idClasse);
         return eleves.stream().map(eleveEnrichedMapper::fromEntityToDto).collect(Collectors.toList());
     }
 

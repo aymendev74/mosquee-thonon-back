@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
-import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
-import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
 import org.mosqueethonon.enums.NiveauInterneEnum;
@@ -26,25 +24,17 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
-import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -58,13 +48,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private InscriptionEnfantMapper inscriptionEnfantMapper;
 
-    private EleveMapper eleveMapper;
-
     private TarifCalculService tarifCalculService;
 
     private MailingConfirmationRepository mailingConfirmationRepository;
-
-    private PeriodeRepository periodeRepository;
 
     private ParamService paramService;
 
@@ -103,8 +89,8 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         StatutInscription statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
 
-        this.checkStatutInscription(entity, statutActuel);
         this.doCalculTarifInscription(entity);
+        this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
@@ -127,7 +113,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         // Si pas réinscription alors soit on est en PROVISOIRE ou alors LISTE_ATTENTE
         if (isListeAttente) {
             inscription.setStatut(StatutInscription.LISTE_ATTENTE);
-            inscription.setNoPositionAttente(this.calculPositionAttente());
+            inscription.setNoPositionAttente(this.calculPositionAttente(inscription));
         } else {
             inscription.setStatut(StatutInscription.PROVISOIRE);
         }
@@ -147,7 +133,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             case VALIDEE:
             case REFUSE:
                 if (inscription.getStatut() == StatutInscription.LISTE_ATTENTE) {
-                    inscription.setNoPositionAttente(this.calculPositionAttente());
+                    inscription.setNoPositionAttente(this.calculPositionAttente(inscription));
                 }
                 break;
             default:
@@ -206,8 +192,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         return tarifBase.add(tarifEleve.multiply(BigDecimal.valueOf(nbEleves))).setScale(0, RoundingMode.HALF_UP);
     }
 
-    private Integer calculPositionAttente() {
-        Integer lastPosition = this.inscriptionEnfantRepository.getLastPositionAttente(LocalDate.now());
+    private Integer calculPositionAttente(InscriptionEnfantEntity inscription) {
+        LocalDate dateRefInscription = inscription.getDateInscription() != null ? inscription.getDateInscription().toLocalDate() : LocalDate.now();
+        Integer lastPosition = this.inscriptionEnfantRepository.getLastPositionAttente(dateRefInscription);
         return lastPosition != null ? ++lastPosition : 1;
     }
 
@@ -250,7 +237,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             for (EleveDto eleve : inscriptionEnfantDto.getEleves()) {
                 if (eleve.getPrenom() != null && eleve.getNom() != null) {
                     List<InscriptionEnfantEntity> matchedInscriptions = this.inscriptionEnfantRepository.findInscriptionsWithEleve(eleve.getPrenom(),
-                            eleve.getNom(), atDate.toLocalDate(), idInscription);
+                            eleve.getNom(), eleve.getDateNaissance(), atDate.toLocalDate(), idInscription);
                     if (!CollectionUtils.isEmpty(matchedInscriptions)) {
                         return Incoherences.ELEVE_ALREADY_EXISTS;
                     }
@@ -268,37 +255,31 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     @Override
-    public Integer getLastPositionAttenteByPeriode(Long idPeriode) {
-        return this.inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
-    }
-
-    @Override
     public Integer getNbElevesInscritsByIdPeriode(Long idPeriode) {
         return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ENFANT.name());
     }
 
     @Override
-    public List<InscriptionEnfantDto> getInscriptionEnAttenteByPeriode(Long idPeriode) {
-        List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(idPeriode);
-        if (!CollectionUtils.isEmpty(inscriptionsEnAttente)) {
-            return inscriptionsEnAttente.stream().map(this.inscriptionEnfantMapper::fromEntityToDto).collect(Collectors.toList());
-        }
-        return List.of();
-    }
-
-    @Override
-    public List<InscriptionEnfantDto> updateInscriptions(List<InscriptionEnfantDto> inscriptions) {
-        List<InscriptionEnfantDto> updatedInscriptions = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(inscriptions)) {
-            for(InscriptionEnfantDto inscription : inscriptions) {
-                Assert.notNull(inscription.getId(), "L'inscription doit avoir un id !");
-                InscriptionEnfantEntity inscriptionEntity = this.inscriptionEnfantRepository.findById(inscription.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("L'inscription n'a pas été trouvée ! id = " + inscription.getId()));
-                this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, inscriptionEntity);
-                inscriptionEntity = this.inscriptionEnfantRepository.save(inscriptionEntity);
-                updatedInscriptions.add(this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEntity));
+    public void updateListeAttente(Long idPeriode, Integer nbMaxInscriptions) {
+        Integer lastPositionAttente = this.inscriptionEnfantRepository.getLastPositionAttente(idPeriode);
+        if (lastPositionAttente != null) {
+            Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ENFANT.name());
+            if (nbMaxInscriptions != null && nbElevesInscrits < nbMaxInscriptions) {
+                List<InscriptionEnfantEntity> inscriptionsEnAttente = this.inscriptionEnfantRepository.getInscriptionEnAttenteByPeriode(idPeriode);
+                int nbPlacesDisponibles = nbMaxInscriptions - nbElevesInscrits;
+                for (InscriptionEnfantEntity inscriptionEnAttente : inscriptionsEnAttente) {
+                    int nbEleveInscription = inscriptionEnAttente.getEleves().size();
+                    if (nbEleveInscription <= nbPlacesDisponibles) {
+                        // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
+                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
+                        nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
+                    }
+                    if (nbPlacesDisponibles == 0) {
+                        break;
+                    }
+                }
+                this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
             }
         }
-        return updatedInscriptions;
     }
 }

@@ -22,7 +22,6 @@ import java.util.*;
 public class InscriptionServiceImpl implements InscriptionService {
 
     private InscriptionRepository inscriptionRepository;
-    private InscriptionEnfantService inscriptionEnfantService;
     private PeriodeService periodeService;
 
     @Transactional
@@ -54,6 +53,8 @@ public class InscriptionServiceImpl implements InscriptionService {
                 }
             }
         }
+        Long idPeriode = this.inscriptionRepository.getIdPeriodeByIdInscription(inscription.getId());
+        this.periodeService.updateNbMaxElevesIfNeeded(idPeriode);
         this.inscriptionRepository.save(inscription);
         return id;
     }
@@ -61,19 +62,17 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
-        List<InscriptionEntity> inscriptions = this.inscriptionRepository.findAllById(ids);
-        List<InscriptionEntity> inscriptionsEnfants = inscriptions.stream().filter(i -> i.getType().equals("ENFANT")).toList();
         this.inscriptionRepository.deleteAllById(ids);
-        // Maintenant que des inscriptions ont été supprimés, il faut aller voir si des inscriptions sont en liste d'attente et
-        // les changer de statut => provisoire
-        if(!CollectionUtils.isEmpty(inscriptionsEnfants)) { // uniquement si inscription enfant, car pas de liste d'attente pour les adultes
-            Set<Long> idsPeriodes = new HashSet<>();
-            for(InscriptionEntity inscription : inscriptions) {
-                idsPeriodes.add(inscription.getEleves().get(0).getTarif().getPeriode().getId());
-            }
-            idsPeriodes.forEach(this.periodeService::updateListeAttente);
-        }
         return ids;
     }
 
+    @Override
+    public Long getIdPeriodeByIdInscription(Long idInscription) {
+        return this.inscriptionRepository.getIdPeriodeByIdInscription(idInscription);
+    }
+
+    @Override
+    public InscriptionEntity findInscriptionById(Long id) {
+        return this.inscriptionRepository.findById(id).orElse(null);
+    }
 }
