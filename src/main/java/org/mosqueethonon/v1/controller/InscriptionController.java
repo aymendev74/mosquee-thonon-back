@@ -1,8 +1,10 @@
 package org.mosqueethonon.v1.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AllArgsConstructor;
 import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionLightService;
+import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
@@ -15,16 +17,16 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/v1/inscriptions")
 public class InscriptionController {
 
-    @Autowired
     private InscriptionLightService inscriptionLightService;
 
-    @Autowired
     private InscriptionService inscriptionService;
 
-    @Autowired
+    private InscriptionOrchestratorService inscriptionOrchestratorService;
+
     private LockManager lockManager;
 
     @GetMapping
@@ -52,7 +54,7 @@ public class InscriptionController {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            ids = this.inscriptionService.deleteInscriptions(ids);
+            ids = this.inscriptionOrchestratorService.deleteInscriptions(ids);
         } finally {
             lock.unlock();
         }

@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface EleveEnrichedRepository extends JpaRepository<EleveEnrichedEntity, Long> {
 
-    List<EleveEnrichedEntity> findByIdClasse(Long idClasse);
+    List<EleveEnrichedEntity> findByIdClasseOrderByNomAscPrenomAsc(Long idClasse);
 
 }

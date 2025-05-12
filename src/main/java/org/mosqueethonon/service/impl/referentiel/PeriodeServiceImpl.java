@@ -2,10 +2,8 @@ package org.mosqueethonon.service.impl.referentiel;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
-import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
@@ -23,7 +21,6 @@ import org.mosqueethonon.v1.mapper.referentiel.PeriodeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +72,9 @@ public class PeriodeServiceImpl implements PeriodeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
         this.periodeMapper.mapDtoToEntity(periode, periodeEntity);
         periodeEntity = this.periodeRepository.save(periodeEntity);
-        this.updateListeAttente(periodeEntity.getId());
+        if(APPLICATION_COURS_ENFANT.equals(periode.getApplication())) {
+            this.inscriptionEnfantService.updateListeAttente(periodeEntity.getId(), periodeEntity.getNbMaxInscription());
+        }
         return this.periodeMapper.fromEntityToDto(periodeEntity);
     }
 
@@ -139,28 +138,24 @@ public class PeriodeServiceImpl implements PeriodeService {
         return !optPeriodeOverlaps.isPresent();
     }
 
+    /**
+     * Met à jour le nombre maximum d'élèves sur la période si besoin
+     * Nécessaire surtout lorsque des inscriptions sont validées après avoir été en attentes
+     * Permet de conserver une cohérence entre le nombre maximum d'élèves et le nombre d'élèves inscrits
+     * @param idPeriode
+     */
     @Override
-    public void updateListeAttente(Long idPeriode) {
+    public void updateNbMaxElevesIfNeeded(Long idPeriode) {
         PeriodeEntity periode = this.periodeRepository.findById(idPeriode).orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + idPeriode));
-        Integer lastPositionAttente = this.inscriptionEnfantService.getLastPositionAttenteByPeriode(idPeriode);
-        if (lastPositionAttente != null) {
-            Integer nbElevesInscrits = this.inscriptionEnfantService.getNbElevesInscritsByIdPeriode(periode.getId());
-            if (periode.getNbMaxInscription() != null && nbElevesInscrits < periode.getNbMaxInscription()) {
-                List<InscriptionEnfantDto> inscriptionsEnAttente = this.inscriptionEnfantService.getInscriptionEnAttenteByPeriode(periode.getId());
-                int nbPlacesDisponibles = periode.getNbMaxInscription() - nbElevesInscrits;
-                for (InscriptionEnfantDto inscriptionEnAttente : inscriptionsEnAttente) {
-                    int nbEleveInscription = inscriptionEnAttente.getEleves().size();
-                    if (nbEleveInscription <= nbPlacesDisponibles) {
-                        // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
-                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
-                        nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
-                    }
-                    if (nbPlacesDisponibles == 0) {
-                        break;
-                    }
-                }
-                this.inscriptionEnfantService.updateInscriptions(inscriptionsEnAttente);
-            }
+        Integer nbElevesInscrits = this.inscriptionEnfantService.getNbElevesInscritsByIdPeriode(periode.getId());
+        if (periode.getNbMaxInscription() != null && nbElevesInscrits > periode.getNbMaxInscription()) {
+            periode.setNbMaxInscription(nbElevesInscrits);
+            this.periodeRepository.save(periode);
         }
+    }
+
+    @Override
+    public PeriodeEntity findPeriodeById(Long id) {
+        return this.periodeRepository.findById(id).orElse(null);
     }
 }
