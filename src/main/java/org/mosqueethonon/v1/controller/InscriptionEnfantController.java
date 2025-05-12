@@ -1,7 +1,9 @@
 package org.mosqueethonon.v1.controller;
 
+import lombok.AllArgsConstructor;
 import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
+import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.locks.Lock;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/v1/inscriptions-enfants")
 public class InscriptionEnfantController {
 
-    @Autowired
     private InscriptionEnfantService inscriptionEnfantService;
 
-    @Autowired
+    private InscriptionOrchestratorService inscriptionOrchestratorService;
+
     private LockManager lockManager;
 
     @PostMapping
@@ -39,7 +42,7 @@ public class InscriptionEnfantController {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            inscription = this.inscriptionEnfantService.updateInscription(id, inscription, criteria);
+            inscription = this.inscriptionOrchestratorService.updateInscription(id, inscription, criteria);
         } finally {
             lock.unlock();
         }

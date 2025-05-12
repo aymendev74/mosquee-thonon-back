@@ -120,8 +120,6 @@ public class TestInscriptionServiceImpl {
         inscription2.setType("ADULTE");
         inscription2.setEleves(eleves);
 
-        when(inscriptionRepository.findAllById(ids)).thenReturn(List.of(inscription1, inscription2));
-
         // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
 
@@ -131,7 +129,6 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
-        verify(periodeService).updateListeAttente(Mockito.eq(1L));
     }
 
     @Test
@@ -146,8 +143,6 @@ public class TestInscriptionServiceImpl {
         inscription2.setId(2L);
         inscription2.setType("ADULTE");
 
-        when(inscriptionRepository.findAllById(ids)).thenReturn(List.of(inscription1, inscription2));
-
         // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
 
@@ -157,6 +152,5 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
-        verify(periodeService, never()).updateListeAttente(Mockito.any()); // Vérifie que la méthode n'est pas appelée
     }
 }

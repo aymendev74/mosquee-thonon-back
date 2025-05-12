@@ -1,5 +1,7 @@
 package org.mosqueethonon.v1.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.v1.dto.param.ParamDto;
 import org.mosqueethonon.v1.dto.param.ParamsDto;
@@ -23,7 +25,7 @@ public class ParamController {
     }
 
     @GetMapping
-    public ResponseEntity<ParamsDto> getParams() {
+    public ResponseEntity<ParamsDto> getParams(HttpServletRequest request) {
         ParamsDto paramsDto = this.paramService.getParams();
         return ResponseEntity.ok(paramsDto);
     }

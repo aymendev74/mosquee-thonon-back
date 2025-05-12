@@ -38,7 +38,8 @@ public class EleveServiceImpl implements EleveService {
     @Override
     public List<EleveDto> findElevesByCriteria(SearchEleveCriteria criteria) {
         // On récupère tous les élèves de la période scolaire
-        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin());
+        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getAnneeDebut(), criteria.getAnneeFin(),
+                criteria.isAvecNiveau());
         if (eleves.isEmpty()) {
             return List.of();
         }
@@ -99,7 +100,7 @@ public class EleveServiceImpl implements EleveService {
 
     @Override
     public List<EleveEnrichedDto> findElevesEnrichedByIdClasse(Long idClasse) {
-        List<EleveEnrichedEntity> eleves = this.eleveEnrichedRepository.findByIdClasse(idClasse);
+        List<EleveEnrichedEntity> eleves = this.eleveEnrichedRepository.findByIdClasseOrderByNomAscPrenomAsc(idClasse);
         return eleves.stream().map(eleveEnrichedMapper::fromEntityToDto).collect(Collectors.toList());
     }
 

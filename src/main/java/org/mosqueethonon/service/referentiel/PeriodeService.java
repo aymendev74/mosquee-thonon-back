@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.referentiel;
 
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeValidationResultDto;
@@ -16,6 +17,8 @@ public interface PeriodeService {
 
     PeriodeDto updatePeriode(Long id, PeriodeDto periode);
 
-    void updateListeAttente(Long idPeriode);
+    void updateNbMaxElevesIfNeeded(Long idPeriode);
+
+    PeriodeEntity findPeriodeById(Long id);
 
 }

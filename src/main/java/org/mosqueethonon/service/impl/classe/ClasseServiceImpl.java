@@ -42,7 +42,7 @@ public class ClasseServiceImpl implements IClasseService {
     @Transactional
     public void createClasses(CreateClasseCriteria criteria) {
         // Récupérer tous les élèves inscrits durant la période scolaire
-        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getDebutAnneeScolaire(), criteria.getFinAnneeScolaire());
+        List<EleveEntity> eleves = this.eleveRepository.findElevesEnfantByAnneeScolaire(criteria.getDebutAnneeScolaire(), criteria.getFinAnneeScolaire(), true);
         if(eleves.isEmpty()) {
             return;
         }
@@ -151,7 +151,9 @@ public class ClasseServiceImpl implements IClasseService {
     @Transactional
     public ClasseDto createClasse(ClasseDto classe) {
         ClasseEntity classeEntity = this.classeMapper.fromDtoToEntity(classe);
+        this.syncNiveauEleves(classeEntity);
         classeEntity = this.classeRepository.save(classeEntity);
+        // Les élèves qui n'ont pas niveaux vont se voir attribuer le niveau de la classe
         this.syncOtherClasses(classeEntity);
         return this.classeMapper.fromEntityToDto(classeEntity);
     }
@@ -164,6 +166,7 @@ public class ClasseServiceImpl implements IClasseService {
             throw new ResourceNotFoundException("La classe n'a pas été trouvée, id = " + id);
         }
         this.classeMapper.updateClasseEntity(classe, classeEntity);
+        this.syncNiveauEleves(classeEntity);
         classeEntity = this.classeRepository.save(classeEntity);
         this.syncOtherClasses(classeEntity);
         return this.classeMapper.fromEntityToDto(classeEntity);
@@ -183,6 +186,17 @@ public class ClasseServiceImpl implements IClasseService {
             boolean removed = otherClasse.getLiensClasseEleves().removeIf(lienClasseEleve -> idEleves.contains(lienClasseEleve.getEleve().getId()));
             if(removed) {
                 this.classeRepository.save(otherClasse);
+            }
+        }
+    }
+
+    private void syncNiveauEleves(ClasseEntity classeEntity) {
+        for(LienClasseEleveEntity lienClasseEleve : classeEntity.getLiensClasseEleves()) {
+            EleveEntity eleve = this.eleveRepository.findById(lienClasseEleve.getEleve().getId()).orElseThrow(
+                    () -> new ResourceNotFoundException("L'eleve n'a pas été trouvée, id = " + lienClasseEleve.getEleve().getId()));
+            if(eleve.getNiveauInterne() == null) {
+                eleve.setNiveauInterne(classeEntity.getNiveau());
+                this.eleveRepository.save(eleve);
             }
         }
     }
