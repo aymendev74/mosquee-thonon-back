@@ -112,9 +112,9 @@ public class AuthorizationServerConfig {
     private String getRedirectURI() {
         String activeProfile = profileProvider.getActiveProfile();
         return switch (activeProfile) {
-            case DEVELOPMENT, TEST  -> "http://localhost:3000/admin";
-            case PRODUCTION -> "https://www.inscription-amc.fr/admin";
-            case STAGING -> "https://www.staging.inscription-amc.fr/admin";
+            case DEVELOPMENT, TEST  -> "http://localhost:3000/login";
+            case PRODUCTION -> "https://www.inscription-amc.fr/login";
+            case STAGING -> "https://www.staging.inscription-amc.fr/login";
             default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
         };
     }
