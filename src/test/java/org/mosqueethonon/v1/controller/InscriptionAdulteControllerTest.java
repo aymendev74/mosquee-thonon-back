@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mosqueethonon.Application;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
@@ -24,7 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")

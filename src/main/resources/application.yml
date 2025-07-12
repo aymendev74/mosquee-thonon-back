@@ -49,3 +49,13 @@ spring:
             matching-strategy: ant_path_matcher
 scheduled:
     confirmation-mail: 1 # unit = minutes
+
+app:
+    token-uri: ${TOKEN_URI}
+
+auth:
+    cookie:
+        secure: ${COOKIE_SECURE}
+        path: /api
+        name: MOTH-TOKEN
+        same-site: Lax

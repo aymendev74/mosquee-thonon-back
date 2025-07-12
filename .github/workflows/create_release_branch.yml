@@ -53,6 +53,12 @@ jobs:
       - name: Perform Release
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          DB_PASSWORD: DB_PASSWORD
+          DB_USERNAME: DB_USERNAME
+          MAIL_SERVICE_USERNAME: MAIL_SERVICE_USERNAME
+          MAIL_SERVICE_PASSWORD: MAIL_SERVICE_PASSWORD
+          TOKEN_URI: TOKEN_URI
+          COOKIE_SECURE: false
         run: |
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           BRANCH_NAME_SUFFIX=$(echo $RELEASE_VERSION | awk -F. '{print $1".x"}')

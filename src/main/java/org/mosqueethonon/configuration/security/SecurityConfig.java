@@ -19,11 +19,13 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -51,6 +53,8 @@ public class SecurityConfig {
 
     private UserService userService;
 
+    private JwtCookieFilter jwtCookieFilter;
+
     private static final String[] AUTH_WHITE_LIST = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -76,16 +80,21 @@ public class SecurityConfig {
                 .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
-                .requestMatchers(HttpMethod.GET,"/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/token").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/logout").permitAll()
                 .requestMatchers(HttpMethod.POST,"/v1/users/password").authenticated()
                 .requestMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .formLogin(login -> login.loginPage("/login").successHandler(loginSuccessHandler()).permitAll())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
-                .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID")
+                .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID", "MOTH-TOKEN")
                         .logoutSuccessHandler(logoutSuccessHandler())
                         .permitAll());
+
+        http.addFilterBefore(jwtCookieFilter, BearerTokenAuthenticationFilter.class);
+
         return http.build();
     }
 
