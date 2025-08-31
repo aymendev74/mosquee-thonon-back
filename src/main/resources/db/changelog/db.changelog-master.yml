@@ -925,4 +925,6 @@ databaseChangeLog:
             tableName: tarif
 
   - includeAll:
-      path: db/changelog/2024
+      - path: db/changelog/2024
+  - includeAll:
+      - path: db/changelog/2025
