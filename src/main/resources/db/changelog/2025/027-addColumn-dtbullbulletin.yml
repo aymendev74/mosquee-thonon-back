@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 027-addColumn-dtbullbulletin
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: bulletin
+            columns:
+              - column:
+                  name: dtbullbulletin
+                  type: date
+                  constraints:
+                    nullable: false

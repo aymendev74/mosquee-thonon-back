@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.Signature;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -30,6 +31,8 @@ public class BulletinEntity implements Auditable {
     private Integer mois;
     @Column(name = "nobullannee")
     private Integer annee;
+    @Column(name = "dtbullbulletin")
+    private LocalDate dateBulletin;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idbull", nullable = false)
     private List<BulletinMatiereEntity> bulletinMatieres;
