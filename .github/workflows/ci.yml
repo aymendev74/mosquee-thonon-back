@@ -52,6 +52,9 @@ jobs:
         COOKIE_SECURE: false
         ALLOWED_ORIGINS: http://localhost:3000
         LOGOUT_REDIRECT_URI: http://localhost:3000
+        LOGIN_REDIRECT_URI: http://localhost:3000/login
+        ISSUER_URI: http://localhost
+        JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
       run: mvn -B package --file pom.xml
     - name: Upload artifact
       uses: actions/upload-artifact@v4

@@ -60,6 +60,9 @@ jobs:
           TOKEN_URI: TOKEN_URI
           ALLOWED_ORIGINS: http://localhost:3000
           LOGOUT_REDIRECT_URI: http://localhost:3000
+          LOGIN_REDIRECT_URI: http://localhost:3000/login
+          ISSUER_URI: http://localhost
+          JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
           COOKIE_SECURE: false
         run: |
           # Pour l'instant on ne gère automatiquement que les release mineures

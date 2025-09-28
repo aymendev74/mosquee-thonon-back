@@ -61,6 +61,9 @@ jobs:
           COOKIE_SECURE: false
           ALLOWED_ORIGINS: http://localhost:3000
           LOGOUT_REDIRECT_URI: http://localhost:3000
+          LOGIN_REDIRECT_URI: http://localhost:3000/login
+          ISSUER_URI: http://localhost
+          JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
         run: |
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           BRANCH_NAME_SUFFIX=$(echo $RELEASE_VERSION | awk -F. '{print $1".x"}')
