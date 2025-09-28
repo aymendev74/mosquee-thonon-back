@@ -1,0 +1,90 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  028-createTables-insc-adultes-types-cours
+       author:  Aymen
+       changes:
+         -  createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: ref_traduction_pkey
+                    name: idtrad
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: cdtradcle
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(50)
+                - column:
+                    name: cdtradvaleur
+                    constraints:
+                      nullable: false
+                    type: VARCHAR(50)
+                - column:
+                    name: txtradfr
+                    constraints:
+                      nullable: false
+                    type: text
+              tableName:  ref_traduction
+
+         - dropColumn:
+             columnName: txmatilibelle
+             tableName: ref_matiere
+
+         - addColumn:
+             tableName: ref_matiere
+             columns:
+               - column:
+                   name: cdmatitype
+                   type: VARCHAR(20)
+
+         - sqlFile:
+             path: db/changelog/sql/028-add-data-ref_traduction-ref_matiere.sql
+             endDelimiter: \nGO
+
+         - createTable:
+              columns:
+                - column:
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                      primaryKeyName: inscription_matiere_pkey
+                    name: idinma
+                    startWith: 1
+                    type: BIGINT
+                - column:
+                    name: idinsc
+                    type: BIGINT
+                - column:
+                    name: idmati
+                    type: BIGINT
+                - column:
+                    name: oh_date_cre
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_cre
+                    type: VARCHAR(20)
+                - column:
+                    name: oh_date_mod
+                    type: TIMESTAMP WITHOUT TIME ZONE
+                - column:
+                    name: oh_vis_mod
+                    type: VARCHAR(20)
+              tableName:  inscription_matiere
+
+         - addForeignKeyConstraint:
+             baseColumnNames: idinsc
+             baseTableName: inscription_matiere
+             constraintName: fk_idinsc_inscription_matiere
+             deferrable: false
+             initiallyDeferred: false
+             onDelete: NO ACTION
+             onUpdate: NO ACTION
+             referencedColumnNames: idinsc
+             referencedTableName: inscription
+             validate: true

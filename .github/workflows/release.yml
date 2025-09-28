@@ -58,6 +58,8 @@ jobs:
           MAIL_SERVICE_USERNAME: MAIL_SERVICE_USERNAME
           MAIL_SERVICE_PASSWORD: MAIL_SERVICE_PASSWORD
           TOKEN_URI: TOKEN_URI
+          ALLOWED_ORIGINS: http://localhost:3000
+          LOGOUT_REDIRECT_URI: http://localhost:3000
           COOKIE_SECURE: false
         run: |
           # Pour l'instant on ne gère automatiquement que les release mineures

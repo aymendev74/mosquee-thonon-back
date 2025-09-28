@@ -3,19 +3,27 @@ package org.mosqueethonon.service.impl.bulletin;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.bulletin.BulletinEntity;
+import org.mosqueethonon.entity.bulletin.BulletinMatiereEntity;
+import org.mosqueethonon.entity.referentiel.MatiereEntity;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
 import org.mosqueethonon.service.inscription.EleveService;
+import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
+import org.mosqueethonon.v1.dto.bulletin.BulletinMatiereDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.mapper.bulletin.BulletinMapper;
+import org.mosqueethonon.v1.mapper.bulletin.BulletinMatiereMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +38,12 @@ public class TestBulletinServiceImpl {
 
     @Mock
     private EleveService eleveService;
+
+    @Mock
+    private MatiereService matiereService;
+
+    @Mock
+    private BulletinMatiereMapper bulletinMatiereMapper;
 
     @InjectMocks
     private BulletinServiceImpl bulletinService;
@@ -64,16 +78,22 @@ public class TestBulletinServiceImpl {
     public void testUpdateBulletin() {
         // GIVEN
         BulletinDto bulletinDto = new BulletinDto();
+        BulletinMatiereDto bulletinMatiereDto = BulletinMatiereDto.builder().code(MatiereEnum.TAFFSIR_CORAN).build();
+        bulletinDto.setBulletinMatieres(Lists.newArrayList(bulletinMatiereDto));
         BulletinEntity bulletinEntity = new BulletinEntity();
+        bulletinEntity.setBulletinMatieres(new ArrayList<>());
         when(this.bulletinRepository.findById(eq(1L))).thenReturn(Optional.of(bulletinEntity));
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(bulletinDto);
+        when(this.matiereService.findByCode(eq(MatiereEnum.TAFFSIR_CORAN))).thenReturn(Optional.of(new MatiereEntity()));
+        when(this.bulletinMatiereMapper.fromDtoToEntity(any())).thenReturn(new BulletinMatiereEntity());
 
         // WHEN
         bulletinDto = this.bulletinService.updateBulletin(1L, bulletinDto);
 
         // THEN
         assertNotNull(bulletinDto);
+        assertEquals(1, bulletinEntity.getBulletinMatieres().size());
         verify(this.bulletinMapper, times(1)).updateBulletinEntity(any(), any());
     }
 

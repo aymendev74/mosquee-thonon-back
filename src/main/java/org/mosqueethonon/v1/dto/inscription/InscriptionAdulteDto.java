@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
@@ -13,6 +14,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,6 +35,7 @@ public class InscriptionAdulteDto implements IMailObject {
     private SexeEnum sexe;
     private String anneeScolaire;
     private StatutProfessionnelEnum statutProfessionnel;
+    private List<MatiereEnum> matieres;
 
     public void normalize() {
         this.nom = StringUtils.normalize(StringUtils.normalize(nom));

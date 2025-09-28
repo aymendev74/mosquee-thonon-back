@@ -24,9 +24,6 @@ public class TarifServiceImpl implements TarifService {
     @Override
     public List<TarifDto> findTarifByCriteria(TarifCriteria criteria) {
         List<TarifEntity> tarifsEntities = this.tarifRepository.findAll(TarifEntitySpecifications.withCriteria(criteria));
-        if(tarifsEntities!=null) {
-            return tarifsEntities.stream().map(this.tarifMapper::fromEntityToDto).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return tarifsEntities.stream().map(this.tarifMapper::fromEntityToDto).collect(Collectors.toList());
     }
 }

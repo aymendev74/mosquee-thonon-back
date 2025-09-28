@@ -4,10 +4,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.mapstruct.*;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class InscriptionAdulteMapper {
@@ -50,5 +53,11 @@ public abstract class InscriptionAdulteMapper {
         eleveEntity.setDateNaissance(dto.getDateNaissance());
         eleveEntity.setSexe(dto.getSexe());
         eleveEntity.setNiveauInterne(dto.getNiveauInterne());
+    }
+
+    protected List<MatiereEnum> mapInscriptionMatiereEntityToListMatieres(List<InscriptionMatiereEntity> matieres) {
+        return matieres.stream()
+                .map(im -> im.getMatiere().getCode())
+                .toList();
     }
 }

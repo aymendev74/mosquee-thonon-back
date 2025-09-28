@@ -79,7 +79,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/presences/**").hasRole("ENSEIGNANT")
                 .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
                 .requestMatchers("/v1/bulletins/**").hasRole("ENSEIGNANT")
-                .requestMatchers("/v1/matieres").hasRole("ENSEIGNANT")
+                .requestMatchers("/v1/matieres").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/token").permitAll()

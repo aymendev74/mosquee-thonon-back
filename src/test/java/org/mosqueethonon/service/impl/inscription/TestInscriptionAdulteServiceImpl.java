@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +17,17 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
+import org.mosqueethonon.entity.referentiel.MatiereEntity;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
@@ -54,7 +59,7 @@ public class TestInscriptionAdulteServiceImpl {
     private MailingConfirmationRepository mailingConfirmationRepository;
 
     @Mock
-    private Environment environment;
+    private MatiereService matiereService;
 
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
@@ -69,11 +74,17 @@ public class TestInscriptionAdulteServiceImpl {
         inscriptionDto.setNom("Test Nom");
         inscriptionDto.setPrenom("Test Prenom");
         inscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        inscriptionDto.setMatieres(Lists.newArrayList(MatiereEnum.TAFFSIR_CORAN));
 
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
         inscriptionEntity.setDateInscription(LocalDateTime.now());
         inscriptionEntity.setResponsableLegal(new ResponsableLegalEntity());
+        InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
+        MatiereEntity matiere = new MatiereEntity();
+        matiere.setCode(MatiereEnum.TAFFSIR_CORAN);
+        inscriptionMatiere.setMatiere(matiere);
+        inscriptionEntity.setMatieres(Lists.newArrayList(inscriptionMatiere));
 
         criteria = InscriptionSaveCriteria.builder().sendMailConfirmation(true).build();
     }
@@ -85,9 +96,12 @@ public class TestInscriptionAdulteServiceImpl {
 
         TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
         when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+
 
         InscriptionAdulteDto result = inscriptionAdulteService.createInscription(inscriptionDto, criteria);
 
+        assertEquals(1, result.getMatieres().size());
         verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
         verify(mailingConfirmationRepository, times(1)).save(any(MailingConfirmationEntity.class));
     }
@@ -113,12 +127,14 @@ public class TestInscriptionAdulteServiceImpl {
 
         TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
         when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
 
         // Act
         InscriptionAdulteDto result = inscriptionAdulteService.updateInscription(1L, inscriptionDto, criteria);
 
         // Assert
         assertNotNull(result);
+        assertEquals(1, result.getMatieres().size());
         verify(inscriptionAdulteRepository, times(1)).findById(1L);
         verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
         verify(mailingConfirmationRepository, times(1)).save(any(MailingConfirmationEntity.class));
