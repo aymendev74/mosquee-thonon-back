@@ -4,7 +4,7 @@
 
     <groupId>org.mosqueethonon</groupId>
     <artifactId>mosquee-thonon-back</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0</version>
     <packaging>jar</packaging>
 
     <name>Mosquée Thonon - services</name>
@@ -30,7 +30,7 @@
         <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
         <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
         <url>https://github.com/aymendev74/mosquee-thonon-back</url>
-      <tag>release-4.x</tag>
+      <tag>4.0.0</tag>
   </scm>
 
     <dependencies>
