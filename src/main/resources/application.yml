@@ -52,8 +52,11 @@ scheduled:
 
 app:
   token-uri: ${TOKEN_URI}
+  login-redirect-uri: ${LOGIN_REDIRECT_URI}
   logout-redirect-uri: ${LOGOUT_REDIRECT_URI}
   allowed-origins: ${ALLOWED_ORIGINS}
+  issuer-uri: ${ISSUER_URI}
+  jwt-decoder-uri: ${JWT_DECODER_URI}
 
 auth:
   cookie:
