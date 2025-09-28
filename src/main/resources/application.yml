@@ -21,6 +21,8 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yml
     enabled: true
     defaultSchema: moth
+    user: ${DB_LIQ_USERNAME}
+    password: ${DB_LIQ_PASSWORD}
   datasource:
     password: ${DB_PASSWORD}
     url: jdbc:postgresql://localhost:5432/mosqueethonon

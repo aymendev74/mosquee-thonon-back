@@ -64,6 +64,8 @@ jobs:
           ISSUER_URI: http://localhost
           JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
           COOKIE_SECURE: false
+          DB_LIQ_USERNAME: DB_LIQ_USERNAME
+          DB_LIQ_PASSWORD: DB_LIQ_PASSWORD
         run: |
           # Pour l'instant on ne gère automatiquement que les release mineures
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')      
