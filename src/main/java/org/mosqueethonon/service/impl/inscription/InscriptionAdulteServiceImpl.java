@@ -2,17 +2,21 @@ package org.mosqueethonon.service.impl.inscription;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
+import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
@@ -27,13 +31,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
 public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
-
-    private Environment environment;
 
     private InscriptionAdulteRepository inscriptionAdulteRepository;
 
@@ -43,9 +48,9 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
     private TarifCalculService tarifCalculService;
 
-    private ParamService paramService;
-
     private MailingConfirmationRepository mailingConfirmationRepository;
+
+    private MatiereService matiereService;
 
     @Override
     @Transactional
@@ -56,6 +61,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         // mapping vers l'entité
         InscriptionAdulteEntity entity = new InscriptionAdulteEntity();
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
+        entity.setMatieres(this.mapInscriptionMatieres(inscription));
         entity.setDateInscription(LocalDateTime.now());
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
@@ -70,6 +76,20 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         // Envoi du mail si besoins (PROD et DEV uniquement, pas en STA, trop dangereux)
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
         return this.inscriptionAdulteMapper.fromEntityToDto(entity);
+    }
+
+    private List<InscriptionMatiereEntity> mapInscriptionMatieres(InscriptionAdulteDto inscription) {
+        List<InscriptionMatiereEntity> inscriptionMatiereEntities = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(inscription.getMatieres())) {
+            for (MatiereEnum matiere : inscription.getMatieres()) {
+                MatiereEntity matiereEntity = this.matiereService.findByCode(matiere)
+                        .orElseThrow(() -> new ResourceNotFoundException("La matière " + matiere.name() + " n'a pas été trouvée"));
+                InscriptionMatiereEntity inscriptionMatiereEntity = new InscriptionMatiereEntity();
+                inscriptionMatiereEntity.setMatiere(matiereEntity);
+                inscriptionMatiereEntities.add(inscriptionMatiereEntity);
+            }
+        }
+        return inscriptionMatiereEntities;
     }
 
     @Override
@@ -89,6 +109,8 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
             throw new IllegalArgumentException("Inscription not found ! idinsc = " + id);
         }
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
+        entity.getMatieres().clear();
+        entity.getMatieres().addAll(this.mapInscriptionMatieres(inscription));
         this.calculTarif(entity, null, inscription.getStatutProfessionnel());
         entity = this.inscriptionAdulteRepository.save(entity);
         this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());

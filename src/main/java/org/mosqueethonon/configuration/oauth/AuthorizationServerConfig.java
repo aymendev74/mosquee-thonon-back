@@ -1,6 +1,6 @@
 package org.mosqueethonon.configuration.oauth;
 
-import org.mosqueethonon.configuration.security.ProfileProvider;
+import org.mosqueethonon.configuration.security.ApplicationProperties;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.service.UserService;
@@ -34,8 +34,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mosqueethonon.configuration.security.ProfileProvider.*;
-
 @Configuration
 public class AuthorizationServerConfig {
 
@@ -43,7 +41,7 @@ public class AuthorizationServerConfig {
     private UserService userService;
 
     @Autowired
-    private ProfileProvider profileProvider;
+    private ApplicationProperties applicationProperties;
 
     @Value("${server.port}")
     private String serverPort;
@@ -70,7 +68,7 @@ public class AuthorizationServerConfig {
                 .clientId("moth-react-app")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(getRedirectURI())
+                .redirectUri(this.applicationProperties.getLoginRedirectUri())
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .tokenSettings(tokenSettings())
                 .build();
@@ -81,7 +79,7 @@ public class AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer(getIssuerURI())
+                .issuer(this.applicationProperties.getIssuerUri())
                 .build();
     }
 
@@ -99,26 +97,6 @@ public class AuthorizationServerConfig {
         };
     }
 
-    private String getIssuerURI() {
-        String activeProfile = profileProvider.getActiveProfile();
-        return switch (activeProfile) {
-            case DEVELOPMENT, TEST  -> "http://localhost:3000";
-            case PRODUCTION -> "https://www.inscription-amc.fr";
-            case STAGING -> "https://www.staging.inscription-amc.fr";
-            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
-        };
-    }
-
-    private String getRedirectURI() {
-        String activeProfile = profileProvider.getActiveProfile();
-        return switch (activeProfile) {
-            case DEVELOPMENT, TEST  -> "http://localhost:3000/login";
-            case PRODUCTION -> "https://www.inscription-amc.fr/login";
-            case STAGING -> "https://www.staging.inscription-amc.fr/login";
-            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
-        };
-    }
-
     @Bean
     public TokenSettings tokenSettings() {
         return TokenSettings.builder()
@@ -128,13 +106,11 @@ public class AuthorizationServerConfig {
 
     /**
      * Sert à décoder le token reçue dans les entêtes HTTP
-     * volontairement spécifié en "localhost" (y compris prod et sta) pour ne pas forcer le springboot à ressortir à l'extérieur
      * @return
      */
     @Bean
     public JwtDecoder jwtDecoder() {
-        String tokenDecoderEndpoint = String.format("http://localhost:%s/api/oauth2/jwks", serverPort);
-        return NimbusJwtDecoder.withJwkSetUri(tokenDecoderEndpoint).build();
+        return NimbusJwtDecoder.withJwkSetUri(this.applicationProperties.getJwtDecoderUri()).build();
     }
 
 }

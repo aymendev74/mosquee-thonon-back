@@ -7,55 +7,60 @@
 #        org.springframework.security.oauth2.jwt: DEBUG
 
 server:
-    port: 8080
-    servlet:
-        context-path: /api
-    tomcat:
-        max-threads: 100
-        threads:
-            max: 100
+  port: 8080
+  servlet:
+    context-path: /api
+  tomcat:
+    max-threads: 100
+    threads:
+      max: 100
 spring:
-    profiles:
-        active: dev
-    liquibase:
-        change-log: classpath:db/changelog/db.changelog-master.yml
-        enabled: true
-        defaultSchema: moth
-    datasource:
-        password: ${DB_PASSWORD}
-        url: jdbc:postgresql://localhost:5432/mosqueethonon
-        username: ${DB_USERNAME}
-    jpa:
-        hibernate:
-            ddl-auto: none
-            show-sql: true
-        properties:
-            hibernate:
-                default_schema: moth
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-    mail:
-        host: smtp.gmail.com
-        password: ${MAIL_SERVICE_PASSWORD}
-        username:  ${MAIL_SERVICE_USERNAME}
-        port: 587
-        properties:
-            mail:
-                smtp:
-                    auth: true
-                    starttls:
-                        enable: true
-    mvc:
-        pathmatch:
-            matching-strategy: ant_path_matcher
+  profiles:
+    active: dev
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yml
+    enabled: true
+    defaultSchema: moth
+  datasource:
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/mosqueethonon
+    username: ${DB_USERNAME}
+  jpa:
+    hibernate:
+      ddl-auto: none
+      show-sql: true
+    properties:
+      hibernate:
+        default_schema: moth
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    password: ${MAIL_SERVICE_PASSWORD}
+    username:  ${MAIL_SERVICE_USERNAME}
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 scheduled:
-    confirmation-mail: 1 # unit = minutes
+  confirmation-mail: 1 # unit = minutes
 
 app:
-    token-uri: ${TOKEN_URI}
+  token-uri: ${TOKEN_URI}
+  login-redirect-uri: ${LOGIN_REDIRECT_URI}
+  logout-redirect-uri: ${LOGOUT_REDIRECT_URI}
+  allowed-origins: ${ALLOWED_ORIGINS}
+  issuer-uri: ${ISSUER_URI}
+  jwt-decoder-uri: ${JWT_DECODER_URI}
 
 auth:
-    cookie:
-        secure: ${COOKIE_SECURE}
-        path: /api
-        name: MOTH-TOKEN
-        same-site: Lax
+  cookie:
+    secure: ${COOKIE_SECURE}
+    path: /api
+    name: MOTH-TOKEN
+    same-site: Lax

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.enums.NoteMatiereEnum;
 
 @Entity
@@ -19,8 +20,9 @@ public class BulletinMatiereEntity implements Auditable {
     @Column(name = "idbuma")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "idmati")
-    private Long idMatiere;
+    @ManyToOne
+    @JoinColumn(name = "idmati")
+    private MatiereEntity matiere;
     @Column(name = "cdbumanote")
     @Enumerated(EnumType.STRING)
     private NoteMatiereEnum note;

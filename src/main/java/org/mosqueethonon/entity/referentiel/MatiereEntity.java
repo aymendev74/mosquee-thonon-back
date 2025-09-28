@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.enums.TypeMatiereEnum;
 
 @Entity
 @Table(name = "ref_matiere", schema = "moth")
@@ -21,7 +22,8 @@ public class MatiereEntity {
     @Column(name = "cdmaticode")
     @Enumerated(EnumType.STRING)
     private MatiereEnum code;
-    @Column(name = "txmatilibelle")
-    private String libelle;
+    @Column(name = "cdmatitype")
+    @Enumerated(EnumType.STRING)
+    private TypeMatiereEnum type;
 
 }

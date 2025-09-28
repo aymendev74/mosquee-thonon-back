@@ -19,7 +19,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,15 +40,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mosqueethonon.configuration.security.ProfileProvider.*;
-import static org.mosqueethonon.configuration.security.ProfileProvider.STAGING;
-
 @EnableWebSecurity
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
 
-    private ProfileProvider profileProvider;
+    private ApplicationProperties applicationProperties;
 
     private UserService userService;
 
@@ -79,7 +75,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/presences/**").hasRole("ENSEIGNANT")
                 .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
                 .requestMatchers("/v1/bulletins/**").hasRole("ENSEIGNANT")
-                .requestMatchers("/v1/matieres").hasRole("ENSEIGNANT")
+                .requestMatchers("/v1/matieres").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/token").permitAll()
@@ -114,7 +110,7 @@ public class SecurityConfig {
 
     private LogoutSuccessHandler logoutSuccessHandler() {
         SimpleUrlLogoutSuccessHandler handler = new SimpleUrlLogoutSuccessHandler();
-        handler.setDefaultTargetUrl(getRedirectURIAfterLogout());  // Rediriger vers la page d'accueil après déconnexion
+        handler.setDefaultTargetUrl(this.applicationProperties.getLogoutRedirectUri());  // Rediriger vers la page d'accueil après déconnexion
         return handler;
     }
 
@@ -149,7 +145,7 @@ public class SecurityConfig {
     @Qualifier("corsConfigurationSource")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(getAllowedOrigins()));
+        configuration.setAllowedOrigins(this.applicationProperties.getAllowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -158,32 +154,11 @@ public class SecurityConfig {
         return source;
     }
 
-    private String[] getAllowedOrigins() {
-        String activeProfile = profileProvider.getActiveProfile();
-        return switch (activeProfile) {
-            case DEVELOPMENT, TEST -> new String[]{"http://localhost:3000"};
-            case PRODUCTION -> new String[]{"https://www.inscription-amc.fr", "https://inscription-amc.fr"};
-            case STAGING ->
-                    new String[]{"https://www.staging.inscription-amc.fr", "https://staging.inscription-amc.fr"};
-            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
-        };
-    }
-
     @Bean
     public HttpFirewall allowSemicolonHttpFirewall() {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowSemicolon(true); // Permettre le point-virgule
         return firewall;
-    }
-
-    private String getRedirectURIAfterLogout() {
-        String activeProfile = profileProvider.getActiveProfile();
-        return switch (activeProfile) {
-            case DEVELOPMENT, TEST -> "http://localhost:3000";
-            case PRODUCTION -> "https://www.inscription-amc.fr";
-            case STAGING -> "https://www.staging.inscription-amc.fr";
-            default -> throw new IllegalArgumentException("Le profile '" + activeProfile + "' n'est pas géré !");
-        };
     }
 
     /*@Bean

@@ -35,7 +35,6 @@ public class InscriptionController {
         return ResponseEntity.ok(inscriptionLights);
     }
 
-
     @PatchMapping
     public ResponseEntity patchInscriptions(@RequestBody JsonNode patchesNode) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
