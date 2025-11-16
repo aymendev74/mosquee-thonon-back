@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.bean.GroupeElevesBean;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
-import org.mosqueethonon.entity.classe.ClasseActiviteEntity;
-import org.mosqueethonon.entity.classe.ClasseEntity;
-import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
+import org.mosqueethonon.entity.classe.*;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.JourActiviteEnum;
 import org.mosqueethonon.enums.NiveauInterneEnum;
@@ -167,9 +165,39 @@ public class ClasseServiceImpl implements IClasseService {
         }
         this.classeMapper.updateClasseEntity(classe, classeEntity);
         this.syncNiveauEleves(classeEntity);
+        this.checkFeuillesPresence(classeEntity);
         classeEntity = this.classeRepository.save(classeEntity);
         this.syncOtherClasses(classeEntity);
         return this.classeMapper.fromEntityToDto(classeEntity);
+    }
+
+    /**
+     * Vérifie les feuilles de présences afin de s'assurer que les èléves qui sont dans les feuilles
+     * de présence font bien partie de l'effectif de la classe, sinon on les supprime des feuilles de présence.
+     * Et ci un élève est dans l'effectif de la classe mais qu'il ne figure pas dans les feuilles de présences (ajout d'un nouvel élève)
+     * alors on l'ajoute dans les feuilles de présences (absent par défaut)
+     * Peut se produire si on modifie l'effectif d'une classe après que des élèves ont été ajoutés à des feuilles de présence.
+     * @param classeEntity
+     */
+    private void checkFeuillesPresence(ClasseEntity classeEntity) {
+        var idEleves = classeEntity.getLiensClasseEleves().stream().map(LienClasseEleveEntity::getEleve)
+                .map(EleveEntity::getId).collect(Collectors.toSet());
+
+        // on supprime des feuilles de présence, les élèves qui ne font plus partie de la classe
+        var feuillesPresences = classeEntity.getFeuillesPresences().stream().map(ClasseFeuillePresenceEntity::getFeuillePresence).collect(Collectors.toSet());
+        feuillesPresences.stream().map(FeuillePresenceEntity::getElevesFeuillesPresences).forEach(elevesFeuillePresence ->
+                        elevesFeuillePresence.removeIf(eleveFeuille -> !idEleves.contains(eleveFeuille.getIdEleve())));
+
+        // On ajoute une absence aux élèves qui sont dans l'effectif de la classe mais qui ne figurent pas dans les feuilles de présences
+        for(FeuillePresenceEntity feuillePresence : feuillesPresences) {
+            var idElevesFeuillePresence = feuillePresence.getElevesFeuillesPresences().stream().map(EleveFeuillePresenceEntity::getIdEleve).collect(Collectors.toSet());
+            for(Long idEleveClasse : idEleves) {
+                if(!idElevesFeuillePresence.contains(idEleveClasse)) {
+                    var eleveFeuillePresence = EleveFeuillePresenceEntity.builder().idEleve(idEleveClasse).present(false).build();
+                    feuillePresence.getElevesFeuillesPresences().add(eleveFeuillePresence);
+                }
+            }
+        }
     }
 
     /**
