@@ -66,6 +66,7 @@ jobs:
           JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
           DB_LIQ_USERNAME: DB_LIQ_USERNAME
           DB_LIQ_PASSWORD: DB_LIQ_PASSWORD
+          ACTIVATION_UTILISATEUR_URI: http://localhost:3000/accountActivation
         run: |
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           BRANCH_NAME_SUFFIX=$(echo $RELEASE_VERSION | awk -F. '{print $1".x"}')

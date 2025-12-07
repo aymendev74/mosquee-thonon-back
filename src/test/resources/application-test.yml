@@ -17,5 +17,7 @@ spring:
         properties:
             hibernate:
                 default_schema: moth
+                format_sql: true
+                show_sql: true
         show-sql: true
 

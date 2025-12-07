@@ -1,6 +1,6 @@
 package org.mosqueethonon.enums;
 
-public enum MailingConfirmationStatut {
+public enum MailingStatut {
 
     PENDING, DONE, ERROR, NOT_SENT
 

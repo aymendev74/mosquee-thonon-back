@@ -17,5 +17,6 @@ public class ApplicationProperties {
     private List<String> allowedOrigins;
     private String issuerUri;
     private String jwtDecoderUri;
+    private String activationUtilisateurUri;
 
 }

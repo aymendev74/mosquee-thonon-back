@@ -23,8 +23,7 @@ public class CustomExceptionHandler {
                     .body("Bad request ! " + e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 }

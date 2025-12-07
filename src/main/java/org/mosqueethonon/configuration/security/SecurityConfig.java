@@ -37,7 +37,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @EnableWebSecurity
@@ -63,27 +62,33 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
-                .requestMatchers("/v1/tarifs").permitAll()
-                .requestMatchers(HttpMethod.GET, "/v1/tarifs-inscription/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/v1/params/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/v1/classes/**").hasRole("ENSEIGNANT")
-                .requestMatchers(HttpMethod.POST,"/v1/classes/**/presences").hasRole("ENSEIGNANT")
-                .requestMatchers(HttpMethod.PUT, "/v1/presences/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/v1/presences/**").hasRole("ADMIN")
-                .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
-                .requestMatchers("/v1/bulletins/**").hasRole("ENSEIGNANT")
-                .requestMatchers("/v1/matieres").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/token").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/profile").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/logout").permitAll()
-                .requestMatchers(HttpMethod.POST,"/v1/users/password").authenticated()
-                .requestMatchers(AUTH_WHITE_LIST).permitAll()
-                .anyRequest().hasRole("ADMIN"))
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.PUT, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.PATCH, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers("/v1/tarifs").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/tarifs-inscription/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/params/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/classes/**").hasRole("ENSEIGNANT")
+                        .requestMatchers(HttpMethod.POST, "/v1/classes/**/presences").hasRole("ENSEIGNANT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/presences/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/presences/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
+                        .requestMatchers("/v1/bulletins/**").hasRole("ENSEIGNANT")
+                        .requestMatchers("/v1/matieres").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/token").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/password").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/users/informations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/enable").permitAll()
+                        .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                        .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .formLogin(login -> login.loginPage("/login").successHandler(loginSuccessHandler()).permitAll())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
@@ -124,7 +129,12 @@ public class SecurityConfig {
 
     @Bean
     public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_ENSEIGNANT");
+        return RoleHierarchyImpl.fromHierarchy(
+                """
+                ROLE_ADMIN > ROLE_TRESORIER
+                ROLE_ADMIN > ROLE_ENSEIGNANT
+                """
+        );
     }
 
     @Bean
@@ -139,6 +149,7 @@ public class SecurityConfig {
 
     /**
      * CORS configuration pour les ressources OAuth
+     *
      * @return la config cors des ressources oauth
      */
     @Bean

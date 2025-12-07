@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
-import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.MailingStatut;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
@@ -41,14 +41,14 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
         adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
         this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idAdhesion(adhesionEntity.getId())
-                .statut(MailingConfirmationStatut.PENDING).build());
+                .statut(MailingStatut.PENDING).build());
         return adhesionDto;
     }
 
     @Override
     public AdhesionDto findAdhesionById(Long id) {
-        Optional<AdhesionEntity> optAdhesionEntity = this.adhesionRepository.findById(id);
-        return optAdhesionEntity.map(adhesion -> this.adhesionMapper.fromEntityToDto(adhesion)).orElse(null);
+        AdhesionEntity adhesionEntity = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'adhesion recherché n'existe pas ! id = " + id));
+        return this.adhesionMapper.fromEntityToDto(adhesionEntity);
     }
 
     @Override

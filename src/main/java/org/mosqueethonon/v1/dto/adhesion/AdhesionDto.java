@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AdhesionDto implements IMailObject {
 
+    private Long id;
     private String titre;
     private String nom;
     private String prenom;

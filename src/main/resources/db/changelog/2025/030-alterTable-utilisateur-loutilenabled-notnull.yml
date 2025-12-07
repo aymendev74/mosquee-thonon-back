@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-alterTable-utilisateur-loutilenabled-notnull
+      author: Aymen
+      changes:
+        - addNotNullConstraint:
+            schemaName: moth
+            tableName: utilisateur
+            columnName: loutilenabled
+            columnDataType: boolean

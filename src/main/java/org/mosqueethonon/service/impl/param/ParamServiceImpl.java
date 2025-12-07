@@ -2,6 +2,7 @@ package org.mosqueethonon.service.impl.param;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mosqueethonon.annotations.DataBaseParam;
 import org.mosqueethonon.configuration.APIDateFormats;
@@ -27,9 +28,8 @@ import java.util.List;
 
 @AllArgsConstructor
 @Service
+@Slf4j
 public class ParamServiceImpl implements ParamService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParamServiceImpl.class);
 
     private ParamRepository paramRepository;
     private BooleanParamValueParser booleanParamValueParser;
@@ -104,7 +104,7 @@ public class ParamServiceImpl implements ParamService {
             Object parsedValue = field.getType() == String.class ? value : this.paramParser.parseValue(value, field.getType());
             field.set(paramsDto, parsedValue);
         } catch (IllegalAccessException e) {
-            LOGGER.error("Erreur lors de la récupération des paramètres. paramName = " + field.getName());
+            log.error("Erreur lors de la récupération des paramètres. paramName = {}", field.getName());
             throw new RuntimeException(e);
         }
     }
