@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 038-alterTable-utilisateur-addUniqueConstraint-txutilemail
+      author: Aymen
+      changes:
+        - addUniqueConstraint:
+            tableName: utilisateur
+            columnNames: txutilemail

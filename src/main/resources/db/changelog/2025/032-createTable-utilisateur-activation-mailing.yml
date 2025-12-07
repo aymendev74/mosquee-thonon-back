@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 032-createTable-utilisateur-activation-mailing
+      author: Aymen
+      changes:
+        - createTable:
+            tableName: utilisateur_activation_mailing
+            columns:
+              - column:
+                  name: iduama
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: txuamauser
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: txuamatoken
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cduamastatut
+                  type: varchar(20)
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+
+        - addForeignKeyConstraint:
+            baseColumnNames: txuamauser
+            baseTableName: utilisateur_activation_mailing
+            constraintName: fk_txuamauser_utilisateur_activation_mailing
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: txutiluser
+            referencedTableName: utilisateur
+            validate: true

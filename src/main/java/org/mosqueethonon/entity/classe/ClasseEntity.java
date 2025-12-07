@@ -9,6 +9,7 @@ import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 
 import java.util.Comparator;
@@ -32,11 +33,11 @@ public class ClasseEntity implements Auditable {
     @Column(name = "cdclasniveau")
     @Enumerated(EnumType.STRING)
     private NiveauInterneEnum niveau;
-    @Column(name = "idense")
-    private Long idEnseignant;
+    @Column(name = "idutil")
+    private Long idUtilisateur;
     @ManyToOne
-    @JoinColumn(name = "idense", insertable = false, updatable = false)
-    private EnseignantEntity enseignant;
+    @JoinColumn(name = "idutil", insertable = false, updatable = false)
+    private UtilisateurEntity enseignant;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<LienClasseEleveEntity> liensClasseEleves;
@@ -50,8 +51,6 @@ public class ClasseEntity implements Auditable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", insertable = false, updatable = false)
     private List<ClasseFeuillePresenceEntity> feuillesPresences;
-    @Formula("(select concat(ens.txenseprenom, ' ', ens.txensenom) from moth.enseignant ens where ens.idense = idense limit 1)")
-    private String nomPrenomEnseignant;
     @Embedded
     private Signature signature;
 

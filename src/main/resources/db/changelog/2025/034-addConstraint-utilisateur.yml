@@ -1,0 +1,27 @@
+databaseChangeLog:
+  # Normalement les contraintes auraient dû être appliqués par le changeset 029-alterTables-utilisateurs-classes.yml
+  # Mais visiblement il ne l'a pas fait, mais pas compris pour quelle raison...
+  - changeSet:
+      id: 034-addConstraints-utilisateur
+      author: Aymen
+      changes:
+        - addNotNullConstraint:
+            schemaName: moth
+            tableName: utilisateur
+            columnName: txutilnom
+            columnDataType: varchar(50)
+        - addNotNullConstraint:
+            schemaName: moth
+            tableName: utilisateur
+            columnName: txutilprenom
+            columnDataType: varchar(50)
+        - addNotNullConstraint:
+            schemaName: moth
+            tableName: utilisateur
+            columnName: txutiluser
+            columnDataType: varchar(50)
+        - addNotNullConstraint:
+            schemaName: moth
+            tableName: utilisateur
+            columnName: txutilpassword
+            columnDataType: varchar(255)

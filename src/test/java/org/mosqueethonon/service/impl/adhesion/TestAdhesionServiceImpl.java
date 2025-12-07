@@ -90,11 +90,7 @@ public class TestAdhesionServiceImpl {
         when(adhesionRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        AdhesionDto result = adhesionService.findAdhesionById(id);
-
-        // Assert
-        assertNull(result);
-        verify(adhesionRepository).findById(id);
+        assertThrows(ResourceNotFoundException.class, () -> adhesionService.findAdhesionById(id));
     }
 
     @Test

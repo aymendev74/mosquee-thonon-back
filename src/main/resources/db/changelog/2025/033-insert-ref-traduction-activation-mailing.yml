@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: 033-insert-ref-traduction-activation-mailing
+      author: Aymen
+      changes:
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_activation
+              - column:
+                  name: cdtradvaleur
+                  value: subject
+              - column:
+                  name: txtradfr
+                  value: Activation de votre compte (AMC)
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_activation
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Activation de votre compte</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Bienvenue, @@{username} !</h2>
+                            <p style="color: #555555; font-size: 16px;">
+                              Merci de vous être inscrit sur la plateforme de l'AMC.
+                            </p>
+                            <p style="color: #555555; font-size: 16px;">
+                              Pour activer votre compte et définir votre mot de passe, cliquez sur le bouton ci-dessous :
+                            </p>
+                            <a href="${activationUrl}" 
+                               style="display: inline-block; padding: 12px 24px; margin: 20px 0; font-size: 16px; color: #ffffff; background-color: #007BFF; text-decoration: none; border-radius: 4px;">
+                              Activer mon compte
+                            </a>
+                            <p style="color: #999999; font-size: 14px; margin-top: 20px;">
+                              Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br>
+                              <a href="@@{activationUrl}" style="color: #007BFF;">@@{activationUrl}</a>
+                            </p>
+                            <hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;">
+                            <p style="color: #555555; font-size: 14px; margin-top: 20px;">
+                              Bien cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>

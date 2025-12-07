@@ -1,10 +1,8 @@
 package org.mosqueethonon.entity.mail;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -12,25 +10,26 @@ import org.mosqueethonon.enums.MailingStatut;
 
 @Entity
 @EntityListeners(EntityListener.class)
-@Table(name = "mailingconfirmation", schema = "moth")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class MailingConfirmationEntity implements Auditable {
+@Table(name = "utilisateur_activation_mailing", schema = "moth")
+@Getter
+@Setter
+public class MailingActivationUtilisateurEntity implements Auditable {
 
     @Id
-    @Column(name = "idmaco")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "iduama")
     private Long id;
-    @Column(name = "cdmacostatut")
+
+    @Column(name = "txuamauser")
+    private String username;
+
+    @Column(name = "txuamatoken")
+    private String token;
+
+    @Column(name = "cduamastatut")
     @Enumerated(EnumType.STRING)
     private MailingStatut statut;
-    @Column(name = "idinsc")
-    private Long idInscription;
-    @Column(name = "idadhe")
-    private Long idAdhesion;
-    @Embedded
+
     private Signature signature;
 
 }

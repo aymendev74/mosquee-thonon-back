@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.mapper;
+package org.mosqueethonon.v1.mapper.inscription;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +18,7 @@ import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
-import org.mosqueethonon.v1.mapper.inscription.*;
+
 import java.time.LocalDate;
 
 @ExtendWith(MockitoExtension.class)

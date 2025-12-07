@@ -38,7 +38,7 @@ public class InscriptionAdulteDto implements IMailObject {
     private List<MatiereEnum> matieres;
 
     public void normalize() {
-        this.nom = StringUtils.normalize(StringUtils.normalize(nom));
-        this.prenom = StringUtils.normalize(StringUtils.normalize(prenom));
+        this.nom = StringUtils.normalize(nom);
+        this.prenom = StringUtils.normalize(prenom);
     }
 }

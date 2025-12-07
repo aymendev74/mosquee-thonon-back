@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 031-alterTable-utilisateur-addColumn-txutilmobile
+      author: Aymen
+      changes:
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: txutilmobile
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+        # copier les numéro de mobile des enseignants dans les utilisateurs
+        - sql:
+            sql: |
+              UPDATE moth.utilisateur u
+              SET txutilmobile = e.txensemobile                  
+              FROM moth.enseignant e
+              WHERE u.txutiluser = e.txenseusername;
