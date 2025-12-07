@@ -7,7 +7,7 @@ import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.MailingStatut;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
@@ -250,7 +250,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
         if (Boolean.TRUE.equals(sendEmail)) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
-                    .statut(MailingConfirmationStatut.PENDING).build());
+                    .statut(MailingStatut.PENDING).build());
         }
     }
 

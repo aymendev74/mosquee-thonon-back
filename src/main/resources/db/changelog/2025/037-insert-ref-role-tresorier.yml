@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 037-insert-ref-role-tresorier
+      author: Aymen
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: cdrole
+                  value: ROLE_TRESORIER

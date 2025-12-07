@@ -7,7 +7,7 @@ import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
-import org.mosqueethonon.enums.MailingConfirmationStatut;
+import org.mosqueethonon.enums.MailingStatut;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
@@ -25,7 +25,6 @@ import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -128,7 +126,7 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
     private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
         if (Boolean.TRUE.equals(sendEmail)) {
             this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
-                    .statut(MailingConfirmationStatut.PENDING).build());
+                    .statut(MailingStatut.PENDING).build());
         }
     }
 

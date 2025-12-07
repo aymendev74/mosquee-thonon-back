@@ -2,6 +2,8 @@ package org.mosqueethonon.v1.mapper.user;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.v1.dto.user.UserDto;
 
@@ -12,5 +14,9 @@ public interface UserMapper {
 
     @InheritInverseConfiguration
     UtilisateurEntity fromDtoToEntity(UserDto user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    void updateUserEntityFromDto(UserDto user, @MappingTarget UtilisateurEntity utilisateurEntity);
 
 }

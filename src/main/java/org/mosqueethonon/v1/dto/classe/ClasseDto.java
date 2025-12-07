@@ -10,7 +10,7 @@ public class ClasseDto {
     private Long id;
     private String libelle;
     private NiveauInterneEnum niveau;
-    private Long idEnseignant;
+    private Long idUtilisateur;
     private String nomPrenomEnseignant;
     private List<LienClasseEleveDto> liensClasseEleves;
     private Integer debutAnneeScolaire;

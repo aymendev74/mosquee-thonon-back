@@ -1,0 +1,211 @@
+databaseChangeLog:
+  - changeSet:
+      id: 036-insert-ref-traduction-inscriptions-mailing
+      author: Aymen
+      changes:
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_inscription
+              - column:
+                  name: cdtradvaleur
+                  value: subject
+              - column:
+                  name: txtradfr
+                  value: Votre demande d'inscription aux cours à l'AMC
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_inscription_provisoire
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Inscription provisoire</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Nous vous remercions pour votre demande d'inscription aux cours.</p>
+                            <p style="color: #555555; font-size: 16px;">Votre inscription a été prise en compte, vous serez contacté rapidement par l'AMC pour la finaliser.</p>
+                            <div style="background: #f1f7fa; padding: 8px 12px; border-radius: 6px; color: #555; margin: 18px 0; display: inline-block;">
+                              Pour toute communication, voici la référence de votre inscription : <b>@@{noInscription}</b>
+                            </div>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_inscription_refusee
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Inscription refusée</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Votre inscription a été refusée car actuellement seules les réinscriptions sont autorisées.</p>
+                            <p style="color: #555555; font-size: 16px;">Si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter directement l'AMC en répondant à cet e-mail.</p>
+                            <div style="background: #f1f7fa; padding: 8px 12px; border-radius: 6px; color: #555; margin: 18px 0; display: inline-block;">
+                              Pour toute communication, voici la référence de votre inscription : <b>@@{noInscription}</b>
+                            </div>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_inscription_validee
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Inscription validée</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Nous vous remercions pour votre demande d'inscription aux cours.</p>
+                            <p style="color: #555555; font-size: 16px;">Votre inscription a été validée.</p>
+                            <div style="background: #f1f7fa; padding: 8px 12px; border-radius: 6px; color: #555; margin: 18px 0; display: inline-block;">
+                              Pour toute communication, voici la référence de votre inscription : <b>@@{noInscription}</b>
+                            </div>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_inscription_liste_attente
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Inscription liste d'attente</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Nous vous remercions pour votre demande d'inscription aux cours.</p>
+                            <p style="color: #555555; font-size: 16px;">Votre inscription a été prise en compte et elle a été placée sur liste d'attente.</p>
+                            <p style="color: #555555; font-size: 16px;">Vous serez contactés par l'AMC si des places se libèrent.</p>
+                            <div style="background: #f1f7fa; padding: 8px 12px; border-radius: 6px; color: #555; margin: 18px 0; display: inline-block;">
+                              Pour toute communication, voici la référence de votre inscription : <b>@@{noInscription}</b>
+                            </div>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_adhesion
+              - column:
+                  name: cdtradvaleur
+                  value: subject
+              - column:
+                  name: txtradfr
+                  value: Votre demande d'adhésion à l'AMC
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_adhesion
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Adhésion AMC</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.</p>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>

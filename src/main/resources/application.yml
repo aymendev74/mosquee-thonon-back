@@ -51,6 +51,7 @@ spring:
       matching-strategy: ant_path_matcher
 scheduled:
   confirmation-mail: 1 # unit = minutes
+  activation-utilisateur-mail: 1 # unit = minutes
 
 app:
   token-uri: ${TOKEN_URI}
@@ -59,6 +60,7 @@ app:
   allowed-origins: ${ALLOWED_ORIGINS}
   issuer-uri: ${ISSUER_URI}
   jwt-decoder-uri: ${JWT_DECODER_URI}
+  activation-utilisateur-uri: ${ACTIVATION_UTILISATEUR_URI}
 
 auth:
   cookie:

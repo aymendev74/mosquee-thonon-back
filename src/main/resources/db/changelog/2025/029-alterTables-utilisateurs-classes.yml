@@ -1,0 +1,86 @@
+databaseChangeLog:
+  - changeSet:
+      id: 029-alterTables-utilisateurs-classes
+      author: Aymen
+      changes:
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: txutilnom
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: txutilprenom
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: txutilemail
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: loutilenabled
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        # activer tous les utilisateurs existants
+        - update:
+            schemaName: moth
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: loutilenabled
+                  valueBoolean: true
+        # copier les noms et prénoms des enseignants dans les utilisateurs
+        - sql:
+            sql: |
+              UPDATE moth.utilisateur u
+              SET txutilnom = e.txensenom,
+                  txutilprenom = e.txenseprenom
+              FROM moth.enseignant e
+              WHERE u.txutiluser = e.txenseusername;
+        # Mettre à jour le nom/prénom des admins (vide, pour ne pas avoir les noms en dur ici, on changera dans l'application ensuite)
+        - sql:
+            sql: |
+              UPDATE moth.utilisateur 
+              SET txutilnom = ''            
+              WHERE txutilnom is null;
+        - sql:
+            sql: |
+              UPDATE moth.utilisateur 
+              SET txutilprenom = ''            
+              WHERE txutilprenom is null;
+        # Ajouter de la colonne qui fait le lien avec l'utilisateur (enseignant) dans la classe
+        - addColumn:
+            schemaName: moth
+            tableName: classe
+            columns:
+              - column:
+                  name: idutil
+                  type: int8
+                  constraints:
+                    nullable: true
+        # Ajouter la contrainte de clé étrangère
+        - addForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: classe
+            baseColumnNames: idutil
+            referencedTableSchemaName: moth
+            referencedTableName: utilisateur
+            referencedColumnNames: idutil
+            constraintName: fk_classe_utilisateur
+            deferrable: false
+            initiallyDeferred: false
+        # Mettre à jour le lien avec l'utilisateur (enseignant) dans la classe
+        - sql:
+            sql: |
+              UPDATE moth.classe c
+              SET idutil = u.idutil
+              FROM moth.enseignant e
+              JOIN moth.utilisateur u ON e.txenseusername = u.txutiluser
+              WHERE c.idense = e.idense;

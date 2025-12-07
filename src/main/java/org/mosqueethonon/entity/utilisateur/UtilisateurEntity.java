@@ -1,6 +1,8 @@
 package org.mosqueethonon.entity.utilisateur;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
@@ -14,7 +16,8 @@ import java.util.List;
 @Entity
 @EntityListeners(EntityListener.class)
 @Table(name = "utilisateur", schema = "moth")
-@Data
+@Getter
+@Setter
 public class UtilisateurEntity implements UserDetails, Auditable {
 
     @Id
@@ -25,6 +28,18 @@ public class UtilisateurEntity implements UserDetails, Auditable {
     private String username;
     @Column(name = "txutilpassword")
     private String password;
+    @Column(name = "txutilnom")
+    private String nom;
+    @Column(name = "txutilprenom")
+    private String prenom;
+    @Column(name = "txutilemail")
+    private String email;
+    @Column(name = "txutilmobile")
+    private String mobile;
+    @Column(name = "loutilenabled")
+    private boolean enabled;
+    @Column(name = "loutillocked")
+    private boolean locked;
     @Embedded
     private Signature signature;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -37,24 +52,7 @@ public class UtilisateurEntity implements UserDetails, Auditable {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !this.locked;
     }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-
 }

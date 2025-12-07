@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 035-alterTable-utilisateur-addColumn-locked
+      author: Aymen
+      changes:
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: loutillocked
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
