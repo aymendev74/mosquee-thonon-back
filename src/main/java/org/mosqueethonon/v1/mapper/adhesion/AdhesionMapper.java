@@ -10,7 +10,7 @@ import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 public interface AdhesionMapper {
 
     @Mapping(target = "id", ignore = true)
-    public void mapDtoToEntity(AdhesionDto adhesionDto, @MappingTarget AdhesionEntity adhesionEntity) ;
+    public void updateAdhesion(AdhesionDto adhesionDto, @MappingTarget AdhesionEntity adhesionEntity) ;
 
     public AdhesionDto fromEntityToDto(AdhesionEntity adhesionEntity);
 

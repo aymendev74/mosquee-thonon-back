@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.MailingStatut;
+import org.mosqueethonon.enums.MailRequestStatut;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -25,7 +25,7 @@ public class MailingConfirmationEntity implements Auditable {
     private Long id;
     @Column(name = "cdmacostatut")
     @Enumerated(EnumType.STRING)
-    private MailingStatut statut;
+    private MailRequestStatut statut;
     @Column(name = "idinsc")
     private Long idInscription;
     @Column(name = "idadhe")

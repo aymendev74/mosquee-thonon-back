@@ -5,10 +5,10 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.ApplicationProperties;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.enums.MailingStatut;
+import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.MailingActivationUtilisateurRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
@@ -39,21 +39,21 @@ public class MailActivationUtilisateurJob {
 
     private UtilisateurRepository utilisateurRepository;
 
-    private ApplicationProperties applicationProperties;
+    private ApplicationConfiguration applicationConfiguration;
 
     @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void sendPendingEmailsActivation() {
-        List<MailingActivationUtilisateurEntity> mailingActivationsToProcess = mailingActivationUtilisateurRepository.findByStatut(MailingStatut.PENDING);
+        List<MailingActivationUtilisateurEntity> mailingActivationsToProcess = mailingActivationUtilisateurRepository.findByStatut(MailRequestStatut.PENDING);
         if (!CollectionUtils.isEmpty(mailingActivationsToProcess)) {
             log.info("Il y a {} mails d'activation de compte à envoyer", mailingActivationsToProcess.size());
             for (MailingActivationUtilisateurEntity mailingActivationUtilisateur : mailingActivationsToProcess) {
-                MailingStatut statut;
+                MailRequestStatut statut;
                 try {
                     statut = this.processMail(mailingActivationUtilisateur);
                 } catch (MessagingException e) {
                     log.error("Problème lors de l'envoi du mail d'activation pour l'utilisateur {}", mailingActivationUtilisateur.getUsername(), e);
-                    statut = MailingStatut.ERROR;
+                    statut = MailRequestStatut.ERROR;
                 }
                 mailingActivationUtilisateur.setStatut(statut);
                 mailingActivationUtilisateurRepository.save(mailingActivationUtilisateur);
@@ -61,11 +61,11 @@ public class MailActivationUtilisateurJob {
         }
     }
 
-    private MailingStatut processMail(MailingActivationUtilisateurEntity mailingActivationUtilisateurEntity) throws MessagingException {
+    private MailRequestStatut processMail(MailingActivationUtilisateurEntity mailingActivationUtilisateurEntity) throws MessagingException {
         // Si envoi des mails désactivé, on n'envoi pas le mail d'activation
         boolean isSendEmailDisabled = !this.paramService.isSendEmailEnabled();
         if (isSendEmailDisabled) {
-            return MailingStatut.NOT_SENT;
+            return MailRequestStatut.IGNORED;
         }
 
         UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(mailingActivationUtilisateurEntity.getUsername())
@@ -74,7 +74,7 @@ public class MailActivationUtilisateurJob {
         TraductionDto bodyTemplate = this.traductionService.findTraductionByCleAndValeur("mail_activation", "body");
 
         // On remplace les placeholders par les valeurs réelles
-        String urlActivation = new StringBuilder(this.applicationProperties.getActivationUtilisateurUri())
+        String urlActivation = new StringBuilder(this.applicationConfiguration.getActivationUtilisateurUri())
                 .append("?")
                 .append("token=")
                 .append(mailingActivationUtilisateurEntity.getToken())
@@ -91,7 +91,7 @@ public class MailActivationUtilisateurJob {
 
         emailSender.send(message);
 
-        return MailingStatut.DONE;
+        return MailRequestStatut.SENT;
     }
 
 }

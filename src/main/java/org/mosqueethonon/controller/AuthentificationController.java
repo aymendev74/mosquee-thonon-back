@@ -1,7 +1,7 @@
 package org.mosqueethonon.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.configuration.security.AuthCookieProperties;
+import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
 import org.mosqueethonon.service.auth.IAuthService;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +19,7 @@ public class AuthentificationController {
 
     private IAuthService oauthService;
 
-    private AuthCookieProperties authCookieProperties;
+    private AuthCookieConfiguration authCookieConfiguration;
 
     @GetMapping("/login")
     public String login() {
@@ -43,9 +43,9 @@ public class AuthentificationController {
         // Créer cookie sécurisé
         ResponseCookie cookie = ResponseCookie.from("MOTH-TOKEN", jwt.getTokenValue())
                 .httpOnly(true)
-                .secure(this.authCookieProperties.isSecure())
-                .path(this.authCookieProperties.getPath())
-                .sameSite(this.authCookieProperties.getSameSite())
+                .secure(this.authCookieConfiguration.isSecure())
+                .path(this.authCookieConfiguration.getPath())
+                .sameSite(this.authCookieConfiguration.getSameSite())
                 .build();
 
         // Retourner les infos nécessaires à l'UI (rôles, nom, etc.)

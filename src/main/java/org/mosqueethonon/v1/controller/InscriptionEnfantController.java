@@ -24,12 +24,11 @@ public class InscriptionEnfantController {
     private LockManager lockManager;
 
     @PostMapping
-    public ResponseEntity<InscriptionEnfantDto> createInscription(@RequestBody InscriptionEnfantDto inscription,
-                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
+    public ResponseEntity<InscriptionEnfantDto> createInscription(@RequestBody InscriptionEnfantDto inscription) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            inscription = this.inscriptionEnfantService.createInscription(inscription, criteria);
+            inscription = this.inscriptionEnfantService.createInscription(inscription);
         } finally {
             lock.unlock();
         }

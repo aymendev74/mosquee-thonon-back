@@ -15,9 +15,8 @@ public class InscriptionAdulteController {
     private InscriptionAdulteService inscriptionAdulteService;
 
     @PostMapping
-    public ResponseEntity<InscriptionAdulteDto> createInscription(@RequestBody InscriptionAdulteDto inscription,
-                                                                  @ModelAttribute InscriptionSaveCriteria criteria) {
-        inscription = this.inscriptionAdulteService.createInscription(inscription, criteria);
+    public ResponseEntity<InscriptionAdulteDto> createInscription(@RequestBody InscriptionAdulteDto inscription) {
+        inscription = this.inscriptionAdulteService.createInscription(inscription);
         return ResponseEntity.ok(inscription);
     }
 

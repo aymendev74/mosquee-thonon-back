@@ -20,9 +20,11 @@ import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -35,11 +37,13 @@ public class TestInscriptionServiceImpl {
     @Mock
     private InscriptionEnfantService inscriptionEnfantService;
     @Mock
-    PeriodeService periodeService;
+    private PeriodeService periodeService;
+    @Mock
+    private MailRequestRepository mailRequestRepository;
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void testPatchInscriptions_WhenInscriptionsExist() {
@@ -129,6 +133,7 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
+        verify(mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
     }
 
     @Test
@@ -152,5 +157,6 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository).deleteAllById(ids);
+        verify(mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
     }
 }

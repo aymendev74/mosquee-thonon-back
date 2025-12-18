@@ -25,6 +25,7 @@ import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
@@ -56,7 +57,7 @@ public class TestInscriptionAdulteServiceImpl {
     private ParamService paramService;
 
     @Mock
-    private MailingConfirmationRepository mailingConfirmationRepository;
+    private MailRequestRepository mailRequestRepository;
 
     @Mock
     private MatiereService matiereService;
@@ -99,11 +100,11 @@ public class TestInscriptionAdulteServiceImpl {
         when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
 
 
-        InscriptionAdulteDto result = inscriptionAdulteService.createInscription(inscriptionDto, criteria);
+        InscriptionAdulteDto result = inscriptionAdulteService.createInscription(inscriptionDto);
 
         assertEquals(1, result.getMatieres().size());
-        verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
-        verify(mailingConfirmationRepository, times(1)).save(any(MailingConfirmationEntity.class));
+        verify(inscriptionAdulteRepository, times(1)).save(any());
+        verify(mailRequestRepository, times(1)).save(any());
     }
 
     @Test
@@ -136,8 +137,8 @@ public class TestInscriptionAdulteServiceImpl {
         assertNotNull(result);
         assertEquals(1, result.getMatieres().size());
         verify(inscriptionAdulteRepository, times(1)).findById(1L);
-        verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
-        verify(mailingConfirmationRepository, times(1)).save(any(MailingConfirmationEntity.class));
+        verify(inscriptionAdulteRepository, times(1)).save(any());
+        verify(mailRequestRepository, times(1)).save(any());
     }
 
     @Test

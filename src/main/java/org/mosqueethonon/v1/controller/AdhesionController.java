@@ -7,6 +7,7 @@ import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +32,8 @@ public class AdhesionController {
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<AdhesionDto> updateAdhesion(@PathVariable("id") Long id, @RequestBody AdhesionDto adhesion) {
-        adhesion = this.adhesionService.updateAdhesion(id, adhesion);
+    public ResponseEntity<AdhesionDto> updateAdhesion(@PathVariable("id") Long id, @RequestBody AdhesionDto adhesion, @ModelAttribute AdhesionSaveCriteria saveCriteria) {
+        adhesion = this.adhesionService.updateAdhesion(id, adhesion, saveCriteria);
         return ResponseEntity.ok(adhesion);
     }
 

@@ -6,7 +6,7 @@ import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
 import org.mosqueethonon.entity.utilisateur.RoleEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.enums.MailingStatut;
+import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.LoginRepository;
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     private void requestMailActivation(String username) {
         MailingActivationUtilisateurEntity mailingActivationUtilisateurEntity = new MailingActivationUtilisateurEntity();
         mailingActivationUtilisateurEntity.setUsername(username);
-        mailingActivationUtilisateurEntity.setStatut(MailingStatut.PENDING);
+        mailingActivationUtilisateurEntity.setStatut(MailRequestStatut.PENDING);
         mailingActivationUtilisateurEntity.setToken(UserActivationTokenGenerator.generateToken(32));
         this.mailingActivationUtilisateurRepository.save(mailingActivationUtilisateurEntity);
     }

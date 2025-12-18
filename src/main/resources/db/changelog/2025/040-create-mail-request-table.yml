@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 040-create-mail-request-table
+      author: Aymen
+      changes:
+        - createTable:
+            tableName: mail_request
+            columns:
+              - column:
+                  name: idmare
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: cdmaretype
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: businessid
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdmarestatut
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: txmaresubject
+                  type: VARCHAR(255)
+                  remarks: "Stocke l'objet du mail généré et envoyé"
+              - column:
+                  name: txmarebody
+                  type: TEXT
+                  remarks: "Stocke le corps du mail généré et envoyé"
+              - column:
+                  name: txmareattachments
+                  type: JSON
+                  remarks: "Stocke les pièces jointes envoyées avec le mail"
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(50)
