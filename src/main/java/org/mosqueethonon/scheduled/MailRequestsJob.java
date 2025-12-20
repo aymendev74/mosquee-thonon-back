@@ -52,7 +52,7 @@ public class MailRequestsJob {
     @Scheduled(fixedDelayString = "${scheduled.confirmation-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void sendPendingEmails() {
-        List<MailRequestEntity> mailRequests = mailRequestRepository.findByStatut(MailRequestStatut.PENDING);
+        List<MailRequestEntity> mailRequests = mailRequestRepository.findByStatutOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING);
         if (!CollectionUtils.isEmpty(mailRequests)) {
             log.info("Il y a {} demandes d'envoi de mails à traiter", mailRequests.size());
             mailRequests.forEach(this::processMailRequest);

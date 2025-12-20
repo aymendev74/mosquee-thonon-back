@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface MailingActivationUtilisateurRepository extends JpaRepository<MailingActivationUtilisateurEntity, Long> {
 
-    List<MailingActivationUtilisateurEntity> findByStatut(MailRequestStatut statut);
+    List<MailingActivationUtilisateurEntity> findByStatutOrderBySignatureDateCreationAsc(MailRequestStatut statut);
 
     MailingActivationUtilisateurEntity findByToken(String token);
 

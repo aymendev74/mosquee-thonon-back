@@ -44,7 +44,7 @@ public class MailActivationUtilisateurJob {
     @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void sendPendingEmailsActivation() {
-        List<MailingActivationUtilisateurEntity> mailingActivationsToProcess = mailingActivationUtilisateurRepository.findByStatut(MailRequestStatut.PENDING);
+        List<MailingActivationUtilisateurEntity> mailingActivationsToProcess = mailingActivationUtilisateurRepository.findByStatutOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING);
         if (!CollectionUtils.isEmpty(mailingActivationsToProcess)) {
             log.info("Il y a {} mails d'activation de compte à envoyer", mailingActivationsToProcess.size());
             for (MailingActivationUtilisateurEntity mailingActivationUtilisateur : mailingActivationsToProcess) {
