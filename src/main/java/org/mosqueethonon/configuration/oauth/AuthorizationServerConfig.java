@@ -1,6 +1,6 @@
 package org.mosqueethonon.configuration.oauth;
 
-import org.mosqueethonon.configuration.security.ApplicationProperties;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.service.UserService;
@@ -41,7 +41,7 @@ public class AuthorizationServerConfig {
     private UserService userService;
 
     @Autowired
-    private ApplicationProperties applicationProperties;
+    private ApplicationConfiguration applicationConfiguration;
 
     @Value("${server.port}")
     private String serverPort;
@@ -68,7 +68,7 @@ public class AuthorizationServerConfig {
                 .clientId("moth-react-app")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(this.applicationProperties.getLoginRedirectUri())
+                .redirectUri(this.applicationConfiguration.getLoginRedirectUri())
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .tokenSettings(tokenSettings())
                 .build();
@@ -79,7 +79,7 @@ public class AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer(this.applicationProperties.getIssuerUri())
+                .issuer(this.applicationConfiguration.getIssuerUri())
                 .build();
     }
 
@@ -110,7 +110,7 @@ public class AuthorizationServerConfig {
      */
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(this.applicationProperties.getJwtDecoderUri()).build();
+        return NimbusJwtDecoder.withJwkSetUri(this.applicationConfiguration.getJwtDecoderUri()).build();
     }
 
 }

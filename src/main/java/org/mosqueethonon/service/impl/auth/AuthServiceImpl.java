@@ -3,7 +3,7 @@ package org.mosqueethonon.service.impl.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.AuthCookieProperties;
+import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.service.auth.IAuthService;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
@@ -31,7 +31,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private final SecurityContext securityContext;
 
-    private final AuthCookieProperties authCookieProperties;
+    private final AuthCookieConfiguration authCookieConfiguration;
 
     @Override
     public Jwt exchangeCodeAgainstJWT(String code, String clientId, String redirectURI, String codeVerifier) {
@@ -69,9 +69,9 @@ public class AuthServiceImpl implements IAuthService {
         } catch (JwtException e) {
             ResponseCookie deleteCookie = ResponseCookie.from("MOTH-TOKEN", "")
                     .httpOnly(true)
-                    .secure(this.authCookieProperties.isSecure())
-                    .path(this.authCookieProperties.getPath())
-                    .sameSite(this.authCookieProperties.getSameSite())
+                    .secure(this.authCookieConfiguration.isSecure())
+                    .path(this.authCookieConfiguration.getPath())
+                    .sameSite(this.authCookieConfiguration.getSameSite())
                     .maxAge(0)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());

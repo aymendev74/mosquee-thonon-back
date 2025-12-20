@@ -39,9 +39,6 @@ public abstract class InscriptionEntity implements Auditable {
     private Integer noPositionAttente;
     @Embedded
     private Signature signature;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idinsc", updatable = false, insertable = false)
-    private List<MailingConfirmationEntity> mailingConfirmations;
     @Column(name = "mtinsctotal")
     private BigDecimal montantTotal;
     @Column(name = "cdinsctype", insertable = false, updatable = false)

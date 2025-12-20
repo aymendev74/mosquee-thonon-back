@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface InscriptionEnfantService {
 
-    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscriptionEnfantDto, InscriptionSaveCriteria criteria);
+    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscriptionEnfantDto);
 
     public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscriptionEnfantDto, InscriptionSaveCriteria criteria);
 

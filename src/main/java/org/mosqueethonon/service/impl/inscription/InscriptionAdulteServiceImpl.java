@@ -5,16 +5,13 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
-import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
+import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
-import org.mosqueethonon.enums.MailingStatut;
-import org.mosqueethonon.enums.MatiereEnum;
-import org.mosqueethonon.enums.StatutProfessionnelEnum;
-import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.enums.*;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailingConfirmationRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
@@ -46,13 +43,13 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
     private TarifCalculService tarifCalculService;
 
-    private MailingConfirmationRepository mailingConfirmationRepository;
+    private MailRequestRepository mailRequestRepository;
 
     private MatiereService matiereService;
 
     @Override
     @Transactional
-    public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria) {
+    public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription) {
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
 
@@ -71,8 +68,8 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         // On sauvegarde
         entity = this.inscriptionAdulteRepository.save(entity);
 
-        // Envoi du mail si besoins (PROD et DEV uniquement, pas en STA, trop dangereux)
-        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
+        // Envoi du mail de prise en compte
+        this.createMailRequest(entity.getId());
         return this.inscriptionAdulteMapper.fromEntityToDto(entity);
     }
 
@@ -111,7 +108,9 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         entity.getMatieres().addAll(this.mapInscriptionMatieres(inscription));
         this.calculTarif(entity, null, inscription.getStatutProfessionnel());
         entity = this.inscriptionAdulteRepository.save(entity);
-        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
+        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+            this.createMailRequest(entity.getId());
+        }
         return this.inscriptionAdulteMapper.fromEntityToDto(entity);
     }
 
@@ -123,11 +122,10 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         inscription.setMontantTotal(tarif.getTarif());
     }
 
-    private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
-        if (Boolean.TRUE.equals(sendEmail)) {
-            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
-                    .statut(MailingStatut.PENDING).build());
-        }
+    private void createMailRequest(Long idInscription) {
+        this.mailRequestRepository.save(MailRequestEntity.builder().businessId(idInscription)
+                .type(MailRequestType.INSCRIPTION).statut(MailRequestStatut.PENDING)
+                .build());
     }
 
     @Override

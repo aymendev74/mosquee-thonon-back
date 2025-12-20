@@ -9,7 +9,7 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 @Data
-public class ApplicationProperties {
+public class ApplicationConfiguration {
 
     private String tokenUri;
     private String loginRedirectUri;
@@ -18,5 +18,12 @@ public class ApplicationProperties {
     private String issuerUri;
     private String jwtDecoderUri;
     private String activationUtilisateurUri;
+    private RibAmc ribAmc;
+
+    @Data
+    public static final class RibAmc {
+        private String fileLocation;
+        private String mailAttachmentFilename;
+    }
 
 }

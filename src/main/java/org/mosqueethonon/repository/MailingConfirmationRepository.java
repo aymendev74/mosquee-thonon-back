@@ -1,7 +1,7 @@
 package org.mosqueethonon.repository;
 
 import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
-import org.mosqueethonon.enums.MailingStatut;
+import org.mosqueethonon.enums.MailRequestStatut;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface MailingConfirmationRepository extends JpaRepository<MailingConfirmationEntity, Long> {
 
-    List<MailingConfirmationEntity> findByStatut(MailingStatut statut);
+    List<MailingConfirmationEntity> findByStatut(MailRequestStatut statut);
 
 }

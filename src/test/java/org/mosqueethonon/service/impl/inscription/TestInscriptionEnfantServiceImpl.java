@@ -1,12 +1,10 @@
 package org.mosqueethonon.service.impl.inscription;
 
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
@@ -14,8 +12,7 @@ import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailingConfirmationRepository;
-import org.mosqueethonon.repository.PeriodeRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
@@ -30,6 +27,9 @@ import org.mosqueethonon.v1.mapper.inscription.ResponsableLegalMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInscriptionEnfantServiceImpl {
@@ -47,37 +47,23 @@ public class TestInscriptionEnfantServiceImpl {
     @Mock
     private TarifCalculService tarifCalculService;
     @Mock
-    private MailingConfirmationRepository mailingConfirmationRepository;
-    @Mock
-    private PeriodeRepository periodeRepository;
+    private MailRequestRepository mailRequestRepository;
     @Mock
     private ParamService paramService;
-    @Captor
-    private ArgumentCaptor<InscriptionEnfantEntity> inscriptionCaptor;
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
-
-    @Test
-    public void testSaveInscriptionSendEmailConfirmation() {
-        this.testSaveInscription(Boolean.TRUE);
-    }
-
-    @Test
-    public void testSaveInscriptionDoNotSendEmailConfirmation() {
-        this.testSaveInscription(Boolean.FALSE);
-    }
 
     @Test
     public void testSaveInscriptionExpectIllegalStateExceptionWhenInscriptionDisabled() {
         when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.FALSE);
         assertThrows(IllegalStateException.class,
                 () -> {
-                    this.underTest.createInscription(null, InscriptionSaveCriteria.builder()
-                            .build());
+                    this.underTest.createInscription(null);
                 });
     }
 
-    private void testSaveInscription(boolean sendMailConfirmation) {
+    @Test
+    private void testCreateInscription() {
         // GIVEN
         final String anneeScolaire = "2024/2025";
         final Long numeroInscription = Long.valueOf(1001);
@@ -92,11 +78,10 @@ public class TestInscriptionEnfantServiceImpl {
         when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
 
         // WHEN
-        this.underTest.createInscription(inscriptionEnfantDto, InscriptionSaveCriteria.builder().sendMailConfirmation(sendMailConfirmation)
-                .build());
+        this.underTest.createInscription(inscriptionEnfantDto);
 
         // THEN
-        verify(this.mailingConfirmationRepository, times(sendMailConfirmation ? 1 : 0)).save(any());
+        verify(this.mailRequestRepository).save(any());
         verify(this.inscriptionEnfantRepository).save(any());
         verify(this.paramService).isInscriptionEnfantEnabled();
         verify(this.inscriptionRepository).getNextNumeroInscription();
