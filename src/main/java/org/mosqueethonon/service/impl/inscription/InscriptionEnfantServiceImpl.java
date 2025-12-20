@@ -5,12 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
-import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
+import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.enums.MailingStatut;
-import org.mosqueethonon.enums.NiveauInterneEnum;
-import org.mosqueethonon.enums.ResultatEnum;
-import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.enums.*;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
@@ -50,7 +47,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private TarifCalculService tarifCalculService;
 
-    private MailingConfirmationRepository mailingConfirmationRepository;
+    private MailRequestRepository mailRequestRepository;
 
     private ParamService paramService;
 
@@ -60,7 +57,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     @Transactional
     @Override
-    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription, InscriptionSaveCriteria criteria) {
+    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription) {
         if (!this.paramService.isInscriptionEnfantEnabled()) {
             // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
             RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
@@ -76,7 +73,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
         entity = this.inscriptionEnfantRepository.save(entity);
-        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
+        this.createMailRequest(entity.getId());
         return this.inscriptionEnfantMapper.fromEntityToDto(entity);
     }
 
@@ -93,7 +90,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
         inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
-        this.sendEmailIfRequired(entity.getId(), criteria.getSendMailConfirmation());
+        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+            this.createMailRequest(entity.getId());
+        }
         return inscription;
     }
 
@@ -144,10 +143,10 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private boolean validateReinscription(InscriptionEnfantEntity inscription) {
         for (EleveEntity eleve : inscription.getEleves()) {
             TarifEntity tarif = this.tarifRepository.findById(eleve.getIdTarif()).orElse(null);
-            if(tarif == null || tarif.getPeriode() == null) {
+            if (tarif == null || tarif.getPeriode() == null) {
                 throw new IllegalArgumentException("Le tarif et la période pour cette inscription n'ont pas pu être déterminés !");
             }
-            if(tarif.getPeriode().getIdPeriodePrecedente() == null) {
+            if (tarif.getPeriode().getIdPeriodePrecedente() == null) {
                 throw new IllegalArgumentException("La période précédente n'existe pas sur la période actuelle ! idperi = " + tarif.getPeriode().getId());
             }
             EleveEntity ancienEleve = this.inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(eleve.getNom(), eleve.getPrenom(),
@@ -167,7 +166,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
             return null;
         }
         // Si année non validée alors l'élève reste dans le niveau de l'année précédente
-        if(ancienEleve.getResultat() == ResultatEnum.NON_ACQUIS) {
+        if (ancienEleve.getResultat() == ResultatEnum.NON_ACQUIS) {
             return ancienEleve.getNiveauInterne();
         }
         // Sinon il passe au niveau suivant
@@ -247,11 +246,9 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         return Incoherences.NO_INCOHERENCE;
     }
 
-    private void sendEmailIfRequired(Long idInscription, Boolean sendEmail) {
-        if (Boolean.TRUE.equals(sendEmail)) {
-            this.mailingConfirmationRepository.save(MailingConfirmationEntity.builder().idInscription(idInscription)
-                    .statut(MailingStatut.PENDING).build());
-        }
+    private void createMailRequest(Long idInscription) {
+        this.mailRequestRepository.save(MailRequestEntity.builder().businessId(idInscription)
+                .type(MailRequestType.INSCRIPTION).statut(MailRequestStatut.PENDING).build());
     }
 
     @Override

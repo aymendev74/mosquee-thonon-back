@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
+import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
@@ -21,6 +23,7 @@ import java.util.*;
 @AllArgsConstructor
 public class InscriptionServiceImpl implements InscriptionService {
 
+    private MailRequestRepository mailRequestRepository;
     private InscriptionRepository inscriptionRepository;
     private PeriodeService periodeService;
 
@@ -62,6 +65,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     @Transactional
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
+        this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
         this.inscriptionRepository.deleteAllById(ids);
         return ids;
     }

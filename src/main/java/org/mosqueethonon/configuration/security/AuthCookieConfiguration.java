@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "auth.cookie", ignoreUnknownFields = false)
 @Data
-public class AuthCookieProperties {
+public class AuthCookieConfiguration {
 
     private boolean secure;
     private String path;

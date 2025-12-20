@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.MailingStatut;
+import org.mosqueethonon.enums.MailRequestStatut;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -28,7 +28,7 @@ public class MailingActivationUtilisateurEntity implements Auditable {
 
     @Column(name = "cduamastatut")
     @Enumerated(EnumType.STRING)
-    private MailingStatut statut;
+    private MailRequestStatut statut;
 
     private Signature signature;
 

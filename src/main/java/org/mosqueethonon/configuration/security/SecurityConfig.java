@@ -44,7 +44,7 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    private ApplicationProperties applicationProperties;
+    private ApplicationConfiguration applicationConfiguration;
 
     private UserService userService;
 
@@ -115,7 +115,7 @@ public class SecurityConfig {
 
     private LogoutSuccessHandler logoutSuccessHandler() {
         SimpleUrlLogoutSuccessHandler handler = new SimpleUrlLogoutSuccessHandler();
-        handler.setDefaultTargetUrl(this.applicationProperties.getLogoutRedirectUri());  // Rediriger vers la page d'accueil après déconnexion
+        handler.setDefaultTargetUrl(this.applicationConfiguration.getLogoutRedirectUri());  // Rediriger vers la page d'accueil après déconnexion
         return handler;
     }
 
@@ -156,7 +156,7 @@ public class SecurityConfig {
     @Qualifier("corsConfigurationSource")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(this.applicationProperties.getAllowedOrigins());
+        configuration.setAllowedOrigins(this.applicationConfiguration.getAllowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

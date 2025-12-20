@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
-import org.mosqueethonon.exception.BadRequestException;
+import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
+import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapperImpl;
@@ -36,7 +37,7 @@ public class TestAdhesionServiceImpl {
     private AdhesionMapper adhesionMapper = new AdhesionMapperImpl();
 
     @Mock
-    private MailingConfirmationRepository mailingConfirmationRepository;
+    private MailRequestRepository mailRequestRepository;
 
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
@@ -59,9 +60,9 @@ public class TestAdhesionServiceImpl {
 
         assertNotNull(result);
         assertEquals(adhesionEntity.getStatut(), result.getStatut());
-        verify(adhesionMapper).mapDtoToEntity(any(), any());
+        verify(adhesionMapper).updateAdhesion(any(), any());
         verify(adhesionRepository).save(any());
-        verify(mailingConfirmationRepository).save(any());
+        verify(mailRequestRepository).save(any());
     }
 
     @Test
@@ -105,6 +106,7 @@ public class TestAdhesionServiceImpl {
         assertNotNull(result);
         assertEquals(ids, result);
         verify(adhesionRepository).deleteAllById(ids);
+        verify(this.mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, ids);
     }
 
     @Test
@@ -142,6 +144,7 @@ public class TestAdhesionServiceImpl {
         assertEquals(StatutInscription.VALIDEE, adhesion1.getStatut());
         assertEquals(StatutInscription.VALIDEE, adhesion2.getStatut());
         verify(adhesionRepository, times(2)).save(any());
+        verify(mailRequestRepository, times(2)).save(any());
     }
 
     @Test
@@ -161,10 +164,13 @@ public class TestAdhesionServiceImpl {
     @Test
     public void testUpdateAdhesion_WhenAdhesionExists() {
         // Arrange
+        var adhesionCriteria = AdhesionSaveCriteria.builder().build();
         Long id = 1L;
         AdhesionDto adhesionDto = new AdhesionDto();
+        adhesionDto.setStatut(StatutInscription.VALIDEE);
 
         AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
         adhesionEntity.setId(id);
 
         when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
@@ -172,18 +178,20 @@ public class TestAdhesionServiceImpl {
         when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
 
         // Act
-        AdhesionDto result = adhesionService.updateAdhesion(id, adhesionDto);
+        AdhesionDto result = adhesionService.updateAdhesion(id, adhesionDto, adhesionCriteria);
 
         // Assert
         assertNotNull(result);
         verify(adhesionRepository).findById(id);
-        verify(adhesionMapper).mapDtoToEntity(adhesionDto, adhesionEntity);
+        verify(adhesionMapper).updateAdhesion(adhesionDto, adhesionEntity);
         verify(adhesionRepository).save(adhesionEntity);
+        verify(mailRequestRepository).save(any());
     }
 
     @Test
     public void testUpdateAdhesion_WhenAdhesionDoesNotExist() {
         // Arrange
+        var adhesionCriteria = AdhesionSaveCriteria.builder().build();
         Long id = 1L;
         AdhesionDto adhesionDto = new AdhesionDto();
 
@@ -191,11 +199,11 @@ public class TestAdhesionServiceImpl {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            adhesionService.updateAdhesion(id, adhesionDto);
+            adhesionService.updateAdhesion(id, adhesionDto, adhesionCriteria);
         });
         assertEquals("Inscription not found ! idinsc = " + id, exception.getMessage());
         verify(adhesionRepository).findById(id);
-        verify(adhesionMapper, never()).mapDtoToEntity(any(), any());
+        verify(adhesionMapper, never()).updateAdhesion(any(), any());
         verify(adhesionRepository, never()).save(any());
     }
 }

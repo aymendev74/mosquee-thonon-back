@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: 042-update-ref-traduction-adhesion
+      author: Aymen
+      changes:
+        - delete:
+            tableName: ref_traduction
+            where: cdtradcle = 'mail_adhesion' and cdtradvaleur = 'body'
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_adhesion_provisoire
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Adhésion AMC</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #555555; font-size: 16px;">Nous vous remercions pour votre demande d'adhésion, vous serez recontacté très rapidement pour la finaliser.</p>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>
+        - insert:
+            tableName: ref_traduction
+            columns:
+              - column:
+                  name: cdtradcle
+                  value: mail_adhesion_validee
+              - column:
+                  name: cdtradvaleur
+                  value: body
+              - column:
+                  name: txtradfr
+                  value: |
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <title>Adhésion AMC</title>
+                    </head>
+                    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                        <tr>
+                          <td style="text-align: center;">
+                            <h2 style="color: #333333;">Assalam aleykoum @@{prenom} @@{nom},</h2>
+                            <p style="color: #2e7d32; font-size: 18px; font-weight: bold; margin: 20px 0 25px 0;">
+                              ✅ Votre demande d'adhésion a été validée par l'AMC.
+                            </p>
+                            <p style="color: #555555; font-size: 16px; margin-bottom: 25px;">
+                              Vous trouverez ci-joint le RIB de l'association qui vous permettra d'effectuer le versement de vos cotisations.
+                            </p>
+                            <p style="color: #757575; font-size: 14px; line-height: 1.5; font-style: italic; margin: 30px 0 20px 0; padding: 15px; background-color: #f8f8f8; border-radius: 4px;">
+                              Nous vous remercions pour votre adhésion. Votre contribution est essentielle au bon fonctionnement de la mosquée et nous permet de maintenir nos activités cultuelles, d'entretien des locaux et d'accueil des fidèles dans les meilleures conditions.
+                            </p>
+                            <div style="margin-top: 28px; color: #888; font-size: 14px;">
+                              Cordialement,<br>
+                              <strong>L'équipe de l'Association Musulmane du Chablais</strong>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </body>
+                    </html>

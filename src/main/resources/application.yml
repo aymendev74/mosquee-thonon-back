@@ -15,6 +15,8 @@ server:
     threads:
       max: 100
 spring:
+  jackson:
+    default-property-inclusion: non_null
   profiles:
     active: dev
   liquibase:
@@ -61,6 +63,9 @@ app:
   issuer-uri: ${ISSUER_URI}
   jwt-decoder-uri: ${JWT_DECODER_URI}
   activation-utilisateur-uri: ${ACTIVATION_UTILISATEUR_URI}
+  rib-amc:
+    file-location: ${RIB_AMC_FILE_LOCATION}
+    mail-attachment-filename: ${RIB_AMC_MAIL_ATTACHMENT_NAME}
 
 auth:
   cookie:

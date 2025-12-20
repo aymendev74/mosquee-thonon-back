@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 041-migrate-mailingconfirmation-data
+      author: Aymen
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO mail_request (
+                cdmaretype,
+                businessid,
+                cdmarestatut,
+                oh_date_cre,
+                oh_vis_cre,
+                oh_date_mod,
+                oh_vis_mod
+              )
+              SELECT 
+                CASE 
+                  WHEN mc.idinsc IS NOT NULL THEN 'INSCRIPTION'
+                  WHEN mc.idadhe IS NOT NULL THEN 'ADHESION'
+                  ELSE NULL
+                END as cdmaretype,
+                COALESCE(mc.idinsc, mc.idadhe) as businessid,
+                CASE mc.cdmacostatut
+                  WHEN 'NOT_SENT' THEN 'IGNORED'
+                  WHEN 'DONE' THEN 'SENT'
+                  ELSE mc.cdmacostatut
+                END as cdmarestatut, -- changement de certaines valeurs dans l'enum pour plus de clarté
+                mc.oh_date_cre,
+                mc.oh_vis_cre,
+                mc.oh_date_mod,
+                mc.oh_vis_mod
+              FROM mailingconfirmation mc
+            comment: Migration des données de mailingconfirmation vers mail_request
+
+        - update:
+            catalogName: liquibase
+            columns:
+              - column:
+                  name: cduamastatut
+                  value: SENT
+            tableName: utilisateur_activation_mailing
+            where: cduamastatut='DONE'
+            comment: Changements de la valeur de l'enum DONE devient SENT
+
+        - update:
+            catalogName: liquibase
+            columns:
+              - column:
+                  name: cduamastatut
+                  value: IGNORED
+            tableName: utilisateur_activation_mailing
+            where: cduamastatut='NOT_SENT'
+            comment: Changements de la valeur de l'enum NOT_SENT devient IGNORED
+
+        - sql:
+            sql: |
+              COMMENT ON COLUMN mail_request.cdmaretype IS 'Type de la demande (INSCRIPTION, ADHESION, etc.)';
+              COMMENT ON COLUMN mail_request.businessid IS 'ID métier (idInscription ou idAdhesion)';
+              COMMENT ON COLUMN mail_request.cdmarestatut IS 'Statut de la demande de mail';
+            
+            comment: Ajout des commentaires sur les colonnes
