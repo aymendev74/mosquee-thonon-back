@@ -21,4 +21,6 @@ public interface PeriodeService {
 
     PeriodeEntity findPeriodeById(Long id);
 
+    void deletePeriode(Long id);
+
 }

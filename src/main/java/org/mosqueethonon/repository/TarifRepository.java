@@ -12,4 +12,6 @@ public interface TarifRepository extends JpaRepository<TarifEntity, Long>, JpaSp
 
     public List<TarifEntity> findByPeriodeId(Long idPeriode);
 
+    public void deleteByPeriodeId(Long idPeriode);
+
 }

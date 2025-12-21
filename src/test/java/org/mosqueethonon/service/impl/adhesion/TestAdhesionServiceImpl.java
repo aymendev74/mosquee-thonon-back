@@ -20,7 +20,6 @@ import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
-import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;

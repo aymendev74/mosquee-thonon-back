@@ -19,14 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
-import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
-import org.mosqueethonon.repository.MailingConfirmationRepository;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
@@ -36,7 +34,6 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapperImpl;
-import org.springframework.core.env.Environment;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInscriptionAdulteServiceImpl {
