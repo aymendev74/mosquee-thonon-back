@@ -4,18 +4,18 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
+import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.utils.DateUtils;
-import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeValidationResultDto;
-import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.referentiel.PeriodeInfoMapper;
 import org.mosqueethonon.v1.mapper.referentiel.PeriodeMapper;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,7 @@ public class PeriodeServiceImpl implements PeriodeService {
 
     private PeriodeInfoRepository periodeInfoRepository;
     private PeriodeRepository periodeRepository;
+    private TarifRepository tarifRepository;
     private PeriodeInfoMapper periodeInfoMapper;
     private PeriodeMapper periodeMapper;
     private InscriptionEnfantService inscriptionEnfantService;
@@ -157,5 +158,16 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     public PeriodeEntity findPeriodeById(Long id) {
         return this.periodeRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void deletePeriode(Long id) {
+        PeriodeEntity periode = this.periodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
+
+        this.tarifRepository.deleteByPeriodeId(id);
+
+        this.periodeRepository.delete(periode);
     }
 }

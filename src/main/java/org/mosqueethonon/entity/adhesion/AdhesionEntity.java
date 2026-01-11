@@ -1,18 +1,16 @@
 package org.mosqueethonon.entity.adhesion;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -57,8 +55,4 @@ public class AdhesionEntity implements Auditable {
     private Integer noMembre;
     @Embedded
     private Signature signature;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idadhe", updatable = false, insertable = false)
-    private List<MailingConfirmationEntity> mailingConfirmations;
-
 }

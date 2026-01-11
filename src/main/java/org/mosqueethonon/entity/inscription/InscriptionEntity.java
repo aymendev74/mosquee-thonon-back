@@ -6,7 +6,6 @@ import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.entity.mail.MailingConfirmationEntity;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
