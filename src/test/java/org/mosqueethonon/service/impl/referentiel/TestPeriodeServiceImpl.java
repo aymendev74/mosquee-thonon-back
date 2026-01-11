@@ -20,6 +20,7 @@ import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
+import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
@@ -38,6 +39,9 @@ public class TestPeriodeServiceImpl {
 
     @Mock
     private PeriodeRepository periodeRepository;
+
+    @Mock
+    private TarifRepository tarifRepository;
 
     @Spy
     private PeriodeInfoMapper periodeInfoMapper = new PeriodeInfoMapperImpl();
@@ -215,5 +219,35 @@ public class TestPeriodeServiceImpl {
         assertThrows(ResourceNotFoundException.class, () -> {
             periodeService.updateNbMaxElevesIfNeeded(idPeriode);
         });
+    }
+
+    @Test
+    public void testDeletePeriode_Success() {
+        // Given
+        Long id = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(id);
+        when(periodeRepository.findById(id)).thenReturn(Optional.of(periodeEntity));
+
+        // When
+        periodeService.deletePeriode(id);
+
+        // Then
+        verify(tarifRepository).deleteByPeriodeId(id);
+        verify(periodeRepository).delete(periodeEntity);
+    }
+
+    @Test
+    public void testDeletePeriode_PeriodeNotFound() {
+        // Given
+        Long id = 1L;
+        when(periodeRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            periodeService.deletePeriode(id);
+        });
+        verify(tarifRepository, never()).deleteByPeriodeId(anyLong());
+        verify(periodeRepository, never()).delete(any(PeriodeEntity.class));
     }
 }

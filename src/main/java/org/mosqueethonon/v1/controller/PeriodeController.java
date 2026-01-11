@@ -52,6 +52,18 @@ public class PeriodeController {
         return ResponseEntity.ok(periode);
     }
 
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deletePeriode(@PathVariable("id") Long id) {
+        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
+        lock.lock();
+        try {
+            this.periodeService.deletePeriode(id);
+        } finally {
+            lock.unlock();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(path = "/validation")
     public ResponseEntity<PeriodeValidationResultDto> validatePeriode(@RequestBody PeriodeDto periode) {
         PeriodeValidationResultDto result = this.periodeService.validatePeriode(null, periode);
