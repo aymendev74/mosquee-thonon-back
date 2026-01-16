@@ -50,6 +50,8 @@ public class SecurityConfig {
 
     private JwtCookieFilter jwtCookieFilter;
 
+    private MdcUserFilter mdcUserFilter;
+
     private static final String[] AUTH_WHITE_LIST = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -99,6 +101,7 @@ public class SecurityConfig {
                         .permitAll());
 
         http.addFilterBefore(jwtCookieFilter, BearerTokenAuthenticationFilter.class);
+        http.addFilterAfter(mdcUserFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }
