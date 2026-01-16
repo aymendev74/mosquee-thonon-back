@@ -6,6 +6,15 @@
 #        org.springframework.security.oauth2.client: DEBUG
 #        org.springframework.security.oauth2.jwt: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
 server:
   port: 8080
   servlet:
