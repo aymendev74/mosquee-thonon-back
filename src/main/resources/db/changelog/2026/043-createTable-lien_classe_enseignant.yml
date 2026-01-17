@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 043-createTable-lien_classe_enseignant
+      author: Aymen
+      changes:
+        - createTable:
+            schemaName: moth
+            tableName: lien_classe_enseignant
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: lien_classe_enseignant_pkey
+                  name: idlcen
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: idclas
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: idutil
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(20)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(20)
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: lien_classe_enseignant
+            baseColumnNames: idclas
+            referencedTableSchemaName: moth
+            referencedTableName: classe
+            referencedColumnNames: idclas
+            constraintName: fk_lien_classe_enseignant_classe
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: lien_classe_enseignant
+            baseColumnNames: idutil
+            referencedTableSchemaName: moth
+            referencedTableName: utilisateur
+            referencedColumnNames: idutil
+            constraintName: fk_lien_classe_enseignant_utilisateur
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+
+        # Migrer les données existantes de classe.idutil vers lien_classe_enseignant
+        - sql:
+            sql: |
+              INSERT INTO moth.lien_classe_enseignant (idclas, idutil, oh_date_cre, oh_vis_cre)
+              SELECT idclas, idutil, NOW(), 'SQL_MIG'
+              FROM moth.classe
+              WHERE idutil IS NOT NULL;
+
+        # Supprimer la contrainte FK sur classe.idutil
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: classe
+            constraintName: fk_classe_utilisateur

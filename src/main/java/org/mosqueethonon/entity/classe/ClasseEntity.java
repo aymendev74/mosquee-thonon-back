@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 
 import java.util.Comparator;
@@ -33,11 +31,9 @@ public class ClasseEntity implements Auditable {
     @Column(name = "cdclasniveau")
     @Enumerated(EnumType.STRING)
     private NiveauInterneEnum niveau;
-    @Column(name = "idutil")
-    private Long idUtilisateur;
-    @ManyToOne
-    @JoinColumn(name = "idutil", insertable = false, updatable = false)
-    private UtilisateurEntity enseignant;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "idclas", nullable = false)
+    private List<LienClasseEnseignantEntity> liensClasseEnseignants;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idclas", nullable = false)
     private List<LienClasseEleveEntity> liensClasseEleves;

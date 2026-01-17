@@ -928,3 +928,5 @@ databaseChangeLog:
       - path: db/changelog/2024
   - includeAll:
       - path: db/changelog/2025
+  - includeAll:
+      - path: db/changelog/2026

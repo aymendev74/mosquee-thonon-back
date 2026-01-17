@@ -11,6 +11,7 @@ import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.JourActiviteEnum;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.exception.UnauthorizedResourceAccessException;
 import org.mosqueethonon.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.service.classe.IClasseService;
@@ -251,6 +252,11 @@ public class ClasseServiceImpl implements IClasseService {
         ClasseEntity classe = this.classeRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("La classe n'a pas été trouvée, id = " + id)
         );
+        // On vérifie que l'utilisateur qui demande la resource est bien autorisé
+        if(!this.securityContext.isAdmin() && classe.getLiensClasseEnseignants().stream().map(LienClasseEnseignantEntity::getEnseignant)
+                .noneMatch(user -> user.getUsername().equals(this.securityContext.getVisa()))) {
+            throw new UnauthorizedResourceAccessException("L'utilisateur " + this.securityContext.getVisa() + " n'a pas accès à la classe " + id);
+        }
         return this.classeMapper.fromEntityToDto(classe);
     }
 }
