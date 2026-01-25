@@ -30,6 +30,10 @@ public class MailingActivationUtilisateurEntity implements Auditable {
     @Enumerated(EnumType.STRING)
     private MailRequestStatut statut;
 
+    @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

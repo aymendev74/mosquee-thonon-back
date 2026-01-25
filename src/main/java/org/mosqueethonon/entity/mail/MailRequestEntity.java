@@ -53,5 +53,8 @@ public class MailRequestEntity implements Auditable {
 
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

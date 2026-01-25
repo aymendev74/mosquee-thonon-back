@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 047-dropTable-enseignant-and-column-idense
+      author: Aymen
+      changes:
+        - dropColumn:
+            columnName: idense
+            tableName: classe
+        - dropTable:
+            tableName: enseignant
+

@@ -42,5 +42,8 @@ public class TarifEntity implements Auditable {
     private String code;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

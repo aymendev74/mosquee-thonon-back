@@ -48,5 +48,8 @@ public class ResponsableLegalEntity implements Auditable {
     private String telephoneAutre;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

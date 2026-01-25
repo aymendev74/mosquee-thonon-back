@@ -22,6 +22,10 @@ public class InscriptionMatiereEntity implements Auditable {
     @ManyToOne
     @JoinColumn(name = "idmati", nullable = false)
     private MatiereEntity matiere;
+    @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

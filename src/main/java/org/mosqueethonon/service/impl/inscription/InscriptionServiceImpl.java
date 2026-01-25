@@ -1,16 +1,20 @@
 package org.mosqueethonon.service.impl.inscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.MailRequestType;
+import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionService;
+import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,8 @@ public class InscriptionServiceImpl implements InscriptionService {
     private MailRequestRepository mailRequestRepository;
     private InscriptionRepository inscriptionRepository;
     private PeriodeService periodeService;
+    private LockService lockService;
+    private SecurityContext securityContext;
 
     @Transactional
     @Override
@@ -44,6 +50,7 @@ public class InscriptionServiceImpl implements InscriptionService {
             throw new BadRequestException("Missing 'id' field or wrong type (expect Long) to patch inscription !");
         }
         Long id = patchNode.get("id").asLong();
+        this.lockService.acquireLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
         InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Inscription with id " + id + " does not exist !"));
         if (patchNode.has("statut")) {
             if(patchNode.get("statut").isNull()) {
@@ -59,14 +66,19 @@ public class InscriptionServiceImpl implements InscriptionService {
         Long idPeriode = this.inscriptionRepository.getIdPeriodeByIdInscription(inscription.getId());
         this.periodeService.updateNbMaxElevesIfNeeded(idPeriode);
         this.inscriptionRepository.save(inscription);
+        this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
         return id;
     }
 
     @Transactional
     @Override
     public Set<Long> deleteInscriptions(Set<Long> ids) {
-        this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
-        this.inscriptionRepository.deleteAllById(ids);
+        for(Long id : ids) {
+            this.lockService.acquireLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
+            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, Sets.newHashSet(id));
+            this.inscriptionRepository.deleteById(id);
+            this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
+        }
         return ids;
     }
 

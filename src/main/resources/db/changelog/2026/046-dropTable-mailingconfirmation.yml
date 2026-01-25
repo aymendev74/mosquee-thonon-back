@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 046-dropTable-mailingconfirmation
+      author: Aymen
+      changes:
+        - dropTable:
+            schemaName: moth
+            tableName: mailingconfirmation

@@ -49,6 +49,9 @@ public class ClasseEntity implements Auditable {
     private List<ClasseFeuillePresenceEntity> feuillesPresences;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
     /**
      * Getter personnalisé car on veut toujours trier la liste des élèves par ordre alphabetique
