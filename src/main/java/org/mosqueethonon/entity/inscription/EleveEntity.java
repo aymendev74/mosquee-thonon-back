@@ -54,5 +54,8 @@ public class EleveEntity implements Auditable {
     private Long classeId;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

@@ -29,5 +29,8 @@ public class ClasseFeuillePresenceEntity implements Auditable {
     private FeuillePresenceEntity feuillePresence;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

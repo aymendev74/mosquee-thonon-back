@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
+import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.enums.NoteMatiereEnum;
 
 @Entity
+@EntityListeners(EntityListener.class)
 @Table(name = "bulletin_matiere", schema = "moth")
 @Data
 @NoArgsConstructor
@@ -30,5 +32,8 @@ public class BulletinMatiereEntity implements Auditable {
     private String remarque;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

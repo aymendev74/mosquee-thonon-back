@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
+import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@EntityListeners(EntityListener.class)
 @Table(name = "bulletin", schema = "moth")
 @Data
 @NoArgsConstructor
@@ -38,5 +40,8 @@ public class BulletinEntity implements Auditable {
     private List<BulletinMatiereEntity> bulletinMatieres;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

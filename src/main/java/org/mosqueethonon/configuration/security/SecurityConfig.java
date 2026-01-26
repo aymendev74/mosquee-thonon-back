@@ -92,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                        .requestMatchers("/v1/locks").authenticated()
                         .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .formLogin(login -> login.loginPage("/login").successHandler(loginSuccessHandler()).permitAll())

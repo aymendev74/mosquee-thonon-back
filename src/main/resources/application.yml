@@ -72,6 +72,7 @@ app:
   issuer-uri: ${ISSUER_URI}
   jwt-decoder-uri: ${JWT_DECODER_URI}
   activation-utilisateur-uri: ${ACTIVATION_UTILISATEUR_URI}
+  resource-lock-timeout: ${RESOURCE_LOCK_TIMEOUT}
   rib-amc:
     file-location: ${RIB_AMC_FILE_LOCATION}
     mail-attachment-filename: ${RIB_AMC_MAIL_ATTACHMENT_NAME}

@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 045-createTable-lock_verrou
+      author: Aymen
+      changes:
+        - createTable:
+            schemaName: moth
+            tableName: lock_verrou
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: lock_verrou_pkey
+                  name: idlove
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: cdloveresourcetype
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdloveresourceid
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdlovelockedby
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdlovelockedat
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdloveexpiresat
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: moth
+            tableName: lock_verrou
+            columnNames: cdloveresourcetype, cdloveresourceid
+            constraintName: uk_lock_verrou_resource

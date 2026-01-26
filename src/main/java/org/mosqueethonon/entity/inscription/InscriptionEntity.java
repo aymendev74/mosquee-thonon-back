@@ -47,5 +47,8 @@ public abstract class InscriptionEntity implements Auditable {
     private List<EleveEntity> eleves;
     @Formula("(select moth.getAnneeScolaire(idinsc))")
     private String anneeScolaire;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

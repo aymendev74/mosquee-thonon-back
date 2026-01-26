@@ -69,6 +69,7 @@ jobs:
           ACTIVATION_UTILISATEUR_URI: http://localhost:3000/accountActivation
           RIB_AMC_FILE_LOCATION: RIB_AMC_FILE_LOCATION
           RIB_AMC_MAIL_ATTACHMENT_NAME: RIB_AMC_MAIL_ATTACHMENT_NAME
+          RESOURCE_LOCK_TIMEOUT: 10
         run: |
           RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           BRANCH_NAME_SUFFIX=$(echo $RELEASE_VERSION | awk -F. '{print $1".x"}')

@@ -30,5 +30,8 @@ public class EleveFeuillePresenceEntity implements Auditable {
     private Boolean present;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }
