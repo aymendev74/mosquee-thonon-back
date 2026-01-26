@@ -2,6 +2,7 @@ package org.mosqueethonon.service.impl.lock;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.entity.LockEntity;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.ResourceLockedException;
@@ -22,7 +23,7 @@ public class LockServiceImpl implements LockService {
 
     private final LockRepository lockRepository;
 
-    private static final int DEFAULT_LOCK_DURATION_MINUTES = 30;
+    private final ApplicationConfiguration applicationConfiguration;
 
     @Transactional
     public LockResultDto acquireLock(ResourceTypeEnum resourceType, Long resourceId, String username) {
@@ -54,7 +55,7 @@ public class LockServiceImpl implements LockService {
                 .resourceId(resourceId)
                 .lockedBy(username)
                 .lockedAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(DEFAULT_LOCK_DURATION_MINUTES))
+                .expiresAt(LocalDateTime.now().plusMinutes(this.applicationConfiguration.getResourceLockTimeout()))
                 .build();
 
         try {
@@ -135,7 +136,7 @@ public class LockServiceImpl implements LockService {
 
     @Transactional
     public void refreshLock(LockEntity lock) {
-        lock.setExpiresAt(LocalDateTime.now().plusMinutes(DEFAULT_LOCK_DURATION_MINUTES));
+        lock.setExpiresAt(LocalDateTime.now().plusMinutes(this.applicationConfiguration.getResourceLockTimeout()));
         lockRepository.save(lock);
         log.debug("Lock refreshed for resource {}:{}", lock.getResourceType(), lock.getResourceId());
     }
