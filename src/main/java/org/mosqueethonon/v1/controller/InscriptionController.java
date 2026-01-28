@@ -8,7 +8,6 @@ import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

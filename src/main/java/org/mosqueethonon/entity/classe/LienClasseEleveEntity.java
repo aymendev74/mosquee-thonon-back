@@ -28,5 +28,8 @@ public class LienClasseEleveEntity implements Auditable {
     private EleveEntity eleve;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

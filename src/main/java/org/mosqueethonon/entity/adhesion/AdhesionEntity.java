@@ -55,4 +55,7 @@ public class AdhesionEntity implements Auditable {
     private Integer noMembre;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 }

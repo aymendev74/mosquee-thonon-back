@@ -1,0 +1,226 @@
+databaseChangeLog:
+  - changeSet:
+      id: 044-addColumn-oh_version-optimistic-locking
+      author: Aymen
+      changes:
+        # Ajout de la colonne oh_version pour l'optimistic locking dans toutes les tables avec Signature
+        
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur_roles
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: adhesion
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: periode
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: tarif
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: resplegal
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: inscription
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: eleve
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: classe
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: classe_activite
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: lien_classe_eleve
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: lien_classe_enseignant
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: lien_classe_feuille_presence
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: feuille_presence
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: lien_eleve_feuille_presence
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: bulletin
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: bulletin_matiere
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: inscription_matiere
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: mail_request
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        
+        - addColumn:
+            schemaName: moth
+            tableName: utilisateur_activation_mailing
+            columns:
+              - column:
+                  name: oh_version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

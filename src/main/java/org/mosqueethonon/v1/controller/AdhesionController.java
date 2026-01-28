@@ -1,7 +1,10 @@
 package org.mosqueethonon.v1.controller;
 
+import static org.mosqueethonon.enums.ResourceTypeEnum.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
+import org.mosqueethonon.annotations.RequireLock;
 import org.mosqueethonon.service.adhesion.AdhesionLightService;
 import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;
@@ -31,6 +34,7 @@ public class AdhesionController {
         return ResponseEntity.ok(adhesion);
     }
 
+    @RequireLock(resourceType = ADHESION, resourceIdParam = "id")
     @PutMapping(path = "/{id}")
     public ResponseEntity<AdhesionDto> updateAdhesion(@PathVariable("id") Long id, @RequestBody AdhesionDto adhesion, @ModelAttribute AdhesionSaveCriteria saveCriteria) {
         adhesion = this.adhesionService.updateAdhesion(id, adhesion, saveCriteria);

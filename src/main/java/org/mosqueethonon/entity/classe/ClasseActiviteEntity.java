@@ -27,5 +27,8 @@ public class ClasseActiviteEntity implements Auditable {
     private JourActiviteEnum jour;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }

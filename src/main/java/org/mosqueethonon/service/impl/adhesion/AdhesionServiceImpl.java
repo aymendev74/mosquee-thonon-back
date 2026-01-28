@@ -1,17 +1,20 @@
 package org.mosqueethonon.service.impl.adhesion;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.dto.mail.MailAttachmentDto;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.enums.MailRequestType;
+import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.adhesion.AdhesionService;
+import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -20,7 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @Service
@@ -31,6 +35,10 @@ public class AdhesionServiceImpl implements AdhesionService {
     private AdhesionMapper adhesionMapper;
 
     private MailRequestRepository mailRequestRepository;
+
+    private LockService lockService;
+
+    private SecurityContext securityContext;
 
     @Override
     @Transactional
@@ -56,8 +64,12 @@ public class AdhesionServiceImpl implements AdhesionService {
     @Override
     @Transactional
     public Set<Long> deleteAdhesions(Set<Long> ids) {
-        this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, ids);
-        this.adhesionRepository.deleteAllById(ids);
+        for(Long id : ids) {
+            this.lockService.acquireLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
+            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, Sets.newHashSet(id));
+            this.adhesionRepository.deleteById(id);
+            this.lockService.releaseLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
+        }
         return ids;
     }
 
@@ -79,6 +91,7 @@ public class AdhesionServiceImpl implements AdhesionService {
             throw new BadRequestException("Missing 'id' field or wrong type (expect Long) to patch adhesion !");
         }
         Long id = patchNode.get("id").asLong();
+        this.lockService.acquireLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
         AdhesionEntity adhesion = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Adhesion not found ! id = " + id));
         if (patchNode.has("statut")) {
             if (patchNode.get("statut").isNull()) {
@@ -92,6 +105,7 @@ public class AdhesionServiceImpl implements AdhesionService {
             }
         }
         this.adhesionRepository.save(adhesion);
+        this.lockService.releaseLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
         return id;
     }
 

@@ -18,6 +18,7 @@ public class ApplicationConfiguration {
     private String issuerUri;
     private String jwtDecoderUri;
     private String activationUtilisateurUri;
+    private Long resourceLockTimeout;
     private RibAmc ribAmc;
 
     @Data

@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
@@ -26,6 +27,7 @@ import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
+import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
@@ -40,6 +42,10 @@ public class TestInscriptionServiceImpl {
     private PeriodeService periodeService;
     @Mock
     private MailRequestRepository mailRequestRepository;
+    @Mock
+    private LockService lockService;
+    @Mock
+    private SecurityContext securityContext;
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
@@ -132,8 +138,8 @@ public class TestInscriptionServiceImpl {
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
-        verify(inscriptionRepository).deleteAllById(ids);
-        verify(mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
+        verify(inscriptionRepository, times(2)).deleteById(any());
+        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.INSCRIPTION), any());
     }
 
     @Test
@@ -156,7 +162,7 @@ public class TestInscriptionServiceImpl {
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
-        verify(inscriptionRepository).deleteAllById(ids);
-        verify(mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, ids);
+        verify(inscriptionRepository,times(2)).deleteById(any());
+        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.INSCRIPTION), any());
     }
 }

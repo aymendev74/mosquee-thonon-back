@@ -1,11 +1,5 @@
 package org.mosqueethonon.service.impl.adhesion;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,16 +9,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
 import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapperImpl;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TestAdhesionServiceImpl {
@@ -37,6 +40,12 @@ public class TestAdhesionServiceImpl {
 
     @Mock
     private MailRequestRepository mailRequestRepository;
+
+    @Mock
+    private LockService lockService;
+
+    @Mock
+    private SecurityContext securityContext;
 
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
@@ -104,8 +113,8 @@ public class TestAdhesionServiceImpl {
         // Assert
         assertNotNull(result);
         assertEquals(ids, result);
-        verify(adhesionRepository).deleteAllById(ids);
-        verify(this.mailRequestRepository).deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, ids);
+        verify(adhesionRepository, times(2)).deleteById(any());
+        verify(this.mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.ADHESION), any());
     }
 
     @Test

@@ -41,5 +41,8 @@ public class PeriodeEntity implements Auditable {
     private Long idPeriodePrecedente;
     @Embedded
     private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
 
 }
