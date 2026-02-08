@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 048-addColumn-idutil-resplegal
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: resplegal
+            columns:
+              - column:
+                  name: idutil
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseColumnNames: idutil
+            baseTableName: resplegal
+            constraintName: fk_resplegal_idutil
+            referencedColumnNames: idutil
+            referencedTableName: utilisateur
+

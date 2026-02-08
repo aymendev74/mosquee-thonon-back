@@ -113,7 +113,8 @@ public class TestInscriptionEnfantServiceImpl {
 
     private InscriptionEnfantDto createInscription(int nbEleves) {
         InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
-        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().adherent(Boolean.TRUE).build());
+        inscriptionEnfantDto.setAdherent(Boolean.TRUE);
+        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().build());
         inscriptionEnfantDto.setEleves(new ArrayList<>());
         for(int i = 0; i < nbEleves ; i++) {
             inscriptionEnfantDto.getEleves().add(EleveDto.builder().build());
@@ -308,7 +309,6 @@ public class TestInscriptionEnfantServiceImpl {
 
         ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
         reinscriptionDto.setEleves(new ArrayList<>());
-
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
                 () -> underTest.reinscription(reinscriptionDto));

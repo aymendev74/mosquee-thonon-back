@@ -16,6 +16,7 @@ import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
+import org.mosqueethonon.v1.dto.inscription.EleveAvecAutorisationsDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.EleveReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
@@ -28,6 +29,7 @@ import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
+import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
 import org.mosqueethonon.v1.mapper.inscription.ResponsableLegalMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +75,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private EleveRepository eleveRepository;
 
-    private org.mosqueethonon.v1.mapper.inscription.EleveMapper eleveMapper;
+    private EleveMapper eleveMapper;
 
     @Transactional
     @Override
@@ -305,7 +307,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         
         UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
-        
         List<InscriptionEnfantEntity> inscriptions = this.inscriptionEnfantRepository.findByUtilisateurId(utilisateur.getId());
         
         return inscriptions.stream()

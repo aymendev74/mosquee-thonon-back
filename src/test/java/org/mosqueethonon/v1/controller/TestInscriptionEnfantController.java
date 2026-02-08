@@ -169,7 +169,8 @@ public class TestInscriptionEnfantController extends TestController {
     }
 
     private InscriptionEnfantDto createInscription() {
-        return InscriptionEnfantDto.builder().eleves(this.createEleve())
+        return InscriptionEnfantDto.builder().eleves(this.createEleve()).adherent(Boolean.TRUE)
+                .autorisationAutonomie(Boolean.TRUE).autorisationMedia(Boolean.FALSE)
                 .responsableLegal(createResponsableLegal()).build();
     }
 

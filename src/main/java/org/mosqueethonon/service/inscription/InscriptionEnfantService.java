@@ -26,13 +26,7 @@ public interface InscriptionEnfantService {
 
     public String checkCoherence(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto);
 
-    //public Integer getLastPositionAttenteByPeriode(Long idPeriode);
-
     Integer getNbElevesInscritsByIdPeriode(Long idPeriode);
-
-    //List<InscriptionEnfantDto> getInscriptionEnAttenteByPeriode(Long idPeriode);
-
-    //List<InscriptionEnfantDto> updateInscriptions(List<InscriptionEnfantDto> inscriptions);
 
     void updateListeAttente(Long idPeriode, Integer nbMaxInscriptions);
 
