@@ -42,6 +42,9 @@ public class TestInscriptionEnfantMapperImpl {
     public void testUpdateInscriptionEntity() {
         // GIVEN
         InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        inscriptionEnfantDto.setAdherent(Boolean.TRUE);
+        inscriptionEnfantDto.setAutorisationAutonomie(Boolean.FALSE);
+        inscriptionEnfantDto.setAutorisationMedia(Boolean.TRUE);
         EleveDto eleveDto = new EleveDto();
         eleveDto.setId(1L);
         eleveDto.setNom("nomUpdated");
@@ -52,6 +55,9 @@ public class TestInscriptionEnfantMapperImpl {
         inscriptionEnfantDto.setEleves(Lists.newArrayList(eleveDto));
 
         InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
+        inscriptionEnfantEntity.setAdherent(Boolean.FALSE);
+        inscriptionEnfantEntity.setAutorisationAutonomie(Boolean.TRUE);
+        inscriptionEnfantEntity.setAutorisationMedia(Boolean.FALSE);
         EleveEntity eleveEntity = new EleveEntity();
         eleveEntity.setId(1L);
         eleveEntity.setNom("nom");
@@ -66,8 +72,10 @@ public class TestInscriptionEnfantMapperImpl {
         inscriptionEnfantMapper.updateInscriptionEntity(inscriptionEnfantDto, inscriptionEnfantEntity);
 
         // THEN
-        Mockito.verify(responsableLegalMapper).fromDtoToEntity(inscriptionEnfantDto.getResponsableLegal());
         Mockito.verify(eleveMapper).updateEleves(Mockito.eq(inscriptionEnfantDto.getEleves()), Mockito.eq(inscriptionEnfantEntity.getEleves()));
+        assertEquals(Boolean.TRUE, inscriptionEnfantEntity.getAdherent());
+        assertEquals(Boolean.FALSE, inscriptionEnfantEntity.getAutorisationAutonomie());
+        assertEquals(Boolean.TRUE, inscriptionEnfantEntity.getAutorisationMedia());
         EleveEntity eleveEntityUpdated = inscriptionEnfantEntity.getEleves().get(0);
         assertEquals(1L, eleveEntityUpdated.getId());
         assertEquals("nomUpdated", eleveEntityUpdated.getNom());

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 050-insert-role-utilisateur
+      author: Aymen
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: cdrole
+                  value: ROLE_UTILISATEUR

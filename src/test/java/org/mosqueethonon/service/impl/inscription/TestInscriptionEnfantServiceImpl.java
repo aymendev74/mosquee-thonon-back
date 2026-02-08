@@ -6,29 +6,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.InscriptionEnfantRepository;
-import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
-import org.mosqueethonon.v1.dto.inscription.EleveDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
-import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
+import org.mosqueethonon.v1.dto.inscription.*;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
-import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
-import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
-import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapperImpl;
-import org.mosqueethonon.v1.mapper.inscription.ResponsableLegalMapper;
+import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.v1.mapper.inscription.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +49,18 @@ public class TestInscriptionEnfantServiceImpl {
     private MailRequestRepository mailRequestRepository;
     @Mock
     private ParamService paramService;
+    @Mock
+    private TarifRepository tarifRepository;
+    @Mock
+    private UtilisateurRepository utilisateurRepository;
+    @Mock
+    private ResponsableLegalRepository responsableLegalRepository;
+    @Mock
+    private SecurityContext securityContext;
+    @Mock
+    private EleveAvecAutorisationsMapper eleveAvecAutorisationsMapper;
+    @Mock
+    private EleveRepository eleveRepository;
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
 
@@ -105,7 +116,8 @@ public class TestInscriptionEnfantServiceImpl {
 
     private InscriptionEnfantDto createInscription(int nbEleves) {
         InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
-        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().adherent(Boolean.TRUE).build());
+        inscriptionEnfantDto.setAdherent(Boolean.TRUE);
+        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().build());
         inscriptionEnfantDto.setEleves(new ArrayList<>());
         for(int i = 0; i < nbEleves ; i++) {
             inscriptionEnfantDto.getEleves().add(EleveDto.builder().build());
@@ -120,6 +132,188 @@ public class TestInscriptionEnfantServiceImpl {
                 () -> {
                     this.underTest.updateInscription(null, inscriptionEnfantDto, InscriptionSaveCriteria.builder().build());
                 });
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_Success() {
+        // Arrange
+        String username = "testuser";
+        UtilisateurEntity utilisateur = new UtilisateurEntity();
+        utilisateur.setId(1L);
+        utilisateur.setUsername(username);
+
+        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
+        responsableLegal.setId(1L);
+        responsableLegal.setNom("Dupont");
+        responsableLegal.setPrenom("Jean");
+
+        ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder()
+                .nom("Dupont")
+                .prenom("Jean")
+                .build();
+
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        periode.setAnneeDebut(2024);
+        periode.setAnneeFin(2025);
+
+        TarifEntity tarif = new TarifEntity();
+        tarif.setId(1L);
+        tarif.setPeriode(periode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(1L);
+        eleve.setNom("Dupont");
+        eleve.setPrenom("Marie");
+
+        InscriptionEnfantEntity inscription = new InscriptionEnfantEntity();
+        inscription.setId(1L);
+        inscription.setIdTarif(1L);
+        inscription.setStatut(StatutInscription.VALIDEE);
+        inscription.setMontantTotal(BigDecimal.valueOf(150));
+        inscription.setNoInscription("AMC-001");
+        inscription.setAutorisationAutonomie(true);
+        inscription.setAutorisationMedia(false);
+        inscription.setEleves(List.of(eleve));
+
+        EleveAvecAutorisationsDto eleveDto = EleveAvecAutorisationsDto.builder()
+                .id(1L)
+                .nom("Dupont")
+                .prenom("Marie")
+                .autorisationAutonomie(true)
+                .autorisationMedia(false)
+                .build();
+
+        when(securityContext.getUser()).thenReturn(username);
+        when(utilisateurRepository.findByUsername(username)).thenReturn(Optional.of(utilisateur));
+        when(responsableLegalRepository.findByUtilisateurId(1L)).thenReturn(Optional.of(responsableLegal));
+        when(responsableLegalMapper.fromEntityToDto(responsableLegal)).thenReturn(responsableLegalDto);
+        when(inscriptionEnfantRepository.findByUtilisateurId(1L)).thenReturn(List.of(inscription));
+        when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
+        when(eleveAvecAutorisationsMapper.toEleveAvecAutorisationsDto(eleve, inscription)).thenReturn(eleveDto);
+
+        // Act
+        List<InscriptionParAnneeScolaireDto> result = underTest.findInscriptionsByUtilisateurConnecte();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(2024, result.get(0).getAnneeDebut());
+        assertEquals(2025, result.get(0).getAnneeFin());
+        assertEquals(StatutInscription.VALIDEE, result.get(0).getStatut());
+        assertEquals(BigDecimal.valueOf(150), result.get(0).getMontantTotal());
+        assertEquals("AMC-001", result.get(0).getNoInscription());
+        assertEquals("Dupont", result.get(0).getResponsableLegal().getNom());
+        assertEquals(1, result.get(0).getEleves().size());
+        assertTrue(result.get(0).getEleves().get(0).getAutorisationAutonomie());
+        assertFalse(result.get(0).getEleves().get(0).getAutorisationMedia());
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_NoUserConnected() {
+        // Arrange
+        when(securityContext.getUser()).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, 
+                () -> underTest.findInscriptionsByUtilisateurConnecte());
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_UserNotFound() {
+        // Arrange
+        when(securityContext.getUser()).thenReturn("unknownuser");
+        when(utilisateurRepository.findByUsername("unknownuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> underTest.findInscriptionsByUtilisateurConnecte());
+    }
+
+    @Test
+    public void testReinscription_Success() {
+        // Arrange
+        String username = "testuser";
+        UtilisateurEntity utilisateur = new UtilisateurEntity();
+        utilisateur.setId(1L);
+
+        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
+        responsableLegal.setId(1L);
+        responsableLegal.setUtilisateur(utilisateur);
+
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        periode.setIdPeriodePrecedente(0L);
+
+        TarifEntity tarif = new TarifEntity();
+        tarif.setId(1L);
+        tarif.setPeriode(periode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(1L);
+        eleve.setNom("Dupont");
+        eleve.setPrenom("Marie");
+        eleve.setIdInscription(1L);
+        eleve.setIdTarif(1L);
+
+        InscriptionEnfantEntity ancienneInscription = new InscriptionEnfantEntity();
+        ancienneInscription.setId(1L);
+        ancienneInscription.setResponsableLegal(responsableLegal);
+
+        ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
+        reinscriptionDto.setElevesIds(List.of(1L));
+        reinscriptionDto.setResponsableLegal(ResponsableLegalDto.builder().build());
+
+        InscriptionEnfantDto inscriptionDto = new InscriptionEnfantDto();
+
+        when(paramService.isInscriptionEnfantEnabled()).thenReturn(true);
+        when(paramService.isReinscriptionPrioritaireEnabled()).thenReturn(true);
+        when(securityContext.getUser()).thenReturn(username);
+        when(utilisateurRepository.findByUsername(username)).thenReturn(Optional.of(utilisateur));
+        when(eleveRepository.findAllById(List.of(1L))).thenReturn(List.of(eleve));
+        when(responsableLegalRepository.findByUtilisateurId(1L)).thenReturn(Optional.of(responsableLegal));
+        when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(ancienneInscription));
+        when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
+        when(inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(any(), any(), any(), any())).thenReturn(eleve);
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        when(inscriptionEnfantRepository.save(any())).thenReturn(new InscriptionEnfantEntity());
+        when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
+
+        // Act
+        InscriptionEnfantDto result = underTest.reinscription(reinscriptionDto);
+
+        // Assert
+        assertNotNull(result);
+        verify(responsableLegalMapper).updateEntityFromDto(reinscriptionDto.getResponsableLegal(), responsableLegal);
+        verify(inscriptionEnfantRepository).save(any());
+        verify(mailRequestRepository).save(any());
+    }
+
+    @Test
+    public void testReinscription_InscriptionsDisabled() {
+        // Arrange
+        when(paramService.isInscriptionEnfantEnabled()).thenReturn(false);
+
+        ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> underTest.reinscription(reinscriptionDto));
+    }
+
+    @Test
+    public void testReinscription_NoElevesSelected() {
+        // Arrange
+        when(paramService.isInscriptionEnfantEnabled()).thenReturn(true);
+        when(paramService.isReinscriptionPrioritaireEnabled()).thenReturn(true);
+
+        ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
+        reinscriptionDto.setElevesIds(new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> underTest.reinscription(reinscriptionDto));
     }
 
 }

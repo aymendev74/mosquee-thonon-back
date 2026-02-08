@@ -6,6 +6,7 @@ import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
 import org.mosqueethonon.entity.utilisateur.RoleEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import org.mosqueethonon.v1.criterias.UserCriteria;
 import org.mosqueethonon.v1.dto.account.AccountInfosDto;
 import org.mosqueethonon.v1.dto.account.EnableAccountDto;
 import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.mosqueethonon.v1.mapper.user.UserMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +30,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -182,5 +185,28 @@ public class UserServiceImpl implements UserService {
         this.mailingActivationUtilisateurRepository.deleteByUsername(utilisateurEntity.getUsername());
         // on demande un nouveau mail d'activation du compte
         this.requestMailActivation(utilisateurEntity.getUsername());
+    }
+
+    @Override
+    public UserInfoDto getProfile() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Retourner null si aucun utilisateur connecté ou utilisateur anonyme
+        if (username == null || "anonymousUser".equals(username)) {
+            return null;
+        }
+
+        UtilisateurEntity utilisateur = this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
+
+        List<String> roles = utilisateur.getRoles().stream()
+                .map(UtilisateurRoleEntity::getRole)
+                .collect(Collectors.toList());
+
+        return UserInfoDto.builder()
+                .username(utilisateur.getUsername())
+                .prenom(utilisateur.getPrenom())
+                .roles(roles)
+                .build();
     }
 }

@@ -126,7 +126,7 @@ public class TestInscriptionEnfantController extends TestController {
                     mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonMapper.writeValueAsString(this.createInscription()))
-                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                                    .with(SecurityMockMvcRequestPostProcessors.csrf()))
                             .andExpect(MockMvcResultMatchers.status().isOk());
                 } catch (Exception e) {
                     fail(e);
@@ -142,13 +142,13 @@ public class TestInscriptionEnfantController extends TestController {
 
         // Puis on va vérifier que 510 inscriptions ont bien été enregistrés dont 10 avec statut en attente
         List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
-        assertInscriptionsAttentes(allInscriptions,  10);
+        assertInscriptionsAttentes(allInscriptions, 10);
 
         // Puis on va supprimer 5 inscriptions provisoires pour forcer la mise à jour de la liste d'attente
         Set<Long> inscriptionsASupprimer = new HashSet<>();
-        for(InscriptionEnfantEntity inscription : allInscriptions) {
-            if(inscriptionsASupprimer.size() == 5) break;
-            if(inscription.getStatut() == StatutInscription.PROVISOIRE) {
+        for (InscriptionEnfantEntity inscription : allInscriptions) {
+            if (inscriptionsASupprimer.size() == 5) break;
+            if (inscription.getStatut() == StatutInscription.PROVISOIRE) {
                 inscriptionsASupprimer.add(inscription.getId());
             }
         }
@@ -169,12 +169,13 @@ public class TestInscriptionEnfantController extends TestController {
     }
 
     private InscriptionEnfantDto createInscription() {
-        return InscriptionEnfantDto.builder().eleves(this.createEleve())
+        return InscriptionEnfantDto.builder().eleves(this.createEleve()).adherent(Boolean.TRUE)
+                .autorisationAutonomie(Boolean.TRUE).autorisationMedia(Boolean.FALSE)
                 .responsableLegal(createResponsableLegal()).build();
     }
 
     private ResponsableLegalDto createResponsableLegal() {
-        return ResponsableLegalDto.builder().adherent(true).autorisationAutonomie(true).autorisationMedia(false)
+        return ResponsableLegalDto.builder()
                 .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
                 .numeroEtRue("").nom("").prenom("").build();
     }

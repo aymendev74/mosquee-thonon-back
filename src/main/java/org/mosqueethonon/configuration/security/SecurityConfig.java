@@ -64,6 +64,8 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.GET, "/v1/inscriptions-enfants/mes-inscriptions").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/reinscription").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()

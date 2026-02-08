@@ -3,35 +3,45 @@ package org.mosqueethonon.service.impl.inscription;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
+import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.*;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
+import org.mosqueethonon.v1.dto.inscription.EleveAvecAutorisationsDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
+import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
+import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.incoherences.Incoherences;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionEnfantMapper;
+import org.mosqueethonon.v1.mapper.inscription.ResponsableLegalMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -54,6 +64,20 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private TarifRepository tarifRepository;
 
     private NiveauRepository niveauRepository;
+
+    private UtilisateurRepository utilisateurRepository;
+
+    private SecurityContext securityContext;
+
+    private ResponsableLegalMapper responsableLegalMapper;
+
+    private EleveRepository eleveRepository;
+
+    private org.mosqueethonon.v1.mapper.inscription.EleveMapper eleveMapper;
+
+    private ResponsableLegalRepository responsableLegalRepository;
+
+    private org.mosqueethonon.v1.mapper.inscription.EleveAvecAutorisationsMapper eleveAvecAutorisationsMapper;
 
     @Transactional
     @Override
@@ -143,12 +167,11 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private boolean validateReinscription(InscriptionEnfantEntity inscription) {
         for (EleveEntity eleve : inscription.getEleves()) {
             TarifEntity tarif = this.tarifRepository.findById(eleve.getIdTarif()).orElse(null);
-            if (tarif == null || tarif.getPeriode() == null) {
-                throw new IllegalArgumentException("Le tarif et la période pour cette inscription n'ont pas pu être déterminés !");
-            }
-            if (tarif.getPeriode().getIdPeriodePrecedente() == null) {
-                throw new IllegalArgumentException("La période précédente n'existe pas sur la période actuelle ! idperi = " + tarif.getPeriode().getId());
-            }
+            Assert.state(tarif != null && tarif.getPeriode() != null,
+                    "Le tarif et la période pour cette inscription n'ont pas pu être déterminés !");
+            Assert.state(tarif.getPeriode().getIdPeriodePrecedente() != null,
+                    "La période précédente n'existe pas sur la période actuelle ! idperi = " + tarif.getPeriode().getId());
+            
             EleveEntity ancienEleve = this.inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(eleve.getNom(), eleve.getPrenom(),
                     eleve.getDateNaissance(), tarif.getPeriode().getIdPeriodePrecedente());
             if (ancienEleve == null) {
@@ -176,12 +199,11 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription) {
         Integer nbEleves = inscription.getEleves().size();
         InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
-                .adherent(inscription.getResponsableLegal().getAdherent()).build();
+                .adherent(inscription.getAdherent()).build();
         TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscription.getId(), inscriptionInfos);
-        if (tarifs == null || tarifs.getIdTariBase() == null || tarifs.getIdTariEleve() == null) {
-            throw new IllegalArgumentException("Le tarif pour cette inscription n'a pas pu être déterminé !");
-        }
-        inscription.getResponsableLegal().setIdTarif(tarifs.getIdTariBase());
+        Assert.state(tarifs != null && tarifs.getIdTariBase() != null && tarifs.getIdTariEleve() != null,
+                "Le tarif pour cette inscription n'a pas pu être déterminé !");
+        inscription.setIdTarif(tarifs.getIdTariBase());
         inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
         inscription.setMontantTotal(this.calculMontantTotal(tarifs.getTarifBase(), tarifs.getTarifEleve(), nbEleves));
         return tarifs;
@@ -278,5 +300,114 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
                 this.inscriptionEnfantRepository.saveAll(inscriptionsEnAttente);
             }
         }
+    }
+
+    @Override
+    public List<InscriptionParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte() {
+        String username = this.securityContext.getUser();
+        Assert.state(username != null, "Aucun utilisateur connecté");
+        
+        UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
+        
+        ResponsableLegalEntity responsableLegal = this.responsableLegalRepository.findByUtilisateurId(utilisateur.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Responsable légal non trouvé pour l'utilisateur : " + username));
+        ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(responsableLegal);
+        
+        List<InscriptionEnfantEntity> inscriptions = this.inscriptionEnfantRepository.findByUtilisateurId(utilisateur.getId());
+        
+        return inscriptions.stream()
+                .map(inscription -> {
+                    TarifEntity tarif = this.tarifRepository.findById(inscription.getIdTarif()).orElse(null);
+                    if (tarif == null || tarif.getPeriode() == null) {
+                        return null;
+                    }
+                    
+                    List<EleveAvecAutorisationsDto> eleveDtos = inscription.getEleves().stream()
+                            .map(eleve -> this.eleveAvecAutorisationsMapper.toEleveAvecAutorisationsDto(eleve, inscription))
+                            .collect(Collectors.toList());
+                    
+                    return InscriptionParAnneeScolaireDto.builder()
+                            .anneeDebut(tarif.getPeriode().getAnneeDebut())
+                            .anneeFin(tarif.getPeriode().getAnneeFin())
+                            .statut(inscription.getStatut())
+                            .montantTotal(inscription.getMontantTotal())
+                            .noInscription(inscription.getNoInscription())
+                            .responsableLegal(responsableLegalDto)
+                            .eleves(eleveDtos)
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(InscriptionParAnneeScolaireDto::getAnneeDebut).reversed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public InscriptionEnfantDto reinscription(ReinscriptionDto reinscriptionDto) {
+        Assert.isTrue(this.paramService.isInscriptionEnfantEnabled() && this.paramService.isReinscriptionPrioritaireEnabled(), 
+                "Les inscriptions/réinscriptions sont actuellement fermées !");
+        Assert.notEmpty(reinscriptionDto.getElevesIds(), "Aucun élève sélectionné pour la réinscription");
+
+        String username = this.securityContext.getUser();
+        Assert.state(username != null, "Aucun utilisateur connecté");
+        
+        UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
+
+        // Récupérer les élèves à réinscrire
+        List<EleveEntity> elevesAReinscrire = this.eleveRepository.findAllById(reinscriptionDto.getElevesIds());
+        Assert.isTrue(elevesAReinscrire.size() == reinscriptionDto.getElevesIds().size(), 
+                "Certains élèves n'ont pas été retrouvés");
+
+        // Récupérer le responsable légal existant de l'utilisateur
+        ResponsableLegalEntity responsableLegal = this.responsableLegalRepository.findByUtilisateurId(utilisateur.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Responsable légal non trouvé pour l'utilisateur : " + username));
+
+        // Vérifier que les élèves appartiennent bien à l'utilisateur connecté
+        for (EleveEntity eleve : elevesAReinscrire) {
+            InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(eleve.getIdInscription())
+                    .orElseThrow(() -> new ResourceNotFoundException("Inscription non trouvée pour l'élève : " + eleve.getId()));
+            Assert.isTrue(inscription.getResponsableLegal().getUtilisateur() != null &&
+                    inscription.getResponsableLegal().getUtilisateur().getId().equals(utilisateur.getId()),
+                    "L'élève " + eleve.getId() + " n'appartient pas à l'utilisateur connecté : " + utilisateur.getId());
+        }
+
+        // Mettre à jour le responsable légal existant avec les nouvelles données
+        this.responsableLegalMapper.updateEntityFromDto(reinscriptionDto.getResponsableLegal(), responsableLegal);
+
+        // Créer la nouvelle inscription
+        InscriptionEnfantEntity nouvelleInscription = new InscriptionEnfantEntity();
+        nouvelleInscription.setResponsableLegal(responsableLegal);
+        nouvelleInscription.setDateInscription(LocalDateTime.now());
+
+        // Copier les élèves pour la nouvelle inscription
+        List<EleveEntity> nouveauxEleves = elevesAReinscrire.stream()
+                .map(this::copierEleve)
+                .toList();
+        nouvelleInscription.setEleves(new ArrayList<>(nouveauxEleves));
+
+        // Calculer le tarif et le statut
+        TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(nouvelleInscription);
+        this.computeStatutNewInscription(nouvelleInscription, tarifs.isListeAttente());
+
+        // Générer le numéro d'inscription
+        Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
+        nouvelleInscription.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
+
+        nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
+        this.createMailRequest(nouvelleInscription.getId());
+
+        return this.inscriptionEnfantMapper.fromEntityToDto(nouvelleInscription);
+    }
+
+    private EleveEntity copierEleve(EleveEntity source) {
+        EleveEntity copie = new EleveEntity();
+        copie.setNom(source.getNom());
+        copie.setPrenom(source.getPrenom());
+        copie.setDateNaissance(source.getDateNaissance());
+        copie.setNiveau(source.getNiveau());
+        copie.setSexe(source.getSexe());
+        return copie;
     }
 }

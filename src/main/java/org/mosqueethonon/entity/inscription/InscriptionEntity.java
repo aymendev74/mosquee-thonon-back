@@ -29,7 +29,7 @@ public abstract class InscriptionEntity implements Auditable {
     private StatutInscription statut;
     @Column(name = "dtinscinscription")
     private LocalDateTime dateInscription;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;
     @Column(name = "noinscinscription")
@@ -40,6 +40,14 @@ public abstract class InscriptionEntity implements Auditable {
     private Signature signature;
     @Column(name = "mtinsctotal")
     private BigDecimal montantTotal;
+    @Column(name = "idtari")
+    private Long idTarif;
+    @Column(name = "loinsadherent")
+    private Boolean adherent;
+    @Column(name = "loinsautonomie")
+    private Boolean autorisationAutonomie;
+    @Column(name = "loinsmedia")
+    private Boolean autorisationMedia;
     @Column(name = "cdinsctype", insertable = false, updatable = false)
     private String type;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
