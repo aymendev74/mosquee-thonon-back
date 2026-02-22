@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 048-dropNotNull-dtbullbulletin
+      author: Aymen
+      changes:
+        - dropNotNullConstraint:
+            schemaName: moth
+            tableName: bulletin
+            columnName: dtbullbulletin
+            columnDataType: date
