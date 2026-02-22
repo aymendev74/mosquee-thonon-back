@@ -55,6 +55,7 @@ jobs:
         LOGOUT_REDIRECT_URI: http://localhost:3000
         LOGIN_REDIRECT_URI: http://localhost:3000/login
         ISSUER_URI: http://localhost
+        RESET_PASSWORD_URI: http://localhost:3000/resetPassword
         JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
         DB_LIQ_USERNAME: DB_LIQ_USERNAME
         DB_LIQ_PASSWORD: DB_LIQ_PASSWORD
