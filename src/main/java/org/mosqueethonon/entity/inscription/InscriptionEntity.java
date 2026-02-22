@@ -30,11 +30,7 @@ public abstract class InscriptionEntity implements Auditable {
     private StatutInscription statut;
     @Column(name = "dtinscinscription")
     private LocalDateTime dateInscription;
-<<<<<<< HEAD
     @ManyToOne(cascade = CascadeType.PERSIST)
-=======
-    @ManyToOne(cascade = CascadeType.ALL)
->>>>>>> c9781bd (feature users accounts)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;
     @Column(name = "noinscinscription")
