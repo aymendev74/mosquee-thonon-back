@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
-import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
+import org.mosqueethonon.entity.mail.UserAccountActionEntity;
+import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.repository.MailingActivationUtilisateurRepository;
+import org.mosqueethonon.repository.UserAccountActionRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.v1.dto.account.EnableAccountDto;
 import org.mosqueethonon.v1.dto.user.UserDto;
@@ -30,7 +32,7 @@ public class TestUserController extends TestController {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private MailingActivationUtilisateurRepository mailingActivationUtilisateurRepository;
+    private UserAccountActionRepository userAccountActionRepository;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -42,7 +44,7 @@ public class TestUserController extends TestController {
 
     @BeforeEach
     public void initContext() {
-        this.mailingActivationUtilisateurRepository.deleteAll();
+        this.userAccountActionRepository.deleteAll();
         this.utilisateurRepository.deleteAll();
 
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
@@ -51,10 +53,12 @@ public class TestUserController extends TestController {
         utilisateurEntity.setEmail("john.d@example.com");
         this.utilisateurRepository.save(utilisateurEntity);
 
-        MailingActivationUtilisateurEntity entity = new MailingActivationUtilisateurEntity();
+        UserAccountActionEntity entity = new UserAccountActionEntity();
         entity.setToken("valid-token");
         entity.setUsername("john.d");
-        this.mailingActivationUtilisateurRepository.save(entity);
+        entity.setType(UserAccountActionType.ACTIVATION);
+        entity.setStatut(MailRequestStatut.PENDING);
+        this.userAccountActionRepository.save(entity);
     }
 
     @BeforeEach

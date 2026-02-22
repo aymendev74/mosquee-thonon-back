@@ -9,8 +9,8 @@ import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.enums.UserAccountActionType;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.UserAccountActionRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.param.ParamService;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class MailActivationUtilisateurJob {
+public class MailResetPasswordJob {
 
     private ParamService paramService;
 
@@ -42,28 +42,27 @@ public class MailActivationUtilisateurJob {
 
     private ApplicationConfiguration applicationConfiguration;
 
-    @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${scheduled.reset-password-mail}", timeUnit = TimeUnit.MINUTES)
     @Transactional
-    public void sendPendingEmailsActivation() {
-        List<UserAccountActionEntity> mailingActivationsToProcess = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING, UserAccountActionType.ACTIVATION);
-        if (!CollectionUtils.isEmpty(mailingActivationsToProcess)) {
-            log.info("Il y a {} mails d'activation de compte à envoyer", mailingActivationsToProcess.size());
-            for (UserAccountActionEntity accountAction : mailingActivationsToProcess) {
+    public void sendPendingEmailsResetPassword() {
+        List<UserAccountActionEntity> resetPasswordRequests = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING, UserAccountActionType.RESET_PASSWORD);
+        if (!CollectionUtils.isEmpty(resetPasswordRequests)) {
+            log.info("Il y a {} mails de réinitialisation de mot de passe à envoyer", resetPasswordRequests.size());
+            for (UserAccountActionEntity resetPasswordRequest : resetPasswordRequests) {
                 MailRequestStatut statut;
                 try {
-                    statut = this.processMail(accountAction);
+                    statut = this.processMail(resetPasswordRequest);
                 } catch (Exception e) {
-                    log.error("Problème lors de l'envoi du mail d'activation pour l'utilisateur {}", accountAction.getUsername(), e);
+                    log.error("Problème lors de l'envoi du mail de réinitialisation pour l'utilisateur {}", resetPasswordRequest.getUsername(), e);
                     statut = MailRequestStatut.ERROR;
                 }
-                accountAction.setStatut(statut);
-                userAccountActionRepository.save(accountAction);
+                resetPasswordRequest.setStatut(statut);
+                userAccountActionRepository.save(resetPasswordRequest);
             }
         }
     }
 
     private MailRequestStatut processMail(UserAccountActionEntity accountAction) throws MessagingException {
-        // Si envoi des mails désactivé, on n'envoi pas le mail d'activation
         boolean isSendEmailDisabled = !this.paramService.isSendEmailEnabled();
         if (isSendEmailDisabled) {
             return MailRequestStatut.IGNORED;
@@ -71,24 +70,23 @@ public class MailActivationUtilisateurJob {
 
         UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(accountAction.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé - username + " + accountAction.getUsername()));
-        String subject = this.traductionService.findTraductionByCleAndValeur("mail_activation", "subject").getFr();
-        TraductionDto bodyTemplate = this.traductionService.findTraductionByCleAndValeur("mail_activation", "body");
+        String subject = this.traductionService.findTraductionByCleAndValeur("mail_reset_password", "subject").getFr();
+        TraductionDto bodyTemplate = this.traductionService.findTraductionByCleAndValeur("mail_reset_password", "body");
 
-        // On remplace les placeholders par les valeurs réelles
-        String urlActivation = new StringBuilder(this.applicationConfiguration.getActivationUtilisateurUri())
+        String resetUrl = new StringBuilder(this.applicationConfiguration.getResetPasswordUri())
                 .append("?")
                 .append("token=")
                 .append(accountAction.getToken())
                 .toString();
         String body = bodyTemplate.getFr().replace("@@{username}", accountAction.getUsername())
-                .replace("@@{activationUrl}", urlActivation);
+                .replace("@@{resetUrl}", resetUrl);
 
         MimeMessage message = this.emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         helper.setTo(utilisateur.getEmail());
         helper.setSubject(subject);
-        helper.setText(body, true); // true = HTML
+        helper.setText(body, true);
 
         emailSender.send(message);
 

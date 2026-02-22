@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 049-migrate-columns-resplegal-to-inscription
+      id: 049-migrate-idtari-resplegal-to-inscription
       author: Aymen
       changes:
         - addColumn:
@@ -9,22 +9,10 @@ databaseChangeLog:
               - column:
                   name: idtari
                   type: BIGINT
-              - column:
-                  name: loinsadherent
-                  type: BOOLEAN
-              - column:
-                  name: loinsautonomie
-                  type: BOOLEAN
-              - column:
-                  name: loinsmedia
-                  type: BOOLEAN
         - sql:
             sql: >
               UPDATE moth.inscription i
-              SET idtari = r.idtari,
-                  loinsadherent = r.lorespadherent,
-                  loinsautonomie = r.lorespautonomie,
-                  loinsmedia = r.lorespmedia
+              SET idtari = r.idtari
               FROM moth.resplegal r
               WHERE i.idresp = r.idresp
         - addForeignKeyConstraint:
@@ -55,8 +43,8 @@ databaseChangeLog:
                          r.txrespphoneautre AS mobilecontacturgence,
                          r.txrespville AS ville,
                          r.txrespphoneautre AS mobileautre,
-                         i.loinsautonomie as autorisationautonomie,
-                         i.loinsmedia as autorisationmedia,
+                         r.lorespautonomie as autorisationautonomie,
+                         r.lorespmedia as autorisationmedia,
                          i.noinscinscription AS noinscription,
                          p.idperi AS idperiode,
                          r.txrespemail as email,
@@ -74,7 +62,7 @@ databaseChangeLog:
             encoding: UTF-8
             selectQuery: select e.idelev as id, c.idclas as idclasse, e.txelevnom as nom, e.txelevprenom as prenom, e.dtelevnaissance as datenaissance,
                           e.cdelevniveauinterne as niveauinterne, r.txrespmobile as mobile, r.txrespphoneautre as mobilecontacturgence,
-                          i.loinsautonomie as autorisationautonomie, i.loinsmedia as autorisationmedia, r.txrespnom as nomresponsablelegal,
+                          r.lorespautonomie as autorisationautonomie, r.lorespmedia as autorisationmedia, r.txrespnom as nomresponsablelegal,
                           r.txrespprenom as prenomresponsablelegal, r.txrespnomautre as nomcontacturgence, r.txrespprenomautre as prenomcontacturgence,
                           e.cdelevresultat as resultat
                           from moth.classe c
@@ -83,4 +71,3 @@ databaseChangeLog:
                           inner join moth.inscription i on i.idinsc = e.idinsc
                           inner join moth.resplegal r on r.idresp = i.idresp;
             viewName: v_eleve_enriched
-

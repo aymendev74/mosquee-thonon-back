@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.collect.Lists;
@@ -16,22 +18,33 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.repository.TarifRepository;
+import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
+import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapperImpl;
 
@@ -58,6 +71,15 @@ public class TestInscriptionAdulteServiceImpl {
 
     @Mock
     private MatiereService matiereService;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private UtilisateurRepository utilisateurRepository;
+
+    @Mock
+    private TarifRepository tarifRepository;
 
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
@@ -182,5 +204,95 @@ public class TestInscriptionAdulteServiceImpl {
         // Assert
         assertTrue(result);
         verify(inscriptionRepository, times(1)).getNbInscriptionOutsideRange(anyLong(), any(LocalDate.class), any(LocalDate.class), anyString());
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_Success() {
+        // Arrange
+        String username = "testuser";
+        UtilisateurEntity utilisateur = new UtilisateurEntity();
+        utilisateur.setId(1L);
+
+        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
+        responsableLegal.setNom("Dupont");
+        responsableLegal.setPrenom("Jean");
+        responsableLegal.setEmail("jean.dupont@test.com");
+        responsableLegal.setMobile("0612345678");
+
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        periode.setAnneeDebut(2024);
+        periode.setAnneeFin(2025);
+
+        TarifEntity tarif = new TarifEntity();
+        tarif.setId(1L);
+        tarif.setPeriode(periode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(1L);
+        eleve.setDateNaissance(LocalDate.of(1990, 5, 15));
+        eleve.setSexe(SexeEnum.M);
+
+        MatiereEntity matiere = new MatiereEntity();
+        matiere.setCode(MatiereEnum.TAFFSIR_CORAN);
+
+        InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
+        inscriptionMatiere.setMatiere(matiere);
+
+        InscriptionAdulteEntity inscription = new InscriptionAdulteEntity();
+        inscription.setId(1L);
+        inscription.setIdTarif(1L);
+        inscription.setStatut(StatutInscription.VALIDEE);
+        inscription.setMontantTotal(BigDecimal.valueOf(200));
+        inscription.setNoInscription("AMC-002");
+        inscription.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        inscription.setResponsableLegal(responsableLegal);
+        inscription.setEleves(List.of(eleve));
+        inscription.setMatieres(List.of(inscriptionMatiere));
+
+        when(securityContext.getUser()).thenReturn(username);
+        when(utilisateurRepository.findByUsername(username)).thenReturn(Optional.of(utilisateur));
+        when(inscriptionAdulteRepository.findByUtilisateurIdWithEleves(1L)).thenReturn(List.of(inscription));
+        when(inscriptionAdulteRepository.fetchMatieres(List.of(inscription))).thenReturn(List.of(inscription));
+        when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
+
+        // Act
+        List<InscriptionAdulteParAnneeScolaireDto> result = inscriptionAdulteService.findInscriptionsByUtilisateurConnecte();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(2024, result.get(0).getAnneeDebut());
+        assertEquals(2025, result.get(0).getAnneeFin());
+        assertEquals(StatutInscription.VALIDEE, result.get(0).getStatut());
+        assertEquals(BigDecimal.valueOf(200), result.get(0).getMontantTotal());
+        assertEquals("AMC-002", result.get(0).getNoInscription());
+        assertEquals("Dupont", result.get(0).getNom());
+        assertEquals("Jean", result.get(0).getPrenom());
+        assertEquals("jean.dupont@test.com", result.get(0).getEmail());
+        assertEquals(StatutProfessionnelEnum.AVEC_ACTIVITE, result.get(0).getStatutProfessionnel());
+        assertEquals(1, result.get(0).getMatieres().size());
+        assertEquals(MatiereEnum.TAFFSIR_CORAN, result.get(0).getMatieres().get(0));
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_NoUserConnected() {
+        // Arrange
+        when(securityContext.getUser()).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class,
+                () -> inscriptionAdulteService.findInscriptionsByUtilisateurConnecte());
+    }
+
+    @Test
+    public void testFindInscriptionsByUtilisateurConnecte_UserNotFound() {
+        // Arrange
+        when(securityContext.getUser()).thenReturn("unknownuser");
+        when(utilisateurRepository.findByUsername("unknownuser")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> inscriptionAdulteService.findInscriptionsByUtilisateurConnecte());
     }
 }

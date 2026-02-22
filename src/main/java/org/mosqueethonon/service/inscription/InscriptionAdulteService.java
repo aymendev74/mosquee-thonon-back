@@ -1,8 +1,11 @@
 package org.mosqueethonon.service.inscription;
 
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
+
+import java.util.List;
 
 public interface InscriptionAdulteService {
 
@@ -15,4 +18,6 @@ public interface InscriptionAdulteService {
     public Integer findNbInscriptionsByPeriode(Long idPeriode);
 
     public boolean isInscriptionOutsidePeriode(Long idPeriode, PeriodeDto periode);
+
+    public List<InscriptionAdulteParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte();
 }

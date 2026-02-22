@@ -53,8 +53,7 @@ public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEn
     Integer getLastPositionAttente(@Param("idPeriode") Long idPeriode);
 
     @Query("select i from InscriptionEnfantEntity i "
-            + "join i.responsableLegal r "
-            + "where r.utilisateur.id = :idUtilisateur "
+            + "where i.utilisateur.id = :idUtilisateur "
             + "and i.type = 'ENFANT' "
             + "order by i.dateInscription desc")
     List<InscriptionEnfantEntity> findByUtilisateurId(@Param("idUtilisateur") Long idUtilisateur);

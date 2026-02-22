@@ -13,6 +13,7 @@ import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.param.ParamService;
@@ -54,11 +55,7 @@ public class TestInscriptionEnfantServiceImpl {
     @Mock
     private UtilisateurRepository utilisateurRepository;
     @Mock
-    private ResponsableLegalRepository responsableLegalRepository;
-    @Mock
     private SecurityContext securityContext;
-    @Mock
-    private EleveAvecAutorisationsMapper eleveAvecAutorisationsMapper;
     @Mock
     private EleveRepository eleveRepository;
     @InjectMocks
@@ -116,8 +113,7 @@ public class TestInscriptionEnfantServiceImpl {
 
     private InscriptionEnfantDto createInscription(int nbEleves) {
         InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
-        inscriptionEnfantDto.setAdherent(Boolean.TRUE);
-        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().build());
+        inscriptionEnfantDto.setResponsableLegal(ResponsableLegalDto.builder().adherent(Boolean.TRUE).build());
         inscriptionEnfantDto.setEleves(new ArrayList<>());
         for(int i = 0; i < nbEleves ; i++) {
             inscriptionEnfantDto.getEleves().add(EleveDto.builder().build());
@@ -142,16 +138,6 @@ public class TestInscriptionEnfantServiceImpl {
         utilisateur.setId(1L);
         utilisateur.setUsername(username);
 
-        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
-        responsableLegal.setId(1L);
-        responsableLegal.setNom("Dupont");
-        responsableLegal.setPrenom("Jean");
-
-        ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder()
-                .nom("Dupont")
-                .prenom("Jean")
-                .build();
-
         PeriodeEntity periode = new PeriodeEntity();
         periode.setId(1L);
         periode.setAnneeDebut(2024);
@@ -166,34 +152,42 @@ public class TestInscriptionEnfantServiceImpl {
         eleve.setNom("Dupont");
         eleve.setPrenom("Marie");
 
+        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
+        responsableLegal.setId(1L);
+        responsableLegal.setNom("Dupont");
+        responsableLegal.setAutorisationAutonomie(true);
+        responsableLegal.setAutorisationMedia(false);
+
+        ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder()
+                .nom("Dupont")
+                .autorisationAutonomie(true)
+                .autorisationMedia(false)
+                .build();
+
         InscriptionEnfantEntity inscription = new InscriptionEnfantEntity();
         inscription.setId(1L);
         inscription.setIdTarif(1L);
         inscription.setStatut(StatutInscription.VALIDEE);
         inscription.setMontantTotal(BigDecimal.valueOf(150));
         inscription.setNoInscription("AMC-001");
-        inscription.setAutorisationAutonomie(true);
-        inscription.setAutorisationMedia(false);
+        inscription.setResponsableLegal(responsableLegal);
         inscription.setEleves(List.of(eleve));
 
-        EleveAvecAutorisationsDto eleveDto = EleveAvecAutorisationsDto.builder()
+        EleveDto eleveDto = EleveDto.builder()
                 .id(1L)
                 .nom("Dupont")
                 .prenom("Marie")
-                .autorisationAutonomie(true)
-                .autorisationMedia(false)
                 .build();
 
         when(securityContext.getUser()).thenReturn(username);
         when(utilisateurRepository.findByUsername(username)).thenReturn(Optional.of(utilisateur));
-        when(responsableLegalRepository.findByUtilisateurId(1L)).thenReturn(Optional.of(responsableLegal));
-        when(responsableLegalMapper.fromEntityToDto(responsableLegal)).thenReturn(responsableLegalDto);
         when(inscriptionEnfantRepository.findByUtilisateurId(1L)).thenReturn(List.of(inscription));
         when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
-        when(eleveAvecAutorisationsMapper.toEleveAvecAutorisationsDto(eleve, inscription)).thenReturn(eleveDto);
+        when(eleveMapper.fromEntityToDto(eleve)).thenReturn(eleveDto);
+        when(responsableLegalMapper.fromEntityToDto(responsableLegal)).thenReturn(responsableLegalDto);
 
         // Act
-        List<InscriptionParAnneeScolaireDto> result = underTest.findInscriptionsByUtilisateurConnecte();
+        List<InscriptionEnfantParAnneeScolaireDto> result = underTest.findInscriptionsByUtilisateurConnecte();
 
         // Assert
         assertNotNull(result);
@@ -203,10 +197,11 @@ public class TestInscriptionEnfantServiceImpl {
         assertEquals(StatutInscription.VALIDEE, result.get(0).getStatut());
         assertEquals(BigDecimal.valueOf(150), result.get(0).getMontantTotal());
         assertEquals("AMC-001", result.get(0).getNoInscription());
+        assertNotNull(result.get(0).getResponsableLegal());
         assertEquals("Dupont", result.get(0).getResponsableLegal().getNom());
         assertEquals(1, result.get(0).getEleves().size());
-        assertTrue(result.get(0).getEleves().get(0).getAutorisationAutonomie());
-        assertFalse(result.get(0).getEleves().get(0).getAutorisationMedia());
+        assertEquals("Dupont", result.get(0).getEleves().get(0).getNom());
+        assertEquals("Marie", result.get(0).getEleves().get(0).getPrenom());
     }
 
     @Test
@@ -237,10 +232,6 @@ public class TestInscriptionEnfantServiceImpl {
         UtilisateurEntity utilisateur = new UtilisateurEntity();
         utilisateur.setId(1L);
 
-        ResponsableLegalEntity responsableLegal = new ResponsableLegalEntity();
-        responsableLegal.setId(1L);
-        responsableLegal.setUtilisateur(utilisateur);
-
         PeriodeEntity periode = new PeriodeEntity();
         periode.setId(1L);
         periode.setIdPeriodePrecedente(0L);
@@ -256,12 +247,19 @@ public class TestInscriptionEnfantServiceImpl {
         eleve.setIdInscription(1L);
         eleve.setIdTarif(1L);
 
+        ResponsableLegalEntity responsableLegalReinscription = new ResponsableLegalEntity();
+
         InscriptionEnfantEntity ancienneInscription = new InscriptionEnfantEntity();
         ancienneInscription.setId(1L);
-        ancienneInscription.setResponsableLegal(responsableLegal);
+        ancienneInscription.setUtilisateur(utilisateur);
+
+        EleveReinscriptionDto eleveReinscription = EleveReinscriptionDto.builder()
+                .id(1L)
+                .niveau(NiveauScolaireEnum.CP)
+                .build();
 
         ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
-        reinscriptionDto.setElevesIds(List.of(1L));
+        reinscriptionDto.setEleves(List.of(eleveReinscription));
         reinscriptionDto.setResponsableLegal(ResponsableLegalDto.builder().build());
 
         InscriptionEnfantDto inscriptionDto = new InscriptionEnfantDto();
@@ -271,8 +269,8 @@ public class TestInscriptionEnfantServiceImpl {
         when(securityContext.getUser()).thenReturn(username);
         when(utilisateurRepository.findByUsername(username)).thenReturn(Optional.of(utilisateur));
         when(eleveRepository.findAllById(List.of(1L))).thenReturn(List.of(eleve));
-        when(responsableLegalRepository.findByUtilisateurId(1L)).thenReturn(Optional.of(responsableLegal));
         when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(ancienneInscription));
+        when(responsableLegalMapper.fromDtoToEntity(reinscriptionDto.getResponsableLegal())).thenReturn(responsableLegalReinscription);
         when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
         when(inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(any(), any(), any(), any())).thenReturn(eleve);
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
@@ -285,7 +283,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         // Assert
         assertNotNull(result);
-        verify(responsableLegalMapper).updateEntityFromDto(reinscriptionDto.getResponsableLegal(), responsableLegal);
+        verify(responsableLegalMapper).fromDtoToEntity(reinscriptionDto.getResponsableLegal());
         verify(inscriptionEnfantRepository).save(any());
         verify(mailRequestRepository).save(any());
     }
@@ -309,7 +307,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(paramService.isReinscriptionPrioritaireEnabled()).thenReturn(true);
 
         ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
-        reinscriptionDto.setElevesIds(new ArrayList<>());
+        reinscriptionDto.setEleves(new ArrayList<>());
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,

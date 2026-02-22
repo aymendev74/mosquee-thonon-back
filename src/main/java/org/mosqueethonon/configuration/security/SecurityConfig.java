@@ -64,7 +64,7 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/v1/inscriptions-enfants/mes-inscriptions").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/inscriptions/mes-inscriptions").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/reinscription").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
@@ -91,6 +91,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/v1/users/password").authenticated()
                         .requestMatchers(HttpMethod.GET, "/v1/users/informations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/users/enable").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/resetPassword/request").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/users/resetPassword/informations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/resetPassword").permitAll()
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(AUTH_WHITE_LIST).permitAll()

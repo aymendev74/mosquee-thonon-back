@@ -5,6 +5,7 @@ import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.v1.criterias.UserCriteria;
 import org.mosqueethonon.v1.dto.account.AccountInfosDto;
 import org.mosqueethonon.v1.dto.account.EnableAccountDto;
+import org.mosqueethonon.v1.dto.account.ResetPasswordDto;
 import org.mosqueethonon.v1.dto.user.UserDto;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,6 +34,12 @@ public interface UserService extends UserDetailsService {
     public void resendActivationMail(Long idUtilisateur);
 
     public AccountInfosDto getAccountInformations(String token);
+
+    public void requestResetPassword(String email);
+
+    public AccountInfosDto getResetPasswordInfo(String token);
+
+    public void resetPassword(ResetPasswordDto resetPasswordDto);
 
     public UserInfoDto getProfile();
 

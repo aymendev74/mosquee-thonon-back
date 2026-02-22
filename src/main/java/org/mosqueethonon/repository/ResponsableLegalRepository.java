@@ -9,6 +9,4 @@ import java.util.Optional;
 @Repository
 public interface ResponsableLegalRepository extends JpaRepository<ResponsableLegalEntity, Long> {
 
-    Optional<ResponsableLegalEntity> findByUtilisateurId(Long idUtilisateur);
-
 }

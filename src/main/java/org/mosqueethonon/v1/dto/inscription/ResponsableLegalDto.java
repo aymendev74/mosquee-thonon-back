@@ -21,5 +21,8 @@ public class ResponsableLegalDto implements IMailObject {
     private String prenomAutre;
     private String lienParente;
     private String telephoneAutre;
+    private Boolean adherent;
+    private Boolean autorisationAutonomie;
+    private Boolean autorisationMedia;
 
 }

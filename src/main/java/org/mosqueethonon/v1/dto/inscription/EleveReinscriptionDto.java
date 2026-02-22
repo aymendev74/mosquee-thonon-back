@@ -3,15 +3,14 @@ package org.mosqueethonon.v1.dto.inscription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
+import org.mosqueethonon.enums.NiveauScolaireEnum;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class ReinscriptionDto {
+public class EleveReinscriptionDto {
 
-    private ResponsableLegalDto responsableLegal;
-    private List<EleveReinscriptionDto> eleves;
+    private Long id;
+    private NiveauScolaireEnum niveau;
 
 }

@@ -5,13 +5,11 @@ import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 @RestController
@@ -66,12 +64,6 @@ public class InscriptionEnfantController {
     public ResponseEntity<String> checkCoherenceInscription(@PathVariable("id") Long idInscription, @RequestBody InscriptionEnfantDto inscriptionEnfantDto) {
         String incoherence = this.inscriptionEnfantService.checkCoherence(idInscription, inscriptionEnfantDto);
         return ResponseEntity.ok(incoherence);
-    }
-
-    @GetMapping(path = "/mes-inscriptions")
-    public ResponseEntity<List<InscriptionParAnneeScolaireDto>> getMesInscriptions() {
-        List<InscriptionParAnneeScolaireDto> inscriptions = this.inscriptionEnfantService.findInscriptionsByUtilisateurConnecte();
-        return ResponseEntity.ok(inscriptions);
     }
 
     @PostMapping(path = "/reinscription")

@@ -22,9 +22,6 @@ public class InscriptionEnfantDto {
     private Integer noPositionAttente;
     private BigDecimal montantTotal;
     private String anneeScolaire;
-    private Boolean adherent;
-    private Boolean autorisationAutonomie;
-    private Boolean autorisationMedia;
 
     public void normalize() {
         if(responsableLegal != null) {

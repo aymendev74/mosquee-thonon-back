@@ -11,14 +11,14 @@ import java.util.List;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class InscriptionParAnneeScolaireDto {
+public class InscriptionEnfantParAnneeScolaireDto {
 
     private Integer anneeDebut;
     private Integer anneeFin;
     private StatutInscription statut;
     private BigDecimal montantTotal;
     private ResponsableLegalDto responsableLegal;
-    private List<EleveAvecAutorisationsDto> eleves;
+    private List<EleveDto> eleves;
     private String noInscription;
 
 }

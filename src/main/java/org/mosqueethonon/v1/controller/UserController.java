@@ -8,6 +8,7 @@ import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.v1.criterias.UserCriteria;
 import org.mosqueethonon.v1.dto.account.AccountInfosDto;
 import org.mosqueethonon.v1.dto.account.EnableAccountDto;
+import org.mosqueethonon.v1.dto.account.ResetPasswordDto;
 import org.mosqueethonon.v1.dto.user.UserDto;
 import org.mosqueethonon.v1.exception.ErrorConstantes;
 import org.springframework.http.HttpStatus;
@@ -68,6 +69,23 @@ public class UserController {
     @PostMapping("/{id}/activationMail")
     public ResponseEntity<?> resendActivationMail(@PathVariable("id") Long idUtilisateur) {
         this.userService.resendActivationMail(idUtilisateur);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/resetPassword/request")
+    public ResponseEntity<?> requestResetPassword(@RequestBody JsonNode body) {
+        this.userService.requestResetPassword(body.get("username").asText());
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/resetPassword/informations")
+    public ResponseEntity<AccountInfosDto> getResetPasswordInfo(@RequestParam("token") String token) {
+        return ResponseEntity.ok(this.userService.getResetPasswordInfo(token));
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+        this.userService.resetPassword(resetPasswordDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -16,11 +16,11 @@ import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
-import org.mosqueethonon.v1.dto.inscription.EleveAvecAutorisationsDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
+import org.mosqueethonon.v1.dto.inscription.EleveReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
@@ -74,10 +74,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private EleveRepository eleveRepository;
 
     private org.mosqueethonon.v1.mapper.inscription.EleveMapper eleveMapper;
-
-    private ResponsableLegalRepository responsableLegalRepository;
-
-    private org.mosqueethonon.v1.mapper.inscription.EleveAvecAutorisationsMapper eleveAvecAutorisationsMapper;
 
     @Transactional
     @Override
@@ -199,7 +195,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription) {
         Integer nbEleves = inscription.getEleves().size();
         InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
-                .adherent(inscription.getAdherent()).build();
+                .adherent(inscription.getResponsableLegal().getAdherent()).build();
         TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscription.getId(), inscriptionInfos);
         Assert.state(tarifs != null && tarifs.getIdTariBase() != null && tarifs.getIdTariEleve() != null,
                 "Le tarif pour cette inscription n'a pas pu être déterminé !");
@@ -303,16 +299,12 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     }
 
     @Override
-    public List<InscriptionParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte() {
+    public List<InscriptionEnfantParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte() {
         String username = this.securityContext.getUser();
         Assert.state(username != null, "Aucun utilisateur connecté");
         
         UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
-        
-        ResponsableLegalEntity responsableLegal = this.responsableLegalRepository.findByUtilisateurId(utilisateur.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Responsable légal non trouvé pour l'utilisateur : " + username));
-        ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(responsableLegal);
         
         List<InscriptionEnfantEntity> inscriptions = this.inscriptionEnfantRepository.findByUtilisateurId(utilisateur.getId());
         
@@ -323,11 +315,13 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
                         return null;
                     }
                     
-                    List<EleveAvecAutorisationsDto> eleveDtos = inscription.getEleves().stream()
-                            .map(eleve -> this.eleveAvecAutorisationsMapper.toEleveAvecAutorisationsDto(eleve, inscription))
+                    List<EleveDto> eleveDtos = inscription.getEleves().stream()
+                            .map(eleve -> this.eleveMapper.fromEntityToDto(eleve))
                             .collect(Collectors.toList());
                     
-                    return InscriptionParAnneeScolaireDto.builder()
+                    ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(inscription.getResponsableLegal());
+
+                    return InscriptionEnfantParAnneeScolaireDto.builder()
                             .anneeDebut(tarif.getPeriode().getAnneeDebut())
                             .anneeFin(tarif.getPeriode().getAnneeFin())
                             .statut(inscription.getStatut())
@@ -338,7 +332,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
                             .build();
                 })
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(InscriptionParAnneeScolaireDto::getAnneeDebut).reversed())
+                .sorted(Comparator.comparing(InscriptionEnfantParAnneeScolaireDto::getAnneeDebut).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -347,7 +341,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
     public InscriptionEnfantDto reinscription(ReinscriptionDto reinscriptionDto) {
         Assert.isTrue(this.paramService.isInscriptionEnfantEnabled() && this.paramService.isReinscriptionPrioritaireEnabled(), 
                 "Les inscriptions/réinscriptions sont actuellement fermées !");
-        Assert.notEmpty(reinscriptionDto.getElevesIds(), "Aucun élève sélectionné pour la réinscription");
+        Assert.notEmpty(reinscriptionDto.getEleves(), "Aucun élève sélectionné pour la réinscription");
 
         String username = this.securityContext.getUser();
         Assert.state(username != null, "Aucun utilisateur connecté");
@@ -356,34 +350,36 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
 
         // Récupérer les élèves à réinscrire
-        List<EleveEntity> elevesAReinscrire = this.eleveRepository.findAllById(reinscriptionDto.getElevesIds());
-        Assert.isTrue(elevesAReinscrire.size() == reinscriptionDto.getElevesIds().size(), 
+        List<Long> elevesIds = reinscriptionDto.getEleves().stream().map(EleveReinscriptionDto::getId).toList();
+        List<EleveEntity> elevesAReinscrire = this.eleveRepository.findAllById(elevesIds);
+        Assert.isTrue(elevesAReinscrire.size() == elevesIds.size(), 
                 "Certains élèves n'ont pas été retrouvés");
-
-        // Récupérer le responsable légal existant de l'utilisateur
-        ResponsableLegalEntity responsableLegal = this.responsableLegalRepository.findByUtilisateurId(utilisateur.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Responsable légal non trouvé pour l'utilisateur : " + username));
 
         // Vérifier que les élèves appartiennent bien à l'utilisateur connecté
         for (EleveEntity eleve : elevesAReinscrire) {
             InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(eleve.getIdInscription())
                     .orElseThrow(() -> new ResourceNotFoundException("Inscription non trouvée pour l'élève : " + eleve.getId()));
-            Assert.isTrue(inscription.getResponsableLegal().getUtilisateur() != null &&
-                    inscription.getResponsableLegal().getUtilisateur().getId().equals(utilisateur.getId()),
+            Assert.isTrue(inscription.getUtilisateur() != null &&
+                    inscription.getUtilisateur().getId().equals(utilisateur.getId()),
                     "L'élève " + eleve.getId() + " n'appartient pas à l'utilisateur connecté : " + utilisateur.getId());
         }
 
-        // Mettre à jour le responsable légal existant avec les nouvelles données
-        this.responsableLegalMapper.updateEntityFromDto(reinscriptionDto.getResponsableLegal(), responsableLegal);
+        // Créer un nouveau responsable légal à partir des données du DTO
+        ResponsableLegalEntity responsableLegal = this.responsableLegalMapper.fromDtoToEntity(reinscriptionDto.getResponsableLegal());
 
         // Créer la nouvelle inscription
         InscriptionEnfantEntity nouvelleInscription = new InscriptionEnfantEntity();
         nouvelleInscription.setResponsableLegal(responsableLegal);
+        nouvelleInscription.setUtilisateur(utilisateur);
         nouvelleInscription.setDateInscription(LocalDateTime.now());
+
+        // Construire une map id -> niveau depuis le DTO
+        Map<Long, NiveauScolaireEnum> niveauParEleve = reinscriptionDto.getEleves().stream()
+                .collect(Collectors.toMap(EleveReinscriptionDto::getId, EleveReinscriptionDto::getNiveau));
 
         // Copier les élèves pour la nouvelle inscription
         List<EleveEntity> nouveauxEleves = elevesAReinscrire.stream()
-                .map(this::copierEleve)
+                .map(e -> this.copierEleve(e, niveauParEleve.get(e.getId())))
                 .toList();
         nouvelleInscription.setEleves(new ArrayList<>(nouveauxEleves));
 
@@ -401,13 +397,14 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         return this.inscriptionEnfantMapper.fromEntityToDto(nouvelleInscription);
     }
 
-    private EleveEntity copierEleve(EleveEntity source) {
+    private EleveEntity copierEleve(EleveEntity source, NiveauScolaireEnum niveau) {
         EleveEntity copie = new EleveEntity();
         copie.setNom(source.getNom());
         copie.setPrenom(source.getPrenom());
         copie.setDateNaissance(source.getDateNaissance());
-        copie.setNiveau(source.getNiveau());
+        copie.setNiveau(niveau);
         copie.setSexe(source.getSexe());
+        copie.setNiveauInterne(this.calculNiveauEleve(source));
         return copie;
     }
 }

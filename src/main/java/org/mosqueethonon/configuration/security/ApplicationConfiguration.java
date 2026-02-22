@@ -16,6 +16,7 @@ public class ApplicationConfiguration {
     private String logoutRedirectUri;
     private List<String> allowedOrigins;
     private String issuerUri;
+    private String resetPasswordUri;
     private String jwtDecoderUri;
     private String activationUtilisateurUri;
     private Long resourceLockTimeout;

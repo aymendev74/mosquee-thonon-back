@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 048-addColumn-idutil-resplegal
+      id: 048-addColumn-idutil-inscription
       author: Aymen
       changes:
         - addColumn:
-            tableName: resplegal
+            tableName: inscription
             columns:
               - column:
                   name: idutil
@@ -13,8 +13,7 @@ databaseChangeLog:
                     nullable: true
         - addForeignKeyConstraint:
             baseColumnNames: idutil
-            baseTableName: resplegal
-            constraintName: fk_resplegal_idutil
+            baseTableName: inscription
+            constraintName: fk_inscription_idutil
             referencedColumnNames: idutil
             referencedTableName: utilisateur
-

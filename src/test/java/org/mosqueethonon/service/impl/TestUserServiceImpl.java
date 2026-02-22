@@ -6,11 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
+import org.mosqueethonon.entity.mail.UserAccountActionEntity;
+import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.LoginRepository;
-import org.mosqueethonon.repository.MailingActivationUtilisateurRepository;
+import org.mosqueethonon.repository.UserAccountActionRepository;
 import org.mosqueethonon.repository.RoleRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
@@ -44,7 +45,7 @@ public class TestUserServiceImpl {
     @Mock
     private LoginRepository loginRepository;
     @Mock
-    private MailingActivationUtilisateurRepository mailingActivationUtilisateurRepository;
+    private UserAccountActionRepository userAccountActionRepository;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -78,7 +79,7 @@ public class TestUserServiceImpl {
         assertNotNull(result);
         assertEquals("testuser", result.getUsername());
         verify(utilisateurRepository).save(any(UtilisateurEntity.class));
-        verify(mailingActivationUtilisateurRepository).save(any());
+        verify(userAccountActionRepository).save(any());
     }
 
     @Test
@@ -118,10 +119,11 @@ public class TestUserServiceImpl {
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
         utilisateurEntity.setUsername("testuser");
         utilisateurEntity.setEnabled(false);
-        MailingActivationUtilisateurEntity mailActivation = new MailingActivationUtilisateurEntity();
-        mailActivation.setUsername("testuser");
-        mailActivation.setToken(token);
-        when(mailingActivationUtilisateurRepository.findByToken(token)).thenReturn(mailActivation);
+        UserAccountActionEntity accountAction = new UserAccountActionEntity();
+        accountAction.setUsername("testuser");
+        accountAction.setToken(token);
+        accountAction.setType(UserAccountActionType.ACTIVATION);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         AccountInfosDto infos = userService.getAccountInformations(token);
         assertEquals("testuser", infos.getUsername());
@@ -135,13 +137,14 @@ public class TestUserServiceImpl {
         dto.setUsername("testuser");
         dto.setToken(token);
         dto.setPassword("pass");
-        MailingActivationUtilisateurEntity mailActivation = new MailingActivationUtilisateurEntity();
-        mailActivation.setUsername("testuser");
-        mailActivation.setToken(token);
+        UserAccountActionEntity accountAction = new UserAccountActionEntity();
+        accountAction.setUsername("testuser");
+        accountAction.setToken(token);
+        accountAction.setType(UserAccountActionType.ACTIVATION);
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
         utilisateurEntity.setUsername("testuser");
         utilisateurEntity.setEnabled(false);
-        when(mailingActivationUtilisateurRepository.findByToken(token)).thenReturn(mailActivation);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         when(passwordEncoder.encode("pass")).thenReturn("encoded");
         userService.enableAccount(dto);
@@ -159,8 +162,8 @@ public class TestUserServiceImpl {
         utilisateurEntity.setEmail("test@domain.com");
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateurEntity));
         userService.resendActivationMail(1L);
-        verify(mailingActivationUtilisateurRepository).deleteByUsername("testuser");
-        verify(mailingActivationUtilisateurRepository, atLeastOnce()).save(any(MailingActivationUtilisateurEntity.class));
+        verify(userAccountActionRepository).deleteByUsernameAndType("testuser", UserAccountActionType.ACTIVATION);
+        verify(userAccountActionRepository, atLeastOnce()).save(any(UserAccountActionEntity.class));
     }
 
     @Test
