@@ -11,9 +11,16 @@ import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserService extends UserDetailsService {
+
+    public Optional<UserDto> findByEmail(String email);
+
+    public Optional<UserDto> findByUsername(String username);
+
+    public void addRoleIfMissing(Long userId, String role);
 
     public void changeUserPassword(ChangePasswordRequest chagePasswordRequest) throws InvalidOldPasswordException;
 

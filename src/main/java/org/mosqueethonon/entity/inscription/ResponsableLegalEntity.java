@@ -50,8 +50,5 @@ public class ResponsableLegalEntity implements Auditable {
     @Version
     @Column(name = "oh_version")
     private Long version;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idutil")
-    private UtilisateurEntity utilisateur;
 
 }

@@ -22,9 +22,6 @@ public class InscriptionEnfantDto {
     private Integer noPositionAttente;
     private BigDecimal montantTotal;
     private String anneeScolaire;
-    private Boolean adherent;
-    private Boolean autorisationAutonomie;
-    private Boolean autorisationMedia;
 
     public void normalize() {
         if(responsableLegal != null) {
@@ -32,6 +29,7 @@ public class InscriptionEnfantDto {
             responsableLegal.setPrenom(StringUtils.normalize(responsableLegal.getPrenom()));
             responsableLegal.setPrenomAutre(StringUtils.normalize(responsableLegal.getPrenomAutre()));
             responsableLegal.setNomAutre(StringUtils.normalize(responsableLegal.getNomAutre()));
+            responsableLegal.setEmail(responsableLegal.getEmail().trim().toLowerCase());
         }
         if(!CollectionUtils.isEmpty(eleves)) {
             eleves.forEach(eleve -> {

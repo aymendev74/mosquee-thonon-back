@@ -169,15 +169,14 @@ public class TestInscriptionEnfantController extends TestController {
     }
 
     private InscriptionEnfantDto createInscription() {
-        return InscriptionEnfantDto.builder().eleves(this.createEleve()).adherent(Boolean.TRUE)
-                .autorisationAutonomie(Boolean.TRUE).autorisationMedia(Boolean.FALSE)
+        return InscriptionEnfantDto.builder().eleves(this.createEleve())
                 .responsableLegal(createResponsableLegal()).build();
     }
 
     private ResponsableLegalDto createResponsableLegal() {
-        return ResponsableLegalDto.builder()
+        return ResponsableLegalDto.builder().autorisationAutonomie(false).autorisationAutonomie(false)
                 .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
-                .numeroEtRue("").nom("").prenom("").build();
+                .numeroEtRue("").nom("").prenom("").email("").build();
     }
 
     private List<EleveDto> createEleve() {

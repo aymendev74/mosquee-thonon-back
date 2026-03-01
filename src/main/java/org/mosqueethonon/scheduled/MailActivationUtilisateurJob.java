@@ -80,7 +80,8 @@ public class MailActivationUtilisateurJob {
                 .append("token=")
                 .append(accountAction.getToken())
                 .toString();
-        String body = bodyTemplate.getFr().replace("@@{username}", accountAction.getUsername())
+        String username = utilisateur.getPrenom() != null ? utilisateur.getPrenom() : utilisateur.getUsername();
+        String body = bodyTemplate.getFr().replace("@@{username}", username)
                 .replace("@@{activationUrl}", urlActivation);
 
         MimeMessage message = this.emailSender.createMimeMessage();

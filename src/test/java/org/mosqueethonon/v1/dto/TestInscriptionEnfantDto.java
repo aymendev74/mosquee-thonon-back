@@ -14,7 +14,7 @@ public class TestInscriptionEnfantDto {
     public void testNormalize() {
         // GIVEN
         ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder().nom(" eL yahyaouI ").prenom("shAms edDine ")
-                .nomAutre("eL yahyaouI ").prenomAutre("shAms edDine ").build();
+                .nomAutre("eL yahyaouI ").prenomAutre("shAms edDine ").email(" ShamSEddIne@Gmail.Com ").build();
         EleveDto eleve = EleveDto.builder().nom(" eL yahyaouI ").prenom("shAms edDine ").build();
         InscriptionEnfantDto inscriptionEnfantDto = InscriptionEnfantDto.builder().responsableLegal(responsableLegalDto).eleves(Lists.newArrayList(eleve)).build();
 
@@ -27,6 +27,7 @@ public class TestInscriptionEnfantDto {
         assertEquals("El Yahyaoui", eleve.getNom());
         assertEquals("Shams Eddine", responsableLegalDto.getPrenom());
         assertEquals("Shams Eddine", responsableLegalDto.getPrenomAutre());
+        assertEquals("shamseddine@gmail.com", responsableLegalDto.getEmail());
         assertEquals("Shams Eddine", eleve.getPrenom());
     }
 }

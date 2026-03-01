@@ -43,8 +43,10 @@ public abstract class InscriptionEntity implements Auditable {
     private BigDecimal montantTotal;
     @Column(name = "idtari")
     private Long idTarif;
+    @Column(name = "idutil")
+    private Long idUtilisateur;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idutil")
+    @JoinColumn(name = "idutil", insertable = false, updatable = false)
     private UtilisateurEntity utilisateur;
     @Column(name = "cdinsctype", insertable = false, updatable = false)
     private String type;

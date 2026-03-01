@@ -2,6 +2,7 @@ package org.mosqueethonon.service.inscription;
 
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 
 public interface InscriptionEnfantService {
 
-    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscriptionEnfantDto);
+    public InscriptionEnfantResultDto createInscription(InscriptionEnfantDto inscriptionEnfantDto);
 
     List<InscriptionEnfantParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte();
 

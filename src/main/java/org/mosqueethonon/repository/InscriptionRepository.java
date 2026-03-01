@@ -9,9 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface InscriptionRepository extends JpaRepository<InscriptionEntity, Long>, JpaSpecificationExecutor<InscriptionEntity> {
+
+    List<InscriptionEntity> findByUtilisateurId(Long utilisateurId);
 
     @Query(value = "select nextval('moth.inscription_noinscinscription_seq')", nativeQuery = true)
     Long getNextNumeroInscription();

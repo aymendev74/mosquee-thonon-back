@@ -5,13 +5,12 @@ import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 @RestController
@@ -26,15 +25,15 @@ public class InscriptionEnfantController {
     private LockManager lockManager;
 
     @PostMapping
-    public ResponseEntity<InscriptionEnfantDto> createInscription(@RequestBody InscriptionEnfantDto inscription) {
+    public ResponseEntity<InscriptionEnfantResultDto> createInscription(@RequestBody InscriptionEnfantDto inscription) {
         Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
         lock.lock();
         try {
-            inscription = this.inscriptionEnfantService.createInscription(inscription);
+            InscriptionEnfantResultDto response = this.inscriptionEnfantService.createInscription(inscription);
+            return ResponseEntity.ok(response);
         } finally {
             lock.unlock();
         }
-        return ResponseEntity.ok(inscription);
     }
 
     @PutMapping(path = "/{id}")

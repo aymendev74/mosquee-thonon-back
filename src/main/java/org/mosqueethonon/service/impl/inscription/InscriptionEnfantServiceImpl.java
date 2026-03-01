@@ -3,28 +3,31 @@ package org.mosqueethonon.service.impl.inscription;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.configuration.security.context.Roles;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.*;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
-import org.mosqueethonon.v1.dto.inscription.EleveAvecAutorisationsDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.EleveReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
+import org.mosqueethonon.v1.dto.user.RoleDto;
+import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -67,8 +70,6 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private NiveauRepository niveauRepository;
 
-    private UtilisateurRepository utilisateurRepository;
-
     private SecurityContext securityContext;
 
     private ResponsableLegalMapper responsableLegalMapper;
@@ -77,18 +78,23 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
 
     private EleveMapper eleveMapper;
 
+    private UserService userService;
+
     @Transactional
     @Override
-    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscription) {
+    public InscriptionEnfantResultDto createInscription(InscriptionEnfantDto inscription) {
         if (!this.paramService.isInscriptionEnfantEnabled()) {
             // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées, aucun tarif n'a pu être calculé pour l'utilisateur
             RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
             log.error("Les inscriptions sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
             throw e;
         }
-        // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
         InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
+
+        UserAccountResult userAccountResult = this.manageUserAccount(inscription.getResponsableLegal());
+        entity.setIdUtilisateur(userAccountResult.userId);
+        
         TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity);
         this.computeStatutNewInscription(entity, tarifs.isListeAttente());
         entity.setDateInscription(LocalDateTime.now());
@@ -96,7 +102,12 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
         entity = this.inscriptionEnfantRepository.save(entity);
         this.createMailRequest(entity.getId());
-        return this.inscriptionEnfantMapper.fromEntityToDto(entity);
+
+        return InscriptionEnfantResultDto.builder()
+                .statut(entity.getStatut())
+                .newlyCreatedAccount(userAccountResult.newlyCreated)
+                .enabledAccount(userAccountResult.enabled)
+                .build();
     }
 
     @Override
@@ -305,7 +316,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         String username = this.securityContext.getUser();
         Assert.state(username != null, "Aucun utilisateur connecté");
         
-        UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
+        UserDto utilisateur = this.userService.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
         List<InscriptionEnfantEntity> inscriptions = this.inscriptionEnfantRepository.findByUtilisateurId(utilisateur.getId());
         
@@ -347,7 +358,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         String username = this.securityContext.getUser();
         Assert.state(username != null, "Aucun utilisateur connecté");
         
-        UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(username)
+        UserDto utilisateur = this.userService.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + username));
 
         // Récupérer les élèves à réinscrire
@@ -360,8 +371,8 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         for (EleveEntity eleve : elevesAReinscrire) {
             InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(eleve.getIdInscription())
                     .orElseThrow(() -> new ResourceNotFoundException("Inscription non trouvée pour l'élève : " + eleve.getId()));
-            Assert.isTrue(inscription.getUtilisateur() != null &&
-                    inscription.getUtilisateur().getId().equals(utilisateur.getId()),
+            Assert.isTrue(inscription.getIdUtilisateur() != null &&
+                    inscription.getIdUtilisateur().equals(utilisateur.getId()),
                     "L'élève " + eleve.getId() + " n'appartient pas à l'utilisateur connecté : " + utilisateur.getId());
         }
 
@@ -371,7 +382,7 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         // Créer la nouvelle inscription
         InscriptionEnfantEntity nouvelleInscription = new InscriptionEnfantEntity();
         nouvelleInscription.setResponsableLegal(responsableLegal);
-        nouvelleInscription.setUtilisateur(utilisateur);
+        nouvelleInscription.setIdUtilisateur(utilisateur.getId());
         nouvelleInscription.setDateInscription(LocalDateTime.now());
 
         // Construire une map id -> niveau depuis le DTO
@@ -407,5 +418,36 @@ public class InscriptionEnfantServiceImpl implements InscriptionEnfantService {
         copie.setSexe(source.getSexe());
         copie.setNiveauInterne(this.calculNiveauEleve(source));
         return copie;
+    }
+
+    private UserAccountResult manageUserAccount(ResponsableLegalDto responsableLegal) {
+        String email = responsableLegal.getEmail();
+        
+        Optional<UserDto> existingUser = this.userService.findByEmail(email);
+        
+        if (existingUser.isPresent()) {
+            UserDto utilisateur = existingUser.get();
+            this.userService.addRoleIfMissing(utilisateur.getId(), Roles.ROLE_UTILISATEUR);
+            return new UserAccountResult(utilisateur.getId(), false, utilisateur.isEnabled());
+        }
+        
+        UserDto newUser = this.createUserAccount(responsableLegal);
+        return new UserAccountResult(newUser.getId(), true, false);
+    }
+
+    private UserDto createUserAccount(ResponsableLegalDto responsableLegal) {
+        UserDto newUser = new UserDto();
+        newUser.setEmail(responsableLegal.getEmail());
+        newUser.setUsername(responsableLegal.getEmail());
+        newUser.setNom(responsableLegal.getNom());
+        newUser.setPrenom(responsableLegal.getPrenom());
+        newUser.setMobile(responsableLegal.getMobile());
+        newUser.setRoles(Set.of(RoleDto.builder().role(Roles.ROLE_UTILISATEUR).build()));
+        
+        return this.userService.createUser(newUser);
+    }
+
+    private record UserAccountResult(Long userId, boolean newlyCreated,
+                                           boolean enabled) {
     }
 }
