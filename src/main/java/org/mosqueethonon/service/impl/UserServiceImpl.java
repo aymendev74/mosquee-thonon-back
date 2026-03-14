@@ -2,20 +2,19 @@ package org.mosqueethonon.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
-import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
 import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
 import org.mosqueethonon.entity.utilisateur.RoleEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
 import org.mosqueethonon.repository.specifications.UserSpecifications;
 import org.mosqueethonon.service.UserService;
+import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.utils.PasswordGenerator;
 import org.mosqueethonon.utils.UserActivationTokenGenerator;
 import org.mosqueethonon.v1.criterias.UserCriteria;
@@ -53,15 +52,9 @@ public class UserServiceImpl implements UserService {
 
     private UserAccountActionRepository userAccountActionRepository;
 
-    private InscriptionRepository inscriptionRepository;
+    private InscriptionOrchestratorService inscriptionOrchestratorService;
 
-    private LienClasseEleveRepository lienClasseEleveRepository;
-
-    private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
-
-    private MailRequestRepository mailRequestRepository;
-
-    private BulletinRepository bulletinRepository;
+    private UserAccountManager userAccountManager;
 
     @Override
     public Optional<UserDto> findByEmail(String email) {
@@ -78,16 +71,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void addRoleIfMissing(Long userId, String role) {
-        UtilisateurEntity utilisateur = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("L'utilisateur n'a pas été retrouvé - id = " + userId));
-        boolean hasRole = utilisateur.getRoles() != null && utilisateur.getRoles().stream()
-                .anyMatch(r -> role.equals(r.getRole()));
-        if (!hasRole) {
-            UtilisateurRoleEntity newRole = new UtilisateurRoleEntity();
-            newRole.setRole(role);
-            utilisateur.getRoles().add(newRole);
-            this.userRepository.save(utilisateur);
-        }
+        this.userAccountManager.addRoleIfMissing(userId, role);
     }
 
     @Override
@@ -143,19 +127,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(UserDto user) {
-        // On créé le nouvel utilisateur
-        user.normalize();
-        UtilisateurEntity utilisateurEntity = this.userMapper.fromDtoToEntity(user);
-        utilisateurEntity.setPassword(this.passwordEncoder.encode(PasswordGenerator.generateRandomPassword(8)));
-        utilisateurEntity.setEnabled(false); // par défaut disabled
-        user = this.userMapper.fromEntityToDto(this.userRepository.save(utilisateurEntity));
-        // On demande un envoi d'e-mail d'activation
-        this.requestMailActivation(user.getUsername());
-        return user;
-    }
-
-    private void requestMailActivation(String username) {
-        this.requestAccountAction(username, UserAccountActionType.ACTIVATION);
+        return this.userAccountManager.createUser(user);
     }
 
     private void requestAccountAction(String username, UserAccountActionType type) {
@@ -182,41 +154,12 @@ public class UserServiceImpl implements UserService {
         UtilisateurEntity utilisateurEntity = this.userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'utilisateur n'a pas été retrouvé - id = " + id));
         
         if (this.hasRole(utilisateurEntity, ROLE_UTILISATEUR)) {
-            this.deleteUserInscriptions(utilisateurEntity);
+            this.inscriptionOrchestratorService.deleteByIdUtilisateur(utilisateurEntity.getId());
         }
         
         this.loginRepository.deleteByUsername(utilisateurEntity.getUsername());
         this.userAccountActionRepository.deleteByUsername(utilisateurEntity.getUsername());
         this.userRepository.delete(utilisateurEntity);
-    }
-
-    private void deleteUserInscriptions(UtilisateurEntity utilisateur) {
-        List<InscriptionEntity> inscriptions = this.inscriptionRepository.findByUtilisateurId(utilisateur.getId());
-        if (inscriptions.isEmpty()) {
-            return;
-        }
-        
-        // Récupérer tous les ids d'élèves de toutes les inscriptions
-        List<Long> eleveIds = inscriptions.stream()
-                .flatMap(inscription -> inscription.getEleves().stream())
-                .map(eleve -> eleve.getId())
-                .collect(Collectors.toList());
-        
-        if (!eleveIds.isEmpty()) {
-            // Supprimer les bulletins des élèves (via deleteAll pour déclencher la cascade sur bulletin_matiere)
-            this.bulletinRepository.deleteAll(this.bulletinRepository.findByIdEleveIn(eleveIds));
-            // Désaffecter les élèves des feuilles de présence
-            this.eleveFeuillePresenceRepository.deleteByEleveIdIn(eleveIds);
-            // Désaffecter les élèves des classes
-            this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
-        }
-        
-        // Supprimer les demandes de mail liées aux inscriptions
-        Set<Long> inscriptionIds = inscriptions.stream().map(InscriptionEntity::getId).collect(Collectors.toSet());
-        this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, inscriptionIds);
-        
-        // Supprimer les inscriptions (les élèves et responsables légaux seront supprimés en cascade)
-        this.inscriptionRepository.deleteAll(inscriptions);
     }
 
     private boolean hasRole(UtilisateurEntity utilisateur, String role) {
@@ -236,6 +179,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("L'utilisateur n'a pas été retrouvé - username = " + accountAction.getUsername()));
         return AccountInfosDto.builder()
                 .username(user.getUsername())
+                .prenom(user.getPrenom())
                 .enabled(user.isEnabled())
                 .build();
     }
@@ -267,7 +211,7 @@ public class UserServiceImpl implements UserService {
         // Si un mail d'activation avait déjà été envoyé, on supprime la demande
         this.userAccountActionRepository.deleteByUsernameAndType(utilisateurEntity.getUsername(), UserAccountActionType.ACTIVATION);
         // on demande un nouveau mail d'activation du compte
-        this.requestMailActivation(utilisateurEntity.getUsername());
+        this.requestAccountAction(utilisateurEntity.getUsername(), UserAccountActionType.ACTIVATION);
     }
 
     @Override

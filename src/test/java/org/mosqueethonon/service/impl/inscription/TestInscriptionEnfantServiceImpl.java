@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl.inscription;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +16,7 @@ import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
-import org.mosqueethonon.service.UserService;
+import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.*;
@@ -31,6 +32,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInscriptionEnfantServiceImpl {
@@ -58,13 +60,39 @@ public class TestInscriptionEnfantServiceImpl {
     @Mock
     private EleveRepository eleveRepository;
     @Mock
-    private UserService userService;
+    private UserAccountManager userService;
+    @Mock
+    private PeriodeRepository periodeRepository;
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
+
+    @BeforeEach
+    public void injectParentFields() {
+        ReflectionTestUtils.setField(underTest, "userAccountManager", userService);
+        ReflectionTestUtils.setField(underTest, "inscriptionRepository", inscriptionRepository);
+        ReflectionTestUtils.setField(underTest, "mailRequestRepository", mailRequestRepository);
+        ReflectionTestUtils.setField(underTest, "periodeRepository", periodeRepository);
+
+        // Mock par défaut pour lockPeriodeActive
+        PeriodeEntity periodeMock = new PeriodeEntity();
+        periodeMock.setId(99L);
+        lenient().when(periodeRepository.findByApplicationAndDateDebutLessThanEqualAndDateFinGreaterThanEqual(any(), any(), any())).thenReturn(Optional.of(periodeMock));
+        lenient().when(periodeRepository.lockById(99L)).thenReturn(Optional.of(periodeMock));
+    }
 
     @Test
     public void testSaveInscriptionExpectIllegalStateExceptionWhenInscriptionDisabled() {
         when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.FALSE);
+        assertThrows(IllegalStateException.class,
+                () -> {
+                    this.underTest.createInscription(null);
+                });
+    }
+
+    @Test
+    public void testSaveInscriptionExpectIllegalStateExceptionWhenReinscriptionPrioritaireEnabled() {
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
+        when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.TRUE);
         assertThrows(IllegalStateException.class,
                 () -> {
                     this.underTest.createInscription(null);

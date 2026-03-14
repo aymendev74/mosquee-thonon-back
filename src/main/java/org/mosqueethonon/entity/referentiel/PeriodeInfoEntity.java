@@ -2,8 +2,6 @@ package org.mosqueethonon.entity.referentiel;
 
 import lombok.Data;
 import jakarta.persistence.*;
-import org.mosqueethonon.entity.audit.Signature;
-
 import java.time.LocalDate;
 
 @Entity
@@ -30,7 +28,5 @@ public class PeriodeInfoEntity {
     private Boolean active;
     @Column(name = "application")
     private String application;
-    @Embedded
-    private Signature signature;
 
 }

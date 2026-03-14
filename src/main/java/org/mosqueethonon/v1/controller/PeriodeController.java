@@ -29,39 +29,21 @@ public class PeriodeController {
 
     @PostMapping
     public ResponseEntity<PeriodeDto> createPeriode(@RequestBody PeriodeDto periode) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            periode = this.periodeService.createPeriode(periode);
-        } finally {
-            lock.unlock();
-        }
+        periode = this.periodeService.createPeriode(periode);
         return ResponseEntity.ok(periode);
     }
 
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<PeriodeDto> updatePeriode(@PathVariable("id") Long id, @RequestBody PeriodeDto periode) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            periode = this.periodeService.updatePeriode(id, periode);
-        } finally {
-            lock.unlock();
-        }
+        periode = this.periodeService.updatePeriode(id, periode);
         return ResponseEntity.ok(periode);
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deletePeriode(@PathVariable("id") Long id) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            this.periodeService.deletePeriode(id);
-        } finally {
-            lock.unlock();
-        }
-        return ResponseEntity.noContent().build();
+        this.periodeService.deletePeriode(id);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(path = "/validation")

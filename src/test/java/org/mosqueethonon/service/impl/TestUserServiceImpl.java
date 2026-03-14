@@ -46,6 +46,8 @@ public class TestUserServiceImpl {
     private LoginRepository loginRepository;
     @Mock
     private UserAccountActionRepository userAccountActionRepository;
+    @Mock
+    private UserAccountManager userAccountManager;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -70,16 +72,12 @@ public class TestUserServiceImpl {
 
     @Test
     public void testCreateUser() {
-        when(userMapper.fromDtoToEntity(any(UserDto.class))).thenReturn(utilisateur);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedpass");
-        when(userMapper.fromEntityToDto(any(UtilisateurEntity.class))).thenReturn(userDto);
-        when(utilisateurRepository.save(any(UtilisateurEntity.class))).thenReturn(utilisateur);
+        when(userAccountManager.createUser(any(UserDto.class))).thenReturn(userDto);
 
         UserDto result = userService.createUser(userDto);
         assertNotNull(result);
         assertEquals("testuser", result.getUsername());
-        verify(utilisateurRepository).save(any(UtilisateurEntity.class));
-        verify(userAccountActionRepository).save(any());
+        verify(userAccountManager).createUser(any(UserDto.class));
     }
 
     @Test

@@ -37,33 +37,9 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ github.ref }} # branche sur laquelle on a déclenché le workflow
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
     - name: Build
-      env: #injection de valeurs bidon pour faire tourner les tests
-        DB_PASSWORD: DB_PASSWORD
-        DB_USERNAME: DB_USERNAME
-        MAIL_SERVICE_USERNAME: MAIL_SERVICE_USERNAME
-        MAIL_SERVICE_PASSWORD: MAIL_SERVICE_PASSWORD
-        TOKEN_URI: TOKEN_URI
-        COOKIE_SECURE: false
-        ALLOWED_ORIGINS: http://localhost:3000
-        LOGOUT_REDIRECT_URI: http://localhost:3000
-        LOGIN_REDIRECT_URI: http://localhost:3000/login
-        ISSUER_URI: http://localhost
-        RESET_PASSWORD_URI: http://localhost:3000/resetPassword
-        JWT_DECODER_URI: http://localhost:8080/api/oauth2/jwks
-        DB_LIQ_USERNAME: DB_LIQ_USERNAME
-        DB_LIQ_PASSWORD: DB_LIQ_PASSWORD
-        ACTIVATION_UTILISATEUR_URI: http://localhost:3000/accountActivation
-        RIB_AMC_FILE_LOCATION: RIB_AMC_FILE_LOCATION
-        RIB_AMC_MAIL_ATTACHMENT_NAME: RIB_AMC_MAIL_ATTACHMENT_NAME
-        RESOURCE_LOCK_TIMEOUT: 10
-      run: mvn -B package --file pom.xml
+      uses: ./.github/actions/setup-maven
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:

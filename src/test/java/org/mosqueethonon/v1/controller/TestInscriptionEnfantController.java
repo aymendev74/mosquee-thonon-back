@@ -179,6 +179,28 @@ public class TestInscriptionEnfantController extends TestController {
                 .numeroEtRue("").nom("").prenom("").email("").build();
     }
 
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testCreateInscription_ReinscriptionPrioritaireEnabled() throws Exception {
+        ParamEntity paramReinscription = new ParamEntity();
+        paramReinscription.setName(ParamNameEnum.REINSCRIPTION_ENABLED);
+        paramReinscription.setValue("true");
+        paramReinscription = this.paramRepository.save(paramReinscription);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(this.createInscription()))
+                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                    .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+            List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
+            assertEquals(0, allInscriptions.size());
+        } finally {
+            this.paramRepository.delete(paramReinscription);
+        }
+    }
+
     private List<EleveDto> createEleve() {
         return Lists.newArrayList(EleveDto.builder().nom("").prenom("").dateNaissance(LocalDate.of(2015, 11, 14))
                 .niveau(NiveauScolaireEnum.CE2).niveauInterne(NiveauInterneEnum.P1).build());

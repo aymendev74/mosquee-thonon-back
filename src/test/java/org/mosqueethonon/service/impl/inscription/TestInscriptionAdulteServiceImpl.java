@@ -36,17 +36,22 @@ import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
+import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
+import org.mosqueethonon.v1.dto.user.UserDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapper;
 import org.mosqueethonon.v1.mapper.inscription.InscriptionAdulteMapperImpl;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInscriptionAdulteServiceImpl {
@@ -81,6 +86,9 @@ public class TestInscriptionAdulteServiceImpl {
     @Mock
     private TarifRepository tarifRepository;
 
+    @Mock
+    private UserAccountManager userService;
+
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
 
@@ -107,23 +115,41 @@ public class TestInscriptionAdulteServiceImpl {
         inscriptionEntity.setMatieres(Lists.newArrayList(inscriptionMatiere));
 
         criteria = InscriptionSaveCriteria.builder().sendMailConfirmation(true).build();
+        ReflectionTestUtils.setField(inscriptionAdulteService, "userAccountManager", userService);
+        ReflectionTestUtils.setField(inscriptionAdulteService, "inscriptionRepository", inscriptionRepository);
+        ReflectionTestUtils.setField(inscriptionAdulteService, "mailRequestRepository", mailRequestRepository);
     }
 
     @Test
     public void testCreateInscription_Success() {
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1L);
         when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
 
         TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
         when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
         when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(this.userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(this.userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
 
+        InscriptionAdulteResultDto result = inscriptionAdulteService.createInscription(inscriptionDto);
 
-        InscriptionAdulteDto result = inscriptionAdulteService.createInscription(inscriptionDto);
-
-        assertEquals(1, result.getMatieres().size());
+        assertNotNull(result);
+        assertTrue(result.getNewlyCreatedAccount());
+        assertFalse(result.getEnabledAccount());
         verify(inscriptionAdulteRepository, times(1)).save(any());
         verify(mailRequestRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void testCreateInscription_InscriptionClosed() {
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(false);
+
+        assertThrows(IllegalStateException.class, () -> inscriptionAdulteService.createInscription(new InscriptionAdulteDto()));
     }
 
     @Test
@@ -294,5 +320,55 @@ public class TestInscriptionAdulteServiceImpl {
         // Act & Assert
         assertThrows(ResourceNotFoundException.class,
                 () -> inscriptionAdulteService.findInscriptionsByUtilisateurConnecte());
+    }
+
+    @Test
+    public void testReinscription_Success() {
+        // Arrange
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(2L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(this.userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(this.userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(StatutProfessionnelEnum.AVEC_ACTIVITE))).thenReturn(tarifDto);
+
+        ReinscriptionAdulteDto reinscriptionDto = new ReinscriptionAdulteDto();
+        reinscriptionDto.setNom("Dupont");
+        reinscriptionDto.setPrenom("Jean");
+        reinscriptionDto.setEmail("jean.dupont@test.com");
+        reinscriptionDto.setMobile("0612345678");
+        reinscriptionDto.setNumeroEtRue("10 rue de la paix");
+        reinscriptionDto.setCodePostal(74200);
+        reinscriptionDto.setVille("Thonon");
+        reinscriptionDto.setDateNaissance(LocalDate.of(1990, 5, 15));
+        reinscriptionDto.setSexe(SexeEnum.M);
+        reinscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        reinscriptionDto.setMatieres(Lists.newArrayList(MatiereEnum.TAFFSIR_CORAN));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.reinscription(reinscriptionDto);
+
+        // Assert
+        assertNotNull(result);
+        verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
+        verify(mailRequestRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void testReinscription_InscriptionClosed() {
+        // Arrange
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(false);
+
+        ReinscriptionAdulteDto reinscriptionDto = new ReinscriptionAdulteDto();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> inscriptionAdulteService.reinscription(reinscriptionDto));
     }
 }

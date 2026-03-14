@@ -14,4 +14,6 @@ public interface UtilisateurRepository extends JpaRepository<UtilisateurEntity, 
 
     public Optional<UtilisateurEntity> findByEmail(String email);
 
+    public Optional<UtilisateurEntity> findFirstByEmail(String email);
+
 }

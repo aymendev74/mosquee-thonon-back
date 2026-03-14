@@ -1,7 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
@@ -10,8 +9,6 @@ import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.locks.Lock;
 
 @RestController
 @AllArgsConstructor
@@ -22,30 +19,16 @@ public class InscriptionEnfantController {
 
     private InscriptionOrchestratorService inscriptionOrchestratorService;
 
-    private LockManager lockManager;
-
     @PostMapping
     public ResponseEntity<InscriptionEnfantResultDto> createInscription(@RequestBody InscriptionEnfantDto inscription) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            InscriptionEnfantResultDto response = this.inscriptionEnfantService.createInscription(inscription);
-            return ResponseEntity.ok(response);
-        } finally {
-            lock.unlock();
-        }
+        InscriptionEnfantResultDto response = this.inscriptionEnfantService.createInscription(inscription);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<InscriptionEnfantDto> updateInscription(@PathVariable("id") Long id, @RequestBody InscriptionEnfantDto inscription,
                                                                   @ModelAttribute InscriptionSaveCriteria criteria) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            inscription = this.inscriptionOrchestratorService.updateInscription(id, inscription, criteria);
-        } finally {
-            lock.unlock();
-        }
+        inscription = this.inscriptionOrchestratorService.updateInscription(id, inscription, criteria);
         return ResponseEntity.ok(inscription);
     }
 
@@ -69,14 +52,8 @@ public class InscriptionEnfantController {
 
     @PostMapping(path = "/reinscription")
     public ResponseEntity<InscriptionEnfantDto> reinscription(@RequestBody ReinscriptionDto reinscriptionDto) {
-        Lock lock = lockManager.getLock(LockManager.LOCK_INSCRIPTIONS);
-        lock.lock();
-        try {
-            InscriptionEnfantDto inscription = this.inscriptionEnfantService.reinscription(reinscriptionDto);
-            return ResponseEntity.ok(inscription);
-        } finally {
-            lock.unlock();
-        }
+        InscriptionEnfantDto inscription = this.inscriptionEnfantService.reinscription(reinscriptionDto);
+        return ResponseEntity.ok(inscription);
     }
 
 }

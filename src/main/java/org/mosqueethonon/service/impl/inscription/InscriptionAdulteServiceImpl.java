@@ -2,28 +2,29 @@ package org.mosqueethonon.service.impl.inscription;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.enums.*;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
-import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
+import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
+import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -43,17 +44,14 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
-public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
+@Slf4j
+public class InscriptionAdulteServiceImpl extends AbstractInscriptionService implements InscriptionAdulteService {
 
     private InscriptionAdulteRepository inscriptionAdulteRepository;
-
-    private InscriptionRepository inscriptionRepository;
 
     private InscriptionAdulteMapper inscriptionAdulteMapper;
 
     private TarifCalculService tarifCalculService;
-
-    private MailRequestRepository mailRequestRepository;
 
     private MatiereService matiereService;
 
@@ -63,9 +61,18 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
     private TarifRepository tarifRepository;
 
+    private ParamService paramService;
+
     @Override
     @Transactional
-    public InscriptionAdulteDto createInscription(InscriptionAdulteDto inscription) {
+    public InscriptionAdulteResultDto createInscription(InscriptionAdulteDto inscription) {
+        // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées
+        if(!paramService.isInscriptionAdulteEnabled()) {
+            RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
+            log.error("Les inscriptions adultes sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
+            throw e;
+        }
+
         // Normalisation des chaines de caractères saisies par l'utilisateur
         inscription.normalize();
 
@@ -73,9 +80,12 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         InscriptionAdulteEntity entity = new InscriptionAdulteEntity();
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
         entity.setMatieres(this.mapInscriptionMatieres(inscription));
+
+        UserAccountResult userAccountResult = this.manageUserAccount(inscription.getEmail(), inscription.getNom(), inscription.getPrenom(), inscription.getMobile());
+        entity.setIdUtilisateur(userAccountResult.userId());
+
         entity.setDateInscription(LocalDateTime.now());
-        Long noInscription = this.inscriptionRepository.getNextNumeroInscription();
-        entity.setNoInscription(new StringBuilder("AMC").append("-").append(noInscription).toString());
+        entity.setNoInscription(this.generateNoInscription());
         entity.setStatut(StatutInscription.PROVISOIRE);
 
         // calcul du tarif
@@ -86,7 +96,11 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
 
         // Envoi du mail de prise en compte
         this.createMailRequest(entity.getId());
-        return this.inscriptionAdulteMapper.fromEntityToDto(entity);
+
+        return InscriptionAdulteResultDto.builder()
+                .newlyCreatedAccount(userAccountResult.newlyCreated())
+                .enabledAccount(userAccountResult.enabled())
+                .build();
     }
 
     private List<InscriptionMatiereEntity> mapInscriptionMatieres(InscriptionAdulteDto inscription) {
@@ -138,12 +152,6 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         inscription.setMontantTotal(tarif.getTarif());
     }
 
-    private void createMailRequest(Long idInscription) {
-        this.mailRequestRepository.save(MailRequestEntity.builder().businessId(idInscription)
-                .type(MailRequestType.INSCRIPTION).statut(MailRequestStatut.PENDING)
-                .build());
-    }
-
     @Override
     public Integer findNbInscriptionsByPeriode(Long idPeriode) {
         return this.inscriptionRepository.getNbElevesInscritsByIdPeriode(idPeriode, TypeInscriptionEnum.ADULTE.name());
@@ -154,6 +162,46 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
         Integer nbInscriptionOutside = this.inscriptionRepository.getNbInscriptionOutsideRange(idPeriode,
                 periode.getDateDebut(), periode.getDateFin(), TypeInscriptionEnum.ADULTE.name());
         return nbInscriptionOutside != null && nbInscriptionOutside > 0;
+    }
+
+    @Override
+    @Transactional
+    public InscriptionAdulteDto reinscription(ReinscriptionAdulteDto reinscriptionAdulteDto) {
+        Assert.isTrue(this.paramService.isInscriptionAdulteEnabled(),
+                "Les inscriptions adultes sont actuellement fermées !");
+
+        InscriptionAdulteEntity entity = new InscriptionAdulteEntity();
+        this.inscriptionAdulteMapper.mapReinscriptionDtoToEntity(reinscriptionAdulteDto, entity);
+        entity.setMatieres(this.mapInscriptionMatieresFromList(reinscriptionAdulteDto.getMatieres()));
+
+        UserAccountResult userAccountResult = this.manageUserAccount(reinscriptionAdulteDto.getEmail(),
+                reinscriptionAdulteDto.getNom(), reinscriptionAdulteDto.getPrenom(), reinscriptionAdulteDto.getMobile());
+        entity.setIdUtilisateur(userAccountResult.userId());
+
+        entity.setDateInscription(LocalDateTime.now());
+        entity.setNoInscription(this.generateNoInscription());
+        entity.setStatut(StatutInscription.VALIDEE);
+
+        this.calculTarif(entity, LocalDate.now(), reinscriptionAdulteDto.getStatutProfessionnel());
+
+        entity = this.inscriptionAdulteRepository.save(entity);
+        this.createMailRequest(entity.getId());
+
+        return this.inscriptionAdulteMapper.fromEntityToDto(entity);
+    }
+
+    private List<InscriptionMatiereEntity> mapInscriptionMatieresFromList(List<MatiereEnum> matieres) {
+        List<InscriptionMatiereEntity> inscriptionMatiereEntities = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(matieres)) {
+            for (MatiereEnum matiere : matieres) {
+                MatiereEntity matiereEntity = this.matiereService.findByCode(matiere)
+                        .orElseThrow(() -> new ResourceNotFoundException("La matière " + matiere.name() + " n'a pas été trouvée"));
+                InscriptionMatiereEntity inscriptionMatiereEntity = new InscriptionMatiereEntity();
+                inscriptionMatiereEntity.setMatiere(matiereEntity);
+                inscriptionMatiereEntities.add(inscriptionMatiereEntity);
+            }
+        }
+        return inscriptionMatiereEntities;
     }
 
     @Override
@@ -193,6 +241,9 @@ public class InscriptionAdulteServiceImpl implements InscriptionAdulteService {
                             .prenom(inscription.getResponsableLegal().getPrenom())
                             .email(inscription.getResponsableLegal().getEmail())
                             .mobile(inscription.getResponsableLegal().getMobile())
+                            .numeroEtRue(inscription.getResponsableLegal().getNumeroEtRue())
+                            .codePostal(inscription.getResponsableLegal().getCodePostal())
+                            .ville(inscription.getResponsableLegal().getVille())
                             .dateNaissance(eleve != null ? eleve.getDateNaissance() : null)
                             .sexe(eleve != null ? eleve.getSexe() : null)
                             .niveauInterne(eleve != null ? eleve.getNiveauInterne() : null)
