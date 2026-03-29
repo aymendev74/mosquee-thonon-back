@@ -2,6 +2,6 @@ package org.mosqueethonon.enums;
 
 public enum MailRequestStatut {
 
-    PENDING, SENT, ERROR, IGNORED
+    NOT_READY, PENDING, SENT, ERROR, IGNORED
 
 }
