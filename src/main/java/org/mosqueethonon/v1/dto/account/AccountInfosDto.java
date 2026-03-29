@@ -8,6 +8,7 @@ import lombok.Data;
 public class AccountInfosDto {
 
     private String username;
+    private String prenom;
     private boolean enabled;
 
 }

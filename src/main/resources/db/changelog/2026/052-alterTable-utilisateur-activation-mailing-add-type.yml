@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 052-alterTable-utilisateur-activation-mailing-add-type
+      author: Aymen
+      changes:
+        - renameTable:
+            oldTableName: utilisateur_activation_mailing
+            newTableName: utilisateur_account_action
+
+        - renameColumn:
+            tableName: utilisateur_account_action
+            oldColumnName: iduama
+            newColumnName: iduaac
+            columnDataType: BIGINT
+
+        - renameColumn:
+            tableName: utilisateur_account_action
+            oldColumnName: txuamauser
+            newColumnName: txuaacuser
+            columnDataType: varchar(50)
+
+        - renameColumn:
+            tableName: utilisateur_account_action
+            oldColumnName: txuamatoken
+            newColumnName: txuaactoken
+            columnDataType: VARCHAR(100)
+
+        - renameColumn:
+            tableName: utilisateur_account_action
+            oldColumnName: cduamastatut
+            newColumnName: cduaacstatut
+            columnDataType: varchar(20)
+
+        - addColumn:
+            tableName: utilisateur_account_action
+            columns:
+              - column:
+                  name: cduaactype
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+
+        - update:
+            tableName: utilisateur_account_action
+            columns:
+              - column:
+                  name: cduaactype
+                  value: ACTIVATION
+            where: cduaactype IS NULL
+
+        - addNotNullConstraint:
+            tableName: utilisateur_account_action
+            columnName: cduaactype
+            columnDataType: varchar(20)

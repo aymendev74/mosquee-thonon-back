@@ -7,28 +7,33 @@ import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.enums.UserAccountActionType;
 
 @Entity
 @EntityListeners(EntityListener.class)
-@Table(name = "utilisateur_activation_mailing", schema = "moth")
+@Table(name = "utilisateur_account_action", schema = "moth")
 @Getter
 @Setter
-public class MailingActivationUtilisateurEntity implements Auditable {
+public class UserAccountActionEntity implements Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "iduama")
+    @Column(name = "iduaac")
     private Long id;
 
-    @Column(name = "txuamauser")
+    @Column(name = "txuaacuser")
     private String username;
 
-    @Column(name = "txuamatoken")
+    @Column(name = "txuaactoken")
     private String token;
 
-    @Column(name = "cduamastatut")
+    @Column(name = "cduaacstatut")
     @Enumerated(EnumType.STRING)
     private MailRequestStatut statut;
+
+    @Column(name = "cduaactype")
+    @Enumerated(EnumType.STRING)
+    private UserAccountActionType type;
 
     @Embedded
     private Signature signature;

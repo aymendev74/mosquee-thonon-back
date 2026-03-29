@@ -29,6 +29,7 @@ public class InscriptionEnfantDto {
             responsableLegal.setPrenom(StringUtils.normalize(responsableLegal.getPrenom()));
             responsableLegal.setPrenomAutre(StringUtils.normalize(responsableLegal.getPrenomAutre()));
             responsableLegal.setNomAutre(StringUtils.normalize(responsableLegal.getNomAutre()));
+            responsableLegal.setEmail(responsableLegal.getEmail().trim().toLowerCase());
         }
         if(!CollectionUtils.isEmpty(eleves)) {
             eleves.forEach(eleve -> {

@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
-import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.service.auth.IAuthService;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private final JwtDecoder jwtDecoder;
 
-    private final SecurityContext securityContext;
+    private final UserService userService;
 
     private final AuthCookieConfiguration authCookieConfiguration;
 
@@ -59,7 +59,7 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public UserInfoDto getProfile() {
-        return this.securityContext.getUserInfo();
+        return this.userService.getProfile();
     }
 
     @Override

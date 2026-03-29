@@ -1,13 +1,21 @@
 package org.mosqueethonon.service.inscription;
 
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import java.util.List;
 
+import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
+
 public interface InscriptionEnfantService {
 
-    public InscriptionEnfantDto createInscription(InscriptionEnfantDto inscriptionEnfantDto);
+    public InscriptionEnfantResultDto createInscription(InscriptionEnfantDto inscriptionEnfantDto);
+
+    List<InscriptionEnfantParAnneeScolaireDto> findInscriptionsByUtilisateurConnecte();
+
+    InscriptionEnfantDto reinscription(ReinscriptionDto reinscriptionDto);
 
     public InscriptionEnfantDto updateInscription(Long id, InscriptionEnfantDto inscriptionEnfantDto, InscriptionSaveCriteria criteria);
 
@@ -19,13 +27,7 @@ public interface InscriptionEnfantService {
 
     public String checkCoherence(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto);
 
-    //public Integer getLastPositionAttenteByPeriode(Long idPeriode);
-
     Integer getNbElevesInscritsByIdPeriode(Long idPeriode);
-
-    //List<InscriptionEnfantDto> getInscriptionEnAttenteByPeriode(Long idPeriode);
-
-    //List<InscriptionEnfantDto> updateInscriptions(List<InscriptionEnfantDto> inscriptions);
 
     void updateListeAttente(Long idPeriode, Integer nbMaxInscriptions);
 

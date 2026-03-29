@@ -69,7 +69,7 @@ public class PeriodeServiceImpl implements PeriodeService {
     @Override
     @Transactional
     public PeriodeDto updatePeriode(Long id, PeriodeDto periode) {
-        PeriodeEntity periodeEntity = this.periodeRepository.findById(id)
+        PeriodeEntity periodeEntity = this.periodeRepository.lockById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
         this.periodeMapper.mapDtoToEntity(periode, periodeEntity);
         periodeEntity = this.periodeRepository.save(periodeEntity);
@@ -170,4 +170,5 @@ public class PeriodeServiceImpl implements PeriodeService {
 
         this.periodeRepository.delete(periode);
     }
+
 }

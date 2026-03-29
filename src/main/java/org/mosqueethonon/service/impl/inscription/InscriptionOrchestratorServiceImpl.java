@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;
@@ -15,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service qui permet de casser la dépendance cyclique entre InscriptionEnfantService et PeriodeServide
@@ -31,6 +32,7 @@ public class InscriptionOrchestratorServiceImpl implements InscriptionOrchestrat
     private InscriptionEnfantService inscriptionEnfantService;
     private InscriptionService inscriptionService;
     private PeriodeService periodeService;
+    private InscriptionRepository inscriptionRepository;
 
     @Override
     @Transactional
@@ -65,5 +67,16 @@ public class InscriptionOrchestratorServiceImpl implements InscriptionOrchestrat
             }
         }
         return ids;
+    }
+
+    @Override
+    @Transactional
+    public void deleteByIdUtilisateur(Long idUtilisateur) {
+        Set<Long> ids = this.inscriptionRepository.findByUtilisateurId(idUtilisateur).stream()
+                .map(InscriptionEntity::getId)
+                .collect(Collectors.toSet());
+        if (!ids.isEmpty()) {
+            this.inscriptionService.deleteInscriptions(ids);
+        }
     }
 }

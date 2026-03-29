@@ -15,8 +15,7 @@ import java.util.List;
 public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEnfantEntity, Long>, JpaSpecificationExecutor<InscriptionEnfantEntity> {
 
     @Query("select i from InscriptionEnfantEntity i "
-            + "join i.responsableLegal r "
-            + "join TarifEntity t on t.id = r.idTarif "
+            + "join TarifEntity t on t.id = i.idTarif "
             + "join t.periode p "
             + "where p.id = :idPeriode "
             + "and i.statut in ('LISTE_ATTENTE') "
@@ -38,8 +37,7 @@ public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEn
 
 
     @Query(value = "select max(noinscpositionattente) from moth.inscription i "
-            + "inner join moth.resplegal e on e.idresp = i.idresp "
-            + "inner join moth.tarif t on t.idtari = e.idtari "
+            + "inner join moth.tarif t on t.idtari = i.idtari "
             + "inner join moth.periode p on p.idperi = t.idperi "
             + "where p.dtperidebut <= :atDate and p.dtperifin >= :atDate "
             + "and i.cdinsctype = 'ENFANT' "
@@ -47,11 +45,16 @@ public interface InscriptionEnfantRepository extends JpaRepository<InscriptionEn
     Integer getLastPositionAttente(@Param("atDate") LocalDate atDate);
 
     @Query(value = "select max(noinscpositionattente) from moth.inscription i "
-            + "inner join moth.resplegal e on e.idresp = i.idresp "
-            + "inner join moth.tarif t on t.idtari = e.idtari "
+            + "inner join moth.tarif t on t.idtari = i.idtari "
             + "inner join moth.periode p on p.idperi = t.idperi "
             + "where p.idperi = :idPeriode "
             + "and i.cdinsctype = 'ENFANT' "
             + "and i.cdinscstatut = 'LISTE_ATTENTE' ", nativeQuery = true)
     Integer getLastPositionAttente(@Param("idPeriode") Long idPeriode);
+
+    @Query("select i from InscriptionEnfantEntity i "
+            + "where i.utilisateur.id = :idUtilisateur "
+            + "and i.type = 'ENFANT' "
+            + "order by i.dateInscription desc")
+    List<InscriptionEnfantEntity> findByUtilisateurId(@Param("idUtilisateur") Long idUtilisateur);
 }

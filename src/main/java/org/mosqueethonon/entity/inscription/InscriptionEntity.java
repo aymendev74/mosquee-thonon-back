@@ -6,6 +6,7 @@ import org.hibernate.annotations.Formula;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;
@@ -29,7 +30,7 @@ public abstract class InscriptionEntity implements Auditable {
     private StatutInscription statut;
     @Column(name = "dtinscinscription")
     private LocalDateTime dateInscription;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "idresp", nullable = false)
     private ResponsableLegalEntity responsableLegal;
     @Column(name = "noinscinscription")
@@ -40,6 +41,13 @@ public abstract class InscriptionEntity implements Auditable {
     private Signature signature;
     @Column(name = "mtinsctotal")
     private BigDecimal montantTotal;
+    @Column(name = "idtari")
+    private Long idTarif;
+    @Column(name = "idutil")
+    private Long idUtilisateur;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idutil", insertable = false, updatable = false)
+    private UtilisateurEntity utilisateur;
     @Column(name = "cdinsctype", insertable = false, updatable = false)
     private String type;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

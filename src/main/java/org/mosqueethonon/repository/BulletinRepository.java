@@ -11,4 +11,6 @@ public interface BulletinRepository extends JpaRepository<BulletinEntity, Long> 
 
     List<BulletinEntity> findByIdEleve(Long idEleve);
 
+    List<BulletinEntity> findByIdEleveIn(List<Long> eleveIds);
+
 }

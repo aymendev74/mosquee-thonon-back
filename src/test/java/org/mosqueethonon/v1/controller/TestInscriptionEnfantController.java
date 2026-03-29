@@ -126,7 +126,7 @@ public class TestInscriptionEnfantController extends TestController {
                     mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonMapper.writeValueAsString(this.createInscription()))
-                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                                    .with(SecurityMockMvcRequestPostProcessors.csrf()))
                             .andExpect(MockMvcResultMatchers.status().isOk());
                 } catch (Exception e) {
                     fail(e);
@@ -142,13 +142,13 @@ public class TestInscriptionEnfantController extends TestController {
 
         // Puis on va vérifier que 510 inscriptions ont bien été enregistrés dont 10 avec statut en attente
         List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
-        assertInscriptionsAttentes(allInscriptions,  10);
+        assertInscriptionsAttentes(allInscriptions, 10);
 
         // Puis on va supprimer 5 inscriptions provisoires pour forcer la mise à jour de la liste d'attente
         Set<Long> inscriptionsASupprimer = new HashSet<>();
-        for(InscriptionEnfantEntity inscription : allInscriptions) {
-            if(inscriptionsASupprimer.size() == 5) break;
-            if(inscription.getStatut() == StatutInscription.PROVISOIRE) {
+        for (InscriptionEnfantEntity inscription : allInscriptions) {
+            if (inscriptionsASupprimer.size() == 5) break;
+            if (inscription.getStatut() == StatutInscription.PROVISOIRE) {
                 inscriptionsASupprimer.add(inscription.getId());
             }
         }
@@ -174,9 +174,31 @@ public class TestInscriptionEnfantController extends TestController {
     }
 
     private ResponsableLegalDto createResponsableLegal() {
-        return ResponsableLegalDto.builder().adherent(true).autorisationAutonomie(true).autorisationMedia(false)
+        return ResponsableLegalDto.builder().autorisationAutonomie(false).autorisationAutonomie(false)
                 .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
-                .numeroEtRue("").nom("").prenom("").build();
+                .numeroEtRue("").nom("").prenom("").email("").build();
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testCreateInscription_ReinscriptionPrioritaireEnabled() throws Exception {
+        ParamEntity paramReinscription = new ParamEntity();
+        paramReinscription.setName(ParamNameEnum.REINSCRIPTION_ENABLED);
+        paramReinscription.setValue("true");
+        paramReinscription = this.paramRepository.save(paramReinscription);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(this.createInscription()))
+                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                    .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+            List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
+            assertEquals(0, allInscriptions.size());
+        } finally {
+            this.paramRepository.delete(paramReinscription);
+        }
     }
 
     private List<EleveDto> createEleve() {

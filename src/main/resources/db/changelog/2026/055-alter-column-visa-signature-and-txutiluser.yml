@@ -1,0 +1,144 @@
+databaseChangeLog:
+  - changeSet:
+      id: 055-alter-column-visa-signature-and-txutiluser
+      author: Aymen
+      changes:
+        - sql:
+            sql: |
+              DROP VIEW IF EXISTS moth.v_periode_cours CASCADE;
+              DROP VIEW IF EXISTS moth.v_inscription_light CASCADE;
+              DROP VIEW IF EXISTS moth.v_eleve_enriched CASCADE;
+              DROP VIEW IF EXISTS moth.v_info_mail_inscription CASCADE;
+              DROP VIEW IF EXISTS moth.v_adhesion_light CASCADE;
+              DROP VIEW IF EXISTS moth.v_adhesion_light_2 CASCADE;
+
+              ALTER TABLE moth.utilisateur ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur ALTER COLUMN txutiluser TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur_roles ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur_roles ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur_account_action ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.utilisateur_account_action ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.inscription ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.inscription ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.eleve ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.eleve ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.resplegal ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.resplegal ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.inscription_matiere ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.inscription_matiere ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.adhesion ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.adhesion ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.tarif ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.tarif ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.periode ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.periode ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.classe ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.classe ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.classe_activite ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.classe_activite ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_eleve ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_eleve ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_enseignant ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_enseignant ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.feuille_presence ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.feuille_presence ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_feuille_presence ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_classe_feuille_presence ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_eleve_feuille_presence ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.lien_eleve_feuille_presence ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.bulletin ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.bulletin ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.bulletin_matiere ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.bulletin_matiere ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+              ALTER TABLE moth.mail_request ALTER COLUMN oh_vis_cre TYPE VARCHAR(100);
+              ALTER TABLE moth.mail_request ALTER COLUMN oh_vis_mod TYPE VARCHAR(100);
+
+              CREATE OR REPLACE VIEW moth.v_periode_cours AS
+              SELECT DISTINCT peri.idperi AS id,
+                  peri.dtperidebut AS datedebut,
+                  peri.dtperifin AS datefin,
+                  peri.noperianneefin AS anneefin,
+                  peri.noperianneedebut AS anneedebut,
+                  peri.nbperimaxinscription AS nbmaxinscription,
+                  moth.existinscriptionforperiode(peri.idperi) AS existinscription,
+                  peri.cdperiapplication AS application,
+                  CASE
+                      WHEN ((CURRENT_DATE >= peri.dtperidebut) AND (CURRENT_DATE <= peri.dtperifin)) THEN true
+                      ELSE false
+                  END AS active
+              FROM moth.periode peri;
+
+              CREATE OR REPLACE VIEW moth.v_inscription_light AS
+              SELECT e.idelev AS id,
+                   i.idinsc AS idinscription,
+                   i.dtinscinscription AS dateinscription,
+                   i.cdinscstatut AS statut,
+                   e.txelevnom AS nom,
+                   e.txelevprenom AS prenom,
+                   e.dtelevnaissance AS datenaissance,
+                   e.cdelevniveau AS niveau,
+                   e.cdelevniveauinterne AS niveauinterne,
+                   r.txrespnom AS nomresponsablelegal,
+                   r.txrespprenom AS prenomresponsablelegal,
+                   r.txrespmobile AS mobile,
+                   r.txrespnomautre AS nomcontacturgence,
+                   r.txrespprenomautre AS prenomcontacturgence,
+                   r.txrespphoneautre AS mobilecontacturgence,
+                   r.txrespville AS ville,
+                   r.txrespphoneautre AS mobileautre,
+                   r.lorespautonomie AS autorisationautonomie,
+                   r.lorespmedia AS autorisationmedia,
+                   i.noinscinscription AS noinscription,
+                   p.idperi AS idperiode,
+                   r.txrespemail AS email,
+                   i.cdinsctype AS type
+              FROM ((((moth.inscription i
+                   JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
+                   JOIN moth.resplegal r ON ((i.idresp = r.idresp)))
+                   JOIN moth.tarif t ON ((t.idtari = i.idtari)))
+                   JOIN moth.periode p ON ((p.idperi = t.idperi)));
+
+              CREATE OR REPLACE VIEW moth.v_eleve_enriched AS
+              SELECT e.idelev AS id, c.idclas AS idclasse, e.txelevnom AS nom, e.txelevprenom AS prenom, e.dtelevnaissance AS datenaissance,
+                     e.cdelevniveauinterne AS niveauinterne, r.txrespmobile AS mobile, r.txrespphoneautre AS mobilecontacturgence,
+                     r.lorespautonomie AS autorisationautonomie, r.lorespmedia AS autorisationmedia, r.txrespnom AS nomresponsablelegal,
+                     r.txrespprenom AS prenomresponsablelegal, r.txrespnomautre AS nomcontacturgence, r.txrespprenomautre AS prenomcontacturgence,
+                     e.cdelevresultat AS resultat
+              FROM moth.classe c
+                   INNER JOIN moth.lien_classe_eleve lce ON lce.idclas = c.idclas
+                   INNER JOIN moth.eleve e ON e.idelev = lce.idelev
+                   INNER JOIN moth.inscription i ON i.idinsc = e.idinsc
+                   INNER JOIN moth.resplegal r ON r.idresp = i.idresp;
+
+              CREATE OR REPLACE VIEW moth.v_info_mail_inscription AS
+              SELECT i.idinsc AS id,
+                     i.cdinscstatut AS statut,
+                     i.noinscinscription AS noinscription,
+                     r.txrespnom AS nom,
+                     r.txrespprenom AS prenom,
+                     r.txrespemail AS email
+              FROM moth.inscription i
+                   INNER JOIN moth.resplegal r ON r.idresp = i.idresp;
+
+              CREATE OR REPLACE VIEW moth.v_adhesion_light AS
+              SELECT a.idadhe AS id,
+                  a.txadhenom AS nom,
+                  a.txadheprenom AS prenom,
+                  a.txadheville AS ville,
+                  a.cdadhestatut AS statut,
+                  COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
+                  a.dtadheinscription AS dateinscription
+              FROM (moth.adhesion a
+                   JOIN moth.tarif t ON ((t.idtari = a.idtari)));
+
+              CREATE OR REPLACE VIEW moth.v_adhesion_light_2 AS
+              SELECT a.idadhe AS id,
+                  a.txadhenom AS nom,
+                  a.txadheprenom AS prenom,
+                  a.txadheville AS ville,
+                  a.cdadhestatut AS statut,
+                  COALESCE((a.mtadheautre)::numeric, t.mttari) AS montant,
+                  a.dtadheinscription AS dateinscription
+              FROM (moth.adhesion a
+                   JOIN moth.tarif t ON ((t.idtari = a.idtari)));

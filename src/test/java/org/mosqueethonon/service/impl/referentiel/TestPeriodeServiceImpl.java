@@ -107,7 +107,7 @@ public class TestPeriodeServiceImpl {
         PeriodeDto periodeDto = new PeriodeDto();
         PeriodeEntity existingEntity = new PeriodeEntity();
         existingEntity.setId(id);
-        when(periodeRepository.findById(id)).thenReturn(Optional.of(existingEntity));
+        when(periodeRepository.lockById(id)).thenReturn(Optional.of(existingEntity));
         when(periodeMapper.mapDtoToEntity(periodeDto, existingEntity)).thenReturn(existingEntity);
         when(periodeRepository.save(existingEntity)).thenReturn(existingEntity);
         when(periodeMapper.fromEntityToDto(existingEntity)).thenReturn(periodeDto);
@@ -117,14 +117,14 @@ public class TestPeriodeServiceImpl {
 
         // Assert
         assertNotNull(result);
-        verify(periodeRepository).findById(id);
+        verify(periodeRepository).lockById(id);
     }
 
     @Test
     public void testUpdatePeriode_WhenNotExists() {
         Long id = 1L;
         PeriodeDto periodeDto = new PeriodeDto();
-        when(periodeRepository.findById(id)).thenReturn(Optional.empty());
+        when(periodeRepository.lockById(id)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             periodeService.updatePeriode(id, periodeDto);

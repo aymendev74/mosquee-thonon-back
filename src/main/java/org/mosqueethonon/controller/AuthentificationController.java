@@ -1,6 +1,7 @@
 package org.mosqueethonon.controller;
 
 import lombok.AllArgsConstructor;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
 import org.mosqueethonon.service.auth.IAuthService;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +23,11 @@ public class AuthentificationController {
 
     private AuthCookieConfiguration authCookieConfiguration;
 
+    private ApplicationConfiguration applicationConfiguration;
+
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("resetPasswordUri", applicationConfiguration.getResetPasswordUri());
         return "login";
     }
 

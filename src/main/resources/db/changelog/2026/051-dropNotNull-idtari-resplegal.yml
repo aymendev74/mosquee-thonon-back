@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 051-dropNotNull-idtari-resplegal
+      author: Aymen
+      changes:
+        - dropNotNullConstraint:
+            tableName: resplegal
+            columnName: idtari
+            columnDataType: BIGINT
