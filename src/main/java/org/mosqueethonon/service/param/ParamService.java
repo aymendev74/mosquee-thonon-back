@@ -13,6 +13,8 @@ public interface ParamService {
 
     boolean isInscriptionEnfantEnabled();
 
+    boolean isInscriptionAdulteEnabled();
+
     ParamsDto getParams();
 
     boolean isSendEmailEnabled();

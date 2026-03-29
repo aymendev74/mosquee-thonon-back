@@ -13,11 +13,13 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
+import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
+import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
 
 import java.time.LocalDate;
 
@@ -42,6 +44,12 @@ public class TestInscriptionEnfantMapperImpl {
     public void testUpdateInscriptionEntity() {
         // GIVEN
         InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        ResponsableLegalDto responsableLegalDto = ResponsableLegalDto.builder()
+                .adherent(Boolean.TRUE)
+                .autorisationAutonomie(Boolean.FALSE)
+                .autorisationMedia(Boolean.TRUE)
+                .build();
+        inscriptionEnfantDto.setResponsableLegal(responsableLegalDto);
         EleveDto eleveDto = new EleveDto();
         eleveDto.setId(1L);
         eleveDto.setNom("nomUpdated");
@@ -51,7 +59,13 @@ public class TestInscriptionEnfantMapperImpl {
         eleveDto.setNiveauInterne(NiveauInterneEnum.P1);
         inscriptionEnfantDto.setEleves(Lists.newArrayList(eleveDto));
 
+        ResponsableLegalEntity responsableLegalEntity = new ResponsableLegalEntity();
+        responsableLegalEntity.setAdherent(Boolean.FALSE);
+        responsableLegalEntity.setAutorisationAutonomie(Boolean.TRUE);
+        responsableLegalEntity.setAutorisationMedia(Boolean.FALSE);
+
         InscriptionEnfantEntity inscriptionEnfantEntity = new InscriptionEnfantEntity();
+        inscriptionEnfantEntity.setResponsableLegal(responsableLegalEntity);
         EleveEntity eleveEntity = new EleveEntity();
         eleveEntity.setId(1L);
         eleveEntity.setNom("nom");
@@ -66,8 +80,8 @@ public class TestInscriptionEnfantMapperImpl {
         inscriptionEnfantMapper.updateInscriptionEntity(inscriptionEnfantDto, inscriptionEnfantEntity);
 
         // THEN
-        Mockito.verify(responsableLegalMapper).fromDtoToEntity(inscriptionEnfantDto.getResponsableLegal());
         Mockito.verify(eleveMapper).updateEleves(Mockito.eq(inscriptionEnfantDto.getEleves()), Mockito.eq(inscriptionEnfantEntity.getEleves()));
+        Mockito.verify(responsableLegalMapper).updateEntityFromDto(Mockito.eq(responsableLegalDto), Mockito.eq(responsableLegalEntity));
         EleveEntity eleveEntityUpdated = inscriptionEnfantEntity.getEleves().get(0);
         assertEquals(1L, eleveEntityUpdated.getId());
         assertEquals("nomUpdated", eleveEntityUpdated.getNom());

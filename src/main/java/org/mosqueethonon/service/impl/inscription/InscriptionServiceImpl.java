@@ -4,24 +4,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
-import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
+import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.EleveFeuillePresenceRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.LienClasseEleveRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
-import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +34,9 @@ public class InscriptionServiceImpl implements InscriptionService {
     private PeriodeService periodeService;
     private LockService lockService;
     private SecurityContext securityContext;
+    private LienClasseEleveRepository lienClasseEleveRepository;
+    private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
+    private BulletinRepository bulletinRepository;
 
     @Transactional
     @Override
@@ -75,6 +80,16 @@ public class InscriptionServiceImpl implements InscriptionService {
     public Set<Long> deleteInscriptions(Set<Long> ids) {
         for(Long id : ids) {
             this.lockService.acquireLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
+            InscriptionEntity inscription = this.inscriptionRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Inscription with id " + id + " does not exist !"));
+            List<Long> eleveIds = inscription.getEleves().stream()
+                    .map(EleveEntity::getId)
+                    .collect(Collectors.toList());
+            if (!eleveIds.isEmpty()) {
+                this.bulletinRepository.deleteAll(this.bulletinRepository.findByIdEleveIn(eleveIds));
+                this.eleveFeuillePresenceRepository.deleteByEleveIdIn(eleveIds);
+                this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
+            }
             this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, Sets.newHashSet(id));
             this.inscriptionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());

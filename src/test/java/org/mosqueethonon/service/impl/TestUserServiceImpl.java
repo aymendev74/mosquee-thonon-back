@@ -6,19 +6,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.mail.MailingActivationUtilisateurEntity;
+import org.mosqueethonon.entity.mail.UserAccountActionEntity;
+import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.LoginRepository;
-import org.mosqueethonon.repository.MailingActivationUtilisateurRepository;
+import org.mosqueethonon.repository.UserAccountActionRepository;
 import org.mosqueethonon.repository.RoleRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.v1.dto.account.AccountInfosDto;
 import org.mosqueethonon.v1.dto.account.EnableAccountDto;
 import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.mosqueethonon.v1.mapper.user.UserMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +45,9 @@ public class TestUserServiceImpl {
     @Mock
     private LoginRepository loginRepository;
     @Mock
-    private MailingActivationUtilisateurRepository mailingActivationUtilisateurRepository;
+    private UserAccountActionRepository userAccountActionRepository;
+    @Mock
+    private UserAccountManager userAccountManager;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -62,16 +72,12 @@ public class TestUserServiceImpl {
 
     @Test
     public void testCreateUser() {
-        when(userMapper.fromDtoToEntity(any(UserDto.class))).thenReturn(utilisateur);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedpass");
-        when(userMapper.fromEntityToDto(any(UtilisateurEntity.class))).thenReturn(userDto);
-        when(utilisateurRepository.save(any(UtilisateurEntity.class))).thenReturn(utilisateur);
+        when(userAccountManager.createUser(any(UserDto.class))).thenReturn(userDto);
 
         UserDto result = userService.createUser(userDto);
         assertNotNull(result);
         assertEquals("testuser", result.getUsername());
-        verify(utilisateurRepository).save(any(UtilisateurEntity.class));
-        verify(mailingActivationUtilisateurRepository).save(any());
+        verify(userAccountManager).createUser(any(UserDto.class));
     }
 
     @Test
@@ -111,10 +117,11 @@ public class TestUserServiceImpl {
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
         utilisateurEntity.setUsername("testuser");
         utilisateurEntity.setEnabled(false);
-        MailingActivationUtilisateurEntity mailActivation = new MailingActivationUtilisateurEntity();
-        mailActivation.setUsername("testuser");
-        mailActivation.setToken(token);
-        when(mailingActivationUtilisateurRepository.findByToken(token)).thenReturn(mailActivation);
+        UserAccountActionEntity accountAction = new UserAccountActionEntity();
+        accountAction.setUsername("testuser");
+        accountAction.setToken(token);
+        accountAction.setType(UserAccountActionType.ACTIVATION);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         AccountInfosDto infos = userService.getAccountInformations(token);
         assertEquals("testuser", infos.getUsername());
@@ -128,13 +135,14 @@ public class TestUserServiceImpl {
         dto.setUsername("testuser");
         dto.setToken(token);
         dto.setPassword("pass");
-        MailingActivationUtilisateurEntity mailActivation = new MailingActivationUtilisateurEntity();
-        mailActivation.setUsername("testuser");
-        mailActivation.setToken(token);
+        UserAccountActionEntity accountAction = new UserAccountActionEntity();
+        accountAction.setUsername("testuser");
+        accountAction.setToken(token);
+        accountAction.setType(UserAccountActionType.ACTIVATION);
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
         utilisateurEntity.setUsername("testuser");
         utilisateurEntity.setEnabled(false);
-        when(mailingActivationUtilisateurRepository.findByToken(token)).thenReturn(mailActivation);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         when(passwordEncoder.encode("pass")).thenReturn("encoded");
         userService.enableAccount(dto);
@@ -152,7 +160,99 @@ public class TestUserServiceImpl {
         utilisateurEntity.setEmail("test@domain.com");
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateurEntity));
         userService.resendActivationMail(1L);
-        verify(mailingActivationUtilisateurRepository).deleteByUsername("testuser");
-        verify(mailingActivationUtilisateurRepository, atLeastOnce()).save(any(MailingActivationUtilisateurEntity.class));
+        verify(userAccountActionRepository).deleteByUsernameAndType("testuser", UserAccountActionType.ACTIVATION);
+        verify(userAccountActionRepository, atLeastOnce()).save(any(UserAccountActionEntity.class));
     }
+
+    @Test
+    public void testGetProfile_WithAuthenticatedUser() {
+        // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.setContext(securityContext);
+        
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("testuser");
+        
+        UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
+        utilisateurEntity.setUsername("testuser");
+        utilisateurEntity.setPrenom("Jean");
+        
+        UtilisateurRoleEntity role1 = new UtilisateurRoleEntity();
+        role1.setRole("ROLE_UTILISATEUR");
+        UtilisateurRoleEntity role2 = new UtilisateurRoleEntity();
+        role2.setRole("ROLE_ADMIN");
+        
+        List<UtilisateurRoleEntity> roles = new ArrayList<>();
+        roles.add(role1);
+        roles.add(role2);
+        utilisateurEntity.setRoles(roles);
+        
+        when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
+        
+        // Act
+        UserInfoDto result = userService.getProfile();
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals("testuser", result.getUsername());
+        assertEquals("Jean", result.getPrenom());
+        assertEquals(2, result.getRoles().size());
+        assertTrue(result.getRoles().contains("ROLE_UTILISATEUR"));
+        assertTrue(result.getRoles().contains("ROLE_ADMIN"));
+        
+        verify(utilisateurRepository).findByUsername("testuser");
+    }
+
+    @Test
+    public void testGetProfile_WithAnonymousUser() {
+        // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.setContext(securityContext);
+        
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("anonymousUser");
+        
+        // Act
+        UserInfoDto result = userService.getProfile();
+        
+        // Assert
+        assertNull(result);
+        verify(utilisateurRepository, never()).findByUsername(any());
+    }
+
+    @Test
+    public void testGetProfile_WithNullUsername() {
+        // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.setContext(securityContext);
+        
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(null);
+        
+        // Act
+        UserInfoDto result = userService.getProfile();
+        
+        // Assert
+        assertNull(result);
+        verify(utilisateurRepository, never()).findByUsername(any());
+    }
+
+    @Test
+    public void testGetProfile_UserNotFound() {
+        // Arrange
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.setContext(securityContext);
+        
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("unknownuser");
+        when(utilisateurRepository.findByUsername("unknownuser")).thenReturn(Optional.empty());
+        
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> userService.getProfile());
+    }
+    
 }

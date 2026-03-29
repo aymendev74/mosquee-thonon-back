@@ -61,7 +61,7 @@ public class TestPeriodeController extends TestController {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/v1/periodes/" + periodeId)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
         assertFalse(periodeRepository.findById(periodeId).isPresent());
         assertEquals(0, tarifRepository.findByPeriodeId(periodeId).size());

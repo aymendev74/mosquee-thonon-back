@@ -7,7 +7,7 @@ import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,17 @@ public abstract class InscriptionAdulteMapper {
     @Mapping(source = "codePostal", target = "responsableLegal.codePostal")
     @Mapping(source = "ville", target = "responsableLegal.ville")
     public abstract void mapDtoToEntity(InscriptionAdulteDto dto, @MappingTarget InscriptionAdulteEntity entity);
+
+    @Mapping(source = "nom", target = "responsableLegal.nom")
+    @Mapping(source = "prenom", target = "responsableLegal.prenom")
+    @Mapping(source = "email", target = "responsableLegal.email")
+    @Mapping(source = "mobile", target = "responsableLegal.mobile")
+    @Mapping(source = "numeroEtRue", target = "responsableLegal.numeroEtRue")
+    @Mapping(source = "codePostal", target = "responsableLegal.codePostal")
+    @Mapping(source = "ville", target = "responsableLegal.ville")
+    @Mapping(target = "anneeScolaire", ignore = true)
+    @Mapping(target = "statutProfessionnel", source = "statutProfessionnel")
+    public abstract void mapReinscriptionDtoToEntity(ReinscriptionAdulteDto dto, @MappingTarget InscriptionAdulteEntity entity);
 
     @AfterMapping
     protected void mapEleveEntityToDto(InscriptionAdulteEntity entity, @MappingTarget InscriptionAdulteDto dto) {
@@ -53,6 +64,18 @@ public abstract class InscriptionAdulteMapper {
         eleveEntity.setDateNaissance(dto.getDateNaissance());
         eleveEntity.setSexe(dto.getSexe());
         eleveEntity.setNiveauInterne(dto.getNiveauInterne());
+    }
+
+    @AfterMapping
+    protected void mapReinscriptionDtoToEleveEntity(ReinscriptionAdulteDto dto, @MappingTarget InscriptionAdulteEntity entity) {
+        entity.setEleves(new ArrayList<>());
+        EleveEntity eleveEntity = new EleveEntity();
+        eleveEntity.setNom(dto.getNom());
+        eleveEntity.setPrenom(dto.getPrenom());
+        eleveEntity.setDateNaissance(dto.getDateNaissance());
+        eleveEntity.setSexe(dto.getSexe());
+        eleveEntity.setNiveauInterne(dto.getNiveauInterne());
+        entity.getEleves().add(eleveEntity);
     }
 
     protected List<MatiereEnum> mapInscriptionMatiereEntityToListMatieres(List<InscriptionMatiereEntity> matieres) {

@@ -2,6 +2,7 @@ package org.mosqueethonon.v1.dto.inscription;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
@@ -10,7 +11,7 @@ import org.mosqueethonon.enums.ResultatEnum;
 import java.time.LocalDate;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EleveDto {

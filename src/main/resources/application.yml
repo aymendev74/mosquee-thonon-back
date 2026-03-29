@@ -63,6 +63,7 @@ spring:
 scheduled:
   confirmation-mail: 1 # unit = minutes
   activation-utilisateur-mail: 1 # unit = minutes
+  reset-password-mail: 1 # unit = minutes
 
 app:
   token-uri: ${TOKEN_URI}
@@ -70,6 +71,7 @@ app:
   logout-redirect-uri: ${LOGOUT_REDIRECT_URI}
   allowed-origins: ${ALLOWED_ORIGINS}
   issuer-uri: ${ISSUER_URI}
+  reset-password-uri: ${RESET_PASSWORD_URI}
   jwt-decoder-uri: ${JWT_DECODER_URI}
   activation-utilisateur-uri: ${ACTIVATION_UTILISATEUR_URI}
   resource-lock-timeout: ${RESOURCE_LOCK_TIMEOUT}

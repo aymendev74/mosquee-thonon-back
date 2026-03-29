@@ -17,12 +17,12 @@ public class ResponsableLegalDto implements IMailObject {
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;
-    private Boolean adherent;
-    private Boolean autorisationAutonomie;
-    private Boolean autorisationMedia;
     private String nomAutre;
     private String prenomAutre;
     private String lienParente;
     private String telephoneAutre;
+    private Boolean adherent;
+    private Boolean autorisationAutonomie;
+    private Boolean autorisationMedia;
 
 }

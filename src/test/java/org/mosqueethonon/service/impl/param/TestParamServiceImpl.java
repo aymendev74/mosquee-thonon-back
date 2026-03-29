@@ -57,4 +57,44 @@ public class TestParamServiceImpl {
         // THEN
         assertFalse(isInscriptionEnabled);
     }
+
+    @Test
+    public void testIsInscriptionAdulteEnabledIsTrue() {
+        // GIVEN
+        ParamEntity param = new ParamEntity();
+        when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE))).thenReturn(param);
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.parse("01.01.1950", DateTimeFormatter.ofPattern(APIDateFormats.DATE_FORMAT)));
+
+        // WHEN
+        boolean isInscriptionEnabled = underTest.isInscriptionAdulteEnabled();
+
+        // THEN
+        assertTrue(isInscriptionEnabled);
+    }
+
+    @Test
+    public void testIsInscriptionAdulteEnabledIsFalse() {
+        // GIVEN
+        ParamEntity param = new ParamEntity();
+        when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE))).thenReturn(param);
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now().plusDays(1));
+
+        // WHEN
+        boolean isInscriptionEnabled = underTest.isInscriptionAdulteEnabled();
+
+        // THEN
+        assertFalse(isInscriptionEnabled);
+    }
+
+    @Test
+    public void testIsInscriptionAdulteEnabledIsFalse_ParamNotFound() {
+        // GIVEN
+        when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE))).thenReturn(null);
+
+        // WHEN
+        boolean isInscriptionEnabled = underTest.isInscriptionAdulteEnabled();
+
+        // THEN
+        assertFalse(isInscriptionEnabled);
+    }
 }

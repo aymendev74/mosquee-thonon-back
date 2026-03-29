@@ -14,4 +14,6 @@ public interface InscriptionOrchestratorService {
 
     Set<Long> deleteInscriptions(Set<Long> ids);
 
+    void deleteByIdUtilisateur(Long idUtilisateur);
+
 }

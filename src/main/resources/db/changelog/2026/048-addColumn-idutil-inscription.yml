@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 048-addColumn-idutil-inscription
+      author: Aymen
+      changes:
+        - addColumn:
+            tableName: inscription
+            columns:
+              - column:
+                  name: idutil
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseColumnNames: idutil
+            baseTableName: inscription
+            constraintName: fk_inscription_idutil
+            referencedColumnNames: idutil
+            referencedTableName: utilisateur

@@ -24,7 +24,10 @@ import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.EleveFeuillePresenceRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.repository.LienClasseEleveRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.lock.LockService;
@@ -46,6 +49,12 @@ public class TestInscriptionServiceImpl {
     private LockService lockService;
     @Mock
     private SecurityContext securityContext;
+    @Mock
+    private BulletinRepository bulletinRepository;
+    @Mock
+    private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
+    @Mock
+    private LienClasseEleveRepository lienClasseEleveRepository;
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
@@ -130,6 +139,9 @@ public class TestInscriptionServiceImpl {
         inscription2.setType("ADULTE");
         inscription2.setEleves(eleves);
 
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
+        when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
+
         // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
 
@@ -149,10 +161,15 @@ public class TestInscriptionServiceImpl {
         InscriptionEntity inscription1 = new InscriptionAdulteEntity();
         inscription1.setId(1L);
         inscription1.setType("ADULTE");
+        inscription1.setEleves(new ArrayList<>());
 
         InscriptionEntity inscription2 = new InscriptionAdulteEntity();
         inscription2.setId(2L);
         inscription2.setType("ADULTE");
+        inscription2.setEleves(new ArrayList<>());
+
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
+        when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
 
         // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);

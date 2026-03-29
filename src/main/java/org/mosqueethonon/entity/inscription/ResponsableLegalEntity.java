@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -30,14 +31,6 @@ public class ResponsableLegalEntity implements Auditable {
     private Integer codePostal;
     @Column(name = "txrespville")
     private String ville;
-    @Column(name = "idtari")
-    private Long idTarif;
-    @Column(name = "lorespadherent")
-    private Boolean adherent;
-    @Column(name = "lorespautonomie")
-    private Boolean autorisationAutonomie;
-    @Column(name = "lorespmedia")
-    private Boolean autorisationMedia;
     @Column(name = "txrespnomautre")
     private String nomAutre;
     @Column(name = "txrespprenomautre")
@@ -46,6 +39,12 @@ public class ResponsableLegalEntity implements Auditable {
     private String lienParente;
     @Column(name = "txrespphoneautre")
     private String telephoneAutre;
+    @Column(name = "lorespadherent")
+    private Boolean adherent;
+    @Column(name = "lorespautonomie")
+    private Boolean autorisationAutonomie;
+    @Column(name = "lorespmedia")
+    private Boolean autorisationMedia;
     @Embedded
     private Signature signature;
     @Version

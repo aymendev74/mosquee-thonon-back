@@ -6,8 +6,10 @@ import org.mosqueethonon.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionLightService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;
+import org.mosqueethonon.service.inscription.MesInscriptionsService;
 import org.mosqueethonon.v1.criterias.InscriptionCriteria;
 import org.mosqueethonon.v1.dto.inscription.InscriptionLightDto;
+import org.mosqueethonon.v1.dto.inscription.MesInscriptionsDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,8 @@ public class InscriptionController {
     private InscriptionService inscriptionService;
 
     private InscriptionOrchestratorService inscriptionOrchestratorService;
+
+    private MesInscriptionsService mesInscriptionsService;
 
     private LockManager lockManager;
 
@@ -57,5 +61,11 @@ public class InscriptionController {
             lock.unlock();
         }
         return ResponseEntity.ok(ids);
+    }
+
+    @GetMapping(path = "/mes-inscriptions")
+    public ResponseEntity<MesInscriptionsDto> getMesInscriptions() {
+        MesInscriptionsDto inscriptions = this.mesInscriptionsService.findMesInscriptions();
+        return ResponseEntity.ok(inscriptions);
     }
 }

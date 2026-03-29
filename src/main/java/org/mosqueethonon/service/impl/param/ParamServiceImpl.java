@@ -115,6 +115,12 @@ public class ParamServiceImpl implements ParamService {
         return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
     }
 
+    @Override
+    public boolean isInscriptionAdulteEnabled() {
+        LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE);
+        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
+    }
+
     private boolean findParamAsBoolean(ParamNameEnum paramName) {
         ParamEntity param = this.paramRepository.findByName(paramName);
         if (param == null) {
