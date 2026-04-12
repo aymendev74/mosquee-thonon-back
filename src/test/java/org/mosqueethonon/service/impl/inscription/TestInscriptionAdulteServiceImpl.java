@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.repository.DocumentRepository;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +40,7 @@ import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
@@ -89,6 +94,12 @@ public class TestInscriptionAdulteServiceImpl {
     @Mock
     private UserAccountManager userService;
 
+    @Mock
+    private AsyncDocumentService asyncDocumentService;
+
+    @Mock
+    private DocumentRepository documentRepository;
+
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
 
@@ -118,6 +129,10 @@ public class TestInscriptionAdulteServiceImpl {
         ReflectionTestUtils.setField(inscriptionAdulteService, "userAccountManager", userService);
         ReflectionTestUtils.setField(inscriptionAdulteService, "inscriptionRepository", inscriptionRepository);
         ReflectionTestUtils.setField(inscriptionAdulteService, "mailRequestRepository", mailRequestRepository);
+
+        // Stub par défaut : aucun document trouvé (évite NPE dans les tests existants)
+        lenient().when(documentRepository.findByMetadataKeyAndValue(any(), anyString()))
+                .thenReturn(Optional.empty());
     }
 
     @Test
@@ -370,5 +385,115 @@ public class TestInscriptionAdulteServiceImpl {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> inscriptionAdulteService.reinscription(reinscriptionDto));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument peuplé
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testFindInscriptionById_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(77L);
+
+        when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(77L, result.getIdDocument());
+    }
+
+    @Test
+    public void testFindInscriptionById_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 1L;
+        when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.empty());
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+    }
+
+    @Test
+    public void testUpdateInscription_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(88L);
+
+        when(inscriptionAdulteRepository.findById(1L)).thenReturn(Optional.of(inscriptionEntity));
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class),
+                eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq("1")))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.updateInscription(1L, inscriptionDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(88L, result.getIdDocument());
+    }
+
+    @Test
+    public void testReinscription_IdDocumentNonPeuple_CarAsynchrone() {
+        // La réinscription appelle requestDocumentGeneration de façon async,
+        // le document n'est pas encore disponible au retour de la méthode.
+        // Arrange
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(2L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class),
+                eq(StatutProfessionnelEnum.AVEC_ACTIVITE))).thenReturn(tarifDto);
+
+        ReinscriptionAdulteDto reinscriptionDto = new ReinscriptionAdulteDto();
+        reinscriptionDto.setNom("Dupont");
+        reinscriptionDto.setPrenom("Jean");
+        reinscriptionDto.setEmail("jean.dupont@test.com");
+        reinscriptionDto.setMobile("0612345678");
+        reinscriptionDto.setNumeroEtRue("10 rue de la paix");
+        reinscriptionDto.setCodePostal(74200);
+        reinscriptionDto.setVille("Thonon");
+        reinscriptionDto.setDateNaissance(LocalDate.of(1990, 5, 15));
+        reinscriptionDto.setSexe(org.mosqueethonon.enums.SexeEnum.M);
+        reinscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        reinscriptionDto.setMatieres(new ArrayList<>(List.of(MatiereEnum.TAFFSIR_CORAN)));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.reinscription(reinscriptionDto);
+
+        // Assert — le DTO retourné ne contient pas d'idDocument (généré en asynchrone)
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(org.mosqueethonon.enums.DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
     }
 }

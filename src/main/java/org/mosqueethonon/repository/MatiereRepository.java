@@ -14,4 +14,6 @@ public interface MatiereRepository extends JpaRepository<MatiereEntity, Long> {
 
     Optional<MatiereEntity> findByCode(MatiereEnum code);
 
+    List<MatiereEntity> findByType(TypeMatiereEnum type);
+
 }

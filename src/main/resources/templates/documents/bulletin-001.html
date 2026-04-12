@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 15px;
+        }
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .left-spacer {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+        }
+        .association {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+            text-align: right;
+        }
+        .logo {
+            width: 110px;
+            height: 110px;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        .enseignant {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .eleve {
+            font-size: 11pt;
+            margin-bottom: 20px;
+        }
+        .matieres-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .matieres-table th,
+        .matieres-table td {
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .matieres-table th {
+            font-weight: bold;
+            background-color: #d9d9d9;
+        }
+        .matieres-table tr:nth-child(odd) td {
+            background-color: #f7f7f7;
+        }
+        .td-remarque {
+            text-align: left;
+        }
+        .td-note {
+            font-weight: bold;
+        }
+        .legende-note {
+            font-size: 11pt;
+            font-style: italic;
+            margin-bottom: 35px;
+        }
+        .absences {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .date {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .appreciation {
+            font-size: 11pt;
+            margin-bottom: 150px;
+        }
+        .adresse {
+            font-size: 9pt;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="left-spacer"></div>
+            <div class="association">Association Lettres et Cultures</div>
+            <div class="header-right"><img class="logo" src="classpath:/static/images/logo_alc.png" alt="Logo ALC"/></div>
+        </div>
+
+        <div class="title" th:text="'Bulletin scolaire : ' + ${moisAnnee}">Bulletin scolaire : Janvier 2025</div>
+
+        <div class="enseignant" th:text="'Enseignant(s) : ' + ${nomsEnseignants}">Enseignant(s) : Dupont Jean</div>
+
+        <div class="eleve" th:text="'Elève : ' + ${nomPrenomEleve}">Elève : Martin Alice</div>
+
+        <table class="matieres-table">
+            <thead>
+                <tr>
+                    <th>Matières</th>
+                    <th>Notes</th>
+                    <th>Remarques</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ligne : ${lignesMatieres}">
+                    <td th:text="${ligne['matiere']}"></td>
+                    <td class="td-note" th:text="${ligne['note']}"></td>
+                    <td class="td-remarque" th:text="${ligne['remarque']}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="legende-note">NA: Non acquis        EA: En cours d'acquisition          A: Acquis</div>
+
+        <div class="absences" th:text="'Nombre d\'absences : ' + ${nbAbsences}">Nombre d'absences : 0</div>
+
+        <div class="date" th:text="'Date : ' + ${dateBulletin}">Date : 01/01/2025</div>
+
+        <div class="appreciation" th:text="'Appréciation générale : ' + ${appreciation}">Appréciation générale : </div>
+
+        <div class="adresse">
+            <div>Association Lettres et Cultures</div>
+            <div>5, rue des epinanches</div>
+            <div>74200 THONON LES BAINS</div>
+            <div>Tel/Fax: 0450706478</div>
+        </div>
+    </div>
+</body>
+</html>

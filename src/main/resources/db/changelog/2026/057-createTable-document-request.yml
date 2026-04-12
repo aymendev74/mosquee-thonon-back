@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 057-createTable-document-request
+      author: Aymen
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: document_request_pkey
+                  name: iddore
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: cddoretype
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(50)
+              - column:
+                  name: iddorebusi
+                  constraints:
+                    nullable: false
+                  type: BIGINT
+              - column:
+                  name: cddorestatut
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(20)
+              - column:
+                  name: tddorecode
+                  type: VARCHAR(50)
+              - column:
+                  name: tddorechemin
+                  type: VARCHAR(500)
+              - column:
+                  name: tddoreerror
+                  type: VARCHAR(1000)
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_version
+                  type: BIGINT
+            tableName: document_request

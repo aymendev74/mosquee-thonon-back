@@ -24,6 +24,7 @@
         <liquibase.version>4.27.0</liquibase.version>
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
         <logback.version>1.5.15</logback.version> <!-- Temporaire =>  vulnerable transitive version 1.5.12 -->
+        <openhtmltopdf.version>1.0.10</openhtmltopdf.version>
     </properties>
 
     <scm>
@@ -158,6 +159,11 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>${openhtmltopdf.version}</version>
         </dependency>
     </dependencies>
     <build>

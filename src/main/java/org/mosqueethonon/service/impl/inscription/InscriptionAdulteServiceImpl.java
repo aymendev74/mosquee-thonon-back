@@ -11,20 +11,22 @@ import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.enums.*;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
+import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
-import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteResultDto;
-import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
-import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
+import org.mosqueethonon.v1.dto.inscription.*;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
@@ -63,6 +65,10 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
 
     private ParamService paramService;
 
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRepository documentRepository;
+
     @Override
     @Transactional
     public InscriptionAdulteResultDto createInscription(InscriptionAdulteDto inscription) {
@@ -94,6 +100,9 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         // On sauvegarde
         entity = this.inscriptionAdulteRepository.save(entity);
 
+        // Demande de génération asynchrone du document PDF
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+
         // Envoi du mail de prise en compte
         this.createMailRequest(entity.getId());
 
@@ -121,7 +130,10 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
     public InscriptionAdulteDto findInscriptionById(Long id) {
         InscriptionAdulteEntity inscriptionAdulteEntity = this.inscriptionAdulteRepository.findById(id).orElse(null);
         if (inscriptionAdulteEntity != null) {
-            return this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
+            InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+                    .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            return dto;
         }
         return null;
     }
@@ -138,10 +150,17 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         entity.getMatieres().addAll(this.mapInscriptionMatieres(inscription));
         this.calculTarif(entity, null, inscription.getStatutProfessionnel());
         entity = this.inscriptionAdulteRepository.save(entity);
+
+        // Demande de régénération asynchrone du document PDF si nécessaire
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+
         if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.createMailRequest(entity.getId());
         }
-        return this.inscriptionAdulteMapper.fromEntityToDto(entity);
+        InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
+                .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+        return dto;
     }
 
     private void calculTarif(InscriptionAdulteEntity inscription, LocalDate atDate, StatutProfessionnelEnum statutPro) {
@@ -185,9 +204,14 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         this.calculTarif(entity, LocalDate.now(), reinscriptionAdulteDto.getStatutProfessionnel());
 
         entity = this.inscriptionAdulteRepository.save(entity);
+
+        // Demande de génération asynchrone du document PDF
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+
         this.createMailRequest(entity.getId());
 
-        return this.inscriptionAdulteMapper.fromEntityToDto(entity);
+        InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
+        return dto;
     }
 
     private List<InscriptionMatiereEntity> mapInscriptionMatieresFromList(List<MatiereEnum> matieres) {
@@ -231,6 +255,11 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
                             .map(m -> m.getMatiere().getCode())
                             .collect(Collectors.toList());
 
+                    // Récupérer l'idDocument associé à cette inscription
+                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
+                            .map(doc -> doc.getId())
+                            .orElse(null);
+
                     return InscriptionAdulteParAnneeScolaireDto.builder()
                             .anneeDebut(tarif.getPeriode().getAnneeDebut())
                             .anneeFin(tarif.getPeriode().getAnneeFin())
@@ -249,6 +278,7 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
                             .niveauInterne(eleve != null ? eleve.getNiveauInterne() : null)
                             .statutProfessionnel(inscription.getStatutProfessionnel())
                             .matieres(matieres)
+                            .idDocument(idDocument)
                             .build();
                 })
                 .sorted(Comparator.comparing(InscriptionAdulteParAnneeScolaireDto::getAnneeDebut).reversed())

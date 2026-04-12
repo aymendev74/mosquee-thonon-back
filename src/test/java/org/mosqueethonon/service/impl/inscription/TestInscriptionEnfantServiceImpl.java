@@ -8,14 +8,18 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.*;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
@@ -26,6 +30,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.inscription.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +68,10 @@ public class TestInscriptionEnfantServiceImpl {
     private UserAccountManager userService;
     @Mock
     private PeriodeRepository periodeRepository;
+    @Mock
+    private AsyncDocumentService asyncDocumentService;
+    @Mock
+    private DocumentRepository documentRepository;
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
 
@@ -73,11 +82,20 @@ public class TestInscriptionEnfantServiceImpl {
         ReflectionTestUtils.setField(underTest, "mailRequestRepository", mailRequestRepository);
         ReflectionTestUtils.setField(underTest, "periodeRepository", periodeRepository);
 
+        // Les @Mock eleveMapper et responsableLegalMapper peuvent être null dans le @Spy
+        // au moment de sa construction inline. On les injecte via le setter et la réflexion.
+        inscriptionEnfantMapper.setEleveMapper(eleveMapper);
+        ReflectionTestUtils.setField(inscriptionEnfantMapper, "responsableLegalMapper", responsableLegalMapper);
+
         // Mock par défaut pour lockPeriodeActive
         PeriodeEntity periodeMock = new PeriodeEntity();
         periodeMock.setId(99L);
         lenient().when(periodeRepository.findByApplicationAndDateDebutLessThanEqualAndDateFinGreaterThanEqual(any(), any(), any())).thenReturn(Optional.of(periodeMock));
         lenient().when(periodeRepository.lockById(99L)).thenReturn(Optional.of(periodeMock));
+
+        // Stub par défaut : aucun document trouvé (évite NPE dans les tests existants)
+        lenient().when(documentRepository.findByMetadataKeyAndValue(any(), anyString()))
+                .thenReturn(Optional.empty());
     }
 
     @Test
@@ -209,6 +227,12 @@ public class TestInscriptionEnfantServiceImpl {
             inscriptionEnfantEntity.getEleves().add(new EleveEntity());
         }
         return inscriptionEnfantEntity;
+    }
+
+    private InscriptionEnfantEntity createInscriptionEntityWithDate(Integer nbEleves) {
+        InscriptionEnfantEntity entity = createInscriptionEntity(nbEleves);
+        entity.setDateInscription(LocalDateTime.now());
+        return entity;
     }
 
     private TarifInscriptionEnfantDto createTarifInscription() {
@@ -417,6 +441,195 @@ public class TestInscriptionEnfantServiceImpl {
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
                 () -> underTest.reinscription(reinscriptionDto));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument peuplé dans findInscriptionById
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testFindInscriptionById_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 10L;
+        InscriptionEnfantEntity entity = new InscriptionEnfantEntity();
+        entity.setId(id);
+        entity.setResponsableLegal(new ResponsableLegalEntity());
+        entity.setEleves(new ArrayList<>());
+
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(55L);
+
+        when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionEnfantDto result = underTest.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(55L, result.getIdDocument());
+    }
+
+    @Test
+    public void testFindInscriptionById_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 10L;
+        InscriptionEnfantEntity entity = new InscriptionEnfantEntity();
+        entity.setId(id);
+        entity.setResponsableLegal(new ResponsableLegalEntity());
+        entity.setEleves(new ArrayList<>());
+
+        when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.empty());
+
+        // Act
+        InscriptionEnfantDto result = underTest.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+    }
+
+    @Test
+    public void testFindInscriptionById_RetourneNull_QuandInscriptionAbsente() {
+        // Arrange
+        when(inscriptionEnfantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act
+        InscriptionEnfantDto result = underTest.findInscriptionById(99L);
+
+        // Assert
+        assertNull(result);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument peuplé dans updateInscription
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testUpdateInscription_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        // 0 élèves pour éviter l'appel à eleveMapper dans le Spy (champ final null à la construction)
+        InscriptionEnfantDto inscriptionDto = createInscription(0);
+        inscriptionDto.getResponsableLegal().setEmail("test@example.com");
+        InscriptionEnfantEntity entity = createInscriptionEntityWithDate(0);
+        entity.setId(id);
+
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(66L);
+
+        when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionEnfantDto result = underTest.updateInscription(id, inscriptionDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(66L, result.getIdDocument());
+    }
+
+    @Test
+    public void testUpdateInscription_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 1L;
+        // 0 élèves pour éviter l'appel à eleveMapper dans le Spy (champ final null à la construction)
+        InscriptionEnfantDto inscriptionDto = createInscription(0);
+        inscriptionDto.getResponsableLegal().setEmail("test@example.com");
+        InscriptionEnfantEntity entity = createInscriptionEntityWithDate(0);
+        entity.setId(id);
+
+        when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.empty());
+
+        // Act
+        InscriptionEnfantDto result = underTest.updateInscription(id, inscriptionDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument dans reinscription
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testReinscription_IdDocumentNonPeuple_CarAsynchrone() {
+        // La réinscription génère le document en asynchrone ;
+        // le DTO retourné ne contient donc pas d'idDocument.
+        String username = "testuser";
+        UserDto utilisateur = new UserDto();
+        utilisateur.setId(1L);
+
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        periode.setIdPeriodePrecedente(0L);
+
+        TarifEntity tarif = new TarifEntity();
+        tarif.setId(1L);
+        tarif.setPeriode(periode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(1L);
+        eleve.setNom("Dupont");
+        eleve.setPrenom("Marie");
+        eleve.setIdInscription(1L);
+        eleve.setIdTarif(1L);
+
+        ResponsableLegalEntity responsableLegalEntity = new ResponsableLegalEntity();
+        InscriptionEnfantEntity ancienneInscription = new InscriptionEnfantEntity();
+        ancienneInscription.setId(1L);
+        ancienneInscription.setIdUtilisateur(utilisateur.getId());
+
+        EleveReinscriptionDto eleveReinscription = EleveReinscriptionDto.builder()
+                .id(1L).niveau(NiveauScolaireEnum.CP).build();
+
+        ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
+        reinscriptionDto.setEleves(List.of(eleveReinscription));
+        reinscriptionDto.setResponsableLegal(ResponsableLegalDto.builder().build());
+
+        InscriptionEnfantDto inscriptionDto = new InscriptionEnfantDto();
+
+        when(paramService.isInscriptionEnfantEnabled()).thenReturn(true);
+        when(paramService.isReinscriptionPrioritaireEnabled()).thenReturn(true);
+        when(securityContext.getUser()).thenReturn(username);
+        when(userService.findByUsername(username)).thenReturn(Optional.of(utilisateur));
+        when(eleveRepository.findAllById(List.of(1L))).thenReturn(List.of(eleve));
+        when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(ancienneInscription));
+        when(responsableLegalMapper.fromDtoToEntity(reinscriptionDto.getResponsableLegal()))
+                .thenReturn(responsableLegalEntity);
+        when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
+        when(inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(any(), any(), any(), any()))
+                .thenReturn(eleve);
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        when(inscriptionEnfantRepository.save(any())).thenReturn(new InscriptionEnfantEntity());
+        when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
+
+        // Act
+        InscriptionEnfantDto result = underTest.reinscription(reinscriptionDto);
+
+        // Assert — idDocument non peuplé car la génération est asynchrone
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ENFANT), any());
     }
 
 }

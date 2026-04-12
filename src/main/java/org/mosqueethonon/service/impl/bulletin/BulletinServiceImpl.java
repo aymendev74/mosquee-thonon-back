@@ -1,25 +1,34 @@
 package org.mosqueethonon.service.impl.bulletin;
 
 import lombok.AllArgsConstructor;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.entity.bulletin.BulletinEntity;
 import org.mosqueethonon.entity.bulletin.BulletinMatiereEntity;
+import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
+import org.mosqueethonon.enums.TypeMatiereEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
+import org.mosqueethonon.repository.MatiereRepository;
 import org.mosqueethonon.service.bulletin.BulletinService;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.inscription.EleveService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
 import org.mosqueethonon.v1.dto.bulletin.BulletinMatiereDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
-import org.mosqueethonon.v1.dto.referentiel.MatiereDto;
 import org.mosqueethonon.v1.mapper.bulletin.BulletinMapper;
 import org.mosqueethonon.v1.mapper.bulletin.BulletinMatiereMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -36,6 +45,14 @@ public class BulletinServiceImpl implements BulletinService {
 
     private MatiereService matiereService;
 
+    private MatiereRepository matiereRepository;
+
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRequestRepository documentRequestRepository;
+
+    private DocumentRepository documentRepository;
+
     @Override
     public List<BulletinDto> findBulletinsByIdEleve(Long idEleve) {
         EleveDto eleve = this.eleveService.findEleveById(idEleve);
@@ -43,14 +60,23 @@ public class BulletinServiceImpl implements BulletinService {
             throw new ResourceNotFoundException("Eleve inexistant ! id = " + idEleve);
         }
         List<BulletinEntity> bulletins = this.bulletinRepository.findByIdEleve(idEleve);
-        return bulletins.stream().map(bulletinMapper::fromEntityToDto).collect(Collectors.toList());
+        return bulletins.stream().map(bulletinEntity -> {
+            BulletinDto dto = bulletinMapper.fromEntityToDto(bulletinEntity);
+            this.findDocumentByBulletinId(bulletinEntity.getId()).ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public BulletinDto createBulletin(BulletinDto bulletinDto) {
         BulletinEntity bulletinEntity = bulletinMapper.fromDtoToEntity(bulletinDto);
         bulletinEntity.setBulletinMatieres(this.mapBulletinMatieres(bulletinDto.getBulletinMatieres()));
-        return bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
+        BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
+        if (isBulletinComplet(saved)) {
+            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
+        }
+        this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
+        return saved;
     }
 
     private List<BulletinMatiereEntity> mapBulletinMatieres(List<BulletinMatiereDto> bulletinMatieres) {
@@ -74,11 +100,36 @@ public class BulletinServiceImpl implements BulletinService {
         bulletinMapper.updateBulletinEntity(bulletinDto, bulletinEntity);
         bulletinEntity.getBulletinMatieres().clear();
         bulletinEntity.getBulletinMatieres().addAll(this.mapBulletinMatieres(bulletinDto.getBulletinMatieres()));
-        return bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
+        BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
+        if (isBulletinComplet(saved)) {
+            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
+        }
+        this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
+        return saved;
+    }
+
+    private boolean isBulletinComplet(BulletinDto bulletin) {
+        if (bulletin.getAppreciation() == null || bulletin.getAppreciation().trim().isEmpty()) return false;
+        if (bulletin.getNbAbsences() == null) return false;
+        if (bulletin.getMois() == null || bulletin.getAnnee() == null) return false;
+        if (bulletin.getDateBulletin() == null) return false;
+        List<MatiereEntity> matieresEnfant = this.matiereRepository.findByType(TypeMatiereEnum.ENFANT);
+        if (CollectionUtils.isEmpty(matieresEnfant)) return false;
+        return matieresEnfant.stream().allMatch(matiere ->
+                bulletin.getBulletinMatieres() != null && bulletin.getBulletinMatieres().stream()
+                        .anyMatch(bm -> bm.getCode().equals(matiere.getCode()) && bm.getNote() != null)
+        );
     }
 
     @Override
     public void deleteBulletin(Long id) {
+        this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, Sets.newHashSet(id));
         this.bulletinRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<DocumentEntity> findDocumentByBulletinId(Long bulletinId) {
+        return this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_BULLETIN, String.valueOf(bulletinId));
+    }
+
 }

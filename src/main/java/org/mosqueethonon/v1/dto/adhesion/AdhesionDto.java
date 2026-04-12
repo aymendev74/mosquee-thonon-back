@@ -18,6 +18,7 @@ import java.time.LocalDate;
 public class AdhesionDto implements IMailObject {
 
     private Long id;
+    private Long idDocument;
     private String titre;
     private String nom;
     private String prenom;

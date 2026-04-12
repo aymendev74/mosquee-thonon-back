@@ -6,11 +6,14 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
+import org.mosqueethonon.entity.bulletin.BulletinEntity;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.EleveFeuillePresenceRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.LienClasseEleveRepository;
@@ -37,6 +40,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     private LienClasseEleveRepository lienClasseEleveRepository;
     private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
     private BulletinRepository bulletinRepository;
+    private DocumentRequestRepository documentRequestRepository;
 
     @Transactional
     @Override
@@ -86,7 +90,14 @@ public class InscriptionServiceImpl implements InscriptionService {
                     .map(EleveEntity::getId)
                     .collect(Collectors.toList());
             if (!eleveIds.isEmpty()) {
-                this.bulletinRepository.deleteAll(this.bulletinRepository.findByIdEleveIn(eleveIds));
+                List<BulletinEntity> bulletins = this.bulletinRepository.findByIdEleveIn(eleveIds);
+                if (!bulletins.isEmpty()) {
+                    Set<Long> bulletinIds = bulletins.stream()
+                            .map(BulletinEntity::getId)
+                            .collect(Collectors.toSet());
+                    this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, bulletinIds);
+                    this.bulletinRepository.deleteAll(bulletins);
+                }
                 this.eleveFeuillePresenceRepository.deleteByEleveIdIn(eleveIds);
                 this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
             }

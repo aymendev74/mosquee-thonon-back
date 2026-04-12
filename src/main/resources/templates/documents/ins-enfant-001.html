@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 15px;
+        }
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .left-spacer {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+        }
+        .association {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+            text-align: right;
+        }
+        .logo {
+            width: 110px;
+            height: 110px;
+        }
+        .title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        .cadre-admin-container {
+            margin: 10px auto;
+            text-align: center;
+            width: 80%;
+            border: 1px solid black;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .titre-cadre-admin {
+            text-align: center;
+            font-weight: bold;
+        }
+        .details-cadre-admin {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .titre-infos {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            text-decoration: underline;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .eleves-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .eleves-table th,
+        .eleves-table td {
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 9pt;
+        }
+        .eleves-table th {
+            font-weight: bold;
+        }
+        .autorisation-enfant {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .form-element {
+            margin-bottom: 8px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .certifie-honneur {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 30px;
+            margin-top: 15px;
+        }
+        .checkbox {
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+        .label-consentement {
+            font-size: 9pt;
+        }
+        .date-signature-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 5px;
+        }
+        .adresse {
+            font-size: 8pt;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="left-spacer"></div>
+            <div class="association">Association Lettres et Cultures</div>
+            <div class="header-right"><img class="logo" src="classpath:/static/images/logo_alc.png" alt="Logo ALC"/></div>
+        </div>
+
+        <div class="title">
+            <div>FICHE D'INSCRIPTION AUX COURS D'ARABE</div>
+            <div th:text="'ANNEE SCOLAIRE ' + ${anneeScolaire}">ANNEE SCOLAIRE 2024-2025</div>
+        </div>
+
+        <div class="cadre-admin-container">
+            <div class="titre-cadre-admin">Cadre réservé à l'administration</div>
+            <div class="details-cadre-admin">
+                Tarif: <span th:text="${montantTotal}">250</span> euros <span style="display:inline-block; width: 60px;"></span> Divers: ______________________________
+            </div>
+        </div>
+
+        <div class="titre-infos">Renseignements concernant les enfants</div>
+
+        <table class="eleves-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Date de naissance</th>
+                    <th>Niveau scolaire</th>
+                    <th>Niveau interne</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="eleve : ${eleves}">
+                    <td th:text="${eleve['nom']}"></td>
+                    <td th:text="${eleve['prenom']}"></td>
+                    <td th:text="${eleve['dateNaissance']}"></td>
+                    <td th:text="${eleve['niveau']}"></td>
+                    <td th:text="${eleve['niveauInterne']}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="autorisation-enfant">
+            <div class="form-element" th:if="${autorisationAutonomie != null and autorisationAutonomie}">J'autorise mes enfants à sortir seuls après l'école.</div>
+            <div class="form-element" th:if="${autorisationAutonomie == null or !autorisationAutonomie}">Je n'autorise pas mes enfants à sortir seuls après l'école.</div>
+            <div class="form-element" th:if="${autorisationMedia != null and autorisationMedia}">J'autorise mes enfants à être photographiés et/ou filmés lors des activités organisées par AMC ainsi que la publication des médias sur le site internet de la mosquée.</div>
+            <div class="form-element" th:if="${autorisationMedia == null or !autorisationMedia}">Je n'autorise pas mes enfants à être photographiés et/ou filmés lors des activités organisées par AMC.</div>
+        </div>
+
+        <div class="titre-infos">Renseignements concernant le représentant légal</div>
+
+        <div class="form-element">
+            Nom et prénom : <span class="bold" th:text="${(nom ?: '') + ' ' + (prenom ?: '')}">DUPONT Jean</span>
+        </div>
+
+        <div class="form-element" th:if="${mobile}">
+            Tél mobile : <span class="bold" th:text="${mobile}">0612345678</span>
+        </div>
+
+        <div class="form-element">
+            Adresse : <span class="bold" th:text="${(numeroEtRue ?: '') + ', ' + (codePostal ?: '') + ' ' + (ville ?: '')}">123 rue de la Paix, 74200 THONON LES BAINS</span>
+        </div>
+
+        <div class="form-element">
+            Email : <span class="bold" th:text="${email}">email@example.com</span>
+        </div>
+
+        <div class="form-element">
+            Adhérent de l'association : <span class="bold" th:if="${adherent}">Oui</span><span class="bold" th:unless="${adherent}">Non</span>
+        </div>
+
+        <div class="form-element">
+            Autre personne à joindre : <span class="bold" th:text="${(nomAutre ?: '') + ' ' + (prenomAutre ?: '')}"></span>
+        </div>
+
+        <div class="form-element">
+            Lien de parenté : <span class="bold" th:text="${lienParente}"></span>
+            <span style="display:inline-block; width: 60px;"></span>
+            Téléphone : <span class="bold" th:text="${telephoneAutre}"></span>
+        </div>
+
+        <div class="certifie-honneur">
+            Je certifie sur l'honneur que toute information donnée ci-dessus est exacte et je m'engage à respecter les conditions d'inscription
+            et le règlement intérieur de l'école, dont je dispose d'une copie.
+        </div>
+
+        <div class="checkbox-container">
+            <div class="checkbox"></div>
+            <div class="label-consentement">
+                En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais (AMC) et l'association lettres et cultures (ALC)
+                collectent et traitent vos données personnelles aux fins de votre inscription aux cours.
+                Vos données seront conservées pendant toute la durée de votre inscription et seront accessibles pour consultation ou modification sur demande,
+                par e-mail à l'adresse suivante: amcinscription@gmail.com.
+                Vous vous engagez également à respecter le règlement intérieur établi par les associations AMC et ALC,
+                disponible sur demande auprès de leurs membres et affiché dans les locaux.
+            </div>
+        </div>
+
+        <div class="date-signature-container">
+            <div>Date: ____/____/____</div>
+            <div>Signature: ____________</div>
+        </div>
+
+        <div class="adresse">
+            <div>Association Lettres et Cultures</div>
+            <div>5, rue des epinanches</div>
+            <div>74200 THONON LES BAINS</div>
+            <div>Tel/Fax: 0450706478</div>
+        </div>
+    </div>
+</body>
+</html>

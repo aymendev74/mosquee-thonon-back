@@ -19,5 +19,6 @@ public class BulletinDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
     private LocalDate dateBulletin;
     private List<BulletinMatiereDto> bulletinMatieres;
+    private Long idDocument;
 
 }

@@ -6,14 +6,18 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.adhesion.AdhesionService;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
@@ -40,6 +44,10 @@ public class AdhesionServiceImpl implements AdhesionService {
 
     private SecurityContext securityContext;
 
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRepository documentRepository;
+
     @Override
     @Transactional
     public AdhesionDto createAdhesion(AdhesionDto adhesionDto) {
@@ -50,15 +58,21 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionEntity.setDateInscription(LocalDateTime.now());
         adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
-        adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-        this.createMailRequest(adhesionDto);
-        return adhesionDto;
+        AdhesionDto resultAdhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        this.createMailRequest(resultAdhesionDto);
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesionDto.getId());
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesionDto.getId()))
+                .ifPresent(doc -> resultAdhesionDto.setIdDocument(doc.getId()));
+        return resultAdhesionDto;
     }
 
     @Override
     public AdhesionDto findAdhesionById(Long id) {
         AdhesionEntity adhesionEntity = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'adhesion recherché n'existe pas ! id = " + id));
-        return this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        AdhesionDto dto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+                .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+        return dto;
     }
 
     @Override
@@ -119,11 +133,14 @@ public class AdhesionServiceImpl implements AdhesionService {
         boolean isStatutChangedToValidated = this.isStatutChangedToValidated(adhesion.getStatut(), adhesiondto.getStatut());
         this.adhesionMapper.updateAdhesion(adhesiondto, adhesion);
         adhesion = this.adhesionRepository.save(adhesion);
-        adhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
+        AdhesionDto resultAdhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
         if (isStatutChangedToValidated || Boolean.TRUE.equals(saveCriteria.getSendMailConfirmation())) {
-            this.createMailRequest(adhesiondto);
+            this.createMailRequest(resultAdhesiondto);
         }
-        return adhesiondto;
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesiondto.getId());
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesiondto.getId()))
+                .ifPresent(doc -> resultAdhesiondto.setIdDocument(doc.getId()));
+        return resultAdhesiondto;
     }
 
     private boolean isStatutChangedToValidated(StatutInscription oldStatut, StatutInscription newStatut) {

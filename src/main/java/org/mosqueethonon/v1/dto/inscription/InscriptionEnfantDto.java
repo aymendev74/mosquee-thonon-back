@@ -16,6 +16,7 @@ import java.util.List;
 public class InscriptionEnfantDto {
 
     private Long id;
+    private Long idDocument;
     private StatutInscription statut;
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;

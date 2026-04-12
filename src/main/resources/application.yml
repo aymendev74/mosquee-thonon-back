@@ -64,6 +64,7 @@ scheduled:
   confirmation-mail: 1 # unit = minutes
   activation-utilisateur-mail: 1 # unit = minutes
   reset-password-mail: 1 # unit = minutes
+  document-generation: 1 # unit = minutes
 
 app:
   token-uri: ${TOKEN_URI}
@@ -78,6 +79,8 @@ app:
   rib-amc:
     file-location: ${RIB_AMC_FILE_LOCATION}
     mail-attachment-filename: ${RIB_AMC_MAIL_ATTACHMENT_NAME}
+  documents:
+    base-path: ${DOCUMENTS_BASE_PATH}
 
 auth:
   cookie:

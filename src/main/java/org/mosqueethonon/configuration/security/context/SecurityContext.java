@@ -12,12 +12,20 @@ import java.util.List;
 public class SecurityContext {
 
     public boolean isAdmin() {
+        return hasRole(Roles.ROLE_ADMIN);
+    }
+
+    public boolean hasRole(String role) {
         if(SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication()!=null
         && SecurityContextHolder.getContext().getAuthentication().getAuthorities() != null) {
             return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals(Roles.ROLE_ADMIN));
+                    .anyMatch(a -> a.getAuthority().equals(role));
         }
         return false;
+    }
+
+    public boolean hasAnyPrivilegedRole() {
+        return hasRole(Roles.ROLE_ADMIN) || hasRole("ROLE_TRESORIER") || hasRole("ROLE_ENSEIGNANT");
     }
 
     public String getVisa() {

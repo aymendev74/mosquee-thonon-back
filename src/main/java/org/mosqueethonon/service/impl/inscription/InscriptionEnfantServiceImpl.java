@@ -10,7 +10,9 @@ import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.*;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.NiveauRepository;
@@ -77,6 +79,10 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
 
     private PeriodeRepository periodeRepository;
 
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRepository documentRepository;
+
     @Transactional
     @Override
     public InscriptionEnfantResultDto createInscription(InscriptionEnfantDto inscription) {
@@ -101,6 +107,7 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
         entity = this.inscriptionEnfantRepository.save(entity);
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
         this.createMailRequest(entity.getId());
 
         return InscriptionEnfantResultDto.builder()
@@ -130,11 +137,14 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         this.doCalculTarifInscription(entity);
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
-        inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        InscriptionEnfantDto resultInscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
+                .ifPresent(doc -> resultInscription.setIdDocument(doc.getId()));
         if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.createMailRequest(entity.getId());
         }
-        return inscription;
+        return resultInscription;
     }
 
     private void computeStatutNewInscription(InscriptionEnfantEntity inscription, boolean isListeAttente) {
@@ -240,7 +250,10 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
     public InscriptionEnfantDto findInscriptionById(Long id) {
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
         if (inscriptionEnfantEntity != null) {
-            return this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
+            InscriptionEnfantDto dto = this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+                    .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            return dto;
         }
         return null;
     }
@@ -336,6 +349,11 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
 
                     ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(inscription.getResponsableLegal());
 
+                    // Récupérer l'idDocument associé à cette inscription
+                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
+                            .map(doc -> doc.getId())
+                            .orElse(null);
+
                     return InscriptionEnfantParAnneeScolaireDto.builder()
                             .anneeDebut(tarif.getPeriode().getAnneeDebut())
                             .anneeFin(tarif.getPeriode().getAnneeFin())
@@ -344,6 +362,7 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
                             .noInscription(inscription.getNoInscription())
                             .responsableLegal(responsableLegalDto)
                             .eleves(eleveDtos)
+                            .idDocument(idDocument)
                             .build();
                 })
                 .filter(Objects::nonNull)
@@ -408,6 +427,7 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         nouvelleInscription.setNoInscription(this.generateNoInscription());
 
         nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
+        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());
         this.createMailRequest(nouvelleInscription.getId());
 
         return this.inscriptionEnfantMapper.fromEntityToDto(nouvelleInscription);

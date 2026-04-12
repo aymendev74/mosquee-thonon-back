@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 15px;
+        }
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .left-spacer {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+        }
+        .association {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            width: 130px;
+            text-align: right;
+        }
+        .logo {
+            width: 130px;
+            height: 130px;
+        }
+        .title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        .cadre-admin-container {
+            margin: 10px auto;
+            text-align: center;
+            width: 80%;
+            border: 1px solid black;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+        }
+        .titre-cadre-admin {
+            text-align: center;
+            font-weight: bold;
+        }
+        .details-cadre-admin {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .member-number {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+            font-size: 14pt;
+        }
+        .date-signature-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        .signature, .date {
+            margin-right: 10px;
+        }
+        .form-element {
+            margin-bottom: 10px;
+        }
+        .conditions {
+            font-size: 9pt;
+            margin-bottom: 100px;
+        }
+        .adresse {
+            font-size: 8pt;
+            text-align: center;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+        .checkbox {
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+            margin-right: 5px;
+        }
+        .checkmark {
+            margin-left: 5px;
+            font-size: 8pt;
+        }
+        .label-consentement {
+            font-size: 9pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="left-spacer"></div>
+            <div class="association">Association Lettres et Cultures</div>
+            <div class="header-right"><img class="logo" src="classpath:/static/images/logo_alc.png" alt="Logo ALC"/></div>
+        </div>
+
+        <div class="title">
+            <div>FICHE D'INSCRIPTION AUX COURS D'ARABE</div>
+            <div th:text="'ANNEE SCOLAIRE ' + ${anneeScolaire}">ANNEE SCOLAIRE 2024-2025</div>
+        </div>
+        
+        <div class="cadre-admin-container">
+            <div class="titre-cadre-admin">Cadre réservé à l'administration</div>
+            <div class="details-cadre-admin">
+                Tarif: <span th:text="${montantTotal}">250</span> euros <span style="display:inline-block; width: 60px;"></span> Divers: ______________________________
+            </div>
+        </div>
+        
+        <div class="form-element">
+            Nom et prénom : <span class="bold" th:text="${nom + ' ' + prenom}">DUPONT Jean</span>
+        </div>
+        
+        <div class="form-element">
+            Date de naissance : <span class="bold" th:text="${#temporals.format(dateNaissance, 'dd/MM/yyyy')}">01/01/1990</span>
+        </div>
+        
+        <div class="form-element">
+            Sexe : <span class="bold" th:text="${sexe == 'MASCULIN' ? 'Masculin' : 'Féminin'}">Masculin</span>
+        </div>
+        
+        <div class="form-element">
+            Adresse : <span class="bold" th:text="${numeroEtRue}">123 rue de la République</span>
+        </div>
+        
+        <div class="form-element">
+            Code postal : <span class="bold" th:text="${codePostal}">74200</span>
+        </div>
+        
+        <div class="form-element">
+            Ville : <span class="bold" th:text="${ville}">THONON LES BAINS</span>
+        </div>
+        
+        <div class="form-element">
+            E-mail : <span class="bold" th:text="${email}">email@example.com</span>
+        </div>
+        
+        <div class="form-element" th:if="${mobile}">
+            Tél. Mobile: <span class="bold" th:text="${mobile}">0612345678</span>
+        </div>
+        
+        <div class="form-element" th:if="${matieres != null and !#lists.isEmpty(matieres)}">
+            Enseignements souhaités : <span class="bold">
+                <span th:each="matiere, iterStat : ${matieres}">
+                    <span th:text="${matiere}">ARABE</span><span th:unless="${iterStat.last}"> / </span>
+                </span>
+            </span>
+        </div>
+        
+        <div class="checkbox-container">
+            <div class="checkbox"></div>
+            <div class="checkmark">☐</div>
+            <div class="label-consentement">
+                Je, soussigné(e), certifie sur l'honneur l'exactitude des informations ci-dessus et m'engage à respecter le règlement intérieur de l'association. 
+                Je m'engage également à régler les frais d'inscription dans les délais impartis.
+            </div>
+        </div>
+        
+        <div class="date-signature-container">
+            <div class="date">Date: ____/____/____</div>
+            <div class="signature">Signature: ____________</div>
+        </div>
+        
+        <div class="adresse">
+            <div>Association Lettres et Cultures</div>
+            <div>5, rue des épines</div>
+            <div>74200 THONON LES BAINS</div>
+            <div>Tel/Fax: 0450706478</div>
+        </div>
+    </div>
+</body>
+</html>

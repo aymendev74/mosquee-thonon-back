@@ -61,6 +61,8 @@ public class InscriptionLightEntity {
     private Long idPeriode;
     @Column(name = "email")
     private String email;
+    @Column(name = "iddocument")
+    private Long idDocument;
     private String type;
 
 }

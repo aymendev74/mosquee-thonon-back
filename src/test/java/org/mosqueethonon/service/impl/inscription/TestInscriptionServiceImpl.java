@@ -21,10 +21,13 @@ import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.entity.bulletin.BulletinEntity;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.EleveFeuillePresenceRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.LienClasseEleveRepository;
@@ -55,6 +58,8 @@ public class TestInscriptionServiceImpl {
     private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
     @Mock
     private LienClasseEleveRepository lienClasseEleveRepository;
+    @Mock
+    private DocumentRequestRepository documentRequestRepository;
     @InjectMocks
     private InscriptionServiceImpl inscriptionService;
 
@@ -118,17 +123,19 @@ public class TestInscriptionServiceImpl {
     }
 
     @Test
-    public void testDeleteInscriptions_WithInscriptionEnfant() {
+    public void testDeleteInscriptions_WithInscriptionEnfantAndBulletins() {
         // GIVEN
         TarifEntity tarif = new TarifEntity();
         PeriodeEntity periode = new PeriodeEntity();
         periode.setId(1L);
         tarif.setPeriode(periode);
         Set<Long> ids = Set.of(1L, 2L);
-        List<EleveEntity> eleves = new ArrayList<>();
         EleveEntity eleve1 = new EleveEntity();
+        eleve1.setId(10L);
         eleve1.setTarif(tarif);
+        List<EleveEntity> eleves = new ArrayList<>();
         eleves.add(eleve1);
+
         InscriptionEntity inscription1 = new InscriptionEnfantEntity();
         inscription1.setId(1L);
         inscription1.setType("ENFANT");
@@ -139,8 +146,12 @@ public class TestInscriptionServiceImpl {
         inscription2.setType("ADULTE");
         inscription2.setEleves(eleves);
 
+        BulletinEntity bulletin = new BulletinEntity();
+        bulletin.setId(100L);
+
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
         when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
+        when(bulletinRepository.findByIdEleveIn(anyList())).thenReturn(List.of(bulletin));
 
         // WHEN
         Set<Long> result = inscriptionService.deleteInscriptions(ids);
@@ -152,6 +163,40 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(2L));
         verify(inscriptionRepository, times(2)).deleteById(any());
         verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.INSCRIPTION), any());
+        verify(documentRequestRepository, times(2))
+                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), any());
+        verify(bulletinRepository, times(2)).deleteAll(anyList());
+    }
+
+    @Test
+    public void testDeleteInscriptions_WithInscriptionEnfantAndNoBulletins() {
+        // GIVEN
+        TarifEntity tarif = new TarifEntity();
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        tarif.setPeriode(periode);
+        Set<Long> ids = Set.of(1L);
+        EleveEntity eleve1 = new EleveEntity();
+        eleve1.setId(10L);
+        eleve1.setTarif(tarif);
+        List<EleveEntity> eleves = List.of(eleve1);
+
+        InscriptionEntity inscription1 = new InscriptionEnfantEntity();
+        inscription1.setId(1L);
+        inscription1.setType("ENFANT");
+        inscription1.setEleves(eleves);
+
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
+        when(bulletinRepository.findByIdEleveIn(anyList())).thenReturn(List.of());
+
+        // WHEN
+        Set<Long> result = inscriptionService.deleteInscriptions(ids);
+
+        // THEN
+        assertNotNull(result);
+        verify(documentRequestRepository, never())
+                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), any());
+        verify(bulletinRepository, never()).deleteAll(anyList());
     }
 
     @Test

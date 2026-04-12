@@ -20,5 +20,6 @@ public class InscriptionEnfantParAnneeScolaireDto {
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
     private String noInscription;
+    private Long idDocument;
 
 }
