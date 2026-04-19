@@ -26,7 +26,7 @@
         .left-spacer {
             display: table-cell;
             vertical-align: middle;
-            width: 130px;
+            width: 152px;
         }
         .association {
             display: table-cell;
@@ -38,12 +38,12 @@
         .header-right {
             display: table-cell;
             vertical-align: middle;
-            width: 130px;
+            width: 152px;
             text-align: right;
         }
         .logo {
-            width: 110px;
-            height: 110px;
+            width: 152px;
+            height: 152px;
         }
         .title {
             font-size: 18pt;
@@ -101,13 +101,34 @@
             font-size: 11pt;
             margin-bottom: 10px;
         }
-        .appreciation {
-            font-size: 11pt;
-            margin-bottom: 150px;
+        .appreciation-tampon {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
         }
-        .adresse {
-            font-size: 9pt;
+        .appreciation {
+            display: table-cell;
+            font-size: 11pt;
+            vertical-align: top;
+        }
+        .tampon-cell {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+            width: 180px;
+        }
+        .mention-legale {
+            font-size: 7pt;
+            font-style: italic;
             text-align: center;
+            color: #666;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 0.5pt solid #ddd;
+        }
+        .tampon {
+            width: 160px;
+            height: 160px;
         }
     </style>
 </head>
@@ -148,14 +169,14 @@
 
         <div class="date" th:text="'Date : ' + ${dateBulletin}">Date : 01/01/2025</div>
 
-        <div class="appreciation" th:text="'Appréciation générale : ' + ${appreciation}">Appréciation générale : </div>
-
-        <div class="adresse">
-            <div>Association Lettres et Cultures</div>
-            <div>5, rue des epinanches</div>
-            <div>74200 THONON LES BAINS</div>
-            <div>Tel/Fax: 0450706478</div>
+        <div class="appreciation-tampon">
+            <div class="appreciation" th:text="'Appréciation générale : ' + ${appreciation}">Appréciation générale : </div>
+            <div class="tampon-cell">
+                <img class="tampon" src="classpath:/static/images/tampon_alc.png" alt="Tampon ALC"/>
+            </div>
         </div>
+
+        <div class="mention-legale">Document généré électroniquement — ne nécessite pas de signature manuscrite.</div>
     </div>
 </body>
 </html>
