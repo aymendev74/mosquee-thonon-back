@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
 @Slf4j
-public class InscriptionAdulteServiceImpl extends AbstractInscriptionService implements InscriptionAdulteService {
+public class InscriptionAdulteServiceImpl extends CommonInscriptionService implements InscriptionAdulteService {
 
     private InscriptionAdulteRepository inscriptionAdulteRepository;
 
@@ -101,10 +101,9 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         entity = this.inscriptionAdulteRepository.save(entity);
 
         // Demande de génération asynchrone du document PDF
-        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
-
-        // Envoi du mail de prise en compte
-        this.createMailRequest(entity.getId());
+        // Le mail sera créé en NOT_READY et passera en PENDING une fois le document généré
+        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        this.createMailRequest(entity.getId(), documentRequest);
 
         return InscriptionAdulteResultDto.builder()
                 .newlyCreatedAccount(userAccountResult.newlyCreated())
@@ -152,10 +151,10 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         entity = this.inscriptionAdulteRepository.save(entity);
 
         // Demande de régénération asynchrone du document PDF si nécessaire
-        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
 
-        if(Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
-            this.createMailRequest(entity.getId());
+        if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+            this.createMailRequest(entity.getId(), documentRequest);
         }
         InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
         this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
@@ -206,9 +205,8 @@ public class InscriptionAdulteServiceImpl extends AbstractInscriptionService imp
         entity = this.inscriptionAdulteRepository.save(entity);
 
         // Demande de génération asynchrone du document PDF
-        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
-
-        this.createMailRequest(entity.getId());
+        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        this.createMailRequest(entity.getId(), documentRequest);
 
         InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
         return dto;

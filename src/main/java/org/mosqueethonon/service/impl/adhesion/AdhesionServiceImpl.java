@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
+import org.mosqueethonon.entity.mail.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
 import org.mosqueethonon.enums.DocumentMetadataKey;
 import org.mosqueethonon.enums.DocumentRequestType;
@@ -59,8 +61,8 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
         AdhesionDto resultAdhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-        this.createMailRequest(resultAdhesionDto);
-        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesionDto.getId());
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesionDto.getId());
+        this.createMailRequest(resultAdhesionDto, documentRequest);
         this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesionDto.getId()))
                 .ifPresent(doc -> resultAdhesionDto.setIdDocument(doc.getId()));
         return resultAdhesionDto;
@@ -112,8 +114,9 @@ public class AdhesionServiceImpl implements AdhesionService {
                 adhesion.setStatut(null);
             } else {
                 StatutInscription newStatut = StatutInscription.valueOf(patchNode.get("statut").asText());
-                if(isStatutChangedToValidated(adhesion.getStatut(), newStatut)) {
-                   this.createMailRequest(this.adhesionMapper.fromEntityToDto(adhesion));
+                if (isStatutChangedToValidated(adhesion.getStatut(), newStatut)) {
+                    DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, adhesion.getId());
+                    this.createMailRequest(this.adhesionMapper.fromEntityToDto(adhesion), documentRequest);
                 }
                 adhesion.setStatut(newStatut);
             }
@@ -134,10 +137,10 @@ public class AdhesionServiceImpl implements AdhesionService {
         this.adhesionMapper.updateAdhesion(adhesiondto, adhesion);
         adhesion = this.adhesionRepository.save(adhesion);
         AdhesionDto resultAdhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesiondto.getId());
         if (isStatutChangedToValidated || Boolean.TRUE.equals(saveCriteria.getSendMailConfirmation())) {
-            this.createMailRequest(resultAdhesiondto);
+            this.createMailRequest(resultAdhesiondto, documentRequest);
         }
-        this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesiondto.getId());
         this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesiondto.getId()))
                 .ifPresent(doc -> resultAdhesiondto.setIdDocument(doc.getId()));
         return resultAdhesiondto;
@@ -147,12 +150,20 @@ public class AdhesionServiceImpl implements AdhesionService {
         return oldStatut == StatutInscription.PROVISOIRE && newStatut == StatutInscription.VALIDEE;
     }
 
-    private void createMailRequest(AdhesionDto adhesion) {
+    private void createMailRequest(AdhesionDto adhesion, DocumentRequestEntity documentRequest) {
+        MailRequestStatut statut = documentRequest != null ? MailRequestStatut.NOT_READY : MailRequestStatut.PENDING;
         MailRequestEntity mailRequest = MailRequestEntity.builder()
                 .businessId(adhesion.getId())
                 .type(MailRequestType.ADHESION)
-                .statut(MailRequestStatut.PENDING)
+                .statut(statut)
                 .build();
+
+        if (documentRequest != null) {
+            mailRequest.getDocumentRequests().add(
+                    MailRequestDocumentRequestEntity.builder().documentRequestId(documentRequest.getId()).build()
+            );
+        }
+
         this.mailRequestRepository.save(mailRequest);
     }
 }

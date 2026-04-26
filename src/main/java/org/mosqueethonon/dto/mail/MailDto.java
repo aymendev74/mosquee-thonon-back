@@ -17,7 +17,7 @@ public class MailDto {
     @Singular
     private List<MailAttachmentDto> attachments;
 
-    public void addAttchments(List<MailAttachmentDto> attachments) {
+    public void addAttachments(List<MailAttachmentDto> attachments) {
         if(this.attachments == null) {
             this.attachments = new ArrayList<>();
         }

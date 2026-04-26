@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import jakarta.transaction.Transactional;
@@ -17,6 +18,8 @@ public interface DocumentRequestRepository extends JpaRepository<DocumentRequest
     List<DocumentRequestEntity> findByStatutOrderBySignatureDateCreationAsc(DocumentRequestStatut statut);
 
     boolean existsByTypeAndBusinessIdAndStatut(DocumentRequestType type, Long businessId, DocumentRequestStatut statut);
+
+    Optional<DocumentRequestEntity> findByTypeAndBusinessIdAndStatut(DocumentRequestType type, Long businessId, DocumentRequestStatut statut);
 
     @Transactional
     void deleteByTypeAndBusinessIdIn(DocumentRequestType type, Set<Long> businessIds);

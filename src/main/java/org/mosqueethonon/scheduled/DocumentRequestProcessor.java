@@ -39,8 +39,13 @@ public class DocumentRequestProcessor {
     private final BulletinDocumentGenerator bulletinDocumentGenerator;
     private final BulletinRepository bulletinRepository;
 
+    /**
+     * Traite une demande de génération de document dans une transaction isolée (REQUIRES_NEW).
+     * Retourne true si le document a été traité avec succès (statut COMPLETED), false sinon.
+     * Le job appelant est responsable de déclencher la promotion des mails après commit de cette transaction.
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processDocumentRequest(DocumentRequestEntity request) {
+    public boolean processDocumentRequest(DocumentRequestEntity request) {
         try {
             log.info("Traitement en cours de la demande de génération du document {}", request.getId());
 
@@ -61,11 +66,14 @@ public class DocumentRequestProcessor {
                     throw new IllegalStateException("Type de demande de document non géré : " + request.getType());
             }
 
+            return true;
+
         } catch (Exception e) {
             log.error("Erreur lors du traitement de la demande de document {} : ", request.getId(), e);
             request.setStatut(DocumentRequestStatut.ERROR);
             request.setErrorMessage(e.getMessage());
             documentRequestRepository.save(request);
+            return false;
         }
     }
 
@@ -75,12 +83,7 @@ public class DocumentRequestProcessor {
 
         DocumentEntity document = documentService.generateOrUpdateDocument(inscriptionEnfantDocumentGenerator, inscription);
 
-        request.setDocumentPath(document.getChemin());
-        request.setDocumentCode(document.getCode());
-        request.setStatut(DocumentRequestStatut.COMPLETED);
-        documentRequestRepository.save(request);
-
-        log.info("Traitement terminé pour la demande de génération du document {} - chemin : {}", request.getId(), document.getChemin());
+        completeDocumentRequest(request, document);
     }
 
     private void processAdhesionRequest(DocumentRequestEntity request) {
@@ -89,12 +92,7 @@ public class DocumentRequestProcessor {
 
         DocumentEntity document = documentService.generateOrUpdateDocument(adhesionDocumentGenerator, adhesion);
 
-        request.setDocumentPath(document.getChemin());
-        request.setDocumentCode(document.getCode());
-        request.setStatut(DocumentRequestStatut.COMPLETED);
-        documentRequestRepository.save(request);
-
-        log.info("Traitement terminé pour la demande de génération du document {} - chemin : {}", request.getId(), document.getChemin());
+        completeDocumentRequest(request, document);
     }
 
     private void processBulletinRequest(DocumentRequestEntity request) {
@@ -103,12 +101,7 @@ public class DocumentRequestProcessor {
 
         DocumentEntity document = documentService.generateOrUpdateDocument(bulletinDocumentGenerator, bulletin);
 
-        request.setDocumentPath(document.getChemin());
-        request.setDocumentCode(document.getCode());
-        request.setStatut(DocumentRequestStatut.COMPLETED);
-        documentRequestRepository.save(request);
-
-        log.info("Traitement terminé pour la demande de génération du document {} - chemin : {}", request.getId(), document.getChemin());
+        completeDocumentRequest(request, document);
     }
 
     private void processInscriptionAdulteRequest(DocumentRequestEntity request) {
@@ -117,6 +110,10 @@ public class DocumentRequestProcessor {
 
         DocumentEntity document = documentService.generateOrUpdateDocument(inscriptionAdulteDocumentGenerator, inscription);
 
+        completeDocumentRequest(request, document);
+    }
+
+    private void completeDocumentRequest(DocumentRequestEntity request, DocumentEntity document) {
         request.setDocumentPath(document.getChemin());
         request.setDocumentCode(document.getCode());
         request.setStatut(DocumentRequestStatut.COMPLETED);

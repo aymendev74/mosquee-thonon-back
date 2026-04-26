@@ -19,19 +19,21 @@ public class AsyncDocumentServiceImpl implements AsyncDocumentService {
 
     @Override
     @Transactional
-    public <T> void requestDocumentGeneration(DocumentRequestType type, Long businessId) {
-        if (documentRequestRepository.existsByTypeAndBusinessIdAndStatut(type, businessId, DocumentRequestStatut.PENDING)) {
-            log.info("Une demande de génération de document PENDING existe déjà pour le type {} et le business ID {}, pas de doublon créé", type, businessId);
-            return;
-        }
-
-        DocumentRequestEntity request = new DocumentRequestEntity();
-        request.setType(type);
-        request.setBusinessId(businessId);
-        request.setStatut(DocumentRequestStatut.PENDING);
-
-        documentRequestRepository.save(request);
-        log.info("Demande de génération de document créée pour le type {} et le business ID {}", type, businessId);
+    public DocumentRequestEntity requestDocumentGeneration(DocumentRequestType type, Long businessId) {
+        return documentRequestRepository.findByTypeAndBusinessIdAndStatut(type, businessId, DocumentRequestStatut.PENDING)
+                .map(existing -> {
+                    log.info("Une demande de génération de document PENDING existe déjà pour le type {} et le business ID {}, réutilisation", type, businessId);
+                    return existing;
+                })
+                .orElseGet(() -> {
+                    DocumentRequestEntity request = new DocumentRequestEntity();
+                    request.setType(type);
+                    request.setBusinessId(businessId);
+                    request.setStatut(DocumentRequestStatut.PENDING);
+                    DocumentRequestEntity saved = documentRequestRepository.save(request);
+                    log.info("Demande de génération de document créée pour le type {} et le business ID {}", type, businessId);
+                    return saved;
+                });
     }
 
 }

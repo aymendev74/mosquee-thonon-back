@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 059-createTable-mail_request_document_request
+      author: Aymen
+      comment: "Table de liaison entre mail_request et document_request : un mail NOT_READY attend la completion de tous ses documents avant de passer en PENDING"
+      changes:
+        - createTable:
+            tableName: mail_request_document_request
+            schemaName: moth
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: mail_request_document_request_pkey
+                  name: idmrdr
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: idmare
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: iddore
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: mail_request_document_request
+            baseColumnNames: idmare
+            constraintName: fk_mrdr_mail_request
+            referencedTableSchemaName: moth
+            referencedTableName: mail_request
+            referencedColumnNames: idmare
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: moth
+            baseTableName: mail_request_document_request
+            baseColumnNames: iddore
+            constraintName: fk_mrdr_document_request
+            referencedTableSchemaName: moth
+            referencedTableName: document_request
+            referencedColumnNames: iddore
