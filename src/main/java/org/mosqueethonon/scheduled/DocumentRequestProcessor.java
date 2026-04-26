@@ -40,11 +40,12 @@ public class DocumentRequestProcessor {
     private final BulletinRepository bulletinRepository;
 
     /**
-     * Traite une demande de génération de document dans une transaction isolée (REQUIRES_NEW).
+     * Traite une demande de génération de document en participant à la transaction appelante (REQUIRED).
      * Retourne true si le document a été traité avec succès (statut COMPLETED), false sinon.
-     * Le job appelant est responsable de déclencher la promotion des mails après commit de cette transaction.
+     * Le lock SELECT FOR UPDATE acquis en amont par le job reste ainsi maintenu jusqu'au commit
+     * de la transaction englobante, garantissant l'isolation en environnement multi-instances.
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public boolean processDocumentRequest(DocumentRequestEntity request) {
         try {
             log.info("Traitement en cours de la demande de génération du document {}", request.getId());

@@ -25,7 +25,7 @@ public class MailRequestServiceImpl implements MailRequestService {
     private final MailRequestRepository mailRequestRepository;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void promoteReadyMailRequests(Long documentRequestId) {
         List<Long> readyMailRequestIds = mailRequestDocumentRequestRepository.findReadyMailRequestIds(
                 documentRequestId,

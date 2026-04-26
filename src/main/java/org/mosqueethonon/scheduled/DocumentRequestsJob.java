@@ -2,15 +2,9 @@ package org.mosqueethonon.scheduled;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.entity.document.DocumentRequestEntity;
-import org.mosqueethonon.enums.DocumentRequestStatut;
-import org.mosqueethonon.repository.DocumentRequestRepository;
-import org.mosqueethonon.service.mail.MailRequestService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -18,29 +12,33 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DocumentRequestsJob {
 
-    private final DocumentRequestRepository documentRequestRepository;
-    private final DocumentRequestProcessor documentRequestProcessor;
-    private final MailRequestService mailRequestService;
-
-    @Scheduled(fixedDelayString = "${scheduled.document-generation}", timeUnit = TimeUnit.MINUTES)
-    public void processPendingDocumentRequests() {
-        List<DocumentRequestEntity> requests = documentRequestRepository.findByStatutOrderBySignatureDateCreationAsc(DocumentRequestStatut.PENDING);
-        if (!CollectionUtils.isEmpty(requests)) {
-            log.info("Il y a {} demandes de génération de documents à traiter", requests.size());
-            requests.forEach(this::processAndPromote);
-        }
-    }
+    private final DocumentRequestJobService documentRequestJobService;
 
     /**
-     * Traite la demande de document (dans une transaction REQUIRES_NEW via le processeur),
-     * puis, si le document est passé en COMPLETED, déclenche la promotion des mails NOT_READY
-     * qui attendaient ce document. La promotion se fait après le commit de la transaction
-     * du processeur, ce qui garantit que le statut COMPLETED est visible.
+     * Traite toutes les demandes de génération de documents en statut PENDING.
+     * En environnement multi-instances, chaque instance boucle sur les enregistrements disponibles :
+     * SELECT FOR UPDATE SKIP LOCKED garantit qu'un enregistrement ne peut être traité que par
+     * une seule instance à la fois, sans nécessiter de statut intermédiaire.
+     * La boucle s'arrête dès qu'il n'y a plus d'enregistrement disponible (file vide ou tous lockés
+     * par d'autres instances).
      */
-    private void processAndPromote(DocumentRequestEntity request) {
-        boolean completed = documentRequestProcessor.processDocumentRequest(request);
-        if (completed) {
-            mailRequestService.promoteReadyMailRequests(request.getId());
+    @Scheduled(fixedDelayString = "${scheduled.document-generation}", timeUnit = TimeUnit.MINUTES)
+    public void processPendingDocumentRequests() {
+        log.debug("Démarrage du job de traitement des demandes de génération de documents");
+        int processed = 0;
+        try {
+            while (documentRequestJobService.processNextPendingRequest()) {
+                processed++;
+            }
+        } catch (Exception e) {
+            // En cas d'erreur critique non récupérée (ex: échec du save interne du processeur),
+            // la transaction a été annulée et le record reste PENDING pour le prochain cycle.
+            log.error("Arrêt anticipé du job après une erreur critique — {} demande(s) traitée(s) avant l'incident", processed, e);
+        }
+        if (processed > 0) {
+            log.info("{} demande(s) de génération de documents traitée(s)", processed);
+        } else {
+            log.debug("Aucune demande de génération de documents à traiter");
         }
     }
 
