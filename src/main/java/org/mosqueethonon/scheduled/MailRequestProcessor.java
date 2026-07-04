@@ -3,6 +3,7 @@ package org.mosqueethonon.scheduled;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.dto.mail.MailAttachmentDto;
 import org.mosqueethonon.dto.mail.MailDto;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
@@ -41,6 +42,7 @@ public class MailRequestProcessor {
     private final MailRequestRepository mailRequestRepository;
     private final DocumentRequestRepository documentRequestRepository;
     private final ParamService paramService;
+    private final ApplicationConfiguration applicationConfiguration;
 
     public MailRequestProcessor(
             JavaMailSender emailSender,
@@ -48,13 +50,15 @@ public class MailRequestProcessor {
             @Qualifier(MailAdhesionServiceImpl.MAIL_ADHESION_SERVICE) MailService mailAdhesionService,
             MailRequestRepository mailRequestRepository,
             DocumentRequestRepository documentRequestRepository,
-            ParamService paramService) {
+            ParamService paramService,
+            ApplicationConfiguration applicationConfiguration) {
         this.emailSender = emailSender;
         this.mailInscriptionService = mailInscriptionService;
         this.mailAdhesionService = mailAdhesionService;
         this.mailRequestRepository = mailRequestRepository;
         this.documentRequestRepository = documentRequestRepository;
         this.paramService = paramService;
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     /**
@@ -73,9 +77,9 @@ public class MailRequestProcessor {
 
             MailDto mailDto = createMailDto(mailRequest);
 
-            mailRequest.setSubject(mailDto.getSubject());
-            mailRequest.setBody(mailDto.getBody());
-            mailRequest.setAttachments(mailDto.getAttachments());
+            mailRequest.setSubject(mailDto.subject());
+            mailRequest.setBody(mailDto.body());
+            mailRequest.setAttachments(mailDto.attachments());
 
             log.info("Envoi du mail en cours pour la demande {}", mailRequest.getId());
             MimeMessage mimeMessage = createMimeMessage(mailDto);
@@ -129,12 +133,12 @@ public class MailRequestProcessor {
     private MimeMessage createMimeMessage(MailDto mailDto) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setTo(mailDto.getRecipientEmail());
-        helper.setSubject(mailDto.getSubject());
-        helper.setText(mailDto.getBody(), true);
-        if (mailDto.getAttachments() != null) {
-            for (MailAttachmentDto attachment : mailDto.getAttachments()) {
-                FileSystemResource file = new FileSystemResource(new File(attachment.getLocation()));
+        helper.setTo(mailDto.recipientEmail());
+        helper.setSubject(mailDto.subject());
+        helper.setText(mailDto.body(), true);
+        if (mailDto.attachments() != null) {
+            for (MailAttachmentDto attachment : mailDto.attachments()) {
+                FileSystemResource file = new FileSystemResource(Paths.get(this.applicationConfiguration.getDocuments().getBasePath()).resolve(attachment.getLocation()));
                 helper.addAttachment(attachment.getName(), file);
             }
         }

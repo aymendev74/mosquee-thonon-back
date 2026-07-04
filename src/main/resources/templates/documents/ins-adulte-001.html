@@ -5,13 +5,13 @@
     <style>
         @page {
             size: A4;
-            margin: 15mm;
+            margin: 8mm 15mm 15mm 15mm;
         }
         body {
             font-family: "Roboto", Arial, sans-serif;
             font-size: 10pt;
             margin: 0;
-            padding: 15px;
+            padding: 8px 15px 15px 15px;
         }
         .page {
             display: flex;
@@ -77,14 +77,18 @@
             font-size: 14pt;
         }
         .date-signature-container {
-            display: flex;
-            justify-content: space-between;
+            display: table;
             width: 100%;
+            table-layout: fixed;
             padding: 15px;
             margin-bottom: 30px;
         }
-        .signature, .date {
-            margin-right: 10px;
+        .date-signature-container > div {
+            display: table-cell;
+            width: 50%;
+        }
+        .date-signature-container > div:last-child {
+            text-align: right;
         }
         .form-element {
             margin-bottom: 10px;
@@ -101,22 +105,23 @@
             font-weight: bold;
         }
         .checkbox-container {
-            display: flex;
-            align-items: center;
+            display: table;
             margin-left: 10px;
             margin-right: 10px;
             margin-bottom: 30px;
             margin-top: 20px;
         }
+        .checkbox-container > div {
+            display: table-cell;
+            vertical-align: top;
+        }
         .checkbox {
+            width: 15px;
+        }
+        .checkbox-box {
             width: 10px;
             height: 10px;
             border: 1px solid black;
-            margin-right: 5px;
-        }
-        .checkmark {
-            margin-left: 5px;
-            font-size: 8pt;
         }
         .label-consentement {
             font-size: 9pt;
@@ -184,14 +189,17 @@
         </div>
         
         <div class="checkbox-container">
-            <div class="checkbox"></div>
-            <div class="checkmark">☐</div>
+            <div class="checkbox"><div class="checkbox-box"></div></div>
             <div class="label-consentement">
                 Je, soussigné(e), certifie sur l'honneur l'exactitude des informations ci-dessus et m'engage à respecter le règlement intérieur de l'association. 
                 Je m'engage également à régler les frais d'inscription dans les délais impartis.
             </div>
         </div>
         
+        <div class="form-element" th:if="${dateInscription != null}">
+            Date d'enregistrement de l'inscription : <span class="bold" th:text="${#temporals.format(dateInscription, 'dd/MM/yyyy')}">01/01/2025</span>
+        </div>
+
         <div class="date-signature-container">
             <div class="date">Date: ____/____/____</div>
             <div class="signature">Signature: ____________</div>

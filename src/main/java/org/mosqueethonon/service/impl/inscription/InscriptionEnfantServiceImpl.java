@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
@@ -12,6 +13,7 @@ import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.*;
 import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
@@ -107,7 +109,10 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
         entity = this.inscriptionEnfantRepository.save(entity);
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        DocumentRequestEntity documentRequest = null;
+        if(entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        }
         this.createMailRequest(entity.getId(), documentRequest);
 
         return InscriptionEnfantResultDto.builder()
@@ -137,12 +142,14 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         this.doCalculTarifInscription(entity);
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
         InscriptionEnfantDto resultInscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
         this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
                 .ifPresent(doc -> resultInscription.setIdDocument(doc.getId()));
-        if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
-            this.createMailRequest(entity.getId(), documentRequest);
+        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+            if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+                this.createMailRequest(entity.getId(), documentRequest);
+            }
         }
         return resultInscription;
     }
@@ -351,7 +358,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
 
                     // Récupérer l'idDocument associé à cette inscription
                     Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
-                            .map(doc -> doc.getId())
+                            .map(DocumentEntity::getId)
                             .orElse(null);
 
                     return InscriptionEnfantParAnneeScolaireDto.builder()
@@ -427,8 +434,10 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         nouvelleInscription.setNoInscription(this.generateNoInscription());
 
         nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());
-        this.createMailRequest(nouvelleInscription.getId(), documentRequest);
+        if (nouvelleInscription.getStatut() == StatutInscription.PROVISOIRE || nouvelleInscription.getStatut() == StatutInscription.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());
+            this.createMailRequest(nouvelleInscription.getId(), documentRequest);
+        }
 
         return this.inscriptionEnfantMapper.fromEntityToDto(nouvelleInscription);
     }

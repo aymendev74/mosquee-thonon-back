@@ -5,13 +5,13 @@
     <style>
         @page {
             size: A4;
-            margin: 15mm;
+            margin: 8mm 15mm 15mm 15mm;
         }
         body {
             font-family: "Roboto", Arial, sans-serif;
             font-size: 10pt;
             margin: 0;
-            padding: 15px;
+            padding: 8px 15px 15px 15px;
         }
         .page {
             display: flex;
@@ -108,29 +108,40 @@
             margin-bottom: 15px;
         }
         .checkbox-container {
-            display: flex;
-            align-items: center;
+            display: table;
             margin-left: 10px;
             margin-right: 10px;
             margin-bottom: 30px;
             margin-top: 15px;
         }
+        .checkbox-container > div {
+            display: table-cell;
+            vertical-align: top;
+        }
         .checkbox {
+            width: 15px;
+        }
+        .checkbox-box {
             width: 10px;
             height: 10px;
             border: 1px solid black;
-            margin-right: 5px;
-            flex-shrink: 0;
         }
         .label-consentement {
             font-size: 9pt;
         }
         .date-signature-container {
-            display: flex;
-            justify-content: space-between;
+            display: table;
             width: 100%;
+            table-layout: fixed;
             padding: 15px;
             margin-bottom: 5px;
+        }
+        .date-signature-container > div {
+            display: table-cell;
+            width: 50%;
+        }
+        .date-signature-container > div:last-child {
+            text-align: right;
         }
         .adresse {
             font-size: 8pt;
@@ -226,7 +237,7 @@
         </div>
 
         <div class="checkbox-container">
-            <div class="checkbox"></div>
+            <div class="checkbox"><div class="checkbox-box"></div></div>
             <div class="label-consentement">
                 En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais (AMC) et l'association lettres et cultures (ALC)
                 collectent et traitent vos données personnelles aux fins de votre inscription aux cours.
@@ -235,6 +246,10 @@
                 Vous vous engagez également à respecter le règlement intérieur établi par les associations AMC et ALC,
                 disponible sur demande auprès de leurs membres et affiché dans les locaux.
             </div>
+        </div>
+
+        <div class="form-element" th:if="${dateInscription != null}">
+            Date d'enregistrement de l'inscription : <span class="bold" th:text="${#temporals.format(dateInscription, 'dd/MM/yyyy')}">01/01/2025</span>
         </div>
 
         <div class="date-signature-container">

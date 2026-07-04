@@ -10,4 +10,6 @@ public interface DocumentService {
 
     DocumentEntity findById(Long documentId);
 
+    void deleteDocument(Long documentId);
+
 }

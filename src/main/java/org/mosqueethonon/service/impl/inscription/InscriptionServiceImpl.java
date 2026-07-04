@@ -7,17 +7,20 @@ import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.bulletin.BulletinEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
 import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.EleveFeuillePresenceRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.LienClasseEleveRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
@@ -41,6 +44,8 @@ public class InscriptionServiceImpl implements InscriptionService {
     private EleveFeuillePresenceRepository eleveFeuillePresenceRepository;
     private BulletinRepository bulletinRepository;
     private DocumentRequestRepository documentRequestRepository;
+    private DocumentRepository documentRepository;
+    private DocumentService documentService;
 
     @Transactional
     @Override
@@ -102,6 +107,12 @@ public class InscriptionServiceImpl implements InscriptionService {
                 this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
             }
             this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, Sets.newHashSet(id));
+            // Supprimer les DocumentRequests d'inscription avant de supprimer le document (contrainte FK)
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.INSCRIPTION_ENFANT, Sets.newHashSet(id));
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.INSCRIPTION_ADULTE, Sets.newHashSet(id));
+            // Supprimer le document associé (DB + filesystem après commit)
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+                    .ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
             this.inscriptionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
         }

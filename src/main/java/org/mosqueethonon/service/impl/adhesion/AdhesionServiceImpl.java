@@ -17,9 +17,11 @@ import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
@@ -49,6 +51,10 @@ public class AdhesionServiceImpl implements AdhesionService {
     private AsyncDocumentService asyncDocumentService;
 
     private DocumentRepository documentRepository;
+
+    private DocumentRequestRepository documentRequestRepository;
+
+    private DocumentService documentService;
 
     @Override
     @Transactional
@@ -83,6 +89,11 @@ public class AdhesionServiceImpl implements AdhesionService {
         for(Long id : ids) {
             this.lockService.acquireLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
             this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, Sets.newHashSet(id));
+            // Supprimer les DocumentRequests d'adhésion avant de supprimer le document (contrainte FK)
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.ADHESION, Sets.newHashSet(id));
+            // Supprimer le document associé (DB + filesystem après commit)
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+                    .ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
             this.adhesionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
         }

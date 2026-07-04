@@ -11,7 +11,10 @@ import org.mosqueethonon.service.document.DocumentGenerator;
 import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.document.PdfGeneratorService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -115,6 +118,34 @@ public class DocumentServiceImpl implements DocumentService {
             log.error("Erreur lors de l'écriture du document PDF : {}", filePath, e);
             throw new RuntimeException("Impossible d'écrire le document PDF", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteDocument(Long documentId) {
+        DocumentEntity doc = this.documentRepository.findById(documentId).orElse(null);
+        if (doc == null) {
+            log.warn("Document non trouvé pour suppression, id = {}", documentId);
+            return;
+        }
+        Path filePath = resolveAbsolutePath(doc.getChemin());
+        this.documentRepository.delete(doc); // suppression en base dans la transaction
+
+        // Suppression physique planifiée après commit (irréversible, donc hors transaction)
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        boolean deleted = Files.deleteIfExists(filePath);
+                        if (deleted) log.info("Fichier physique supprimé : {}", filePath);
+                        else log.warn("Fichier physique introuvable lors de la suppression : {}", filePath);
+                    } catch (IOException e) {
+                        log.error("Erreur lors de la suppression physique du fichier : {}", filePath, e);
+                    }
+                }
+            }
+        );
     }
 
     private Path resolveAbsolutePath(String relativePath) {

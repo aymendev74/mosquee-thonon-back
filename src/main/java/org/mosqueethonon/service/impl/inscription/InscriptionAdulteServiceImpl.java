@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
@@ -17,6 +18,7 @@ import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.TarifRepository;
@@ -73,7 +75,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
     @Transactional
     public InscriptionAdulteResultDto createInscription(InscriptionAdulteDto inscription) {
         // En théorie cela ne devrait jamais arriver car si les inscriptions sont fermées
-        if(!paramService.isInscriptionAdulteEnabled()) {
+        if (!paramService.isInscriptionAdulteEnabled()) {
             RuntimeException e = new IllegalStateException("Les inscriptions sont actuellement fermées ! ");
             log.error("Les inscriptions adultes sont actuellement fermées ! Et on a reçu une inscription, ceci est un cas anormal...", e);
             throw e;
@@ -85,7 +87,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
         // mapping vers l'entité
         InscriptionAdulteEntity entity = new InscriptionAdulteEntity();
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
-        entity.setMatieres(this.mapInscriptionMatieres(inscription));
+        entity.setMatieres(this.mapInscriptionMatieresFromList(inscription.getMatieres()));
 
         UserAccountResult userAccountResult = this.manageUserAccount(inscription.getEmail(), inscription.getNom(), inscription.getPrenom(), inscription.getMobile());
         entity.setIdUtilisateur(userAccountResult.userId());
@@ -111,20 +113,6 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
                 .build();
     }
 
-    private List<InscriptionMatiereEntity> mapInscriptionMatieres(InscriptionAdulteDto inscription) {
-        List<InscriptionMatiereEntity> inscriptionMatiereEntities = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(inscription.getMatieres())) {
-            for (MatiereEnum matiere : inscription.getMatieres()) {
-                MatiereEntity matiereEntity = this.matiereService.findByCode(matiere)
-                        .orElseThrow(() -> new ResourceNotFoundException("La matière " + matiere.name() + " n'a pas été trouvée"));
-                InscriptionMatiereEntity inscriptionMatiereEntity = new InscriptionMatiereEntity();
-                inscriptionMatiereEntity.setMatiere(matiereEntity);
-                inscriptionMatiereEntities.add(inscriptionMatiereEntity);
-            }
-        }
-        return inscriptionMatiereEntities;
-    }
-
     @Override
     public InscriptionAdulteDto findInscriptionById(Long id) {
         InscriptionAdulteEntity inscriptionAdulteEntity = this.inscriptionAdulteRepository.findById(id).orElse(null);
@@ -142,17 +130,19 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
     public InscriptionAdulteDto updateInscription(Long id, InscriptionAdulteDto inscription, InscriptionSaveCriteria criteria) {
         InscriptionAdulteEntity entity = this.inscriptionAdulteRepository.findById(id).orElse(null);
         if (entity == null) {
-            throw new IllegalArgumentException("Inscription not found ! idinsc = " + id);
+            throw new ResourceNotFoundException("L'inscription adulte n'a pas été trouvée ! id = " + id);
         }
         this.inscriptionAdulteMapper.mapDtoToEntity(inscription, entity);
         entity.getMatieres().clear();
-        entity.getMatieres().addAll(this.mapInscriptionMatieres(inscription));
+        entity.getMatieres().addAll(this.mapInscriptionMatieresFromList(inscription.getMatieres()));
         this.calculTarif(entity, null, inscription.getStatutProfessionnel());
         entity = this.inscriptionAdulteRepository.save(entity);
 
         // Demande de régénération asynchrone du document PDF si nécessaire
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
-
+        DocumentRequestEntity documentRequest = null;
+        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        }
         if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.createMailRequest(entity.getId(), documentRequest);
         }
@@ -205,8 +195,11 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
         entity = this.inscriptionAdulteRepository.save(entity);
 
         // Demande de génération asynchrone du document PDF
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
-        this.createMailRequest(entity.getId(), documentRequest);
+        // Condition toujours vraie ici (statut hardcodé à VALIDEE), maintenue par cohérence avec le service enfant et pour évolutivité future
+        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+            this.createMailRequest(entity.getId(), documentRequest);
+        }
 
         InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
         return dto;
@@ -236,7 +229,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         // Récupération des inscriptions avec les élèves
         List<InscriptionAdulteEntity> inscriptions = this.inscriptionAdulteRepository.findByUtilisateurIdWithEleves(utilisateur.getId());
-        
+
         // Chargement des matières dans une seconde requête pour éviter MultipleBagFetchException
         if (!inscriptions.isEmpty()) {
             this.inscriptionAdulteRepository.fetchMatieres(inscriptions);
@@ -255,7 +248,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
                     // Récupérer l'idDocument associé à cette inscription
                     Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
-                            .map(doc -> doc.getId())
+                            .map(DocumentEntity::getId)
                             .orElse(null);
 
                     return InscriptionAdulteParAnneeScolaireDto.builder()

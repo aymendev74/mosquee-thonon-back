@@ -5,13 +5,13 @@
     <style>
         @page {
             size: A4;
-            margin: 15mm;
+            margin: 8mm 15mm 15mm 15mm;
         }
         body {
             font-family: "Roboto", Arial, sans-serif;
             font-size: 10pt;
             margin: 0;
-            padding: 15px;
+            padding: 8px 15px 15px 15px;
         }
         .page {
             display: flex;
@@ -79,30 +79,41 @@
             text-align: center;
         }
         .checkbox-container {
-            display: flex;
-            align-items: flex-start;
+            display: table;
             margin-left: 10px;
             margin-right: 10px;
             margin-bottom: 30px;
             margin-top: 15px;
         }
+        .checkbox-container > div {
+            display: table-cell;
+            vertical-align: top;
+        }
         .checkbox {
+            width: 15px;
+        }
+        .checkbox-box {
             width: 10px;
             height: 10px;
             border: 1px solid black;
-            margin-right: 5px;
-            flex-shrink: 0;
             margin-top: 2px;
         }
         .label-consentement {
             font-size: 9pt;
         }
         .date-signature-container {
-            display: flex;
-            justify-content: space-between;
+            display: table;
             width: 100%;
+            table-layout: fixed;
             padding: 15px;
             margin-bottom: 30px;
+        }
+        .date-signature-container > div {
+            display: table-cell;
+            width: 50%;
+        }
+        .date-signature-container > div:last-child {
+            text-align: right;
         }
     </style>
 </head>
@@ -164,7 +175,7 @@
         </div>
 
         <div class="checkbox-container">
-            <div class="checkbox"></div>
+            <div class="checkbox"><div class="checkbox-box"></div></div>
             <div class="label-consentement">
                 En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre adhésion à l'association.
                 Vos données seront conservées pendant toute la durée de votre adhésion et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.

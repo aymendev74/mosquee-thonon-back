@@ -9,6 +9,8 @@ import org.mosqueethonon.service.mail.MailService;
 import org.mosqueethonon.service.referentiel.TraductionService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service(MailInscriptionServiceImpl.MAIL_INSCRIPTION_SERVICE)
 @Slf4j
 @AllArgsConstructor
@@ -36,7 +38,7 @@ public class MailInscriptionServiceImpl implements MailService {
                 .replace("@@{nom}", infoMail.getNom())
                 .replace("@@{noInscription}", infoMail.getNoInscription());
 
-        return MailDto.builder().subject(subject).body(body).recipientEmail(infoMail.getEmail()).build();
+        return new MailDto().subject(subject).body(body).recipientEmail(infoMail.getEmail());
     }
 
 }

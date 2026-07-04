@@ -18,8 +18,10 @@ import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
 import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
@@ -58,6 +60,12 @@ public class TestAdhesionServiceImpl {
 
     @Mock
     private DocumentRepository documentRepository;
+
+    @Mock
+    private DocumentRequestRepository documentRequestRepository;
+
+    @Mock
+    private DocumentService documentService;
 
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
@@ -133,6 +141,45 @@ public class TestAdhesionServiceImpl {
         assertEquals(ids, result);
         verify(adhesionRepository, times(2)).deleteById(any());
         verify(this.mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.ADHESION), any());
+        verify(this.documentRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), any());
+        verify(this.documentService, never()).deleteDocument(any());
+    }
+
+    @Test
+    public void testDeleteAdhesions_SupprimeLeDocumentAssocie_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(55L);
+
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        Set<Long> result = adhesionService.deleteAdhesions(Set.of(id));
+
+        // Assert
+        assertEquals(Set.of(id), result);
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentService).deleteDocument(55L);
+        verify(adhesionRepository).deleteById(id);
+    }
+
+    @Test
+    public void testDeleteAdhesions_NeSupprimeAucunDocument_QuandAucunDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        // documentRepository retourne empty (stub par défaut du @BeforeEach)
+
+        // Act
+        Set<Long> result = adhesionService.deleteAdhesions(Set.of(id));
+
+        // Assert
+        assertEquals(Set.of(id), result);
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentService, never()).deleteDocument(any());
+        verify(adhesionRepository).deleteById(id);
     }
 
     @Test

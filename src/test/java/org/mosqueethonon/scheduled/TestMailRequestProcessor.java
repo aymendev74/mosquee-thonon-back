@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.dto.mail.MailAttachmentDto;
 import org.mosqueethonon.dto.mail.MailDto;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
@@ -57,6 +58,9 @@ public class TestMailRequestProcessor {
     @Mock
     private ParamService paramService;
 
+    @Mock
+    private ApplicationConfiguration applicationConfiguration;
+
     private MailRequestProcessor mailRequestProcessor;
 
     @BeforeEach
@@ -67,7 +71,8 @@ public class TestMailRequestProcessor {
                 mailAdhesionService,
                 mailRequestRepository,
                 documentRequestRepository,
-                paramService
+                paramService,
+                applicationConfiguration
         );
     }
 
@@ -156,7 +161,7 @@ public class TestMailRequestProcessor {
 
         // THEN — DocumentRequestRepository n'est jamais consulté et le mailDto n'a pas de pièces jointes générées
         verify(documentRequestRepository, never()).findAllById(any());
-        assertNull(mailDto.getAttachments(), "Aucune pièce jointe ne doit être ajoutée si aucun document lié");
+        assertNull(mailDto.attachments(), "Aucune pièce jointe ne doit être ajoutée si aucun document lié");
     }
 
     // -----------------------------------------------------------------------
@@ -188,12 +193,12 @@ public class TestMailRequestProcessor {
 
         // THEN — les deux pièces jointes générées sont présentes dans le MailDto
         verify(documentRequestRepository, times(1)).findAllById(List.of(docId1, docId2));
-        assertNotNull(mailDto.getAttachments());
-        assertEquals(2, mailDto.getAttachments().size());
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getLocation().equals("/docs/bulletin-10.pdf")));
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getLocation().equals("/docs/inscription-11.pdf")));
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getName().equals("bulletin-10.pdf")));
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getName().equals("inscription-11.pdf")));
+        assertNotNull(mailDto.attachments());
+        assertEquals(2, mailDto.attachments().size());
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getLocation().equals("/docs/bulletin-10.pdf")));
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getLocation().equals("/docs/inscription-11.pdf")));
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getName().equals("bulletin-10.pdf")));
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getName().equals("inscription-11.pdf")));
     }
 
     // -----------------------------------------------------------------------
@@ -277,10 +282,10 @@ public class TestMailRequestProcessor {
         ReflectionTestUtils.invokeMethod(mailRequestProcessor, "enrichWithGeneratedDocuments", mailRequest, mailDto);
 
         // THEN — le RIB statique ET le document généré sont présents dans les pièces jointes
-        assertNotNull(mailDto.getAttachments());
-        assertEquals(2, mailDto.getAttachments().size());
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getLocation().equals("/static/rib-amc.pdf")));
-        assertTrue(mailDto.getAttachments().stream().anyMatch(a -> a.getLocation().equals("/docs/bulletin-40.pdf")));
+        assertNotNull(mailDto.attachments());
+        assertEquals(2, mailDto.attachments().size());
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getLocation().equals("/static/rib-amc.pdf")));
+        assertTrue(mailDto.attachments().stream().anyMatch(a -> a.getLocation().equals("/docs/bulletin-40.pdf")));
     }
 
     // -----------------------------------------------------------------------
@@ -315,11 +320,10 @@ public class TestMailRequestProcessor {
      * afin que la méthode crée sa propre ArrayList interne.
      */
     private MailDto buildMailDto(String subject) {
-        MailDto dto = MailDto.builder()
+        MailDto dto = new MailDto()
                 .recipientEmail("destinataire@test.com")
                 .subject(subject)
-                .body("<p>Corps du mail</p>")
-                .build();
+                .body("<p>Corps du mail</p>");
         ReflectionTestUtils.setField(dto, "attachments", null);
         return dto;
     }
@@ -329,11 +333,10 @@ public class TestMailRequestProcessor {
      * pour vérifier que addAttachments() ajoute les nouveaux éléments sans écraser l'existant.
      */
     private MailDto buildMailDtoWithAttachment(MailAttachmentDto existingAttachment) {
-        MailDto dto = MailDto.builder()
+        MailDto dto = new MailDto()
                 .recipientEmail("destinataire@test.com")
                 .subject("Sujet test")
-                .body("<p>Corps</p>")
-                .build();
+                .body("<p>Corps</p>");
         ReflectionTestUtils.setField(dto, "attachments", new ArrayList<>(List.of(existingAttachment)));
         return dto;
     }

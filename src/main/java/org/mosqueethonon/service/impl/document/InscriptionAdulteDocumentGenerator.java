@@ -5,7 +5,9 @@ import org.mosqueethonon.entity.document.DocumentMetadataEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.service.document.DocumentGenerator;
+import org.mosqueethonon.service.referentiel.TraductionService;
 import org.mosqueethonon.utils.HashUtils;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class InscriptionAdulteDocumentGenerator implements DocumentGenerator<InscriptionAdulteEntity> {
+
+    private final TraductionService traductionService;
 
     @Override
     public String getCode() {
@@ -78,12 +82,20 @@ public class InscriptionAdulteDocumentGenerator implements DocumentGenerator<Ins
 
         if (entity.getMatieres() != null) {
             List<String> matieres = entity.getMatieres().stream()
-                    .map(m -> m.getMatiere().getCode().name())
+                    .map(m -> resolveLibelleMatiere(m.getMatiere().getCode().name()))
                     .collect(Collectors.toList());
             variables.put("matieres", matieres);
         }
 
         return variables;
+    }
+
+    private String resolveLibelleMatiere(String codeMatiere) {
+        try {
+            return this.traductionService.findTraductionByCleAndValeur("cdmaticode", codeMatiere).getFr();
+        } catch (ResourceNotFoundException e) {
+            return codeMatiere;
+        }
     }
 
     @Override

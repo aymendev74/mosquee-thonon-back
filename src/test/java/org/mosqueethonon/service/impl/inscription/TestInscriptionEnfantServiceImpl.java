@@ -30,6 +30,7 @@ import org.mosqueethonon.v1.enums.StatutInscription;
 import org.mosqueethonon.v1.mapper.inscription.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -405,7 +406,9 @@ public class TestInscriptionEnfantServiceImpl {
         when(inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(any(), any(), any(), any())).thenReturn(eleve);
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
-        when(inscriptionEnfantRepository.save(any())).thenReturn(new InscriptionEnfantEntity());
+        InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
+        savedInscription.setStatut(StatutInscription.VALIDEE);
+        when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
         when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
 
         // Act
@@ -619,7 +622,9 @@ public class TestInscriptionEnfantServiceImpl {
                 .thenReturn(eleve);
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
-        when(inscriptionEnfantRepository.save(any())).thenReturn(new InscriptionEnfantEntity());
+        InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
+        savedInscription.setStatut(StatutInscription.VALIDEE);
+        when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
         when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
 
         // Act
@@ -630,6 +635,110 @@ public class TestInscriptionEnfantServiceImpl {
         assertNull(result.getIdDocument());
         verify(asyncDocumentService, times(1))
                 .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ENFANT), any());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests conditionnement de la génération de document selon le statut
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testCreateInscription_DocumentGenere_QuandStatutProvisoire() {
+        // GIVEN
+        InscriptionEnfantDto inscriptionEnfantDto = createInscription(1);
+        inscriptionEnfantDto.getResponsableLegal().setEmail("test@example.com");
+        inscriptionEnfantDto.getResponsableLegal().setNom("Dupont");
+        inscriptionEnfantDto.getResponsableLegal().setPrenom("Jean");
+
+        // L'entité aura statut PROVISOIRE (défini par computeStatutNewInscription car listeAttente=false)
+        final InscriptionEnfantEntity inscriptionEnfantEntity = createInscriptionEntity(1);
+
+        UserDto createdUserDto = new UserDto();
+        createdUserDto.setId(1L);
+
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
+        when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
+        when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
+        when(this.userService.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(this.userService.createUser(any(UserDto.class))).thenReturn(createdUserDto);
+        when(this.tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
+
+        // WHEN
+        InscriptionEnfantResultDto result = this.underTest.createInscription(inscriptionEnfantDto);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(StatutInscription.PROVISOIRE, result.getStatut());
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ENFANT), any());
+        verify(mailRequestRepository).save(any());
+    }
+
+    @Test
+    public void testUpdateInscription_DocumentNonGenere_QuandStatutRefuse() {
+        // GIVEN — save retourne une entité avec statut REFUSE : la condition PROVISOIRE || VALIDEE
+        // est fausse, donc requestDocumentGeneration ne doit pas être appelé.
+        Long id = 1L;
+        InscriptionEnfantDto inscriptionEnfantDto = createInscription(0);
+        inscriptionEnfantDto.getResponsableLegal().setEmail("test@example.com");
+
+        InscriptionEnfantEntity entityRefuse = createInscriptionEntityWithDate(0);
+        entityRefuse.setId(id);
+        entityRefuse.setStatut(StatutInscription.REFUSE);
+
+        when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entityRefuse));
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionEnfantRepository.save(any())).thenReturn(entityRefuse);
+
+        // WHEN
+        InscriptionEnfantDto result = underTest.updateInscription(id, inscriptionEnfantDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // THEN
+        assertNotNull(result);
+        verify(asyncDocumentService, never()).requestDocumentGeneration(any(), any());
+        verify(mailRequestRepository, never()).save(any());
+    }
+
+    @Test
+    public void testCreateInscription_DocumentNonGenere_QuandStatutListeAttente() {
+        // GIVEN
+        InscriptionEnfantDto inscriptionEnfantDto = createInscription(1);
+        inscriptionEnfantDto.getResponsableLegal().setEmail("test@example.com");
+        inscriptionEnfantDto.getResponsableLegal().setNom("Dupont");
+        inscriptionEnfantDto.getResponsableLegal().setPrenom("Jean");
+
+        final InscriptionEnfantEntity inscriptionEnfantEntity = createInscriptionEntity(1);
+
+        UserDto createdUserDto = new UserDto();
+        createdUserDto.setId(1L);
+
+        // listeAttente=true : computeStatutNewInscription positionne LISTE_ATTENTE sur l'entité
+        TarifInscriptionEnfantDto tarifListeAttente = TarifInscriptionEnfantDto.builder()
+                .idTariEleve(1L).idTariBase(2L)
+                .tarifEleve(BigDecimal.valueOf(12)).tarifBase(BigDecimal.valueOf(165))
+                .listeAttente(Boolean.TRUE).build();
+
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
+        when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
+        when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
+        when(this.userService.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(this.userService.createUser(any(UserDto.class))).thenReturn(createdUserDto);
+        when(this.tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(tarifListeAttente);
+        when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        when(this.inscriptionEnfantRepository.getLastPositionAttente(any(LocalDate.class))).thenReturn(null);
+        when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
+
+        // WHEN
+        InscriptionEnfantResultDto result = this.underTest.createInscription(inscriptionEnfantDto);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(StatutInscription.LISTE_ATTENTE, result.getStatut());
+        verify(asyncDocumentService, never())
+                .requestDocumentGeneration(any(), any());
+        verify(mailRequestRepository, times(1)).save(any());
     }
 
 }

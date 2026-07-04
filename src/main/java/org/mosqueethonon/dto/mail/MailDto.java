@@ -1,14 +1,14 @@
 package org.mosqueethonon.dto.mail;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
+import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
+@Accessors(chain = true, fluent = true)
 public class MailDto {
 
     private String recipientEmail;

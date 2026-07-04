@@ -58,6 +58,7 @@ public class InscriptionEnfantDocumentGenerator implements DocumentGenerator<Ins
         variables.put("noInscription", entity.getNoInscription());
         variables.put("anneeScolaire", entity.getAnneeScolaire());
         variables.put("montantTotal", entity.getMontantTotal());
+        variables.put("dateInscription", entity.getDateInscription());
 
         if (entity.getResponsableLegal() != null) {
             variables.put("nom", entity.getResponsableLegal().getNom());
