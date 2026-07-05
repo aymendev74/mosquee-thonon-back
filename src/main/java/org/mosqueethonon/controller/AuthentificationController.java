@@ -1,21 +1,30 @@
 package org.mosqueethonon.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
+import org.mosqueethonon.dto.auth.LoginRequestDto;
+import org.mosqueethonon.service.UserService;
 import org.mosqueethonon.service.auth.IAuthService;
 import org.mosqueethonon.v1.dto.user.UserInfoDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @AllArgsConstructor
 public class AuthentificationController {
 
@@ -23,12 +32,27 @@ public class AuthentificationController {
 
     private AuthCookieConfiguration authCookieConfiguration;
 
-    private ApplicationConfiguration applicationConfiguration;
+    private AuthenticationManager authenticationManager;
 
-    @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("resetPasswordUri", applicationConfiguration.getResetPasswordUri());
-        return "login";
+    private SecurityContextRepository securityContextRepository;
+
+    private UserService userService;
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody LoginRequestDto request,
+                                       HttpServletRequest httpRequest,
+                                       HttpServletResponse httpResponse) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        securityContextRepository.saveContext(context, httpRequest, httpResponse);
+
+        userService.saveLoginHistory(request.getUsername());
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/token")

@@ -1,7 +1,5 @@
 package org.mosqueethonon.configuration.security;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -19,24 +17,22 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
 import java.util.List;
 
 @EnableWebSecurity
@@ -86,7 +82,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/matieres").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/documents/**").authenticated()
                         .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/token").permitAll()
                         .requestMatchers(HttpMethod.GET, "/profile").permitAll()
                         .requestMatchers(HttpMethod.GET, "/logout").permitAll()
@@ -102,7 +98,6 @@ public class SecurityConfig {
                         .requestMatchers("/v1/locks").authenticated()
                         .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .formLogin(login -> login.loginPage("/login").successHandler(loginSuccessHandler()).permitAll())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
                 .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID", "MOTH-TOKEN")
                         .logoutSuccessHandler(logoutSuccessHandler())
@@ -112,18 +107,6 @@ public class SecurityConfig {
         http.addFilterAfter(mdcUserFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    private AuthenticationSuccessHandler loginSuccessHandler() {
-        return new SavedRequestAwareAuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                                Authentication authentication) throws IOException, ServletException {
-                String username = authentication.getName();
-                userService.saveLoginHistory(username);
-                super.onAuthenticationSuccess(request, response, authentication);
-            }
-        };
     }
 
     private LogoutSuccessHandler logoutSuccessHandler() {
@@ -138,6 +121,11 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(userDetailService);
         authProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authProvider);
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 
     @Bean
