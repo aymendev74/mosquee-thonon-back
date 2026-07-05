@@ -34,11 +34,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ github.ref }} # branche sur laquelle on a déclenché le workflow
 
     - name: Build
       uses: ./.github/actions/setup-maven
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v8.2.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
