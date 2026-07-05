@@ -9,6 +9,7 @@ import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.enums.DocumentMetadataKey;
 import org.mosqueethonon.enums.DocumentRequestType;
+import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.TypeMatiereEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.BulletinRepository;
@@ -60,8 +61,10 @@ public class BulletinServiceImpl implements BulletinService {
             throw new ResourceNotFoundException("Eleve inexistant ! id = " + idEleve);
         }
         List<BulletinEntity> bulletins = this.bulletinRepository.findByIdEleve(idEleve);
+        List<MatiereEnum> codesMatieresEnfant = this.getCodesMatieresEnfant();
         return bulletins.stream().map(bulletinEntity -> {
             BulletinDto dto = bulletinMapper.fromEntityToDto(bulletinEntity);
+            dto.setComplet(dto.calculerCompletude(codesMatieresEnfant));
             this.findDocumentByBulletinId(bulletinEntity.getId()).ifPresent(doc -> dto.setIdDocument(doc.getId()));
             return dto;
         }).collect(Collectors.toList());
@@ -72,7 +75,8 @@ public class BulletinServiceImpl implements BulletinService {
         BulletinEntity bulletinEntity = bulletinMapper.fromDtoToEntity(bulletinDto);
         bulletinEntity.setBulletinMatieres(this.mapBulletinMatieres(bulletinDto.getBulletinMatieres()));
         BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
-        if (isBulletinComplet(saved)) {
+        saved.setComplet(saved.calculerCompletude(this.getCodesMatieresEnfant()));
+        if (Boolean.TRUE.equals(saved.getComplet())) {
             this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
         }
         this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
@@ -101,24 +105,18 @@ public class BulletinServiceImpl implements BulletinService {
         bulletinEntity.getBulletinMatieres().clear();
         bulletinEntity.getBulletinMatieres().addAll(this.mapBulletinMatieres(bulletinDto.getBulletinMatieres()));
         BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
-        if (isBulletinComplet(saved)) {
+        saved.setComplet(saved.calculerCompletude(this.getCodesMatieresEnfant()));
+        if (Boolean.TRUE.equals(saved.getComplet())) {
             this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
         }
         this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
         return saved;
     }
 
-    private boolean isBulletinComplet(BulletinDto bulletin) {
-        if (bulletin.getAppreciation() == null || bulletin.getAppreciation().trim().isEmpty()) return false;
-        if (bulletin.getNbAbsences() == null) return false;
-        if (bulletin.getMois() == null || bulletin.getAnnee() == null) return false;
-        if (bulletin.getDateBulletin() == null) return false;
-        List<MatiereEntity> matieresEnfant = this.matiereRepository.findByType(TypeMatiereEnum.ENFANT);
-        if (CollectionUtils.isEmpty(matieresEnfant)) return false;
-        return matieresEnfant.stream().allMatch(matiere ->
-                bulletin.getBulletinMatieres() != null && bulletin.getBulletinMatieres().stream()
-                        .anyMatch(bm -> bm.getCode().equals(matiere.getCode()) && bm.getNote() != null)
-        );
+    private List<MatiereEnum> getCodesMatieresEnfant() {
+        return this.matiereRepository.findByType(TypeMatiereEnum.ENFANT).stream()
+                .map(MatiereEntity::getCode)
+                .collect(Collectors.toList());
     }
 
     @Override

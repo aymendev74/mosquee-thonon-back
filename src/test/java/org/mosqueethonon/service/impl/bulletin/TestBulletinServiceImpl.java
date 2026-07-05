@@ -471,6 +471,53 @@ public class TestBulletinServiceImpl {
     }
 
     // ---------------------------------------------------------------------------
+    // Tests complet peuple sur BulletinDto retourne
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testFindBulletinsByIdEleve_CompletPeuple_QuandBulletinComplet() {
+        // GIVEN
+        BulletinEntity bulletinEntity = new BulletinEntity();
+        bulletinEntity.setId(10L);
+        BulletinDto dto = bulletinComplet();
+        dto.setId(10L);
+        MatiereEntity matiereEnfant = new MatiereEntity(1L, MatiereEnum.TAFFSIR_CORAN, TypeMatiereEnum.ENFANT);
+
+        when(this.eleveService.findEleveById(anyLong())).thenReturn(new EleveDto());
+        when(this.bulletinRepository.findByIdEleve(anyLong())).thenReturn(List.of(bulletinEntity));
+        when(this.bulletinMapper.fromEntityToDto(bulletinEntity)).thenReturn(dto);
+        when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("10")))
+                .thenReturn(Optional.empty());
+
+        // WHEN
+        List<BulletinDto> result = this.bulletinService.findBulletinsByIdEleve(1L);
+
+        // THEN
+        assertTrue(result.get(0).getComplet());
+    }
+
+    @Test
+    public void testCreateBulletin_CompletPeuple_QuandBulletinIncomplet() {
+        // GIVEN
+        BulletinEntity bulletinEntity = new BulletinEntity();
+        bulletinEntity.setId(1L);
+        BulletinDto savedDto = new BulletinDto();
+        savedDto.setId(1L);
+        when(this.bulletinMapper.fromDtoToEntity(any())).thenReturn(bulletinEntity);
+        when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
+        when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+                .thenReturn(Optional.empty());
+
+        // WHEN
+        BulletinDto result = this.bulletinService.createBulletin(new BulletinDto());
+
+        // THEN
+        assertFalse(result.getComplet());
+    }
+
+    // ---------------------------------------------------------------------------
     // Méthodes utilitaires
     // ---------------------------------------------------------------------------
 
