@@ -6,3 +6,4 @@ src/main/resources/.env
 *.versionsBackup
 *~
 /bin/documents
+.superpowers/
