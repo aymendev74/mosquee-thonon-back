@@ -18,6 +18,7 @@ import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MatiereRepository;
 import org.mosqueethonon.service.bulletin.BulletinService;
 import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.inscription.EleveService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
@@ -53,6 +54,8 @@ public class BulletinServiceImpl implements BulletinService {
     private DocumentRequestRepository documentRequestRepository;
 
     private DocumentRepository documentRepository;
+
+    private DocumentService documentService;
 
     @Override
     public List<BulletinDto> findBulletinsByIdEleve(Long idEleve) {
@@ -127,6 +130,7 @@ public class BulletinServiceImpl implements BulletinService {
     @Override
     public void deleteBulletin(Long id) {
         this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, Sets.newHashSet(id));
+        this.findDocumentByBulletinId(id).ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
         this.bulletinRepository.deleteById(id);
     }
 

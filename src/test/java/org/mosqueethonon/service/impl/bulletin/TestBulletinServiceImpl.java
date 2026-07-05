@@ -24,6 +24,7 @@ import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MatiereRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.inscription.EleveService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
@@ -64,6 +65,9 @@ public class TestBulletinServiceImpl {
 
     @Mock
     private DocumentRepository documentRepository;
+
+    @Mock
+    private DocumentService documentService;
 
     @Mock
     private MatiereRepository matiereRepository;
@@ -163,13 +167,34 @@ public class TestBulletinServiceImpl {
     }
 
     @Test
-    public void testDeleteBulletin() {
+    public void testDeleteBulletin_SupprimeLeDocumentAssocie_QuandDocumentTrouve() {
+        // GIVEN
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(77L);
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("1")))
+                .thenReturn(Optional.of(doc));
+
         // WHEN
         this.bulletinService.deleteBulletin(1L);
 
         // THEN
         verify(this.documentRequestRepository, times(1))
                 .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), eq(Set.of(1L)));
+        verify(this.documentService, times(1)).deleteDocument(77L);
+        verify(this.bulletinRepository, times(1)).deleteById(eq(1L));
+    }
+
+    @Test
+    public void testDeleteBulletin_NeSupprimeAucunDocument_QuandAucunDocumentTrouve() {
+        // GIVEN
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("1")))
+                .thenReturn(Optional.empty());
+
+        // WHEN
+        this.bulletinService.deleteBulletin(1L);
+
+        // THEN
+        verify(this.documentService, never()).deleteDocument(any());
         verify(this.bulletinRepository, times(1)).deleteById(eq(1L));
     }
 
