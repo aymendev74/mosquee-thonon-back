@@ -27,6 +27,7 @@ import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.mapper.bulletin.BulletinMapper;
 import org.mosqueethonon.v1.mapper.bulletin.BulletinMatiereMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +129,7 @@ public class BulletinServiceImpl implements BulletinService {
     }
 
     @Override
+    @Transactional
     public void deleteBulletin(Long id) {
         this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, Sets.newHashSet(id));
         this.findDocumentByBulletinId(id).ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
