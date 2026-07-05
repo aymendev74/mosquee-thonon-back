@@ -518,6 +518,33 @@ public class TestBulletinServiceImpl {
     }
 
     // ---------------------------------------------------------------------------
+    // Tests verifierCompletude — dry-run, sans effet de bord
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testVerifierCompletude_RetourneTrue_QuandBrouillonComplet() {
+        // GIVEN
+        BulletinDto brouillon = bulletinComplet();
+        MatiereEntity matiereEnfant = new MatiereEntity(1L, MatiereEnum.TAFFSIR_CORAN, TypeMatiereEnum.ENFANT);
+        when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
+
+        // WHEN THEN
+        assertTrue(this.bulletinService.verifierCompletude(brouillon));
+        verify(this.bulletinRepository, never()).save(any());
+    }
+
+    @Test
+    public void testVerifierCompletude_RetourneFalse_QuandBrouillonIncomplet() {
+        // GIVEN
+        BulletinDto brouillon = new BulletinDto();
+        when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of());
+
+        // WHEN THEN
+        assertFalse(this.bulletinService.verifierCompletude(brouillon));
+        verify(this.bulletinRepository, never()).save(any());
+    }
+
+    // ---------------------------------------------------------------------------
     // Méthodes utilitaires
     // ---------------------------------------------------------------------------
 

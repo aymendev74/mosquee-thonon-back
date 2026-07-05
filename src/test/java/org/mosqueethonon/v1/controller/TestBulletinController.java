@@ -169,4 +169,35 @@ public class TestBulletinController extends TestController {
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
+
+    // -----------------------------------------------------------------------
+    // POST /v1/bulletins/verifier-completude
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testVerifierCompletudeSansAuthenticationRetourne401() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/bulletins/verifier-completude")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "enseignant", roles = {"ENSEIGNANT"})
+    public void testVerifierCompletudeAvecBrouillonIncompletRetourneFalse() throws Exception {
+        String bulletinJson = """
+                {
+                    "idEleve": 1,
+                    "bulletinMatieres": []
+                }
+                """;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/bulletins/verifier-completude")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bulletinJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.complet").value(false));
+    }
 }

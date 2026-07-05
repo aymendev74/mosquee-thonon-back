@@ -120,6 +120,11 @@ public class BulletinServiceImpl implements BulletinService {
     }
 
     @Override
+    public boolean verifierCompletude(BulletinDto bulletinDto) {
+        return bulletinDto.calculerCompletude(this.getCodesMatieresEnfant());
+    }
+
+    @Override
     public void deleteBulletin(Long id) {
         this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, Sets.newHashSet(id));
         this.bulletinRepository.deleteById(id);

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.service.bulletin.BulletinService;
 import org.mosqueethonon.service.document.DocumentService;
+import org.mosqueethonon.v1.dto.bulletin.BulletinCompletudeDto;
 import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,6 +34,12 @@ public class BulletinController {
     public ResponseEntity<Void> deleteBulletin(@PathVariable Long id) {
         this.bulletinService.deleteBulletin(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verifier-completude")
+    public ResponseEntity<BulletinCompletudeDto> verifierCompletude(@RequestBody BulletinDto bulletin) {
+        boolean complet = this.bulletinService.verifierCompletude(bulletin);
+        return ResponseEntity.ok(new BulletinCompletudeDto(complet));
     }
 
     @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

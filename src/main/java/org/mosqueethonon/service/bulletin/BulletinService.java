@@ -18,4 +18,6 @@ public interface BulletinService {
 
     Optional<DocumentEntity> findDocumentByBulletinId(Long bulletinId);
 
+    boolean verifierCompletude(BulletinDto bulletinDto);
+
 }
