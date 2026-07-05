@@ -45,6 +45,12 @@ public class AuthentificationController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
+        // Ensure a session exists, then rotate its ID to prevent session fixation
+        // (mirrors Spring Security's default ChangeSessionIdAuthenticationStrategy,
+        // which the formLogin filter chain applied automatically before this endpoint replaced it).
+        httpRequest.getSession(true);
+        httpRequest.changeSessionId();
+
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
