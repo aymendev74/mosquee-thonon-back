@@ -125,6 +125,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityContextRepository securityContextRepository() {
+        // HttpSessionSecurityContextRepository reads/writes the SecurityContext under Spring's
+        // shared HttpSession key (SPRING_SECURITY_CONTEXT). This is what lets a session
+        // authenticated here (chain @Order(2), e.g. POST /login) be recognized as authenticated
+        // by the separate OAuth2 authorization server chain (@Order(1), /oauth2/authorize) —
+        // do not replace with a chain-local/non-session repository without preserving this.
         return new HttpSessionSecurityContextRepository();
     }
 
