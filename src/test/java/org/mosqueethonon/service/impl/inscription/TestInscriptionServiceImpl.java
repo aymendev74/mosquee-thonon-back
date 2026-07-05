@@ -168,6 +168,11 @@ public class TestInscriptionServiceImpl {
         DocumentEntity docEntity = new DocumentEntity();
         docEntity.setId(200L);
 
+        DocumentEntity docBulletin = new DocumentEntity();
+        docBulletin.setId(300L);
+        when(documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("100")))
+                .thenReturn(Optional.of(docBulletin));
+
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
         when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
         when(bulletinRepository.findByIdEleveIn(anyList())).thenReturn(List.of(bulletin));
@@ -188,6 +193,34 @@ public class TestInscriptionServiceImpl {
                 .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), any());
         verify(bulletinRepository, times(2)).deleteAll(anyList());
         verify(documentService, times(2)).deleteDocument(200L);
+        verify(documentService, times(2)).deleteDocument(300L);
+    }
+
+    @Test
+    public void testDeleteInscriptions_NeSupprimeAucunDocumentBulletin_QuandAucunDocumentTrouve() {
+        // GIVEN
+        Set<Long> ids = Set.of(1L);
+        EleveEntity eleve1 = new EleveEntity();
+        eleve1.setId(10L);
+        InscriptionEntity inscription1 = new InscriptionEnfantEntity();
+        inscription1.setId(1L);
+        inscription1.setType("ENFANT");
+        inscription1.setEleves(new ArrayList<>(List.of(eleve1)));
+
+        BulletinEntity bulletin = new BulletinEntity();
+        bulletin.setId(101L);
+
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
+        when(bulletinRepository.findByIdEleveIn(anyList())).thenReturn(List.of(bulletin));
+        // documentRepository retourne Optional.empty() pour ID_BULLETIN (comportement par défaut du @BeforeEach)
+
+        // WHEN
+        Set<Long> result = inscriptionService.deleteInscriptions(ids);
+
+        // THEN
+        assertNotNull(result);
+        verify(documentService, never()).deleteDocument(anyLong());
+        verify(bulletinRepository, times(1)).deleteAll(anyList());
     }
 
     @Test

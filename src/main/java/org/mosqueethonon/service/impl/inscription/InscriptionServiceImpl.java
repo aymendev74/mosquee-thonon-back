@@ -101,6 +101,9 @@ public class InscriptionServiceImpl implements InscriptionService {
                             .map(BulletinEntity::getId)
                             .collect(Collectors.toSet());
                     this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, bulletinIds);
+                    bulletinIds.forEach(bulletinId ->
+                            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_BULLETIN, String.valueOf(bulletinId))
+                                    .ifPresent(doc -> this.documentService.deleteDocument(doc.getId())));
                     this.bulletinRepository.deleteAll(bulletins);
                 }
                 this.eleveFeuillePresenceRepository.deleteByEleveIdIn(eleveIds);
