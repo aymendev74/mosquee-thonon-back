@@ -57,7 +57,7 @@ public class AuthorizationServerConfig {
              .authorizeHttpRequests((authorize) ->
                         authorize.anyRequest().authenticated())
              .cors(cors -> cors.configurationSource(corsSource))
-             .formLogin(Customizer.withDefaults())
+             .formLogin(form -> form.loginPage(applicationConfiguration.getLoginRedirectUri()))
                 .logout(Customizer.withDefaults())
                 .build();
     }
