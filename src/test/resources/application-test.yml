@@ -1,7 +1,6 @@
 logging:
     level:
         root: INFO
-        org.springframework.security: DEBUG
 
 spring:
     liquibase:

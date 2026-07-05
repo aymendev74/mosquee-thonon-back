@@ -1,5 +1,6 @@
 package org.mosqueethonon.service.impl;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,6 +69,11 @@ public class TestUserServiceImpl {
         userDto.setEmail("myemail@mycompany.com");
         userDto.setNom("myname");
         userDto.setPrenom("myfirstname");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
