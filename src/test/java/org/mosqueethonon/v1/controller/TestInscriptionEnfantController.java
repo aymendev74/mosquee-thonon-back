@@ -258,4 +258,36 @@ public class TestInscriptionEnfantController extends TestController {
         assertFalse(light.getDocumentPending());
     }
 
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionEnfantLight_DocumentPendingFalseWhenOnlyAdulteTypeRequestPending() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscription()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionEnfantRepository.findAll().get(0).getId();
+
+        // Complete the legitimate INSCRIPTION_ENFANT request created at creation time.
+        DocumentRequestEntity enfantRequest = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        enfantRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(enfantRequest);
+
+        // Insert a PENDING request for the SAME businessId but the ADULTE type -- proves the
+        // 'INSCRIPTION_' || cdinsctype filter isolates ENFANT from ADULTE, not just by id.
+        DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
+        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ADULTE);
+        wrongTypeRequest.setBusinessId(idInscription);
+        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        documentRequestRepository.save(wrongTypeRequest);
+
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertFalse(light.getDocumentPending());
+    }
+
 }

@@ -222,4 +222,32 @@ public class TestAdhesionController extends TestController {
         AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
         assertFalse(light.getDocumentPending());
     }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testAdhesionLight_DocumentPendingFalseWhenOnlyWrongTypeRequestPending() throws Exception {
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/v1/adhesions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testAdhesion)))
+                .andReturn().getResponse().getContentAsString();
+        AdhesionDto createdAdhesion = objectMapper.readValue(response, AdhesionDto.class);
+
+        // Complete the legitimate ADHESION request created at creation time.
+        DocumentRequestEntity adhesionRequest = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.ADHESION, createdAdhesion.getId(), DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        adhesionRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(adhesionRequest);
+
+        // Insert an unrelated PENDING request that happens to share the same numeric businessId
+        // but a different type -- this must NOT make the adhesion look pending.
+        DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
+        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ENFANT);
+        wrongTypeRequest.setBusinessId(createdAdhesion.getId());
+        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        documentRequestRepository.save(wrongTypeRequest);
+
+        AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
+        assertFalse(light.getDocumentPending());
+    }
 }
