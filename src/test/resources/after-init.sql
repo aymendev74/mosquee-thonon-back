@@ -49,7 +49,13 @@ SELECT
     p.idperi AS idperiode,
     r.txrespemail AS email,
     i.cdinsctype AS type,
-    d.iddocu AS iddocument
+    d.iddocu AS iddocument,
+    EXISTS (
+        SELECT 1 FROM moth.document_request dr
+        WHERE dr.cddoretype = 'INSCRIPTION_' || i.cdinsctype
+          AND dr.iddorebusi = i.idinsc
+          AND dr.cddorestatut = 'PENDING'
+    ) AS documentpending
 FROM ((((moth.inscription i
     JOIN moth.eleve e ON (e.idinsc = i.idinsc))
     JOIN moth.resplegal r ON (i.idresp = r.idresp))

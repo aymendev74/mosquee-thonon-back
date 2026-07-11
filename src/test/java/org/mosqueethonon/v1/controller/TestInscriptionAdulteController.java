@@ -5,17 +5,23 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.entity.ParamEntity;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.entity.inscription.InscriptionLightEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.DocumentRequestStatut;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.ParamNameEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
+import org.mosqueethonon.repository.InscriptionLightRepository;
 import org.mosqueethonon.repository.ParamRepository;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
@@ -35,6 +41,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestInscriptionAdulteController extends TestController {
@@ -47,6 +55,12 @@ public class TestInscriptionAdulteController extends TestController {
 
     @Autowired
     protected InscriptionAdulteRepository inscriptionAdulteRepository;
+
+    @Autowired
+    protected InscriptionLightRepository inscriptionLightRepository;
+
+    @Autowired
+    protected DocumentRequestRepository documentRequestRepository;
 
     @Autowired
     private ParamRepository paramRepository;
@@ -197,6 +211,44 @@ public class TestInscriptionAdulteController extends TestController {
         dto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
         dto.setMatieres(List.of(MatiereEnum.TAFFSIR_CORAN));
         return dto;
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionAdulteLight_DocumentPendingTrueAfterCreate() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-adultes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscriptionAdulte()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionAdulteRepository.findAll().get(0).getId();
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertTrue(light.getDocumentPending());
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionAdulteLight_DocumentPendingFalseWhenRequestCompleted() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-adultes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscriptionAdulte()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionAdulteRepository.findAll().get(0).getId();
+        DocumentRequestEntity request = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ADULTE, idInscription, DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        request.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(request);
+
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertFalse(light.getDocumentPending());
     }
 
 }

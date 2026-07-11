@@ -63,6 +63,8 @@ public class InscriptionLightEntity {
     private String email;
     @Column(name = "iddocument")
     private Long idDocument;
+    @Column(name = "documentpending")
+    private Boolean documentPending;
     private String type;
 
 }
