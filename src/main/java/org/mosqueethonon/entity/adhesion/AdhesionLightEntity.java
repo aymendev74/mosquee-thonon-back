@@ -30,5 +30,7 @@ public class AdhesionLightEntity {
     private LocalDateTime dateInscription;
     @Column(name = "iddocument")
     private Long idDocument;
+    @Column(name = "documentpending")
+    private Boolean documentPending;
 
 }

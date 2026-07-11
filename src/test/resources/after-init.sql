@@ -10,7 +10,13 @@ SELECT
     a.cdadhestatut AS statut,
     COALESCE(a.mtadheautre, t.mttari) AS montant,
     a.dtadheinscription AS dateinscription,
-    d.iddocu AS iddocument
+    d.iddocu AS iddocument,
+    EXISTS (
+        SELECT 1 FROM moth.document_request dr
+        WHERE dr.cddoretype = 'ADHESION'
+          AND dr.iddorebusi = a.idadhe
+          AND dr.cddorestatut = 'PENDING'
+    ) AS documentpending
 FROM moth.adhesion a
          INNER JOIN moth.tarif t ON t.idtari = a.idtari
          LEFT JOIN (moth.document_metadata dm

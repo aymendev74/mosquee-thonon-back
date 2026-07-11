@@ -19,5 +19,6 @@ public class AdhesionLightDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
     private LocalDateTime dateInscription;
     private Long idDocument;
+    private Boolean documentPending;
 
 }
