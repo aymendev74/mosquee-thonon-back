@@ -22,7 +22,7 @@ public class MailRequestsJob {
      * La boucle s'arrête dès qu'il n'y a plus d'enregistrement disponible (file vide ou tous lockés
      * par d'autres instances).
      */
-    @Scheduled(fixedDelayString = "${scheduled.confirmation-mail}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${scheduled.confirmation-mail}", timeUnit = TimeUnit.SECONDS)
     public void sendPendingEmails() {
         log.debug("Démarrage du job de traitement des demandes d'envoi de mails");
         int processed = 0;

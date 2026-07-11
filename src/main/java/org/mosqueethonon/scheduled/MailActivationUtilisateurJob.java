@@ -42,7 +42,7 @@ public class MailActivationUtilisateurJob {
 
     private ApplicationConfiguration applicationConfiguration;
 
-    @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.SECONDS)
     @Transactional
     public void sendPendingEmailsActivation() {
         List<UserAccountActionEntity> mailingActivationsToProcess = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING, UserAccountActionType.ACTIVATION);

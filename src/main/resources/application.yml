@@ -61,10 +61,10 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 scheduled:
-  confirmation-mail: 1 # unit = minutes
-  activation-utilisateur-mail: 1 # unit = minutes
-  reset-password-mail: 1 # unit = minutes
-  document-generation: 1 # unit = minutes
+  confirmation-mail: 60 # unit = seconds
+  activation-utilisateur-mail: 60 # unit = seconds
+  reset-password-mail: 60 # unit = seconds
+  document-generation: 30 # unit = seconds
 
 app:
   token-uri: ${TOKEN_URI}

@@ -22,7 +22,7 @@ public class DocumentRequestsJob {
      * La boucle s'arrête dès qu'il n'y a plus d'enregistrement disponible (file vide ou tous lockés
      * par d'autres instances).
      */
-    @Scheduled(fixedDelayString = "${scheduled.document-generation}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${scheduled.document-generation}", timeUnit = TimeUnit.SECONDS)
     public void processPendingDocumentRequests() {
         log.debug("Démarrage du job de traitement des demandes de génération de documents");
         int processed = 0;

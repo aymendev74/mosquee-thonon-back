@@ -42,7 +42,7 @@ public class MailResetPasswordJob {
 
     private ApplicationConfiguration applicationConfiguration;
 
-    @Scheduled(fixedDelayString = "${scheduled.reset-password-mail}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${scheduled.reset-password-mail}", timeUnit = TimeUnit.SECONDS)
     @Transactional
     public void sendPendingEmailsResetPassword() {
         List<UserAccountActionEntity> resetPasswordRequests = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING, UserAccountActionType.RESET_PASSWORD);
