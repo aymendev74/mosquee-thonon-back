@@ -1,14 +1,14 @@
 package org.mosqueethonon.dto.mail;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
+import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
+@Accessors(chain = true, fluent = true)
 public class MailDto {
 
     private String recipientEmail;
@@ -17,7 +17,7 @@ public class MailDto {
     @Singular
     private List<MailAttachmentDto> attachments;
 
-    public void addAttchments(List<MailAttachmentDto> attachments) {
+    public void addAttachments(List<MailAttachmentDto> attachments) {
         if(this.attachments == null) {
             this.attachments = new ArrayList<>();
         }

@@ -61,6 +61,10 @@ public class InscriptionLightEntity {
     private Long idPeriode;
     @Column(name = "email")
     private String email;
+    @Column(name = "iddocument")
+    private Long idDocument;
+    @Column(name = "documentpending")
+    private Boolean documentPending;
     private String type;
 
 }

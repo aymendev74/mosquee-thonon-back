@@ -28,5 +28,9 @@ public class AdhesionLightEntity {
     private BigDecimal montant;
     @Column(name = "dateinscription")
     private LocalDateTime dateInscription;
+    @Column(name = "iddocument")
+    private Long idDocument;
+    @Column(name = "documentpending")
+    private Boolean documentPending;
 
 }

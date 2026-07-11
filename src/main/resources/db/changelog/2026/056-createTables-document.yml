@@ -1,0 +1,108 @@
+databaseChangeLog:
+  - changeSet:
+      id: 056-createTables-document
+      author: Aymen
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: document_pkey
+                  name: iddocu
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: txdoculibelle
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(255)
+              - column:
+                  name: cddocutype
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(50)
+              - column:
+                  name: txdocuchemin
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(500)
+              - column:
+                  name: txdocuhash
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(255)
+              - column:
+                  name: txdocuannee
+                  type: VARCHAR(10)
+              - column:
+                  name: idutil
+                  type: BIGINT
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_version
+                  type: BIGINT
+            tableName: document
+
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: document_metadata_pkey
+                  name: iddome
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: iddocu
+                  constraints:
+                    nullable: false
+                  type: BIGINT
+              - column:
+                  name: cddomecle
+                  constraints:
+                    nullable: false
+                  type: VARCHAR(50)
+              - column:
+                  name: txdomevaleur
+                  type: VARCHAR(255)
+            tableName: document_metadata
+
+        - addForeignKeyConstraint:
+            baseColumnNames: idutil
+            baseTableName: document
+            constraintName: fk_document_idutil
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: idutil
+            referencedTableName: utilisateur
+            validate: true
+
+        - addForeignKeyConstraint:
+            baseColumnNames: iddocu
+            baseTableName: document_metadata
+            constraintName: fk_document_metadata_iddocu
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            referencedColumnNames: iddocu
+            referencedTableName: document
+            validate: true

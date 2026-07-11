@@ -5,15 +5,23 @@ import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
+import org.mosqueethonon.entity.mail.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.adhesion.AdhesionService;
+import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
@@ -40,6 +48,14 @@ public class AdhesionServiceImpl implements AdhesionService {
 
     private SecurityContext securityContext;
 
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRepository documentRepository;
+
+    private DocumentRequestRepository documentRequestRepository;
+
+    private DocumentService documentService;
+
     @Override
     @Transactional
     public AdhesionDto createAdhesion(AdhesionDto adhesionDto) {
@@ -50,15 +66,21 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionEntity.setDateInscription(LocalDateTime.now());
         adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
-        adhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-        this.createMailRequest(adhesionDto);
-        return adhesionDto;
+        AdhesionDto resultAdhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesionDto.getId());
+        this.createMailRequest(resultAdhesionDto, documentRequest);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesionDto.getId()))
+                .ifPresent(doc -> resultAdhesionDto.setIdDocument(doc.getId()));
+        return resultAdhesionDto;
     }
 
     @Override
     public AdhesionDto findAdhesionById(Long id) {
         AdhesionEntity adhesionEntity = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'adhesion recherché n'existe pas ! id = " + id));
-        return this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        AdhesionDto dto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+                .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+        return dto;
     }
 
     @Override
@@ -67,6 +89,11 @@ public class AdhesionServiceImpl implements AdhesionService {
         for(Long id : ids) {
             this.lockService.acquireLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
             this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, Sets.newHashSet(id));
+            // Supprimer les DocumentRequests d'adhésion avant de supprimer le document (contrainte FK)
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.ADHESION, Sets.newHashSet(id));
+            // Supprimer le document associé (DB + filesystem après commit)
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+                    .ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
             this.adhesionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
         }
@@ -98,8 +125,9 @@ public class AdhesionServiceImpl implements AdhesionService {
                 adhesion.setStatut(null);
             } else {
                 StatutInscription newStatut = StatutInscription.valueOf(patchNode.get("statut").asText());
-                if(isStatutChangedToValidated(adhesion.getStatut(), newStatut)) {
-                   this.createMailRequest(this.adhesionMapper.fromEntityToDto(adhesion));
+                if (isStatutChangedToValidated(adhesion.getStatut(), newStatut)) {
+                    DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, adhesion.getId());
+                    this.createMailRequest(this.adhesionMapper.fromEntityToDto(adhesion), documentRequest);
                 }
                 adhesion.setStatut(newStatut);
             }
@@ -119,23 +147,34 @@ public class AdhesionServiceImpl implements AdhesionService {
         boolean isStatutChangedToValidated = this.isStatutChangedToValidated(adhesion.getStatut(), adhesiondto.getStatut());
         this.adhesionMapper.updateAdhesion(adhesiondto, adhesion);
         adhesion = this.adhesionRepository.save(adhesion);
-        adhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
+        AdhesionDto resultAdhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesiondto.getId());
         if (isStatutChangedToValidated || Boolean.TRUE.equals(saveCriteria.getSendMailConfirmation())) {
-            this.createMailRequest(adhesiondto);
+            this.createMailRequest(resultAdhesiondto, documentRequest);
         }
-        return adhesiondto;
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesiondto.getId()))
+                .ifPresent(doc -> resultAdhesiondto.setIdDocument(doc.getId()));
+        return resultAdhesiondto;
     }
 
     private boolean isStatutChangedToValidated(StatutInscription oldStatut, StatutInscription newStatut) {
         return oldStatut == StatutInscription.PROVISOIRE && newStatut == StatutInscription.VALIDEE;
     }
 
-    private void createMailRequest(AdhesionDto adhesion) {
+    private void createMailRequest(AdhesionDto adhesion, DocumentRequestEntity documentRequest) {
+        MailRequestStatut statut = documentRequest != null ? MailRequestStatut.NOT_READY : MailRequestStatut.PENDING;
         MailRequestEntity mailRequest = MailRequestEntity.builder()
                 .businessId(adhesion.getId())
                 .type(MailRequestType.ADHESION)
-                .statut(MailRequestStatut.PENDING)
+                .statut(statut)
                 .build();
+
+        if (documentRequest != null) {
+            mailRequest.getDocumentRequests().add(
+                    MailRequestDocumentRequestEntity.builder().documentRequestId(documentRequest.getId()).build()
+            );
+        }
+
         this.mailRequestRepository.save(mailRequest);
     }
 }

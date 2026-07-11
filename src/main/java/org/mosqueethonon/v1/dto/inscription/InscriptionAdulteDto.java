@@ -20,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class InscriptionAdulteDto implements IMailObject {
 
+    private Long idDocument;
     private String nom;
     private String prenom;
     private String email;

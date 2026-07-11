@@ -24,6 +24,7 @@
         <liquibase.version>4.27.0</liquibase.version>
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
         <logback.version>1.5.15</logback.version> <!-- Temporaire =>  vulnerable transitive version 1.5.12 -->
+        <openhtmltopdf.version>1.0.10</openhtmltopdf.version>
     </properties>
 
     <scm>
@@ -159,6 +160,11 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>${openhtmltopdf.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>mosqueethononapp</finalName>
@@ -209,6 +215,32 @@
                     <goals>install</goals>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.15</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>5.7.0.6970</version>
             </plugin>
         </plugins>
     </build>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 8mm 15mm 15mm 15mm;
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 8px 15px 15px 15px;
+        }
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .left-spacer {
+            display: table-cell;
+            vertical-align: middle;
+            width: 152px;
+        }
+        .association {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            width: 152px;
+            text-align: right;
+        }
+        .logo {
+            width: 152px;
+            height: 152px;
+        }
+        .title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            text-decoration: underline;
+        }
+        .member-number-container {
+            width: 40%;
+            border: 1px solid black;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+        .member-number {
+            font-size: 14pt;
+            margin-bottom: 5px;
+        }
+        .form-element {
+            margin-bottom: 8px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .conditions {
+            font-size: 9pt;
+            margin-bottom: 30px;
+        }
+        .adresse {
+            font-size: 8pt;
+            text-align: center;
+        }
+        .checkbox-container {
+            display: table;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-bottom: 30px;
+            margin-top: 15px;
+        }
+        .checkbox-container > div {
+            display: table-cell;
+            vertical-align: top;
+        }
+        .checkbox {
+            width: 15px;
+        }
+        .checkbox-box {
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+            margin-top: 2px;
+        }
+        .label-consentement {
+            font-size: 9pt;
+        }
+        .date-signature-container {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        .date-signature-container > div {
+            display: table-cell;
+            width: 50%;
+        }
+        .date-signature-container > div:last-child {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="left-spacer"></div>
+            <div class="association">Association musulmane du chablais</div>
+            <div class="header-right"><img class="logo" src="classpath:/static/images/logo_amc.png" alt="Logo AMC"/></div>
+        </div>
+
+        <div class="member-number-container">
+            <div class="member-number">
+                N° de membre : <span class="bold" th:text="${noMembre}"></span>
+            </div>
+        </div>
+
+        <div class="title">AMC - Fiche Adhérent</div>
+
+        <div class="form-element" style="margin-bottom: 20px;">
+            <span th:text="${soussigneLibelle}">Je soussigné</span>
+            <span class="bold" th:text="' ' + ${etatCivil} + ' ' + ${nom} + ' ' + ${prenom}">Monsieur DUPONT Jean</span>
+        </div>
+
+        <div class="form-element">
+            Adresse : <span class="bold" th:text="${numeroEtRue}"></span>
+        </div>
+
+        <div class="form-element">
+            Code postal : <span class="bold" th:text="${codePostal}"></span>
+        </div>
+
+        <div class="form-element">
+            Ville : <span class="bold" th:text="${ville}"></span>
+        </div>
+
+        <div class="form-element">
+            E-mail : <span class="bold" th:text="${email}"></span>
+        </div>
+
+        <div class="form-element" style="margin-bottom: 20px;" th:if="${mobile}">
+            Tél. Mobile : <span class="bold" th:text="${mobile}"></span>
+        </div>
+
+        <div class="form-element">
+            Je certifie sur l'honneur l'exactitude des informations ci-dessus.
+        </div>
+
+        <div class="form-element">
+            <span class="bold">Je sollicite mon admission comme membre de l'association musulmane du chablais (AMC)</span>
+        </div>
+
+        <div class="form-element">
+            <span class="bold" th:text="'Je m\'engage à verser mensuellement la somme de ' + ${montant} + ' euros'"></span>
+        </div>
+
+        <div class="form-element" style="margin-bottom: 20px;">
+            <span class="bold">De ce fait, je m'engage à respecter ses statuts(1), son règlement intérieur(2) et à verser ma cotisation(3) régulièrement</span>
+        </div>
+
+        <div class="checkbox-container">
+            <div class="checkbox"><div class="checkbox-box"></div></div>
+            <div class="label-consentement">
+                En soumettant ce formulaire, vous consentez à ce que l'association musulmane du chablais collecte et traite vos données personnelles aux fins de votre adhésion à l'association.
+                Vos données seront conservées pendant toute la durée de votre adhésion et seront accessibles pour consultation ou modification sur demande, par e-mail à l'adresse de l'association: amcinscription@gmail.com.
+            </div>
+        </div>
+
+        <div class="date-signature-container">
+            <div>Date: ____/____/____</div>
+            <div>Signature: ____________</div>
+        </div>
+
+        <div class="conditions">
+            <div>(1) Disponible sur demande à l'AMC</div>
+            <div>(2) Le règlement est affiché à l'intérieur des locaux de l'AMC</div>
+            <div>(3) Le montant de la cotisation mensuel est libre</div>
+        </div>
+
+        <div class="adresse">
+            <div>Association musulmane du chablais</div>
+            <div>5, rue des epinanches</div>
+            <div>74200 THONON LES BAINS</div>
+            <div>Tel/Fax: 0450706478</div>
+        </div>
+    </div>
+</body>
+</html>

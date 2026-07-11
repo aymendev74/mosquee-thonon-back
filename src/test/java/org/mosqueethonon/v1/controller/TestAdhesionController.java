@@ -4,11 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.DocumentRequestStatut;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.repository.AdhesionLightRepository;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +26,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +43,12 @@ public class TestAdhesionController extends TestController {
 
     @Autowired
     protected AdhesionRepository adhesionRepository;
+
+    @Autowired
+    protected AdhesionLightRepository adhesionLightRepository;
+
+    @Autowired
+    protected DocumentRequestRepository documentRequestRepository;
 
     @BeforeAll
     public void init() {
@@ -175,5 +189,65 @@ public class TestAdhesionController extends TestController {
         // Vérification que l'adhésion a bien été supprimée
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/adhesions/" + createdAdhesion.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testAdhesionLight_DocumentPendingTrueAfterCreate() throws Exception {
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/v1/adhesions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testAdhesion)))
+                .andReturn().getResponse().getContentAsString();
+        AdhesionDto createdAdhesion = objectMapper.readValue(response, AdhesionDto.class);
+
+        AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
+        assertTrue(light.getDocumentPending());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testAdhesionLight_DocumentPendingFalseWhenRequestCompleted() throws Exception {
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/v1/adhesions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testAdhesion)))
+                .andReturn().getResponse().getContentAsString();
+        AdhesionDto createdAdhesion = objectMapper.readValue(response, AdhesionDto.class);
+
+        DocumentRequestEntity request = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.ADHESION, createdAdhesion.getId(), DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        request.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(request);
+
+        AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
+        assertFalse(light.getDocumentPending());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testAdhesionLight_DocumentPendingFalseWhenOnlyWrongTypeRequestPending() throws Exception {
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/v1/adhesions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testAdhesion)))
+                .andReturn().getResponse().getContentAsString();
+        AdhesionDto createdAdhesion = objectMapper.readValue(response, AdhesionDto.class);
+
+        // Complete the legitimate ADHESION request created at creation time.
+        DocumentRequestEntity adhesionRequest = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.ADHESION, createdAdhesion.getId(), DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        adhesionRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(adhesionRequest);
+
+        // Insert an unrelated PENDING request that happens to share the same numeric businessId
+        // but a different type -- this must NOT make the adhesion look pending.
+        DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
+        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ENFANT);
+        wrongTypeRequest.setBusinessId(createdAdhesion.getId());
+        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        documentRequestRepository.save(wrongTypeRequest);
+
+        AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
+        assertFalse(light.getDocumentPending());
     }
 }

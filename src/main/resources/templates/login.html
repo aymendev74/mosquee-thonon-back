@@ -17,13 +17,13 @@
         </div>
         <p>
           <label for="username" class="sr-only">Nom d'utilisateur</label>
-          <input type="text" id="username" name="username" class="form-control" placeholder="Nom d'utilisateur" required autofocus>
+          <input testid= "username" type="text" id="username" name="username" class="form-control" placeholder="Nom d'utilisateur" required autofocus>
         </p>
         <p>
           <label for="password" class="sr-only">Mot de passe</label>
-          <input type="password" id="password" name="password" class="form-control" placeholder="Mot de passe" required>
+          <input testid= "password" type="password" id="password" name="password" class="form-control" placeholder="Mot de passe" required>
         </p>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
+        <button testid= "connect" class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
         <p class="mt-3 text-center">
           <a th:href="${resetPasswordUri}">Réinitialiser mon mot de passe</a>
         </p>

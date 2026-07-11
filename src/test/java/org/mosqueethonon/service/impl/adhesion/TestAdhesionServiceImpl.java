@@ -11,10 +11,17 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.lock.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
@@ -26,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -47,11 +55,29 @@ public class TestAdhesionServiceImpl {
     @Mock
     private SecurityContext securityContext;
 
+    @Mock
+    private AsyncDocumentService asyncDocumentService;
+
+    @Mock
+    private DocumentRepository documentRepository;
+
+    @Mock
+    private DocumentRequestRepository documentRequestRepository;
+
+    @Mock
+    private DocumentService documentService;
+
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @BeforeEach
+    public void setUp() {
+        // Stub par défaut : aucun document trouvé (évite NPE dans les tests existants)
+        lenient().when(documentRepository.findByMetadataKeyAndValue(any(), anyString()))
+                .thenReturn(Optional.empty());
+    }
 
     @Test
     public void testCreateAdhesion() {
@@ -115,6 +141,45 @@ public class TestAdhesionServiceImpl {
         assertEquals(ids, result);
         verify(adhesionRepository, times(2)).deleteById(any());
         verify(this.mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.ADHESION), any());
+        verify(this.documentRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), any());
+        verify(this.documentService, never()).deleteDocument(any());
+    }
+
+    @Test
+    public void testDeleteAdhesions_SupprimeLeDocumentAssocie_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(55L);
+
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        Set<Long> result = adhesionService.deleteAdhesions(Set.of(id));
+
+        // Assert
+        assertEquals(Set.of(id), result);
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentService).deleteDocument(55L);
+        verify(adhesionRepository).deleteById(id);
+    }
+
+    @Test
+    public void testDeleteAdhesions_NeSupprimeAucunDocument_QuandAucunDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        // documentRepository retourne empty (stub par défaut du @BeforeEach)
+
+        // Act
+        Set<Long> result = adhesionService.deleteAdhesions(Set.of(id));
+
+        // Assert
+        assertEquals(Set.of(id), result);
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentService, never()).deleteDocument(any());
+        verify(adhesionRepository).deleteById(id);
     }
 
     @Test
@@ -213,5 +278,133 @@ public class TestAdhesionServiceImpl {
         verify(adhesionRepository).findById(id);
         verify(adhesionMapper, never()).updateAdhesion(any(), any());
         verify(adhesionRepository, never()).save(any());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument peuplé
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testCreateAdhesion_IdDocumentNonPeuple_CarAsynchrone() {
+        // createAdhesion appelle requestDocumentGeneration de façon asynchrone ;
+        // le document n'existe pas encore au moment du retour → idDocument reste null.
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setId(1L);
+        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setDateInscription(LocalDateTime.now());
+
+        when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
+        // documentRepository retourne empty (stub par défaut du @BeforeEach)
+
+        AdhesionDto result = adhesionService.createAdhesion(new AdhesionDto());
+
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(DocumentRequestType.ADHESION), eq(1L));
+    }
+
+    @Test
+    public void testFindAdhesionById_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setId(id);
+        AdhesionDto adhesionDto = new AdhesionDto();
+        adhesionDto.setId(id);
+
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(33L);
+
+        when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
+        when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        AdhesionDto result = adhesionService.findAdhesionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(33L, result.getIdDocument());
+    }
+
+    @Test
+    public void testFindAdhesionById_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 1L;
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setId(id);
+        AdhesionDto adhesionDto = new AdhesionDto();
+        adhesionDto.setId(id);
+
+        when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
+        when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                .thenReturn(Optional.empty());
+
+        // Act
+        AdhesionDto result = adhesionService.findAdhesionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+    }
+
+    @Test
+    public void testUpdateAdhesion_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        AdhesionDto adhesionDto = new AdhesionDto();
+        adhesionDto.setStatut(StatutInscription.VALIDEE);
+        adhesionDto.setId(id);
+
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setId(id);
+
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(44L);
+
+        when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
+        when(adhesionRepository.save(adhesionEntity)).thenReturn(adhesionEntity);
+        when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        AdhesionDto result = adhesionService.updateAdhesion(id, adhesionDto, AdhesionSaveCriteria.builder().build());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(44L, result.getIdDocument());
+    }
+
+    @Test
+    public void testUpdateAdhesion_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 1L;
+        AdhesionDto adhesionDto = new AdhesionDto();
+        adhesionDto.setStatut(StatutInscription.VALIDEE);
+        adhesionDto.setId(id);
+
+        AdhesionEntity adhesionEntity = new AdhesionEntity();
+        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setId(id);
+
+        when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
+        when(adhesionRepository.save(adhesionEntity)).thenReturn(adhesionEntity);
+        when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
+        // documentRepository retourne empty (stub par défaut du @BeforeEach)
+
+        // Act
+        AdhesionDto result = adhesionService.updateAdhesion(id, adhesionDto, AdhesionSaveCriteria.builder().build());
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
     }
 }

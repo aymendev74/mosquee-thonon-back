@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-replaceFunction-getAnneeScolaire
+      author: Aymen
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/060-replaceFunction-getAnneeScolaire.sql
+            endDelimiter: \nGO

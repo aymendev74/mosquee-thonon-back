@@ -38,4 +38,5 @@ public class InscriptionAdulteParAnneeScolaireDto {
     private NiveauInterneEnum niveauInterne;
     private StatutProfessionnelEnum statutProfessionnel;
     private List<MatiereEnum> matieres;
+    private Long idDocument;
 }

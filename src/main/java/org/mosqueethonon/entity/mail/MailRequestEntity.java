@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -14,12 +15,14 @@ import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.enums.MailRequestStatut;
 import org.mosqueethonon.enums.MailRequestType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @EntityListeners(EntityListener.class)
 @Table(name = "mail_request", schema = "moth")
 @Data
+@EqualsAndHashCode(of = "id")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,8 +54,14 @@ public class MailRequestEntity implements Auditable {
     @Column(name = "txmareattachments")
     private List<MailAttachmentDto> attachments;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "idmare", nullable = false)
+    @Builder.Default
+    private List<MailRequestDocumentRequestEntity> documentRequests = new ArrayList<>();
+
     @Embedded
     private Signature signature;
+
     @Version
     @Column(name = "oh_version")
     private Long version;

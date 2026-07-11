@@ -38,6 +38,9 @@ public class ApplicationConfiguration {
     @Valid
     @NotNull
     private RibAmc ribAmc;
+    @Valid
+    @NotNull
+    private Documents documents;
 
     @Data
     public static final class RibAmc {
@@ -45,6 +48,12 @@ public class ApplicationConfiguration {
         private String fileLocation;
         @NotBlank
         private String mailAttachmentFilename;
+    }
+
+    @Data
+    public static final class Documents {
+        @NotBlank
+        private String basePath;
     }
 
 }

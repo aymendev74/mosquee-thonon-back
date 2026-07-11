@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.enums.DocumentMetadataKey;
+import org.mosqueethonon.repository.DocumentRepository;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +31,7 @@ import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
@@ -36,6 +41,7 @@ import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.service.param.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
@@ -89,6 +95,12 @@ public class TestInscriptionAdulteServiceImpl {
     @Mock
     private UserAccountManager userService;
 
+    @Mock
+    private AsyncDocumentService asyncDocumentService;
+
+    @Mock
+    private DocumentRepository documentRepository;
+
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
 
@@ -107,6 +119,7 @@ public class TestInscriptionAdulteServiceImpl {
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
         inscriptionEntity.setDateInscription(LocalDateTime.now());
+        inscriptionEntity.setStatut(StatutInscription.PROVISOIRE);
         inscriptionEntity.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
         MatiereEntity matiere = new MatiereEntity();
@@ -118,6 +131,10 @@ public class TestInscriptionAdulteServiceImpl {
         ReflectionTestUtils.setField(inscriptionAdulteService, "userAccountManager", userService);
         ReflectionTestUtils.setField(inscriptionAdulteService, "inscriptionRepository", inscriptionRepository);
         ReflectionTestUtils.setField(inscriptionAdulteService, "mailRequestRepository", mailRequestRepository);
+
+        // Stub par défaut : aucun document trouvé (évite NPE dans les tests existants)
+        lenient().when(documentRepository.findByMetadataKeyAndValue(any(), anyString()))
+                .thenReturn(Optional.empty());
     }
 
     @Test
@@ -192,11 +209,11 @@ public class TestInscriptionAdulteServiceImpl {
         when(inscriptionAdulteRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             inscriptionAdulteService.updateInscription(1L, inscriptionDto, criteria);
         });
 
-        assertEquals("Inscription not found ! idinsc = 1", exception.getMessage());
+        assertEquals("L'inscription adulte n'a pas été trouvée ! id = 1", exception.getMessage());
         verify(inscriptionAdulteRepository, times(1)).findById(1L);
         verify(inscriptionAdulteRepository, times(0)).save(any(InscriptionAdulteEntity.class));
     }
@@ -370,5 +387,184 @@ public class TestInscriptionAdulteServiceImpl {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> inscriptionAdulteService.reinscription(reinscriptionDto));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests idDocument peuplé
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testFindInscriptionById_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        Long id = 1L;
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(77L);
+
+        when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(77L, result.getIdDocument());
+    }
+
+    @Test
+    public void testFindInscriptionById_IdDocumentNull_QuandAucunDocument() {
+        // Arrange
+        Long id = 1L;
+        when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                .thenReturn(Optional.empty());
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.findInscriptionById(id);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+    }
+
+    @Test
+    public void testUpdateInscription_IdDocumentPeuple_QuandDocumentTrouve() {
+        // Arrange
+        DocumentEntity doc = new DocumentEntity();
+        doc.setId(88L);
+
+        when(inscriptionAdulteRepository.findById(1L)).thenReturn(Optional.of(inscriptionEntity));
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class),
+                eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(documentRepository.findByMetadataKeyAndValue(
+                eq(DocumentMetadataKey.ID_INSCRIPTION), eq("1")))
+                .thenReturn(Optional.of(doc));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.updateInscription(1L, inscriptionDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(88L, result.getIdDocument());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tests conditionnement de la génération de document selon le statut
+    // ---------------------------------------------------------------------------
+
+    @Test
+    public void testCreateInscription_DocumentGenere_QuandStatutProvisoire() {
+        // GIVEN — createInscription fixe toujours PROVISOIRE ; l'entité retournée par save
+        // a également PROVISOIRE (défini dans setUp), donc la condition est vraie.
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class),
+                eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+
+        // WHEN
+        InscriptionAdulteResultDto result = inscriptionAdulteService.createInscription(inscriptionDto);
+
+        // THEN
+        assertNotNull(result);
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
+        verify(mailRequestRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void testUpdateInscription_DocumentNonGenere_QuandStatutRefuse() {
+        // GIVEN — save retourne une entité avec statut REFUSE : la condition PROVISOIRE || VALIDEE
+        // est fausse, donc requestDocumentGeneration ne doit pas être appelé.
+        InscriptionAdulteEntity entityRefuse = new InscriptionAdulteEntity();
+        entityRefuse.setId(1L);
+        entityRefuse.setDateInscription(java.time.LocalDateTime.now());
+        entityRefuse.setStatut(StatutInscription.REFUSE);
+        entityRefuse.setResponsableLegal(new ResponsableLegalEntity());
+        InscriptionMatiereEntity inscriptionMatiereRefuse = new InscriptionMatiereEntity();
+        MatiereEntity matiereRefuse = new MatiereEntity();
+        matiereRefuse.setCode(MatiereEnum.TAFFSIR_CORAN);
+        inscriptionMatiereRefuse.setMatiere(matiereRefuse);
+        entityRefuse.setMatieres(Lists.newArrayList(inscriptionMatiereRefuse));
+
+        when(inscriptionAdulteRepository.findById(1L)).thenReturn(Optional.of(inscriptionEntity));
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(entityRefuse);
+
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(anyLong(), any(LocalDate.class),
+                eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+
+        // WHEN
+        InscriptionAdulteDto result = inscriptionAdulteService.updateInscription(1L, inscriptionDto,
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        // THEN
+        assertNotNull(result);
+        verify(asyncDocumentService, never())
+                .requestDocumentGeneration(any(), anyLong());
+        verify(mailRequestRepository, never()).save(any());
+    }
+
+    @Test
+    public void testReinscription_IdDocumentNonPeuple_CarAsynchrone() {
+        // La réinscription appelle requestDocumentGeneration de façon async,
+        // le document n'est pas encore disponible au retour de la méthode.
+        // Arrange
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(2L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder()
+                .idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class),
+                eq(StatutProfessionnelEnum.AVEC_ACTIVITE))).thenReturn(tarifDto);
+
+        ReinscriptionAdulteDto reinscriptionDto = new ReinscriptionAdulteDto();
+        reinscriptionDto.setNom("Dupont");
+        reinscriptionDto.setPrenom("Jean");
+        reinscriptionDto.setEmail("jean.dupont@test.com");
+        reinscriptionDto.setMobile("0612345678");
+        reinscriptionDto.setNumeroEtRue("10 rue de la paix");
+        reinscriptionDto.setCodePostal(74200);
+        reinscriptionDto.setVille("Thonon");
+        reinscriptionDto.setDateNaissance(LocalDate.of(1990, 5, 15));
+        reinscriptionDto.setSexe(org.mosqueethonon.enums.SexeEnum.M);
+        reinscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        reinscriptionDto.setMatieres(new ArrayList<>(List.of(MatiereEnum.TAFFSIR_CORAN)));
+
+        // Act
+        InscriptionAdulteDto result = inscriptionAdulteService.reinscription(reinscriptionDto);
+
+        // Assert — le DTO retourné ne contient pas d'idDocument (généré en asynchrone)
+        assertNotNull(result);
+        assertNull(result.getIdDocument());
+        verify(asyncDocumentService, times(1))
+                .requestDocumentGeneration(eq(org.mosqueethonon.enums.DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
     }
 }

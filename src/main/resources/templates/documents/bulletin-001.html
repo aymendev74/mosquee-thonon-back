@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 15px;
+        }
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .left-spacer {
+            display: table-cell;
+            vertical-align: middle;
+            width: 152px;
+        }
+        .association {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            width: 152px;
+            text-align: right;
+        }
+        .logo {
+            width: 152px;
+            height: 152px;
+        }
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        .enseignant {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .eleve {
+            font-size: 11pt;
+            margin-bottom: 20px;
+        }
+        .matieres-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .matieres-table th,
+        .matieres-table td {
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .matieres-table th {
+            font-weight: bold;
+            background-color: #d9d9d9;
+        }
+        .matieres-table tr:nth-child(odd) td {
+            background-color: #f7f7f7;
+        }
+        .td-remarque {
+            text-align: left;
+        }
+        .td-note {
+            font-weight: bold;
+        }
+        .legende-note {
+            font-size: 11pt;
+            font-style: italic;
+            margin-bottom: 35px;
+        }
+        .absences {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .date {
+            font-size: 11pt;
+            margin-bottom: 10px;
+        }
+        .appreciation-tampon {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .appreciation {
+            display: table-cell;
+            font-size: 11pt;
+            vertical-align: top;
+        }
+        .tampon-cell {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+            width: 180px;
+        }
+        .mention-legale {
+            font-size: 7pt;
+            font-style: italic;
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 0.5pt solid #ddd;
+        }
+        .tampon {
+            width: 160px;
+            height: 160px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="left-spacer"></div>
+            <div class="association">Association Lettres et Cultures</div>
+            <div class="header-right"><img class="logo" src="classpath:/static/images/logo_alc.png" alt="Logo ALC"/></div>
+        </div>
+
+        <div class="title" th:text="'Bulletin scolaire : ' + ${moisAnnee}">Bulletin scolaire : Janvier 2025</div>
+
+        <div class="enseignant" th:text="'Enseignant(s) : ' + ${nomsEnseignants}">Enseignant(s) : Dupont Jean</div>
+
+        <div class="eleve" th:text="'Elève : ' + ${nomPrenomEleve}">Elève : Martin Alice</div>
+
+        <table class="matieres-table">
+            <thead>
+                <tr>
+                    <th>Matières</th>
+                    <th>Notes</th>
+                    <th>Remarques</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ligne : ${lignesMatieres}">
+                    <td th:text="${ligne['matiere']}"></td>
+                    <td class="td-note" th:text="${ligne['note']}"></td>
+                    <td class="td-remarque" th:text="${ligne['remarque']}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="legende-note">NA: Non acquis        EA: En cours d'acquisition          A: Acquis</div>
+
+        <div class="absences" th:text="'Nombre d\'absences : ' + ${nbAbsences}">Nombre d'absences : 0</div>
+
+        <div class="date" th:text="'Date : ' + ${dateBulletin}">Date : 01/01/2025</div>
+
+        <div class="appreciation-tampon">
+            <div class="appreciation" th:text="'Appréciation générale : ' + ${appreciation}">Appréciation générale : </div>
+            <div class="tampon-cell">
+                <img class="tampon" src="classpath:/static/images/tampon_alc.png" alt="Tampon ALC"/>
+            </div>
+        </div>
+
+        <div class="mention-legale">Document généré électroniquement — ne nécessite pas de signature manuscrite.</div>
+    </div>
+</body>
+</html>

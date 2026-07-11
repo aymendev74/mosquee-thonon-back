@@ -46,9 +46,8 @@ public class MailAdhesionServiceImpl implements MailService {
                     .location(applicationConfiguration.getRibAmc().getFileLocation()).build());
         }
 
-        return MailDto.builder().body(body).subject(subject).recipientEmail(adhesion.getEmail())
-                .attachments(attachments)
-                .build();
+        return new MailDto().body(body).subject(subject).recipientEmail(adhesion.getEmail())
+                .attachments(attachments);
     }
 
 }

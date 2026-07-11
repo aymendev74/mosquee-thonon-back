@@ -4,13 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.enums.*;
+import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.NiveauRepository;
@@ -53,7 +57,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
 @Slf4j
-public class InscriptionEnfantServiceImpl extends AbstractInscriptionService implements InscriptionEnfantService {
+public class InscriptionEnfantServiceImpl extends CommonInscriptionService implements InscriptionEnfantService {
 
     private InscriptionEnfantRepository inscriptionEnfantRepository;
 
@@ -76,6 +80,10 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
     private EleveMapper eleveMapper;
 
     private PeriodeRepository periodeRepository;
+
+    private AsyncDocumentService asyncDocumentService;
+
+    private DocumentRepository documentRepository;
 
     @Transactional
     @Override
@@ -101,7 +109,11 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
         entity = this.inscriptionEnfantRepository.save(entity);
-        this.createMailRequest(entity.getId());
+        DocumentRequestEntity documentRequest = null;
+        if(entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        }
+        this.createMailRequest(entity.getId(), documentRequest);
 
         return InscriptionEnfantResultDto.builder()
                 .statut(entity.getStatut())
@@ -130,11 +142,16 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         this.doCalculTarifInscription(entity);
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
-        inscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
-        if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
-            this.createMailRequest(entity.getId());
+        InscriptionEnfantDto resultInscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
+                .ifPresent(doc -> resultInscription.setIdDocument(doc.getId()));
+        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+            if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
+                this.createMailRequest(entity.getId(), documentRequest);
+            }
         }
-        return inscription;
+        return resultInscription;
     }
 
     private void computeStatutNewInscription(InscriptionEnfantEntity inscription, boolean isListeAttente) {
@@ -240,7 +257,10 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
     public InscriptionEnfantDto findInscriptionById(Long id) {
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
         if (inscriptionEnfantEntity != null) {
-            return this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
+            InscriptionEnfantDto dto = this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+                    .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            return dto;
         }
         return null;
     }
@@ -336,6 +356,11 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
 
                     ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(inscription.getResponsableLegal());
 
+                    // Récupérer l'idDocument associé à cette inscription
+                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
+                            .map(DocumentEntity::getId)
+                            .orElse(null);
+
                     return InscriptionEnfantParAnneeScolaireDto.builder()
                             .anneeDebut(tarif.getPeriode().getAnneeDebut())
                             .anneeFin(tarif.getPeriode().getAnneeFin())
@@ -344,6 +369,7 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
                             .noInscription(inscription.getNoInscription())
                             .responsableLegal(responsableLegalDto)
                             .eleves(eleveDtos)
+                            .idDocument(idDocument)
                             .build();
                 })
                 .filter(Objects::nonNull)
@@ -408,7 +434,10 @@ public class InscriptionEnfantServiceImpl extends AbstractInscriptionService imp
         nouvelleInscription.setNoInscription(this.generateNoInscription());
 
         nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
-        this.createMailRequest(nouvelleInscription.getId());
+        if (nouvelleInscription.getStatut() == StatutInscription.PROVISOIRE || nouvelleInscription.getStatut() == StatutInscription.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());
+            this.createMailRequest(nouvelleInscription.getId(), documentRequest);
+        }
 
         return this.inscriptionEnfantMapper.fromEntityToDto(nouvelleInscription);
     }
