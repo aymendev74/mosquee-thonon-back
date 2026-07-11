@@ -9,6 +9,7 @@ import org.mosqueethonon.exception.ResourceLockedException;
 import org.mosqueethonon.v1.dto.lock.LockResultDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -38,6 +39,12 @@ public class CustomExceptionHandler {
     public ResponseEntity<LockResultDto> handleResourceLockedException(ResourceLockedException e) {
         log.error("Resource locked: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getLockResult());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
+        log.error("Authentication failed: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ExceptionHandler(RuntimeException.class)
