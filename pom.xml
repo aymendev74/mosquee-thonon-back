@@ -31,7 +31,7 @@
         <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
         <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
         <url>https://github.com/aymendev74/mosquee-thonon-back</url>
-      <tag>HEAD</tag>
+      <tag>release-5.x</tag>
   </scm>
 
     <dependencies>
