@@ -433,6 +433,9 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         // Générer le numéro d'inscription
         nouvelleInscription.setNoInscription(this.generateNoInscription());
 
+        // Marquer qu'il s'agit bien d'une réinscription passée par le processus dédié
+        nouvelleInscription.setReinscription(Boolean.TRUE);
+
         nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
         if (nouvelleInscription.getStatut() == StatutInscription.PROVISOIRE || nouvelleInscription.getStatut() == StatutInscription.VALIDEE) {
             var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());

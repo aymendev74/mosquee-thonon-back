@@ -37,6 +37,10 @@ public abstract class InscriptionEntity implements Auditable {
     private String noInscription;
     @Column(name = "noinscpositionattente")
     private Integer noPositionAttente;
+    // NOT NULL DEFAULT false en base (cf. changelog 062) : garder ce défaut synchronisé.
+    // Ne pas ajouter @Builder à cette hiérarchie sans @Builder.Default, sinon l'initialisation serait ignorée.
+    @Column(name = "loinscreinscription")
+    private Boolean reinscription = Boolean.FALSE;
     @Embedded
     private Signature signature;
     @Column(name = "mtinsctotal")

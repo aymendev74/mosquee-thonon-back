@@ -57,6 +57,8 @@ public class InscriptionLightEntity {
     private String ville;
     @Column(name = "noinscription")
     private String noInscription;
+    @Column(name = "reinscription")
+    private Boolean reinscription;
     @Column(name = "idperiode")
     private Long idPeriode;
     @Column(name = "email")
