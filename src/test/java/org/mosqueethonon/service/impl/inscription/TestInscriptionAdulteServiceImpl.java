@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -376,6 +377,71 @@ public class TestInscriptionAdulteServiceImpl {
         assertNotNull(result);
         verify(inscriptionAdulteRepository, times(1)).save(any(InscriptionAdulteEntity.class));
         verify(mailRequestRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void testReinscription_PositionneFlagReinscriptionTrue() {
+        // Arrange
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(2L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(this.userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(this.userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(StatutProfessionnelEnum.AVEC_ACTIVITE))).thenReturn(tarifDto);
+
+        ReinscriptionAdulteDto reinscriptionDto = new ReinscriptionAdulteDto();
+        reinscriptionDto.setNom("Dupont");
+        reinscriptionDto.setPrenom("Jean");
+        reinscriptionDto.setEmail("jean.dupont@test.com");
+        reinscriptionDto.setMobile("0612345678");
+        reinscriptionDto.setNumeroEtRue("10 rue de la paix");
+        reinscriptionDto.setCodePostal(74200);
+        reinscriptionDto.setVille("Thonon");
+        reinscriptionDto.setDateNaissance(LocalDate.of(1990, 5, 15));
+        reinscriptionDto.setSexe(SexeEnum.M);
+        reinscriptionDto.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
+        reinscriptionDto.setMatieres(Lists.newArrayList(MatiereEnum.TAFFSIR_CORAN));
+
+        // Act
+        inscriptionAdulteService.reinscription(reinscriptionDto);
+
+        // Assert — l'entité persistée porte le flag réinscription à true
+        ArgumentCaptor<InscriptionAdulteEntity> captor = ArgumentCaptor.forClass(InscriptionAdulteEntity.class);
+        verify(inscriptionAdulteRepository).save(captor.capture());
+        assertEquals(Boolean.TRUE, captor.getValue().getReinscription());
+    }
+
+    @Test
+    public void testCreateInscription_FlagReinscriptionFalse() {
+        // Une inscription normale doit persister reinscription=false, pas null.
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1L);
+        when(inscriptionAdulteRepository.save(any(InscriptionAdulteEntity.class))).thenReturn(inscriptionEntity);
+        when(paramService.isInscriptionAdulteEnabled()).thenReturn(true);
+
+        TarifInscriptionAdulteDto tarifDto = TarifInscriptionAdulteDto.builder().idTari(123L).tarif(new BigDecimal("100.0")).build();
+        when(tarifCalculService.calculTarifInscriptionAdulte(isNull(), any(LocalDate.class), eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
+        when(this.matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
+        when(this.userService.findByEmail(any())).thenReturn(Optional.empty());
+        when(this.userService.createUser(any())).thenAnswer(invocation -> {
+            UserDto user = invocation.getArgument(0);
+            user.setId(99L);
+            return user;
+        });
+
+        // Act
+        inscriptionAdulteService.createInscription(inscriptionDto);
+
+        // Assert
+        ArgumentCaptor<InscriptionAdulteEntity> captor = ArgumentCaptor.forClass(InscriptionAdulteEntity.class);
+        verify(inscriptionAdulteRepository).save(captor.capture());
+        assertEquals(Boolean.FALSE, captor.getValue().getReinscription());
     }
 
     @Test

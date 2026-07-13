@@ -189,6 +189,8 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
         entity.setStatut(StatutInscription.VALIDEE);
+        // Marquer qu'il s'agit bien d'une réinscription passée par le processus dédié
+        entity.setReinscription(Boolean.TRUE);
 
         this.calculTarif(entity, LocalDate.now(), reinscriptionAdulteDto.getStatutProfessionnel());
 

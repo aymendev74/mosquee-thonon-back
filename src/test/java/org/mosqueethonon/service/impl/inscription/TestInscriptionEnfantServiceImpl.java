@@ -3,6 +3,7 @@ package org.mosqueethonon.service.impl.inscription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -419,6 +420,95 @@ public class TestInscriptionEnfantServiceImpl {
         verify(responsableLegalMapper).fromDtoToEntity(reinscriptionDto.getResponsableLegal());
         verify(inscriptionEnfantRepository).save(any());
         verify(mailRequestRepository).save(any());
+    }
+
+    @Test
+    public void testReinscription_PositionneFlagReinscriptionTrue() {
+        // Arrange (happy path de réinscription)
+        String username = "testuser";
+        UserDto utilisateur = new UserDto();
+        utilisateur.setId(1L);
+
+        PeriodeEntity periode = new PeriodeEntity();
+        periode.setId(1L);
+        periode.setIdPeriodePrecedente(0L);
+
+        TarifEntity tarif = new TarifEntity();
+        tarif.setId(1L);
+        tarif.setPeriode(periode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(1L);
+        eleve.setNom("Dupont");
+        eleve.setPrenom("Marie");
+        eleve.setIdInscription(1L);
+        eleve.setIdTarif(1L);
+
+        InscriptionEnfantEntity ancienneInscription = new InscriptionEnfantEntity();
+        ancienneInscription.setId(1L);
+        ancienneInscription.setIdUtilisateur(utilisateur.getId());
+
+        EleveReinscriptionDto eleveReinscription = EleveReinscriptionDto.builder()
+                .id(1L).niveau(NiveauScolaireEnum.CP).build();
+
+        ReinscriptionDto reinscriptionDto = new ReinscriptionDto();
+        reinscriptionDto.setEleves(List.of(eleveReinscription));
+        reinscriptionDto.setResponsableLegal(ResponsableLegalDto.builder().build());
+
+        when(paramService.isInscriptionEnfantEnabled()).thenReturn(true);
+        when(paramService.isReinscriptionPrioritaireEnabled()).thenReturn(true);
+        when(securityContext.getUser()).thenReturn(username);
+        when(userService.findByUsername(username)).thenReturn(Optional.of(utilisateur));
+        when(eleveRepository.findAllById(List.of(1L))).thenReturn(List.of(eleve));
+        when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(ancienneInscription));
+        when(responsableLegalMapper.fromDtoToEntity(reinscriptionDto.getResponsableLegal())).thenReturn(new ResponsableLegalEntity());
+        when(tarifRepository.findById(1L)).thenReturn(Optional.of(tarif));
+        when(inscriptionRepository.findFirstEleveByNomPrenomDateNaissanceIdPeriode(any(), any(), any(), any())).thenReturn(eleve);
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
+        savedInscription.setStatut(StatutInscription.VALIDEE);
+        when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
+        when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(new InscriptionEnfantDto());
+
+        // Act
+        underTest.reinscription(reinscriptionDto);
+
+        // Assert — l'entité persistée porte le flag réinscription à true
+        ArgumentCaptor<InscriptionEnfantEntity> captor = ArgumentCaptor.forClass(InscriptionEnfantEntity.class);
+        verify(inscriptionEnfantRepository).save(captor.capture());
+        assertEquals(Boolean.TRUE, captor.getValue().getReinscription());
+    }
+
+    @Test
+    public void testCreateInscription_FlagReinscriptionFalse() {
+        // Une inscription normale (hors processus de réinscription) doit persister reinscription=false, pas null.
+        InscriptionEnfantDto inscriptionEnfantDto = createInscription(2);
+        inscriptionEnfantDto.getResponsableLegal().setEmail("test@example.com");
+        inscriptionEnfantDto.getResponsableLegal().setNom("Dupont");
+        inscriptionEnfantDto.getResponsableLegal().setPrenom("Jean");
+
+        final InscriptionEnfantEntity inscriptionEnfantEntity = createInscriptionEntity(2);
+
+        UserDto createdUserDto = new UserDto();
+        createdUserDto.setId(1L);
+
+        when(this.paramService.isInscriptionEnfantEnabled()).thenReturn(Boolean.TRUE);
+        when(this.inscriptionEnfantMapper.fromDtoToEntity(any())).thenReturn(inscriptionEnfantEntity);
+        when(this.userService.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(this.userService.createUser(any(UserDto.class))).thenReturn(createdUserDto);
+        when(this.tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(this.paramService.isReinscriptionPrioritaireEnabled()).thenReturn(Boolean.FALSE);
+        when(this.inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
+        when(this.inscriptionEnfantRepository.save(any())).thenReturn(inscriptionEnfantEntity);
+
+        // Act
+        this.underTest.createInscription(inscriptionEnfantDto);
+
+        // Assert
+        ArgumentCaptor<InscriptionEnfantEntity> captor = ArgumentCaptor.forClass(InscriptionEnfantEntity.class);
+        verify(inscriptionEnfantRepository).save(captor.capture());
+        assertEquals(Boolean.FALSE, captor.getValue().getReinscription());
     }
 
     @Test

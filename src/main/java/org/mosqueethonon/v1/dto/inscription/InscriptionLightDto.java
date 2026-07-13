@@ -32,6 +32,7 @@ public class InscriptionLightDto {
     private StatutInscription statut;
     private String ville;
     private String noInscription;
+    private Boolean reinscription;
     private String email;
     private Long idDocument;
     private Boolean documentPending;
