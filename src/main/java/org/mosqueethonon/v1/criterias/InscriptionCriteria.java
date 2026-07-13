@@ -31,5 +31,6 @@ public class InscriptionCriteria {
     private String noInscription;
     private Long idPeriode;
     private String type;
+    private Boolean reinscription;
 
 }
