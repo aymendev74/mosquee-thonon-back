@@ -46,6 +46,7 @@ SELECT
     r.lorespautonomie AS autorisationautonomie,
     r.lorespmedia AS autorisationmedia,
     i.noinscinscription AS noinscription,
+    i.loinscreinscription AS reinscription,
     p.idperi AS idperiode,
     r.txrespemail AS email,
     i.cdinsctype AS type,
