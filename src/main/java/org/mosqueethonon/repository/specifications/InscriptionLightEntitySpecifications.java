@@ -75,6 +75,10 @@ public class InscriptionLightEntitySpecifications {
                 predicatesAND.add(builder.equal(root.get("type"), criteria.getType()));
             }
 
+            if(criteria.getReinscription() != null) {
+                predicatesAND.add(builder.equal(root.get("reinscription"), criteria.getReinscription()));
+            }
+
             if(!predicatesOR.isEmpty()) {
                 finalPredicateOR = builder.or(predicatesOR.toArray(new Predicate[predicatesOR.size()]));
             }
