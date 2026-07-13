@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 062-addColumn-loinscreinscription-inscription
+      author: Aymen
+      changes:
+        # La colonne peut déjà exister (créée manuellement en prod) : on converge vers
+        # l'état cible (NOT NULL DEFAULT false) sans supposer comment elle a été créée.
+        # 1) créer la colonne si absente (nullable pour l'instant, sans casser sur données existantes)
+        # 2) backfiller les éventuels NULL
+        # 3) poser le DEFAULT puis la contrainte NOT NULL (no-op si déjà en place)
+        - sql:
+            splitStatements: true
+            sql: |
+              ALTER TABLE moth.inscription ADD COLUMN IF NOT EXISTS loinscreinscription BOOLEAN;
+              UPDATE moth.inscription SET loinscreinscription = false WHERE loinscreinscription IS NULL;
+              ALTER TABLE moth.inscription ALTER COLUMN loinscreinscription SET DEFAULT false;
+              ALTER TABLE moth.inscription ALTER COLUMN loinscreinscription SET NOT NULL;
+
+  - changeSet:
+      id: 062-updateView-inscription-add-reinscription
+      author: Aymen
+      changes:
+        - sql:
+            sql: |
+              DROP VIEW IF EXISTS moth.v_inscription_light CASCADE;
+
+              CREATE OR REPLACE VIEW moth.v_inscription_light AS
+              SELECT e.idelev AS id,
+                   i.idinsc AS idinscription,
+                   i.dtinscinscription AS dateinscription,
+                   i.cdinscstatut AS statut,
+                   e.txelevnom AS nom,
+                   e.txelevprenom AS prenom,
+                   e.dtelevnaissance AS datenaissance,
+                   e.cdelevniveau AS niveau,
+                   e.cdelevniveauinterne AS niveauinterne,
+                   r.txrespnom AS nomresponsablelegal,
+                   r.txrespprenom AS prenomresponsablelegal,
+                   r.txrespmobile AS mobile,
+                   r.txrespnomautre AS nomcontacturgence,
+                   r.txrespprenomautre AS prenomcontacturgence,
+                   r.txrespphoneautre AS mobilecontacturgence,
+                   r.txrespville AS ville,
+                   r.txrespphoneautre AS mobileautre,
+                   r.lorespautonomie AS autorisationautonomie,
+                   r.lorespmedia AS autorisationmedia,
+                   i.noinscinscription AS noinscription,
+                   i.loinscreinscription AS reinscription,
+                   p.idperi AS idperiode,
+                   r.txrespemail AS email,
+                   i.cdinsctype AS type,
+                   d.iddocu AS iddocument,
+                   EXISTS (
+                       SELECT 1 FROM moth.document_request dr
+                       WHERE dr.cddoretype = 'INSCRIPTION_' || i.cdinsctype
+                         AND dr.iddorebusi = i.idinsc
+                         AND dr.cddorestatut = 'PENDING'
+                   ) AS documentpending
+              FROM ((((moth.inscription i
+                   JOIN moth.eleve e ON ((e.idinsc = i.idinsc)))
+                   JOIN moth.resplegal r ON ((i.idresp = r.idresp)))
+                   JOIN moth.tarif t ON ((t.idtari = i.idtari)))
+                   JOIN moth.periode p ON ((p.idperi = t.idperi)))
+                   LEFT JOIN (moth.document_metadata dm
+                       JOIN moth.document d ON d.iddocu = dm.iddocu)
+                   ON (dm.cddomecle = 'ID_INSCRIPTION' AND dm.txdomevaleur = i.idinsc::text);
