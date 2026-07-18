@@ -38,4 +38,5 @@ runs:
         RIB_AMC_FILE_LOCATION: RIB_AMC_FILE_LOCATION
         RIB_AMC_MAIL_ATTACHMENT_NAME: RIB_AMC_MAIL_ATTACHMENT_NAME
         RESOURCE_LOCK_TIMEOUT: 10
+        DB_URL: jdbc:postgresql://localhost:5432/mosqueethonon
       run: ${{ inputs.maven-command }}

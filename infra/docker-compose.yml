@@ -1,0 +1,25 @@
+services:
+  postgres-mosquee:
+    image: postgres:15
+    container_name: mosquee-postgres
+    ports:
+      - "5434:5432" # for external connection (Dbeaver)
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+      - mosquee_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+  backend-mosquee:
+    build: ../
+    container_name: mosquee-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-mosquee
+    volumes:
+      - ../config:/app/config
+
+volumes:
+  mosquee_postgres_data:

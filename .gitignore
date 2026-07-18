@@ -7,3 +7,6 @@ src/main/resources/.env
 *~
 /bin/documents
 .superpowers/
+
+infra/.env
+infra/db/*

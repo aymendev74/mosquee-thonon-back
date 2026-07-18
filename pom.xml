@@ -16,6 +16,7 @@
     </parent>
 
     <properties>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>org.mosqueethonon.Application</start-class>
         <lombok.version>1.18.28</lombok.version>
