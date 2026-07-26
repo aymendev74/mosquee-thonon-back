@@ -39,4 +39,6 @@ runs:
         RIB_AMC_MAIL_ATTACHMENT_NAME: RIB_AMC_MAIL_ATTACHMENT_NAME
         RESOURCE_LOCK_TIMEOUT: 10
         DB_URL: jdbc:postgresql://localhost:5432/mosqueethonon
+        DOCUMENTS_BASE_PATH: DOCUMENTS_BASE_PATH
+        GEMINI_API_KEY: GEMINI_API_KEY
       run: ${{ inputs.maven-command }}
