@@ -1,4 +1,4 @@
-package org.mosqueethonon.configuration.env;
+package org.mosqueethonon.common.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;

@@ -1,4 +1,4 @@
-package org.mosqueethonon.configuration.env;
+package org.mosqueethonon.common.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;

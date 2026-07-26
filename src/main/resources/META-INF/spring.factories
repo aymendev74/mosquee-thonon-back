@@ -1,4 +1,4 @@
 # L'écouteur doit être connu de SpringApplication avant la création du contexte : ApplicationPreparedEvent
 # est publié avant l'instanciation des beans, un @Component serait enregistré trop tard.
 org.springframework.context.ApplicationListener=\
-org.mosqueethonon.configuration.env.RequiredEnvironmentVariablesValidator
+org.mosqueethonon.common.config.RequiredEnvironmentVariablesValidator
