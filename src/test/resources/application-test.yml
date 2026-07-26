@@ -2,6 +2,12 @@ logging:
     level:
         root: INFO
 
+chatbot:
+    indexing:
+        # Les @SpringBootTest déclenchent ApplicationReadyEvent : sans ce false, chaque exécution de
+        # la suite de tests appellerait réellement l'API Gemini.
+        on-startup: false
+
 spring:
     liquibase:
         enabled: false
