@@ -39,4 +39,11 @@ runs:
         RIB_AMC_MAIL_ATTACHMENT_NAME: RIB_AMC_MAIL_ATTACHMENT_NAME
         RESOURCE_LOCK_TIMEOUT: 10
         DB_URL: jdbc:postgresql://localhost:5432/mosqueethonon
+        # Manquait jusqu'ici : la propriété app.documents.base-path recevait le placeholder en clair
+        # sans que rien ne le signale. Le garde-fou de démarrage rend désormais l'oubli bloquant.
+        DOCUMENTS_BASE_PATH: DOCUMENTS_BASE_PATH
+        # Consommée par chatbot.gemini.api-key, introduite par la branche du chatbot. Déclarée ici
+        # pour que la CI reste verte dès la fusion de celle-ci ; sans effet tant qu'elle n'est pas
+        # référencée.
+        GEMINI_API_KEY: GEMINI_API_KEY
       run: ${{ inputs.maven-command }}
