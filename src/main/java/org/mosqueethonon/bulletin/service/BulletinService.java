@@ -1,6 +1,6 @@
 package org.mosqueethonon.bulletin.service;
 
-import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
 
 import java.util.List;

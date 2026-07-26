@@ -1,7 +1,7 @@
 package org.mosqueethonon.service.impl.inscription;
 
 import org.mosqueethonon.configuration.security.context.Roles;
-import org.mosqueethonon.entity.document.DocumentRequestEntity;
+import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
 import org.mosqueethonon.mail.enums.MailRequestStatut;

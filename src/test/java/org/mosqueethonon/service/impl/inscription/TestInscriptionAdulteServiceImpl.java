@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.mosqueethonon.entity.document.DocumentEntity;
-import org.mosqueethonon.enums.DocumentMetadataKey;
-import org.mosqueethonon.repository.DocumentRepository;
+import org.mosqueethonon.document.entity.DocumentEntity;
+import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.repository.DocumentRepository;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import org.mosqueethonon.entity.referentiel.MatiereEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestType;
 import org.mosqueethonon.enums.MatiereEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
@@ -42,7 +42,7 @@ import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
-import org.mosqueethonon.service.document.AsyncDocumentService;
+import org.mosqueethonon.document.service.AsyncDocumentService;
 import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
@@ -631,6 +631,6 @@ public class TestInscriptionAdulteServiceImpl {
         assertNotNull(result);
         assertNull(result.getIdDocument());
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(org.mosqueethonon.enums.DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
+                .requestDocumentGeneration(eq(org.mosqueethonon.document.enums.DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
     }
 }

@@ -3,7 +3,7 @@ package org.mosqueethonon.mail.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.enums.DocumentRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestStatut;
 import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.mail.repository.MailRequestDocumentRequestRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;

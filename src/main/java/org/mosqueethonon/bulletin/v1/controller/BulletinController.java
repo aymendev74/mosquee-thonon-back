@@ -1,9 +1,9 @@
 package org.mosqueethonon.bulletin.v1.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.document.DocumentEntity;
+import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.bulletin.service.BulletinService;
-import org.mosqueethonon.service.document.DocumentService;
+import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.bulletin.v1.dto.BulletinCompletudeDto;
 import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
 import org.springframework.http.HttpHeaders;
