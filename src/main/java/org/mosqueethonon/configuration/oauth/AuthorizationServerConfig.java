@@ -1,9 +1,9 @@
 package org.mosqueethonon.configuration.oauth;
 
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
-import org.mosqueethonon.service.UserService;
+import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
+import org.mosqueethonon.utilisateur.entity.UtilisateurRoleEntity;
+import org.mosqueethonon.utilisateur.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

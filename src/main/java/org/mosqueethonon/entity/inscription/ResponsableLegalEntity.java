@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 
 @Entity
 @EntityListeners(EntityListener.class)

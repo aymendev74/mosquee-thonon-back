@@ -38,7 +38,7 @@ import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;
 import org.mosqueethonon.v1.dto.inscription.ResponsableLegalDto;
-import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.utilisateur.v1.dto.UserDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
 import org.mosqueethonon.v1.enums.StatutInscription;

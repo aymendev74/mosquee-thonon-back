@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
 import org.mosqueethonon.document.service.DocumentService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

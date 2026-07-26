@@ -14,7 +14,7 @@ import org.mosqueethonon.classe.entity.ClasseEntity;
 import org.mosqueethonon.classe.entity.LienClasseEnseignantEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.referentiel.entity.MatiereEntity;
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
+import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;

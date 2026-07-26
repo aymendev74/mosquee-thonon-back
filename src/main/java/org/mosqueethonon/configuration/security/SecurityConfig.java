@@ -3,7 +3,7 @@ package org.mosqueethonon.configuration.security;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.mosqueethonon.service.UserService;
+import org.mosqueethonon.utilisateur.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

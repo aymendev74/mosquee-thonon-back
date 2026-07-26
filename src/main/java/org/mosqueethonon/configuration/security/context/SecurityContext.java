@@ -1,7 +1,7 @@
 package org.mosqueethonon.configuration.security.context;
 
-import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.v1.dto.user.UserInfoDto;
+import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
+import org.mosqueethonon.utilisateur.v1.dto.UserInfoDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

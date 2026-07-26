@@ -8,9 +8,9 @@ import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.mail.enums.MailRequestType;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
-import org.mosqueethonon.service.impl.UserAccountManager;
-import org.mosqueethonon.v1.dto.user.RoleDto;
-import org.mosqueethonon.v1.dto.user.UserDto;
+import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
+import org.mosqueethonon.utilisateur.v1.dto.RoleDto;
+import org.mosqueethonon.utilisateur.v1.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 

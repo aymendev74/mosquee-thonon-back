@@ -13,7 +13,7 @@ import org.mosqueethonon.document.enums.DocumentRequestType;
 import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
-import org.mosqueethonon.service.impl.UserAccountManager;
+import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

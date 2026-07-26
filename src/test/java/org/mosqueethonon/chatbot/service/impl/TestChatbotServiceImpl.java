@@ -21,7 +21,7 @@ import org.mosqueethonon.chatbot.service.ChatbotGenerationService;
 import org.mosqueethonon.chatbot.service.ChatbotRetrievalService;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.UtilisateurRepository;
+import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
 import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageRequestDto;
 import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageResponseDto;
 import org.mosqueethonon.v1.dto.chatbot.ChatbotSourceDto;
