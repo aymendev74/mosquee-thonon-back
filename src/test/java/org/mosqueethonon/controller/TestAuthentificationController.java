@@ -7,7 +7,7 @@ import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.dto.auth.LoginRequestDto;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.repository.UtilisateurRepository;
-import org.mosqueethonon.v1.controller.TestController;
+import org.mosqueethonon.common.controller.TestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;

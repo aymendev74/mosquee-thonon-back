@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.common.controller;
 
 import org.junit.jupiter.api.TestInstance;
 import org.mosqueethonon.Application;

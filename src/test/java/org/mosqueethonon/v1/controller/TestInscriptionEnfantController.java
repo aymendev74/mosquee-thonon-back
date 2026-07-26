@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.common.controller.TestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,7 +12,13 @@ import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionLightEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.enums.*;
+import org.mosqueethonon.enums.ApplicationTarifEnum;
+import org.mosqueethonon.enums.DocumentRequestStatut;
+import org.mosqueethonon.enums.DocumentRequestType;
+import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.enums.NiveauScolaireEnum;
+import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.enums.DocumentRequestStatut;
 import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.repository.DocumentRequestRepository;

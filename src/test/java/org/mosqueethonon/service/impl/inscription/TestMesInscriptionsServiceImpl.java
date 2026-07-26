@@ -7,7 +7,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
-import org.mosqueethonon.v1.dto.inscription.*;
+import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
+import org.mosqueethonon.v1.dto.inscription.MesInscriptionsDto;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package org.mosqueethonon.configuration.oauth;
 
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
-import org.mosqueethonon.v1.controller.TestController;
+import org.mosqueethonon.common.controller.TestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

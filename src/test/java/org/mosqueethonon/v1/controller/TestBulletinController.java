@@ -1,5 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
+import org.mosqueethonon.common.controller.TestController;
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.entity.bulletin.BulletinEntity;
 import org.mosqueethonon.repository.BulletinRepository;
