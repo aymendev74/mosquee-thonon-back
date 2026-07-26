@@ -17,7 +17,7 @@ import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
 import org.mosqueethonon.utilisateur.repository.specification.UserSpecifications;
 import org.mosqueethonon.utilisateur.service.UserService;
-import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
+import org.mosqueethonon.inscription.service.InscriptionOrchestratorService;
 import org.mosqueethonon.utilisateur.util.PasswordGenerator;
 import org.mosqueethonon.utilisateur.util.UserActivationTokenGenerator;
 import org.mosqueethonon.utilisateur.v1.criteria.UserCriteria;

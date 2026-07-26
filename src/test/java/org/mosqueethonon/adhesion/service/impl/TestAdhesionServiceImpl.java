@@ -25,7 +25,7 @@ import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
-import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscription;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapperImpl;
 

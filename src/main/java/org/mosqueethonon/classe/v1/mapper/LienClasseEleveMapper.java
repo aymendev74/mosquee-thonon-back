@@ -4,11 +4,11 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mosqueethonon.classe.entity.LienClasseEleveEntity;
-import org.mosqueethonon.entity.inscription.EleveEntity;
+import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.EleveRepository;
+import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.classe.v1.dto.LienClasseEleveDto;
-import org.mosqueethonon.v1.mapper.inscription.EleveMapper;
+import org.mosqueethonon.inscription.v1.mapper.EleveMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = { EleveMapper.class })

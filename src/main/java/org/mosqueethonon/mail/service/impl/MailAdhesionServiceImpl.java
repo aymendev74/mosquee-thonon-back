@@ -8,7 +8,7 @@ import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.adhesion.service.AdhesionService;
 import org.mosqueethonon.mail.service.MailService;
 import org.mosqueethonon.referentiel.service.TraductionService;
-import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscription;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.utils.StringUtils;
 import org.mosqueethonon.mail.dto.IMailObject;
-import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscription;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

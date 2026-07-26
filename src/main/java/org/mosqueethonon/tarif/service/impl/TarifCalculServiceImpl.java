@@ -1,20 +1,20 @@
 package org.mosqueethonon.tarif.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
-import org.mosqueethonon.entity.inscription.InscriptionEntity;
+import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
-import org.mosqueethonon.enums.StatutProfessionnelEnum;
-import org.mosqueethonon.enums.TypeInscriptionEnum;
+import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.inscription.enums.TypeInscriptionEnum;
 import org.mosqueethonon.tarif.enums.TypeTarifEnum;
-import org.mosqueethonon.repository.InscriptionAdulteRepository;
-import org.mosqueethonon.repository.InscriptionRepository;
+import org.mosqueethonon.inscription.repository.InscriptionAdulteRepository;
+import org.mosqueethonon.inscription.repository.InscriptionRepository;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.tarif.service.TarifService;
 import org.mosqueethonon.tarif.criteria.TarifCriteria;
-import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
+import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantInfosDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
 import org.mosqueethonon.tarif.v1.dto.TarifDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;

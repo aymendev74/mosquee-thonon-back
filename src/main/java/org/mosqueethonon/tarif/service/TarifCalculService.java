@@ -1,8 +1,8 @@
 package org.mosqueethonon.tarif.service;
 
-import org.mosqueethonon.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.tarif.enums.TypeTarifEnum;
-import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
+import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantInfosDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
 

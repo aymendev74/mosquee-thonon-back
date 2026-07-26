@@ -17,7 +17,7 @@ import org.mosqueethonon.adhesion.repository.AdhesionLightRepository;
 import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
-import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;

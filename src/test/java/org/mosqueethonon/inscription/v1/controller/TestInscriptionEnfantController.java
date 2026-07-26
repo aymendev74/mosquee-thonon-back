@@ -1,0 +1,300 @@
+package org.mosqueethonon.inscription.v1.controller;
+
+import org.mosqueethonon.common.controller.TestController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mosqueethonon.param.entity.ParamEntity;
+import org.mosqueethonon.document.entity.DocumentRequestEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
+import org.mosqueethonon.inscription.entity.InscriptionLightEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
+import org.mosqueethonon.tarif.entity.TarifEntity;
+import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
+import org.mosqueethonon.document.enums.DocumentRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
+import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
+import org.mosqueethonon.param.enums.ParamNameEnum;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
+import org.mosqueethonon.document.enums.DocumentRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.repository.DocumentRequestRepository;
+import org.mosqueethonon.inscription.repository.InscriptionEnfantRepository;
+import org.mosqueethonon.inscription.repository.InscriptionLightRepository;
+import org.mosqueethonon.param.repository.ParamRepository;
+import org.mosqueethonon.inscription.v1.dto.EleveDto;
+import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantDto;
+import org.mosqueethonon.inscription.v1.dto.ResponsableLegalDto;
+import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class TestInscriptionEnfantController extends TestController {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper jsonMapper;
+
+    @Autowired
+    private ParamRepository paramRepository;
+
+    @Autowired
+    protected InscriptionEnfantRepository inscriptionEnfantRepository;
+
+    @Autowired
+    protected InscriptionLightRepository inscriptionLightRepository;
+
+    @Autowired
+    protected DocumentRequestRepository documentRequestRepository;
+
+    @BeforeAll
+    protected void initReferentiel() {
+        this.initParams();
+        this.initTarifsCoursEnfant(this.initPeriodeCoursEnfant());
+    }
+
+    private void initParams() {
+        ParamEntity paramInscriptionEnabled = new ParamEntity();
+        paramInscriptionEnabled.setName(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE);
+        paramInscriptionEnabled.setValue("01.01.1950");
+        this.paramRepository.save(paramInscriptionEnabled);
+    }
+
+    private void initTarifsCoursEnfant(PeriodeEntity periode) {
+        List<TarifEntity> tarifsCours = new ArrayList<>();
+        // tarifs base
+        tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(true)
+                .type(TypeTarifEnum.BASE).code("BASE_ADHERENT_1_ENFANT").montant(bd(120)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(false)
+                .type(TypeTarifEnum.BASE).code("BASE_1_ENFANT").montant(bd(240)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(true)
+                .type(TypeTarifEnum.BASE).code("BASE_ADHERENT_2_ENFANT").montant(bd(160)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(false)
+                .type(TypeTarifEnum.BASE).code("BASE_2_ENFANT").montant(bd(280)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(true)
+                .type(TypeTarifEnum.BASE).code("BASE_ADHERENT_3_ENFANT").montant(bd(200)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(false)
+                .type(TypeTarifEnum.BASE).code("BASE_3_ENFANT").montant(bd(320)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(true)
+                .type(TypeTarifEnum.BASE).code("BASE_ADHERENT_4_ENFANT").montant(bd(240)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(false)
+                .type(TypeTarifEnum.BASE).code("BASE_4_ENFANT").montant(bd(360)).build());
+
+        // tarifs par enfant
+        tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(true)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_ADHERENT_1_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(1).periode(periode).adherent(false)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_1_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(true)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_ADHERENT_2_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(2).periode(periode).adherent(false)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_2_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(true)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_ADHERENT_3_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(3).periode(periode).adherent(false)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_3_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(true)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_ADHERENT_4_ENFANT").montant(bd(15)).build());
+        tarifsCours.add(TarifEntity.builder().nbEnfant(4).periode(periode).adherent(false)
+                .type(TypeTarifEnum.ENFANT).code("ENFANT_4_ENFANT").montant(bd(15)).build());
+
+        this.tarifRepository.saveAll(tarifsCours);
+    }
+
+    @BeforeEach
+    protected void deleteInscription() {
+        this.inscriptionEnfantRepository.deleteAll();
+    }
+
+    private PeriodeEntity initPeriodeCoursEnfant() {
+        LocalDate today = LocalDate.now();
+        PeriodeEntity periode = PeriodeEntity.builder().application(ApplicationTarifEnum.COURS_ENFANT.name()).dateDebut(today.minusDays(1))
+                .dateFin(today.plusDays(1)).nbMaxInscription(500).build();
+        return this.periodeRepository.save(periode);
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testSaveInscriptionMultiThreading() throws Exception {
+        int nbThreads = 510;
+        CountDownLatch compteur = new CountDownLatch(nbThreads);
+
+        for (int i = 0; i < nbThreads; i++) {
+            new Thread(() -> {
+                try {
+                    mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(jsonMapper.writeValueAsString(this.createInscription()))
+                                    .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                            .andExpect(MockMvcResultMatchers.status().isOk());
+                } catch (Exception e) {
+                    fail(e);
+                } finally {
+                    compteur.countDown();
+                }
+
+            }).start();
+        }
+
+        // On attend que tous les threads aient terminé leur inscription
+        compteur.await();
+
+        // Puis on va vérifier que 510 inscriptions ont bien été enregistrés dont 10 avec statut en attente
+        List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
+        assertInscriptionsAttentes(allInscriptions, 10);
+
+        // Puis on va supprimer 5 inscriptions provisoires pour forcer la mise à jour de la liste d'attente
+        Set<Long> inscriptionsASupprimer = new HashSet<>();
+        for (InscriptionEnfantEntity inscription : allInscriptions) {
+            if (inscriptionsASupprimer.size() == 5) break;
+            if (inscription.getStatut() == StatutInscription.PROVISOIRE) {
+                inscriptionsASupprimer.add(inscription.getId());
+            }
+        }
+        this.inscriptionOrchestratorService.deleteInscriptions(inscriptionsASupprimer);
+        // Puis on va vérifier que 500 inscriptions sont bien toujours provisoires 5 sont en attentes
+        allInscriptions = this.inscriptionEnfantRepository.findAll();
+        assertInscriptionsAttentes(allInscriptions, 5);
+    }
+
+    private void assertInscriptionsAttentes(List<InscriptionEnfantEntity> allInscriptions, Integer nbEnAttente) {
+        assertEquals(500 + nbEnAttente, allInscriptions.size());
+        Long nbInscriptionEnAttente = allInscriptions.stream().filter(inscription ->
+                inscription.getStatut() == StatutInscription.LISTE_ATTENTE).count();
+        Long nbInscriptionProvisoire = allInscriptions.stream().filter(inscription ->
+                inscription.getStatut() == StatutInscription.PROVISOIRE).count();
+        assertEquals(500, nbInscriptionProvisoire);
+        assertEquals(Long.valueOf(nbEnAttente), nbInscriptionEnAttente);
+    }
+
+    private InscriptionEnfantDto createInscription() {
+        return InscriptionEnfantDto.builder().eleves(this.createEleve())
+                .responsableLegal(createResponsableLegal()).build();
+    }
+
+    private ResponsableLegalDto createResponsableLegal() {
+        return ResponsableLegalDto.builder().autorisationAutonomie(false).autorisationAutonomie(false)
+                .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
+                .numeroEtRue("").nom("").prenom("").email("").build();
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testCreateInscription_ReinscriptionPrioritaireEnabled() throws Exception {
+        ParamEntity paramReinscription = new ParamEntity();
+        paramReinscription.setName(ParamNameEnum.REINSCRIPTION_ENABLED);
+        paramReinscription.setValue("true");
+        paramReinscription = this.paramRepository.save(paramReinscription);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(this.createInscription()))
+                            .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                    .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+            List<InscriptionEnfantEntity> allInscriptions = this.inscriptionEnfantRepository.findAll();
+            assertEquals(0, allInscriptions.size());
+        } finally {
+            this.paramRepository.delete(paramReinscription);
+        }
+    }
+
+    private List<EleveDto> createEleve() {
+        return Lists.newArrayList(EleveDto.builder().nom("").prenom("").dateNaissance(LocalDate.of(2015, 11, 14))
+                .niveau(NiveauScolaireEnum.CE2).niveauInterne(NiveauInterneEnum.P1).build());
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionEnfantLight_DocumentPendingTrueAfterCreate() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscription()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionEnfantRepository.findAll().get(0).getId();
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertTrue(light.getDocumentPending());
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionEnfantLight_DocumentPendingFalseWhenRequestCompleted() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscription()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionEnfantRepository.findAll().get(0).getId();
+        DocumentRequestEntity request = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        request.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(request);
+
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertFalse(light.getDocumentPending());
+    }
+
+    @Test
+    @WithMockUser(username = "anonymous")
+    public void testInscriptionEnfantLight_DocumentPendingFalseWhenOnlyAdulteTypeRequestPending() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscription()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long idInscription = this.inscriptionEnfantRepository.findAll().get(0).getId();
+
+        // Complete the legitimate INSCRIPTION_ENFANT request created at creation time.
+        DocumentRequestEntity enfantRequest = documentRequestRepository
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatut.PENDING)
+                .orElseThrow();
+        enfantRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        documentRequestRepository.save(enfantRequest);
+
+        // Insert a PENDING request for the SAME businessId but the ADULTE type -- proves the
+        // 'INSCRIPTION_' || cdinsctype filter isolates ENFANT from ADULTE, not just by id.
+        DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
+        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ADULTE);
+        wrongTypeRequest.setBusinessId(idInscription);
+        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        documentRequestRepository.save(wrongTypeRequest);
+
+        InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
+                .filter(l -> idInscription.equals(l.getIdInscription()))
+                .findFirst().orElseThrow();
+        assertFalse(light.getDocumentPending());
+    }
+
+}

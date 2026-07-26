@@ -2,9 +2,9 @@ package org.mosqueethonon.document.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.enums.NiveauScolaireEnum;
+import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.document.service.DocumentGenerator;
 import org.mosqueethonon.utils.HashUtils;
 import org.springframework.stereotype.Component;

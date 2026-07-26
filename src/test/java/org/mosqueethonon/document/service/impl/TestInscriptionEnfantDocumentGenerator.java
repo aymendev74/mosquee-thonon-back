@@ -7,11 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.entity.inscription.EleveEntity;
-import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
-import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
+import org.mosqueethonon.inscription.entity.EleveEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
+import org.mosqueethonon.inscription.entity.ResponsableLegalEntity;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
-import org.mosqueethonon.enums.NiveauScolaireEnum;
+import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

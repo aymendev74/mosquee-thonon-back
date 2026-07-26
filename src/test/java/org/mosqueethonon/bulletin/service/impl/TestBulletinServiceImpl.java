@@ -25,11 +25,11 @@ import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.referentiel.repository.MatiereRepository;
 import org.mosqueethonon.document.service.AsyncDocumentService;
 import org.mosqueethonon.document.service.DocumentService;
-import org.mosqueethonon.service.inscription.EleveService;
+import org.mosqueethonon.inscription.service.EleveService;
 import org.mosqueethonon.referentiel.service.MatiereService;
 import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
 import org.mosqueethonon.bulletin.v1.dto.BulletinMatiereDto;
-import org.mosqueethonon.v1.dto.inscription.EleveDto;
+import org.mosqueethonon.inscription.v1.dto.EleveDto;
 import org.mosqueethonon.bulletin.v1.mapper.BulletinMapper;
 import org.mosqueethonon.bulletin.v1.mapper.BulletinMatiereMapper;
 

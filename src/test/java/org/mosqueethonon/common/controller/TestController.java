@@ -5,7 +5,7 @@ import org.mosqueethonon.Application;
 import org.mosqueethonon.configuration.exception.CustomExceptionHandler;
 import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;
-import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
+import org.mosqueethonon.inscription.service.InscriptionOrchestratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

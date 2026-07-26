@@ -12,14 +12,14 @@ import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
 import org.mosqueethonon.classe.entity.ClasseEntity;
 import org.mosqueethonon.classe.entity.LienClasseEnseignantEntity;
-import org.mosqueethonon.entity.inscription.EleveEntity;
+import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.referentiel.entity.MatiereEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseRepository;
-import org.mosqueethonon.repository.EleveRepository;
+import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.referentiel.v1.dto.TraductionDto;
 

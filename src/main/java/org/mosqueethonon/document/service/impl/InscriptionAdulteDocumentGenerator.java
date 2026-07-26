@@ -2,8 +2,8 @@ package org.mosqueethonon.document.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.entity.inscription.EleveEntity;
-import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
+import org.mosqueethonon.inscription.entity.EleveEntity;
+import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.document.service.DocumentGenerator;

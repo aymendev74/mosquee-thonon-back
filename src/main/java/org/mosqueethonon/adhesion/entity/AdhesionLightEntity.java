@@ -2,7 +2,7 @@ package org.mosqueethonon.adhesion.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.mosqueethonon.v1.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscription;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
