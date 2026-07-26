@@ -1,4 +1,4 @@
-package org.mosqueethonon.entity.bulletin;
+package org.mosqueethonon.bulletin.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
 import org.mosqueethonon.entity.referentiel.MatiereEntity;
-import org.mosqueethonon.enums.NoteMatiereEnum;
+import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 
 @Entity
 @EntityListeners(EntityListener.class)

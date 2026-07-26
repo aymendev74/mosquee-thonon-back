@@ -1,12 +1,12 @@
-package org.mosqueethonon.v1.mapper.bulletin;
+package org.mosqueethonon.bulletin.v1.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mosqueethonon.entity.bulletin.BulletinEntity;
-import org.mosqueethonon.entity.bulletin.BulletinMatiereEntity;
-import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
-import org.mosqueethonon.v1.dto.bulletin.BulletinMatiereDto;
+import org.mosqueethonon.bulletin.entity.BulletinEntity;
+import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
+import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
+import org.mosqueethonon.bulletin.v1.dto.BulletinMatiereDto;
 
 import java.util.List;
 

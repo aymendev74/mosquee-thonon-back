@@ -1,8 +1,8 @@
 package org.mosqueethonon.service.impl.document;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.bulletin.BulletinEntity;
-import org.mosqueethonon.entity.bulletin.BulletinMatiereEntity;
+import org.mosqueethonon.bulletin.entity.BulletinEntity;
+import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
 import org.mosqueethonon.entity.classe.ClasseEntity;
 import org.mosqueethonon.entity.document.DocumentMetadataEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;

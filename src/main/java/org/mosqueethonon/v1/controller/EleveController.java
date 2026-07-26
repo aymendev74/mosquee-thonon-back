@@ -2,10 +2,10 @@ package org.mosqueethonon.v1.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.service.bulletin.BulletinService;
+import org.mosqueethonon.bulletin.service.BulletinService;
 import org.mosqueethonon.service.inscription.EleveService;
 import org.mosqueethonon.v1.criterias.SearchEleveCriteria;
-import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
+import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
 import org.mosqueethonon.v1.dto.inscription.EleveDto;
 import org.mosqueethonon.v1.dto.inscription.EleveEnrichedDto;
 import org.springframework.http.ResponseEntity;

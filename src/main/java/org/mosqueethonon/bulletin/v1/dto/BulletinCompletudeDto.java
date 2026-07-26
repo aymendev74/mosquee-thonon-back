@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.bulletin;
+package org.mosqueethonon.bulletin.v1.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.mapper.bulletin;
+package org.mosqueethonon.bulletin.v1.mapper;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mosqueethonon.entity.bulletin.BulletinMatiereEntity;
-import org.mosqueethonon.v1.dto.bulletin.BulletinMatiereDto;
+import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
+import org.mosqueethonon.bulletin.v1.dto.BulletinMatiereDto;
 
 @Mapper(componentModel = "spring")
 public interface BulletinMatiereMapper {

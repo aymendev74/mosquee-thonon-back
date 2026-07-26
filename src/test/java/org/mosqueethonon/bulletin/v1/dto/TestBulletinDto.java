@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.dto.bulletin;
+package org.mosqueethonon.bulletin.v1.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.enums.MatiereEnum;
-import org.mosqueethonon.enums.NoteMatiereEnum;
+import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

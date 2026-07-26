@@ -1,7 +1,7 @@
-package org.mosqueethonon.service.bulletin;
+package org.mosqueethonon.bulletin.service;
 
 import org.mosqueethonon.entity.document.DocumentEntity;
-import org.mosqueethonon.v1.dto.bulletin.BulletinDto;
+import org.mosqueethonon.bulletin.v1.dto.BulletinDto;
 
 import java.util.List;
 import java.util.Optional;

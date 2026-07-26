@@ -1,9 +1,9 @@
-package org.mosqueethonon.v1.dto.bulletin;
+package org.mosqueethonon.bulletin.v1.dto;
 
 import lombok.Builder;
 import lombok.Data;
 import org.mosqueethonon.enums.MatiereEnum;
-import org.mosqueethonon.enums.NoteMatiereEnum;
+import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 
 @Data
 @Builder

@@ -1,6 +1,6 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.bulletin.repository;
 
-import org.mosqueethonon.entity.bulletin.BulletinEntity;
+import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

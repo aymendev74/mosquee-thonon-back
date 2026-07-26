@@ -1,9 +1,9 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.bulletin.v1.controller;
 
 import org.mosqueethonon.common.controller.TestController;
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.entity.bulletin.BulletinEntity;
-import org.mosqueethonon.repository.BulletinRepository;
+import org.mosqueethonon.bulletin.entity.BulletinEntity;
+import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
