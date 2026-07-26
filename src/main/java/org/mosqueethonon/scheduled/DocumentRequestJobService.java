@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.repository.DocumentRequestRepository;
-import org.mosqueethonon.service.mail.MailRequestService;
+import org.mosqueethonon.mail.service.MailRequestService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

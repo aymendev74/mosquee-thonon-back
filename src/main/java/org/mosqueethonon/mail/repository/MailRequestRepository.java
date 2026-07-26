@@ -1,8 +1,8 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.mail.repository;
 
-import org.mosqueethonon.entity.mail.MailRequestEntity;
-import org.mosqueethonon.enums.MailRequestType;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
+import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

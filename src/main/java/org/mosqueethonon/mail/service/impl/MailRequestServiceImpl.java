@@ -1,13 +1,13 @@
-package org.mosqueethonon.service.impl.mail;
+package org.mosqueethonon.mail.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
 import org.mosqueethonon.enums.DocumentRequestStatut;
-import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.repository.MailRequestDocumentRequestRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
-import org.mosqueethonon.service.mail.MailRequestService;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.repository.MailRequestDocumentRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
+import org.mosqueethonon.mail.service.MailRequestService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

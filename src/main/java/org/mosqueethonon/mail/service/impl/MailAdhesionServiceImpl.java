@@ -1,12 +1,12 @@
-package org.mosqueethonon.service.impl.mail;
+package org.mosqueethonon.mail.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
-import org.mosqueethonon.dto.mail.MailAttachmentDto;
-import org.mosqueethonon.dto.mail.MailDto;
+import org.mosqueethonon.mail.dto.MailAttachmentDto;
+import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.adhesion.service.AdhesionService;
-import org.mosqueethonon.service.mail.MailService;
+import org.mosqueethonon.mail.service.MailService;
 import org.mosqueethonon.service.referentiel.TraductionService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;

@@ -7,7 +7,7 @@ import org.mosqueethonon.entity.utilisateur.LoginHistoryEntity;
 import org.mosqueethonon.entity.utilisateur.RoleEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.exception.InvalidOldPasswordException;
 import org.mosqueethonon.exception.ResourceNotFoundException;

@@ -39,7 +39,7 @@ import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;

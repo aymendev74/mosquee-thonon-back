@@ -1,4 +1,4 @@
-package org.mosqueethonon.scheduled;
+package org.mosqueethonon.mail.scheduled;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -8,10 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.enums.MailRequestType;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 
 import java.util.Optional;
 

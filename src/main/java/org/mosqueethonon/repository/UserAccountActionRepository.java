@@ -1,7 +1,7 @@
 package org.mosqueethonon.repository;
 
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

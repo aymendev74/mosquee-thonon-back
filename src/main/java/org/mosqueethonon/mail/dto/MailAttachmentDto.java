@@ -1,4 +1,4 @@
-package org.mosqueethonon.dto.mail;
+package org.mosqueethonon.mail.dto;
 
 import lombok.Builder;
 import lombok.Data;

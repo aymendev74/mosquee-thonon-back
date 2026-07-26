@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 
 @Entity

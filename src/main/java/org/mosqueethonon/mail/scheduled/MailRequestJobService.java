@@ -1,9 +1,9 @@
-package org.mosqueethonon.scheduled;
+package org.mosqueethonon.mail.scheduled;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

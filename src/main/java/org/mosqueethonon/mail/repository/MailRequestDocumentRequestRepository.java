@@ -1,6 +1,6 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.mail.repository;
 
-import org.mosqueethonon.entity.mail.MailRequestDocumentRequestEntity;
+import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

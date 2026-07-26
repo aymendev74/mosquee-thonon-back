@@ -23,7 +23,7 @@ import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
 import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;

@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto;
+package org.mosqueethonon.mail.dto;
 
 public interface IMailObject {
 

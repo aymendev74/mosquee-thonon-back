@@ -12,7 +12,7 @@ import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.enums.DocumentRequestStatut;
 import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.repository.DocumentRequestRepository;
-import org.mosqueethonon.service.mail.MailRequestService;
+import org.mosqueethonon.mail.service.MailRequestService;
 
 import java.util.Optional;
 

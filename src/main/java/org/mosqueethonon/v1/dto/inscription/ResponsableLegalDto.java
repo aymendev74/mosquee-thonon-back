@@ -3,7 +3,7 @@ package org.mosqueethonon.v1.dto.inscription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.mosqueethonon.v1.dto.IMailObject;
+import org.mosqueethonon.mail.dto.IMailObject;
 
 @Data
 @SuperBuilder

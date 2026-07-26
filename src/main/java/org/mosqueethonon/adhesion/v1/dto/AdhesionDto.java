@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.mosqueethonon.utils.StringUtils;
-import org.mosqueethonon.v1.dto.IMailObject;
+import org.mosqueethonon.mail.dto.IMailObject;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package org.mosqueethonon.service.impl.mail;
+package org.mosqueethonon.mail.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,10 +12,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.repository.MailRequestDocumentRequestRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.repository.MailRequestDocumentRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class TestMailRequestServiceImpl {

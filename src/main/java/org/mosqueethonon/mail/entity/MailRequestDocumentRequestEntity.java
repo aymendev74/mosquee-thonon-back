@@ -1,4 +1,4 @@
-package org.mosqueethonon.entity.mail;
+package org.mosqueethonon.mail.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -7,12 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
 import org.mosqueethonon.enums.DocumentRequestStatut;
 import org.mosqueethonon.enums.DocumentRequestType;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.service.impl.UserAccountManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,7 +107,7 @@ public class TestCommonInscriptionService {
         // THEN — le type est bien INSCRIPTION
         ArgumentCaptor<MailRequestEntity> captor = ArgumentCaptor.forClass(MailRequestEntity.class);
         verify(mailRequestRepository, times(1)).save(captor.capture());
-        assertEquals(org.mosqueethonon.enums.MailRequestType.INSCRIPTION, captor.getValue().getType());
+        assertEquals(org.mosqueethonon.mail.enums.MailRequestType.INSCRIPTION, captor.getValue().getType());
     }
 
     // -----------------------------------------------------------------------

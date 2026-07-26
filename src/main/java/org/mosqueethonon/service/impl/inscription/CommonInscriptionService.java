@@ -2,12 +2,12 @@ package org.mosqueethonon.service.impl.inscription;
 
 import org.mosqueethonon.configuration.security.context.Roles;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
-import org.mosqueethonon.entity.mail.MailRequestDocumentRequestEntity;
-import org.mosqueethonon.entity.mail.MailRequestEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.enums.MailRequestType;
+import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
+import org.mosqueethonon.mail.entity.MailRequestEntity;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestType;
 import org.mosqueethonon.repository.InscriptionRepository;
-import org.mosqueethonon.repository.MailRequestRepository;
+import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.service.impl.UserAccountManager;
 import org.mosqueethonon.v1.dto.user.RoleDto;
 import org.mosqueethonon.v1.dto.user.UserDto;

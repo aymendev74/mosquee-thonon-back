@@ -1,4 +1,4 @@
-package org.mosqueethonon.service.mail;
+package org.mosqueethonon.mail.service;
 
 public interface MailRequestService {
 

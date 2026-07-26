@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.authentication.user.ChangePasswordRequest;
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.repository.UserAccountActionRepository;

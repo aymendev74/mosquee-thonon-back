@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurRoleEntity;
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.UserAccountActionRepository;

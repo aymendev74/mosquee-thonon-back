@@ -9,7 +9,7 @@ import org.mosqueethonon.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.utils.StringUtils;
-import org.mosqueethonon.v1.dto.IMailObject;
+import org.mosqueethonon.mail.dto.IMailObject;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 import java.math.BigDecimal;

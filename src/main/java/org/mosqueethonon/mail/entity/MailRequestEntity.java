@@ -1,4 +1,4 @@
-package org.mosqueethonon.entity.mail;
+package org.mosqueethonon.mail.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,12 +8,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.mosqueethonon.dto.mail.MailAttachmentDto;
+import org.mosqueethonon.mail.dto.MailAttachmentDto;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.MailRequestStatut;
-import org.mosqueethonon.enums.MailRequestType;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestType;
 
 import java.util.ArrayList;
 import java.util.List;

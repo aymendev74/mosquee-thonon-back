@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.entity.mail.UserAccountActionEntity;
 import org.mosqueethonon.entity.utilisateur.UtilisateurEntity;
-import org.mosqueethonon.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.UserAccountActionRepository;

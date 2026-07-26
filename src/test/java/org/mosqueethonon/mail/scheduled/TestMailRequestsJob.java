@@ -1,4 +1,4 @@
-package org.mosqueethonon.scheduled;
+package org.mosqueethonon.mail.scheduled;
 
 import static org.mockito.Mockito.*;
 
