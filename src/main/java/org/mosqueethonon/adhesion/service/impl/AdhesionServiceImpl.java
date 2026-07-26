@@ -1,10 +1,10 @@
-package org.mosqueethonon.service.impl.adhesion;
+package org.mosqueethonon.adhesion.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
-import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.mail.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.entity.mail.MailRequestEntity;
@@ -15,18 +15,18 @@ import org.mosqueethonon.enums.MailRequestType;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.repository.DocumentRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
-import org.mosqueethonon.service.adhesion.AdhesionService;
+import org.mosqueethonon.adhesion.service.AdhesionService;
 import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.lock.service.LockService;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;
-import org.mosqueethonon.v1.mapper.adhesion.AdhesionMapper;
+import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

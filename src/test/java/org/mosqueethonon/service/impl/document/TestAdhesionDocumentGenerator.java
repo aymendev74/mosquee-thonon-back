@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.entity.document.DocumentMetadataEntity;
 
 import java.math.BigDecimal;

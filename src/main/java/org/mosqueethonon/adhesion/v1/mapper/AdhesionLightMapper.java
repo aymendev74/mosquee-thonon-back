@@ -1,8 +1,8 @@
-package org.mosqueethonon.v1.mapper.adhesion;
+package org.mosqueethonon.adhesion.v1.mapper;
 
 import org.mapstruct.Mapper;
-import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
+import org.mosqueethonon.adhesion.entity.AdhesionLightEntity;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionLightDto;
 
 @Mapper(componentModel = "spring")
 public interface AdhesionLightMapper {

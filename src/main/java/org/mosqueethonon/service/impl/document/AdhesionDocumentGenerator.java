@@ -1,7 +1,7 @@
 package org.mosqueethonon.service.impl.document;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.entity.document.DocumentMetadataEntity;
 import org.mosqueethonon.enums.DocumentMetadataKey;
 import org.mosqueethonon.service.document.DocumentGenerator;

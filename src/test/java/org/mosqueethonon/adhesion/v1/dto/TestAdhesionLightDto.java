@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto;
+package org.mosqueethonon.adhesion.v1.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionLightDto;
 
 import java.time.LocalDateTime;
 

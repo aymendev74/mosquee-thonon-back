@@ -2,14 +2,14 @@ package org.mosqueethonon.scheduled;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.enums.DocumentRequestStatut;
-import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;

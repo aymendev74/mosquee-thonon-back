@@ -1,6 +1,6 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.adhesion.repository;
 
-import org.mosqueethonon.entity.adhesion.AdhesionEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

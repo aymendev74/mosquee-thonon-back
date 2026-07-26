@@ -14,7 +14,7 @@ import org.mosqueethonon.entity.document.DocumentEntity;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.enums.DocumentRequestStatut;
 import org.mosqueethonon.enums.DocumentRequestType;
-import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;

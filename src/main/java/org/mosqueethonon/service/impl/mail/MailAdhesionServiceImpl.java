@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
 import org.mosqueethonon.dto.mail.MailAttachmentDto;
 import org.mosqueethonon.dto.mail.MailDto;
-import org.mosqueethonon.service.adhesion.AdhesionService;
+import org.mosqueethonon.adhesion.service.AdhesionService;
 import org.mosqueethonon.service.mail.MailService;
 import org.mosqueethonon.service.referentiel.TraductionService;
 import org.mosqueethonon.v1.enums.StatutInscription;

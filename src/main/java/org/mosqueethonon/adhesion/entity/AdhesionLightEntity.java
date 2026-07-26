@@ -1,4 +1,4 @@
-package org.mosqueethonon.entity.adhesion;
+package org.mosqueethonon.adhesion.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

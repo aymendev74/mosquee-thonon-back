@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.adhesion;
+package org.mosqueethonon.adhesion.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

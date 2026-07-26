@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.criterias;
+package org.mosqueethonon.adhesion.v1.criteria;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,11 +1,11 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.adhesion.v1.controller;
 
 import org.mosqueethonon.common.controller.TestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
+import org.mosqueethonon.adhesion.entity.AdhesionLightEntity;
 import org.mosqueethonon.entity.document.DocumentRequestEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 import org.mosqueethonon.entity.referentiel.TarifEntity;
@@ -13,10 +13,10 @@ import org.mosqueethonon.enums.ApplicationTarifEnum;
 import org.mosqueethonon.enums.DocumentRequestStatut;
 import org.mosqueethonon.enums.DocumentRequestType;
 import org.mosqueethonon.enums.TypeTarifEnum;
-import org.mosqueethonon.repository.AdhesionLightRepository;
-import org.mosqueethonon.repository.AdhesionRepository;
+import org.mosqueethonon.adhesion.repository.AdhesionLightRepository;
+import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.repository.DocumentRequestRepository;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

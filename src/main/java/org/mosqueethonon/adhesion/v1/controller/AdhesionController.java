@@ -1,16 +1,16 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.adhesion.v1.controller;
 
 import static org.mosqueethonon.lock.enums.ResourceTypeEnum.ADHESION;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import org.mosqueethonon.lock.annotation.RequireLock;
-import org.mosqueethonon.service.adhesion.AdhesionLightService;
-import org.mosqueethonon.service.adhesion.AdhesionService;
-import org.mosqueethonon.v1.criterias.AdhesionCriteria;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
+import org.mosqueethonon.adhesion.service.AdhesionLightService;
+import org.mosqueethonon.adhesion.service.AdhesionService;
+import org.mosqueethonon.adhesion.v1.criteria.AdhesionCriteria;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionLightDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

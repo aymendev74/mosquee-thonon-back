@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.adhesion;
+package org.mosqueethonon.adhesion.v1.dto;
 
 import lombok.Builder;
 import lombok.Data;

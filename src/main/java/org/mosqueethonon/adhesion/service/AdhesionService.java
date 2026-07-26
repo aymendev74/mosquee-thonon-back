@@ -1,8 +1,8 @@
-package org.mosqueethonon.service.adhesion;
+package org.mosqueethonon.adhesion.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
 
 import java.util.Set;
 

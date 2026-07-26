@@ -1,13 +1,13 @@
-package org.mosqueethonon.service.impl.adhesion;
+package org.mosqueethonon.adhesion.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
-import org.mosqueethonon.repository.AdhesionLightRepository;
-import org.mosqueethonon.repository.specifications.AdhesionLightEntitySpecifications;
-import org.mosqueethonon.service.adhesion.AdhesionLightService;
-import org.mosqueethonon.v1.criterias.AdhesionCriteria;
-import org.mosqueethonon.v1.dto.adhesion.AdhesionLightDto;
-import org.mosqueethonon.v1.mapper.adhesion.AdhesionLightMapper;
+import org.mosqueethonon.adhesion.entity.AdhesionLightEntity;
+import org.mosqueethonon.adhesion.repository.AdhesionLightRepository;
+import org.mosqueethonon.adhesion.repository.specification.AdhesionLightEntitySpecifications;
+import org.mosqueethonon.adhesion.service.AdhesionLightService;
+import org.mosqueethonon.adhesion.v1.criteria.AdhesionCriteria;
+import org.mosqueethonon.adhesion.v1.dto.AdhesionLightDto;
+import org.mosqueethonon.adhesion.v1.mapper.AdhesionLightMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

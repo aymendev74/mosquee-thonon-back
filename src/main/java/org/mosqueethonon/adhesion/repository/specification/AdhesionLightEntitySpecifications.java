@@ -1,7 +1,7 @@
-package org.mosqueethonon.repository.specifications;
+package org.mosqueethonon.adhesion.repository.specification;
 
-import org.mosqueethonon.entity.adhesion.AdhesionLightEntity;
-import org.mosqueethonon.v1.criterias.AdhesionCriteria;
+import org.mosqueethonon.adhesion.entity.AdhesionLightEntity;
+import org.mosqueethonon.adhesion.v1.criteria.AdhesionCriteria;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
