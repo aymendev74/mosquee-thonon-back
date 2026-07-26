@@ -1,16 +1,16 @@
-package org.mosqueethonon.service.impl.referentiel;
+package org.mosqueethonon.tarif.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.annotations.CodeTarifEnfant;
-import org.mosqueethonon.annotations.TarifAdulte;
+import org.mosqueethonon.tarif.annotation.CodeTarifEnfant;
+import org.mosqueethonon.tarif.annotation.TarifAdulte;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
-import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.tarif.entity.TarifEntity;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.repository.TarifRepository;
-import org.mosqueethonon.service.referentiel.TarifAdminService;
-import org.mosqueethonon.v1.dto.referentiel.InfoTarifDto;
+import org.mosqueethonon.tarif.repository.TarifRepository;
+import org.mosqueethonon.tarif.service.TarifAdminService;
+import org.mosqueethonon.tarif.v1.dto.InfoTarifDto;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.tarif.v1.controller;
 
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
-import org.mosqueethonon.service.referentiel.TarifCalculService;
+import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
-import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionAdulteDto;
-import org.mosqueethonon.v1.dto.referentiel.TarifInscriptionEnfantDto;
+import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
+import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

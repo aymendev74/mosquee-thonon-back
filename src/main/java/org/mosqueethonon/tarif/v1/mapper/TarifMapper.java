@@ -1,8 +1,8 @@
-package org.mosqueethonon.v1.mapper.referentiel;
+package org.mosqueethonon.tarif.v1.mapper;
 
 import org.mapstruct.Mapper;
-import org.mosqueethonon.entity.referentiel.TarifEntity;
-import org.mosqueethonon.v1.dto.referentiel.TarifDto;
+import org.mosqueethonon.tarif.entity.TarifEntity;
+import org.mosqueethonon.tarif.v1.dto.TarifDto;
 
 @Mapper(componentModel = "spring")
 public interface TarifMapper {

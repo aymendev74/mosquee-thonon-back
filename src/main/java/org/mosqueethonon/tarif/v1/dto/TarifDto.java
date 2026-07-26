@@ -1,4 +1,5 @@
-package org.mosqueethonon.v1.dto.referentiel;
+package org.mosqueethonon.tarif.v1.dto;
+import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;
 
 import lombok.Data;
 import org.mosqueethonon.entity.audit.Signature;

@@ -1,6 +1,6 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.tarif.repository;
 
-import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

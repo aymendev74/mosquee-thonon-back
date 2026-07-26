@@ -1,8 +1,8 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.tarif.v1.controller;
 
 import org.mosqueethonon.lock.concurrent.LockManager;
-import org.mosqueethonon.service.referentiel.TarifAdminService;
-import org.mosqueethonon.v1.dto.referentiel.InfoTarifDto;
+import org.mosqueethonon.tarif.service.TarifAdminService;
+import org.mosqueethonon.tarif.v1.dto.InfoTarifDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

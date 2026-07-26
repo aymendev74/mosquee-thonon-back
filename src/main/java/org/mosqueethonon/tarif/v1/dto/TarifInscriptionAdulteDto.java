@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.referentiel;
+package org.mosqueethonon.tarif.v1.dto;
 
 import lombok.Builder;
 import lombok.Data;

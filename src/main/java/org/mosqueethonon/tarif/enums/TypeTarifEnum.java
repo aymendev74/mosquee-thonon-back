@@ -1,4 +1,4 @@
-package org.mosqueethonon.enums;
+package org.mosqueethonon.tarif.enums;
 
 public enum TypeTarifEnum {
 

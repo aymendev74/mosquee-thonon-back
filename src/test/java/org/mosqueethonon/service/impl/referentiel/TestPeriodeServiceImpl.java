@@ -20,7 +20,7 @@ import org.mosqueethonon.entity.referentiel.PeriodeInfoEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.PeriodeInfoRepository;
 import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.repository.TarifRepository;
+import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.service.inscription.InscriptionAdulteService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;

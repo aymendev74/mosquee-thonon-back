@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.dto.referentiel;
+package org.mosqueethonon.tarif.v1.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.mosqueethonon.annotations.CodeTarifEnfant;
-import org.mosqueethonon.annotations.TarifAdulte;
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.tarif.annotation.CodeTarifEnfant;
+import org.mosqueethonon.tarif.annotation.TarifAdulte;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 
 import java.math.BigDecimal;
 

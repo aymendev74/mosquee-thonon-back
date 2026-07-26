@@ -1,6 +1,6 @@
-package org.mosqueethonon.service.referentiel;
+package org.mosqueethonon.tarif.service;
 
-import org.mosqueethonon.v1.dto.referentiel.InfoTarifDto;
+import org.mosqueethonon.tarif.v1.dto.InfoTarifDto;
 
 public interface TarifAdminService {
 

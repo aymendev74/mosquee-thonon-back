@@ -1,6 +1,6 @@
-package org.mosqueethonon.annotations;
+package org.mosqueethonon.tarif.annotation;
 
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,12 +9,8 @@ import java.lang.annotation.Target;
 
 @Target( ElementType.FIELD )
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CodeTarifEnfant {
+public @interface TarifAdulte {
 
-    public String codeTarif();
-    public int nbEnfant();
     public TypeTarifEnum type();
-
-    public boolean adherent();
 
 }

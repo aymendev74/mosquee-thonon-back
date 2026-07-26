@@ -1,4 +1,5 @@
-package org.mosqueethonon.entity.referentiel;
+package org.mosqueethonon.tarif.entity;
+import org.mosqueethonon.entity.referentiel.PeriodeEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,7 @@ import jakarta.persistence.*;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 
 import java.math.BigDecimal;
 

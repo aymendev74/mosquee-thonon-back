@@ -4,7 +4,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.mosqueethonon.Application;
 import org.mosqueethonon.configuration.exception.CustomExceptionHandler;
 import org.mosqueethonon.repository.PeriodeRepository;
-import org.mosqueethonon.repository.TarifRepository;
+import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

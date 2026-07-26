@@ -1,8 +1,8 @@
-package org.mosqueethonon.service.criteria;
+package org.mosqueethonon.tarif.criteria;
 
 import lombok.Builder;
 import lombok.Data;
-import org.mosqueethonon.enums.TypeTarifEnum;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 
 import java.time.LocalDate;
 

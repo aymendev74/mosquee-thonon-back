@@ -23,7 +23,7 @@ import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
 import org.mosqueethonon.entity.referentiel.PeriodeEntity;
-import org.mosqueethonon.entity.referentiel.TarifEntity;
+import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.document.enums.DocumentRequestType;
 import org.mosqueethonon.mail.enums.MailRequestType;
