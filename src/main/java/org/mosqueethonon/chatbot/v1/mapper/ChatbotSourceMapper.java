@@ -1,9 +1,9 @@
-package org.mosqueethonon.v1.mapper.chatbot;
+package org.mosqueethonon.chatbot.v1.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mosqueethonon.chatbot.repository.ChatbotChunkMatch;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotSourceDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotSourceDto;
 
 @Mapper(componentModel = "spring")
 public interface ChatbotSourceMapper {

@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.chatbot;
+package org.mosqueethonon.chatbot.v1.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

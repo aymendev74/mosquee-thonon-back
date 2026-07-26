@@ -1,13 +1,13 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.chatbot.v1.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.chatbot.service.ChatbotIndexingService;
 import org.mosqueethonon.chatbot.service.ChatbotService;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotFeedbackRequestDto;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageRequestDto;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageResponseDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotFeedbackRequestDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageRequestDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

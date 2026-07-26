@@ -20,10 +20,10 @@ import org.mosqueethonon.configuration.security.context.SecurityContext;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageRequestDto;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageResponseDto;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotSourceDto;
-import org.mosqueethonon.v1.mapper.chatbot.ChatbotSourceMapper;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageRequestDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageResponseDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotSourceDto;
+import org.mosqueethonon.chatbot.v1.mapper.ChatbotSourceMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

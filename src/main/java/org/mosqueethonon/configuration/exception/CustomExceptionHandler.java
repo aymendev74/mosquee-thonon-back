@@ -8,7 +8,7 @@ import org.mosqueethonon.exception.ForbiddenResourceAccessException;
 import org.mosqueethonon.chatbot.exception.GeminiApiException;
 import org.mosqueethonon.chatbot.exception.GeminiQuotaDetails;
 import org.mosqueethonon.lock.exception.ResourceLockedException;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotQuotaErrorDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotQuotaErrorDto;
 import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

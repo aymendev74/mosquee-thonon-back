@@ -2,7 +2,7 @@ package org.mosqueethonon.configuration.exception;
 
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.chatbot.exception.GeminiApiException;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotQuotaErrorDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotQuotaErrorDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
