@@ -96,6 +96,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(AUTH_WHITE_LIST).permitAll()
                         .requestMatchers("/v1/locks").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/chatbot/reindex").hasRole("ADMIN")
+                        .requestMatchers("/v1/chatbot/**").hasAnyRole("ADMIN", "ENSEIGNANT")
                         .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))

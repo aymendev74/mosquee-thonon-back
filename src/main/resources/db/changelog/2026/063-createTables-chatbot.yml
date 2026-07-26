@@ -1,0 +1,146 @@
+databaseChangeLog:
+  - changeSet:
+      id: 063-createTables-chatbot
+      author: Aymen
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS vector;
+
+        - createTable:
+            schemaName: moth
+            tableName: chatbot_document_chunk
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: chatbot_document_chunk_pkey
+                  name: id
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: theme
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source_file
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: section_title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: embedding
+                  type: vector(768)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+        # HNSW disponible depuis pgvector 0.5.0 (image pgvector/pgvector:pg15) ; distance cosinus (<=>)
+        - sql:
+            sql: CREATE INDEX idx_chatbot_document_chunk_embedding ON moth.chatbot_document_chunk USING hnsw (embedding vector_cosine_ops);
+
+        - createTable:
+            schemaName: moth
+            tableName: chatbot_conversation
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: chatbot_conversation_pkey
+                  name: id
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: utilisateur_id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            schemaName: moth
+            tableName: chatbot_message
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: chatbot_message_pkey
+                  name: id
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: conversation_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sources
+                  type: TEXT
+              - column:
+                  name: model
+                  type: VARCHAR(100)
+              - column:
+                  name: feedback
+                  type: VARCHAR(20)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseColumnNames: utilisateur_id
+            baseTableName: chatbot_conversation
+            baseTableSchemaName: moth
+            constraintName: fk_chatbot_conversation_utilisateur_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: NO ACTION
+            referencedColumnNames: idutil
+            referencedTableName: utilisateur
+            referencedTableSchemaName: moth
+            validate: true
+
+        - addForeignKeyConstraint:
+            baseColumnNames: conversation_id
+            baseTableName: chatbot_message
+            baseTableSchemaName: moth
+            constraintName: fk_chatbot_message_conversation_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: chatbot_conversation
+            referencedTableSchemaName: moth
+            validate: true
