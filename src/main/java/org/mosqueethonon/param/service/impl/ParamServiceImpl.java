@@ -49,8 +49,11 @@ public class ParamServiceImpl implements ParamService {
         for(ParamDto paramDto : paramDtos) {
             ParamEntity param = this.paramRepository.findByName(paramDto.getName());
             if(!this.isValidParamValue(paramDto.getValue(), paramDto.getName().getType())) {
+                // On lit le type depuis le DTO et non depuis param : ce dernier est null lorsqu'on
+                // crée un paramètre encore absent en base, ce qui produisait un NullPointerException
+                // au lieu de l'IllegalArgumentException attendue.
                 throw new IllegalArgumentException("La valeur " + paramDto.getValue() + " n'est pas valide " +
-                        "pour les paramètres du type : " + param.getName().getType());
+                        "pour les paramètres du type : " + paramDto.getName().getType());
             }
             if (param == null) {
                 param = new ParamEntity();
