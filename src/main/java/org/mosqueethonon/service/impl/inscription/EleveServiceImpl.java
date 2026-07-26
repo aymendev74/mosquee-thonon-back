@@ -2,15 +2,15 @@ package org.mosqueethonon.service.impl.inscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.entity.classe.ClasseEntity;
-import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
+import org.mosqueethonon.classe.entity.ClasseEntity;
+import org.mosqueethonon.classe.entity.LienClasseEleveEntity;
 import org.mosqueethonon.entity.inscription.EleveEnrichedEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.AffectationEleveEnum;
 import org.mosqueethonon.enums.ResultatEnum;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
-import org.mosqueethonon.repository.ClasseRepository;
+import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveEnrichedRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.service.inscription.EleveService;
