@@ -1,5 +1,5 @@
 package org.mosqueethonon.tarif.entity;
-import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

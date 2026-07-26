@@ -5,7 +5,7 @@ import org.mapstruct.*;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionMatiereEntity;
-import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionAdulteDto;
 

@@ -1,7 +1,7 @@
 package org.mosqueethonon.v1.dto.classe;
 
 import lombok.Data;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import java.util.List;
 
 @Data

@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.entity.referentiel.MatiereEntity;
+import org.mosqueethonon.referentiel.entity.MatiereEntity;
 
 @Entity
 @EntityListeners(EntityListener.class)

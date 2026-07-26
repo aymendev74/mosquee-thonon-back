@@ -15,7 +15,7 @@ import org.mosqueethonon.entity.classe.LienClasseEleveEntity;
 import org.mosqueethonon.entity.classe.LienClasseEnseignantEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.enums.JourActiviteEnum;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.exception.ForbiddenResourceAccessException;
 import org.mosqueethonon.repository.ClasseRepository;

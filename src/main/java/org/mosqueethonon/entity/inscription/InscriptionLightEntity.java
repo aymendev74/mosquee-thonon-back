@@ -1,7 +1,7 @@
 package org.mosqueethonon.entity.inscription;
 
 import lombok.Data;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 import org.mosqueethonon.v1.enums.StatutInscription;
 

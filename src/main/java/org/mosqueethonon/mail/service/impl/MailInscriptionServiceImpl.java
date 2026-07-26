@@ -6,7 +6,7 @@ import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.entity.inscription.InfoMailInscriptionEntity;
 import org.mosqueethonon.repository.InfoMailInscriptionRepository;
 import org.mosqueethonon.mail.service.MailService;
-import org.mosqueethonon.service.referentiel.TraductionService;
+import org.mosqueethonon.referentiel.service.TraductionService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package org.mosqueethonon.bulletin.v1.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 
 @Data

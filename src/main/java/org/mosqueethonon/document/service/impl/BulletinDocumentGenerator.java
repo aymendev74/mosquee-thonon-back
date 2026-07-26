@@ -11,7 +11,7 @@ import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.repository.ClasseRepository;
 import org.mosqueethonon.repository.EleveRepository;
 import org.mosqueethonon.document.service.DocumentGenerator;
-import org.mosqueethonon.service.referentiel.TraductionService;
+import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.utils.HashUtils;
 import org.springframework.stereotype.Component;
 

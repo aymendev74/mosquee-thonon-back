@@ -22,7 +22,7 @@ import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
-import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.document.enums.DocumentRequestType;
@@ -39,7 +39,7 @@ import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.lock.service.LockService;
-import org.mosqueethonon.service.referentiel.PeriodeService;
+import org.mosqueethonon.referentiel.service.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 
 @ExtendWith(MockitoExtension.class)

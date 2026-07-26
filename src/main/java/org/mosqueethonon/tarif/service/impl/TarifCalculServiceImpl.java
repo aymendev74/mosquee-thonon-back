@@ -15,7 +15,7 @@ import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.tarif.service.TarifService;
 import org.mosqueethonon.tarif.criteria.TarifCriteria;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantInfosDto;
-import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
 import org.mosqueethonon.tarif.v1.dto.TarifDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;

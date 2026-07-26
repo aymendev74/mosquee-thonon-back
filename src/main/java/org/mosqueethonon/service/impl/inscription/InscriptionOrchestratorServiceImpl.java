@@ -2,13 +2,13 @@ package org.mosqueethonon.service.impl.inscription;
 
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.entity.inscription.InscriptionEntity;
-import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.enums.TypeInscriptionEnum;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;
-import org.mosqueethonon.service.referentiel.PeriodeService;
+import org.mosqueethonon.referentiel.service.PeriodeService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
 import org.springframework.stereotype.Service;

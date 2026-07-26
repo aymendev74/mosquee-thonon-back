@@ -3,7 +3,7 @@ package org.mosqueethonon.bulletin.v1.dto;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 
 import java.time.LocalDate;

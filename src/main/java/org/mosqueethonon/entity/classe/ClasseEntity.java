@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.mosqueethonon.entity.audit.Auditable;
 import org.mosqueethonon.entity.audit.EntityListener;
 import org.mosqueethonon.entity.audit.Signature;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 
 import java.util.Comparator;
 import java.util.List;

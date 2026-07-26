@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mosqueethonon.adhesion.entity.AdhesionLightEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
-import org.mosqueethonon.entity.referentiel.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
 import org.mosqueethonon.document.enums.DocumentRequestStatut;

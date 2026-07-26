@@ -10,7 +10,7 @@ import org.mosqueethonon.document.entity.DocumentMetadataEntity;
 import org.mosqueethonon.entity.inscription.EleveEntity;
 import org.mosqueethonon.entity.inscription.InscriptionEnfantEntity;
 import org.mosqueethonon.entity.inscription.ResponsableLegalEntity;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.NiveauScolaireEnum;
 
 import java.math.BigDecimal;

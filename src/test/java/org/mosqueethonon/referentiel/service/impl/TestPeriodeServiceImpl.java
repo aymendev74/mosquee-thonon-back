@@ -1,0 +1,253 @@
+package org.mosqueethonon.referentiel.service.impl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeInfoEntity;
+import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.referentiel.repository.PeriodeInfoRepository;
+import org.mosqueethonon.referentiel.repository.PeriodeRepository;
+import org.mosqueethonon.tarif.repository.TarifRepository;
+import org.mosqueethonon.service.inscription.InscriptionAdulteService;
+import org.mosqueethonon.service.inscription.InscriptionEnfantService;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeValidationResultDto;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeInfoMapper;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeInfoMapperImpl;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeMapper;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeMapperImpl;
+
+@ExtendWith(MockitoExtension.class)
+public class TestPeriodeServiceImpl {
+
+    @Mock
+    private PeriodeInfoRepository periodeInfoRepository;
+
+    @Mock
+    private PeriodeRepository periodeRepository;
+
+    @Mock
+    private TarifRepository tarifRepository;
+
+    @Spy
+    private PeriodeInfoMapper periodeInfoMapper = new PeriodeInfoMapperImpl();
+
+    @Spy
+    private PeriodeMapper periodeMapper = new PeriodeMapperImpl();
+
+    @Mock
+    private InscriptionEnfantService inscriptionEnfantService;
+
+    @Mock
+    private InscriptionAdulteService inscriptionAdulteService;
+
+    @InjectMocks
+    private PeriodeServiceImpl periodeService;
+
+    @Test
+    public void testFindPeriodesByApplication_WhenExists() {
+        String application = "COURS_ENFANT";
+        PeriodeInfoEntity entity = new PeriodeInfoEntity();
+        entity.setApplication(application);
+        List<PeriodeInfoEntity> entities = Collections.singletonList(entity);
+
+        when(periodeInfoRepository.findByApplicationOrderByDateDebutDesc(application)).thenReturn(entities);
+        when(periodeInfoMapper.fromEntityToDto(entity)).thenReturn(new PeriodeInfoDto());
+
+        List<PeriodeInfoDto> result = periodeService.findPeriodesByApplication(application);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(periodeInfoRepository).findByApplicationOrderByDateDebutDesc(application);
+    }
+
+    @Test
+    public void testFindPeriodesByApplication_WhenNotExists() {
+        String application = "COURS_ENFANT";
+        when(periodeInfoRepository.findByApplicationOrderByDateDebutDesc(application)).thenReturn(Collections.emptyList());
+
+        List<PeriodeInfoDto> result = periodeService.findPeriodesByApplication(application);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testCreatePeriode() {
+        PeriodeDto periodeDto = new PeriodeDto();
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        when(periodeMapper.mapDtoToEntity(periodeDto, periodeEntity)).thenReturn(periodeEntity);
+        when(periodeRepository.save(periodeEntity)).thenReturn(periodeEntity);
+        when(periodeMapper.fromEntityToDto(periodeEntity)).thenReturn(periodeDto);
+
+        PeriodeDto result = periodeService.createPeriode(periodeDto);
+
+        assertNotNull(result);
+        verify(periodeRepository).save(any(PeriodeEntity.class));
+    }
+
+    @Test
+    public void testUpdatePeriode_WhenExists() {
+        // Arrange
+        Long id = 1L;
+        PeriodeDto periodeDto = new PeriodeDto();
+        PeriodeEntity existingEntity = new PeriodeEntity();
+        existingEntity.setId(id);
+        when(periodeRepository.lockById(id)).thenReturn(Optional.of(existingEntity));
+        when(periodeMapper.mapDtoToEntity(periodeDto, existingEntity)).thenReturn(existingEntity);
+        when(periodeRepository.save(existingEntity)).thenReturn(existingEntity);
+        when(periodeMapper.fromEntityToDto(existingEntity)).thenReturn(periodeDto);
+
+        // Act
+        PeriodeDto result = periodeService.updatePeriode(id, periodeDto);
+
+        // Assert
+        assertNotNull(result);
+        verify(periodeRepository).lockById(id);
+    }
+
+    @Test
+    public void testUpdatePeriode_WhenNotExists() {
+        Long id = 1L;
+        PeriodeDto periodeDto = new PeriodeDto();
+        when(periodeRepository.lockById(id)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            periodeService.updatePeriode(id, periodeDto);
+        });
+    }
+
+    @Test
+    public void testValidatePeriode_Success() {
+        // Arrange
+        Long id = 1L;
+        PeriodeDto periodeDto = new PeriodeDto();
+        periodeDto.setApplication("COURS_ENFANT");
+        periodeDto.setNbMaxInscription(20);
+
+        when(inscriptionEnfantService.isInscriptionOutsidePeriode(id, periodeDto)).thenReturn(false);
+        when(inscriptionEnfantService.findNbInscriptionsByPeriode(id)).thenReturn(0);
+        when(periodeRepository.findByApplicationAndIdNot(periodeDto.getApplication(), id)).thenReturn(Collections.emptyList());
+
+        PeriodeValidationResultDto result = periodeService.validatePeriode(id, periodeDto);
+
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
+    public void testValidatePeriode_Overlap() {
+        // Arrange
+        Long id = 1L;
+        PeriodeDto periodeDto = new PeriodeDto();
+        periodeDto.setDateDebut(LocalDate.of(2020, 1, 1));
+        periodeDto.setDateFin(LocalDate.of(2020, 12, 31));
+        periodeDto.setApplication("COURS_ENFANT");
+
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setDateDebut(LocalDate.of(2020, 2, 1));
+        periodeEntity.setDateFin(LocalDate.of(2020, 3, 31));
+
+        when(periodeRepository.findByApplicationAndIdNot(periodeDto.getApplication(), id)).thenReturn(Collections.singletonList(periodeEntity));
+
+        // Act
+        PeriodeValidationResultDto result = periodeService.validatePeriode(id, periodeDto);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("OVERLAP", result.getErrorCode());
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_Updated() {
+        // Given
+        Long idPeriode = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(idPeriode);
+        periodeEntity.setNbMaxInscription(10);
+        Integer nbElevesInscrits = 15;
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.of(periodeEntity));
+        when(inscriptionEnfantService.getNbElevesInscritsByIdPeriode(idPeriode)).thenReturn(nbElevesInscrits);
+
+        // When
+        periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+
+        // Then
+        assertEquals(nbElevesInscrits, periodeEntity.getNbMaxInscription());
+        verify(periodeRepository, times(1)).save(periodeEntity);
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_NoUpdate() {
+        Long idPeriode = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(idPeriode);
+        periodeEntity.setNbMaxInscription(10);
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.of(periodeEntity));
+        when(inscriptionEnfantService.getNbElevesInscritsByIdPeriode(idPeriode)).thenReturn(8);
+
+        // When
+        periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+
+        // Then
+        assertEquals(10, periodeEntity.getNbMaxInscription());
+        verify(periodeRepository, times(0)).save(periodeEntity);
+    }
+
+    @Test
+    public void testUpdateNbMaxElevesIfNeeded_PeriodNotFound() {
+        // Given
+        Long idPeriode = 1L;
+        when(periodeRepository.findById(idPeriode)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            periodeService.updateNbMaxElevesIfNeeded(idPeriode);
+        });
+    }
+
+    @Test
+    public void testDeletePeriode_Success() {
+        // Given
+        Long id = 1L;
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setId(id);
+        when(periodeRepository.findById(id)).thenReturn(Optional.of(periodeEntity));
+
+        // When
+        periodeService.deletePeriode(id);
+
+        // Then
+        verify(tarifRepository).deleteByPeriodeId(id);
+        verify(periodeRepository).delete(periodeEntity);
+    }
+
+    @Test
+    public void testDeletePeriode_PeriodeNotFound() {
+        // Given
+        Long id = 1L;
+        when(periodeRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            periodeService.deletePeriode(id);
+        });
+        verify(tarifRepository, never()).deleteByPeriodeId(anyLong());
+        verify(periodeRepository, never()).delete(any(PeriodeEntity.class));
+    }
+}

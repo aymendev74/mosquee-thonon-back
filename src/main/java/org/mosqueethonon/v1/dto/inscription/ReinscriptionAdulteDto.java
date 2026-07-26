@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.mosqueethonon.configuration.APIDateFormats;
-import org.mosqueethonon.enums.MatiereEnum;
-import org.mosqueethonon.enums.NiveauInterneEnum;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.enums.SexeEnum;
 import org.mosqueethonon.enums.StatutProfessionnelEnum;
 

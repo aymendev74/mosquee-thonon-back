@@ -7,7 +7,7 @@ import org.mosqueethonon.entity.inscription.InscriptionAdulteEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.document.service.DocumentGenerator;
-import org.mosqueethonon.service.referentiel.TraductionService;
+import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.utils.HashUtils;
 import org.springframework.stereotype.Component;
 

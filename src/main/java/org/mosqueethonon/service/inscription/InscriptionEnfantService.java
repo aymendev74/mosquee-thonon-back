@@ -4,7 +4,7 @@ import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantParAnneeScolaireDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionEnfantResultDto;
 import org.mosqueethonon.v1.dto.inscription.InscriptionSaveCriteria;
-import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import java.util.List;
 
 import org.mosqueethonon.v1.dto.inscription.ReinscriptionDto;

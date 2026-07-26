@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mosqueethonon.configuration.APIDateFormats;
-import org.mosqueethonon.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
 
 import java.time.LocalDate;
 import java.util.Collection;

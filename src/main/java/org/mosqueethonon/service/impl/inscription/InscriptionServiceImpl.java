@@ -23,7 +23,7 @@ import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.service.inscription.InscriptionService;
 import org.mosqueethonon.lock.service.LockService;
-import org.mosqueethonon.service.referentiel.PeriodeService;
+import org.mosqueethonon.referentiel.service.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

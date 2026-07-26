@@ -1,0 +1,174 @@
+package org.mosqueethonon.referentiel.service.impl;
+
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.mosqueethonon.referentiel.entity.PeriodeEntity;
+import org.mosqueethonon.referentiel.entity.PeriodeInfoEntity;
+import org.mosqueethonon.tarif.entity.TarifEntity;
+import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.referentiel.repository.PeriodeInfoRepository;
+import org.mosqueethonon.referentiel.repository.PeriodeRepository;
+import org.mosqueethonon.tarif.repository.TarifRepository;
+import org.mosqueethonon.service.inscription.InscriptionAdulteService;
+import org.mosqueethonon.service.inscription.InscriptionEnfantService;
+import org.mosqueethonon.referentiel.service.PeriodeService;
+import org.mosqueethonon.utils.DateUtils;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeValidationResultDto;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeInfoMapper;
+import org.mosqueethonon.referentiel.v1.mapper.PeriodeMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class PeriodeServiceImpl implements PeriodeService {
+
+    private PeriodeInfoRepository periodeInfoRepository;
+    private PeriodeRepository periodeRepository;
+    private TarifRepository tarifRepository;
+    private PeriodeInfoMapper periodeInfoMapper;
+    private PeriodeMapper periodeMapper;
+    private InscriptionEnfantService inscriptionEnfantService;
+    private InscriptionAdulteService inscriptionAdulteService;
+
+    private static final String APPLICATION_COURS_ENFANT = "COURS_ENFANT";
+
+    @Override
+    public List<PeriodeInfoDto> findPeriodesByApplication(String application) {
+        List<PeriodeInfoEntity> periodeEntities = this.periodeInfoRepository.findByApplicationOrderByDateDebutDesc(application);
+        if(!CollectionUtils.isEmpty(periodeEntities)) {
+            return periodeEntities.stream().map(this.periodeInfoMapper::fromEntityToDto).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Transactional
+    @Override
+    public PeriodeDto createPeriode(PeriodeDto periode) {
+        PeriodeEntity periodeEntity = new PeriodeEntity();
+        periodeEntity.setIdPeriodePrecedente(this.getLastPeriodeId(periode.getApplication()));
+        this.periodeRepository.save(this.periodeMapper.mapDtoToEntity(periode, periodeEntity));
+        return this.periodeMapper.fromEntityToDto(periodeEntity);
+    }
+
+    private Long getLastPeriodeId(String application) {
+        PeriodeEntity periode = this.periodeRepository.findFirstByApplicationOrderByDateDebutDesc(application);
+        if(periode != null) {
+            return periode.getId();
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public PeriodeDto updatePeriode(Long id, PeriodeDto periode) {
+        PeriodeEntity periodeEntity = this.periodeRepository.lockById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
+        this.periodeMapper.mapDtoToEntity(periode, periodeEntity);
+        periodeEntity = this.periodeRepository.save(periodeEntity);
+        if(APPLICATION_COURS_ENFANT.equals(periode.getApplication())) {
+            this.inscriptionEnfantService.updateListeAttente(periodeEntity.getId(), periodeEntity.getNbMaxInscription());
+        }
+        return this.periodeMapper.fromEntityToDto(periodeEntity);
+    }
+
+    @Override
+    public PeriodeValidationResultDto validatePeriode(Long id, PeriodeDto periode) {
+        // Il ne doit y avoir aucun chevauchement entre cette periode et une autre existante
+        boolean successValidation = this.checkNoOverlap(id, periode);
+        if(!successValidation) {
+            return PeriodeValidationResultDto.builder().success(false).errorCode("OVERLAP").build();
+        }
+
+        // Il ne doit y avoir aucune inscription enregistrée qui se retrouve en dehors de la période (dateInscription)
+        if(id != null) {
+            successValidation = this.checkNoInscriptionOutsidePeriode(id, periode);
+            if(!successValidation) {
+                return PeriodeValidationResultDto.builder().success(false).errorCode("INSCRIPTION_OUTSIDE").build();
+            }
+
+            // Contrôle du nombre d'inscription maximum (par rapport au nombre déjà inscrit sur la période)
+            successValidation = this.checkNbInscriptionVsMaxPeriode(id, periode);
+            if(!successValidation) {
+                return PeriodeValidationResultDto.builder().success(false).errorCode("NB_MAX_INSCRIPTION").build();
+            }
+        }
+
+        return PeriodeValidationResultDto.builder().periode(periode).success(true).build();
+    }
+
+    private boolean checkNbInscriptionVsMaxPeriode(Long id, PeriodeDto periode) {
+        if(id != null && periode.getNbMaxInscription() != null) {
+            Integer nbInscription = null;
+            if(APPLICATION_COURS_ENFANT.equals(periode.getApplication())) {
+                nbInscription = inscriptionEnfantService.findNbInscriptionsByPeriode(id);
+            } else {
+                nbInscription = inscriptionAdulteService.findNbInscriptionsByPeriode(id);
+            }
+            if(nbInscription != null && periode.getNbMaxInscription() != null) {
+                return nbInscription <= periode.getNbMaxInscription();
+            }
+        }
+        return true;
+    }
+
+    private boolean checkNoInscriptionOutsidePeriode(Long id, PeriodeDto periode) {
+        if (periode.getApplication().equals(APPLICATION_COURS_ENFANT)) {
+            return !this.inscriptionEnfantService.isInscriptionOutsidePeriode(id, periode);
+        } else {
+            return !this.inscriptionAdulteService.isInscriptionOutsidePeriode(id, periode);
+        }
+    }
+
+    private boolean checkNoOverlap(Long id, PeriodeDto periode) {
+        List<PeriodeEntity> periodes = null;
+        if(id == null) { // si création on ramène toutes les périodes
+            periodes = this.periodeRepository.findByApplication(periode.getApplication());
+        } else { // sinon, toutes sauf celle qu'on est en train de valider
+            periodes = this.periodeRepository.findByApplicationAndIdNot(periode.getApplication(), id);
+        }
+        Optional<PeriodeEntity> optPeriodeOverlaps = periodes.stream().filter(existingPeriode -> DateUtils.isOverlap(existingPeriode.getDateDebut(), existingPeriode.getDateFin(),
+                periode.getDateDebut(), periode.getDateFin())).findFirst();
+        return !optPeriodeOverlaps.isPresent();
+    }
+
+    /**
+     * Met à jour le nombre maximum d'élèves sur la période si besoin
+     * Nécessaire surtout lorsque des inscriptions sont validées après avoir été en attentes
+     * Permet de conserver une cohérence entre le nombre maximum d'élèves et le nombre d'élèves inscrits
+     * @param idPeriode
+     */
+    @Override
+    public void updateNbMaxElevesIfNeeded(Long idPeriode) {
+        PeriodeEntity periode = this.periodeRepository.findById(idPeriode).orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + idPeriode));
+        Integer nbElevesInscrits = this.inscriptionEnfantService.getNbElevesInscritsByIdPeriode(periode.getId());
+        if (periode.getNbMaxInscription() != null && nbElevesInscrits > periode.getNbMaxInscription()) {
+            periode.setNbMaxInscription(nbElevesInscrits);
+            this.periodeRepository.save(periode);
+        }
+    }
+
+    @Override
+    public PeriodeEntity findPeriodeById(Long id) {
+        return this.periodeRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void deletePeriode(Long id) {
+        PeriodeEntity periode = this.periodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Periode non trouvée ! idperi = " + id));
+
+        this.tarifRepository.deleteByPeriodeId(id);
+
+        this.periodeRepository.delete(periode);
+    }
+
+}
