@@ -1,7 +1,7 @@
-package org.mosqueethonon.service.param;
+package org.mosqueethonon.param.service;
 
-import org.mosqueethonon.v1.dto.param.ParamDto;
-import org.mosqueethonon.v1.dto.param.ParamsDto;
+import org.mosqueethonon.param.v1.dto.ParamDto;
+import org.mosqueethonon.param.v1.dto.ParamsDto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.mosqueethonon.service.impl.param;
+package org.mosqueethonon.param.service.impl;
 
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,10 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.configuration.APIDateFormats;
-import org.mosqueethonon.entity.ParamEntity;
-import org.mosqueethonon.enums.ParamNameEnum;
-import org.mosqueethonon.params.DateParamValueParser;
-import org.mosqueethonon.repository.ParamRepository;
+import org.mosqueethonon.param.entity.ParamEntity;
+import org.mosqueethonon.param.enums.ParamNameEnum;
+import org.mosqueethonon.param.parser.DateParamValueParser;
+import org.mosqueethonon.param.repository.ParamRepository;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

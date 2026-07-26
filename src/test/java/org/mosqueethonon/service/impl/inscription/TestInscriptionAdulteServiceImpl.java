@@ -44,7 +44,7 @@ import org.mosqueethonon.repository.TarifRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.impl.UserAccountManager;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.service.referentiel.MatiereService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.v1.dto.inscription.InscriptionAdulteDto;

@@ -18,7 +18,7 @@ import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.impl.mail.MailAdhesionServiceImpl;
 import org.mosqueethonon.service.impl.mail.MailInscriptionServiceImpl;
 import org.mosqueethonon.service.mail.MailService;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.param.service.ParamService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;

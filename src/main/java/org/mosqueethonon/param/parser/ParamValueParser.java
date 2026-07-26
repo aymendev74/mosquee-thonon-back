@@ -1,4 +1,4 @@
-package org.mosqueethonon.params;
+package org.mosqueethonon.param.parser;
 
 public abstract class ParamValueParser<T> {
 

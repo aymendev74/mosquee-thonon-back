@@ -1,4 +1,4 @@
-package org.mosqueethonon.enums;
+package org.mosqueethonon.param.enums;
 
 public enum ParamNameEnum {
 

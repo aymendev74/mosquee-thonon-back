@@ -1,7 +1,7 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.param.repository;
 
-import org.mosqueethonon.entity.ParamEntity;
-import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.param.entity.ParamEntity;
+import org.mosqueethonon.param.enums.ParamNameEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.dto.param;
+package org.mosqueethonon.param.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.mosqueethonon.annotations.DataBaseParam;
+import org.mosqueethonon.param.annotation.DataBaseParam;
 import org.mosqueethonon.configuration.APIDateFormats;
-import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.param.enums.ParamNameEnum;
 
 import java.time.LocalDate;
 

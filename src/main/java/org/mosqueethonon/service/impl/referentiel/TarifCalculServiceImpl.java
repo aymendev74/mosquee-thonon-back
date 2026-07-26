@@ -10,7 +10,7 @@ import org.mosqueethonon.enums.TypeTarifEnum;
 import org.mosqueethonon.repository.InscriptionAdulteRepository;
 import org.mosqueethonon.repository.InscriptionRepository;
 import org.mosqueethonon.configuration.security.context.SecurityContext;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.service.referentiel.TarifCalculService;
 import org.mosqueethonon.service.referentiel.TarifService;
 import org.mosqueethonon.service.criteria.TarifCriteria;

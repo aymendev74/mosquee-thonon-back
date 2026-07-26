@@ -1,8 +1,8 @@
-package org.mosqueethonon.entity;
+package org.mosqueethonon.param.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.param.enums.ParamNameEnum;
 
 @Entity
 @Table(name = "params", schema = "moth")

@@ -13,7 +13,7 @@ import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.enums.UserAccountActionType;
 import org.mosqueethonon.repository.UserAccountActionRepository;
 import org.mosqueethonon.repository.UtilisateurRepository;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.service.referentiel.TraductionService;
 import org.mosqueethonon.v1.dto.referentiel.TraductionDto;
 import org.springframework.mail.javamail.JavaMailSender;

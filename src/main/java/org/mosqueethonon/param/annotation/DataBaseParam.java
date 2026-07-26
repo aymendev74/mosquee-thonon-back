@@ -1,6 +1,6 @@
-package org.mosqueethonon.annotations;
+package org.mosqueethonon.param.annotation;
 
-import org.mosqueethonon.enums.ParamNameEnum;
+import org.mosqueethonon.param.enums.ParamNameEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

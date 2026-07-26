@@ -29,7 +29,7 @@ import org.mosqueethonon.exception.PendingDocumentGenerationException;
 import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.mail.MailService;
-import org.mosqueethonon.service.param.ParamService;
+import org.mosqueethonon.param.service.ParamService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 

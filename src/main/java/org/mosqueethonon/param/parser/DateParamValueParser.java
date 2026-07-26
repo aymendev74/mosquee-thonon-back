@@ -1,4 +1,4 @@
-package org.mosqueethonon.params;
+package org.mosqueethonon.param.parser;
 
 import org.mosqueethonon.configuration.APIDateFormats;
 import org.springframework.stereotype.Component;
