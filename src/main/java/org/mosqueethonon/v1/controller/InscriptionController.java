@@ -2,7 +2,7 @@ package org.mosqueethonon.v1.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.concurrent.LockManager;
+import org.mosqueethonon.lock.concurrent.LockManager;
 import org.mosqueethonon.service.inscription.InscriptionLightService;
 import org.mosqueethonon.service.inscription.InscriptionOrchestratorService;
 import org.mosqueethonon.service.inscription.InscriptionService;

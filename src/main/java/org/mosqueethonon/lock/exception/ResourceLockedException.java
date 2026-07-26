@@ -1,7 +1,7 @@
-package org.mosqueethonon.exception;
+package org.mosqueethonon.lock.exception;
 
 import lombok.Getter;
-import org.mosqueethonon.v1.dto.lock.LockResultDto;
+import org.mosqueethonon.lock.v1.dto.LockResultDto;
 
 @Getter
 public class ResourceLockedException extends RuntimeException {

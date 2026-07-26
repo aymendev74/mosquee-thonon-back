@@ -1,6 +1,6 @@
-package org.mosqueethonon.annotations;
+package org.mosqueethonon.lock.annotation;
 
-import org.mosqueethonon.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,6 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
-import org.mosqueethonon.concurrent.LockManager;
+import org.mosqueethonon.lock.concurrent.LockManager;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeDto;
 import org.mosqueethonon.v1.dto.referentiel.PeriodeInfoDto;

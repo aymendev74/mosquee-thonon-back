@@ -1,4 +1,4 @@
-package org.mosqueethonon.v1.dto.lock;
+package org.mosqueethonon.lock.v1.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

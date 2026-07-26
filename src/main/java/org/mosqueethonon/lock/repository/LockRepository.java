@@ -1,7 +1,7 @@
-package org.mosqueethonon.repository;
+package org.mosqueethonon.lock.repository;
 
-import org.mosqueethonon.entity.LockEntity;
-import org.mosqueethonon.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.entity.LockEntity;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -1,4 +1,4 @@
-package org.mosqueethonon.concurrent;
+package org.mosqueethonon.lock.concurrent;
 
 import org.springframework.stereotype.Component;
 

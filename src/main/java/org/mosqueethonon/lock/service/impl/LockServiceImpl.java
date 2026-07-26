@@ -1,14 +1,14 @@
-package org.mosqueethonon.service.impl.lock;
+package org.mosqueethonon.lock.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.configuration.security.ApplicationConfiguration;
-import org.mosqueethonon.entity.LockEntity;
-import org.mosqueethonon.enums.ResourceTypeEnum;
-import org.mosqueethonon.exception.ResourceLockedException;
-import org.mosqueethonon.repository.LockRepository;
-import org.mosqueethonon.service.lock.LockService;
-import org.mosqueethonon.v1.dto.lock.LockResultDto;
+import org.mosqueethonon.lock.entity.LockEntity;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.exception.ResourceLockedException;
+import org.mosqueethonon.lock.repository.LockRepository;
+import org.mosqueethonon.lock.service.LockService;
+import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

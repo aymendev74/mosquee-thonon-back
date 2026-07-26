@@ -1,10 +1,10 @@
 package org.mosqueethonon.v1.controller;
 
-import static org.mosqueethonon.enums.ResourceTypeEnum.ADHESION;
+import static org.mosqueethonon.lock.enums.ResourceTypeEnum.ADHESION;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
-import org.mosqueethonon.annotations.RequireLock;
+import org.mosqueethonon.lock.annotation.RequireLock;
 import org.mosqueethonon.service.adhesion.AdhesionLightService;
 import org.mosqueethonon.service.adhesion.AdhesionService;
 import org.mosqueethonon.v1.criterias.AdhesionCriteria;

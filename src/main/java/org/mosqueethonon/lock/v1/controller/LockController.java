@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.controller;
+package org.mosqueethonon.lock.v1.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.service.lock.LockService;
-import org.mosqueethonon.v1.dto.lock.LockRequestDto;
-import org.mosqueethonon.v1.dto.lock.LockResultDto;
+import org.mosqueethonon.lock.service.LockService;
+import org.mosqueethonon.lock.v1.dto.LockRequestDto;
+import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;

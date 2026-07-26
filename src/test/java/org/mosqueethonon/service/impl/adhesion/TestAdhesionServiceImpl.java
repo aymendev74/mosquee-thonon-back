@@ -22,7 +22,7 @@ import org.mosqueethonon.repository.DocumentRequestRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.document.AsyncDocumentService;
 import org.mosqueethonon.service.document.DocumentService;
-import org.mosqueethonon.service.lock.LockService;
+import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionDto;
 import org.mosqueethonon.v1.dto.adhesion.AdhesionSaveCriteria;
 import org.mosqueethonon.v1.enums.StatutInscription;

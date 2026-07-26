@@ -1,10 +1,10 @@
-package org.mosqueethonon.v1.dto.lock;
+package org.mosqueethonon.lock.v1.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 
 @Data
 @Builder

@@ -1,14 +1,14 @@
-package org.mosqueethonon.configuration;
+package org.mosqueethonon.lock.config;
 
 import lombok.RequiredArgsConstructor;
-import org.mosqueethonon.configuration.interceptor.LockInterceptor;
+import org.mosqueethonon.lock.interceptor.LockInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebMvcConfig implements WebMvcConfigurer {
+public class LockWebMvcConfig implements WebMvcConfigurer {
 
     private final LockInterceptor lockInterceptor;
 

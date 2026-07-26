@@ -38,7 +38,7 @@ import org.mosqueethonon.repository.LienClasseEleveRepository;
 import org.mosqueethonon.repository.MailRequestRepository;
 import org.mosqueethonon.service.document.DocumentService;
 import org.mosqueethonon.service.inscription.InscriptionEnfantService;
-import org.mosqueethonon.service.lock.LockService;
+import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.service.referentiel.PeriodeService;
 import org.mosqueethonon.v1.enums.StatutInscription;
 

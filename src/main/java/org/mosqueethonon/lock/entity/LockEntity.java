@@ -1,11 +1,11 @@
-package org.mosqueethonon.entity;
+package org.mosqueethonon.lock.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 
 import java.time.LocalDateTime;
 

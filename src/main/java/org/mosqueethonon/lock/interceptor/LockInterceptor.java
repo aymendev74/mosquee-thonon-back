@@ -1,12 +1,12 @@
-package org.mosqueethonon.configuration.interceptor;
+package org.mosqueethonon.lock.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.annotations.RequireLock;
-import org.mosqueethonon.enums.ResourceTypeEnum;
-import org.mosqueethonon.service.lock.LockService;
+import org.mosqueethonon.lock.annotation.RequireLock;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.service.LockService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;

@@ -1,6 +1,6 @@
 package org.mosqueethonon.v1.controller;
 
-import org.mosqueethonon.concurrent.LockManager;
+import org.mosqueethonon.lock.concurrent.LockManager;
 import org.mosqueethonon.service.referentiel.TarifAdminService;
 import org.mosqueethonon.v1.dto.referentiel.InfoTarifDto;
 import org.springframework.beans.factory.annotation.Autowired;

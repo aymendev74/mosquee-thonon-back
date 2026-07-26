@@ -1,8 +1,8 @@
-package org.mosqueethonon.service.lock;
+package org.mosqueethonon.lock.service;
 
-import org.mosqueethonon.entity.LockEntity;
-import org.mosqueethonon.enums.ResourceTypeEnum;
-import org.mosqueethonon.v1.dto.lock.LockResultDto;
+import org.mosqueethonon.lock.entity.LockEntity;
+import org.mosqueethonon.lock.enums.ResourceTypeEnum;
+import org.mosqueethonon.lock.v1.dto.LockResultDto;
 
 public interface LockService {
 
