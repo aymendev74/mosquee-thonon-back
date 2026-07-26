@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;

@@ -2,7 +2,7 @@ package org.mosqueethonon.lock.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.lock.entity.LockEntity;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 import org.mosqueethonon.lock.exception.ResourceLockedException;

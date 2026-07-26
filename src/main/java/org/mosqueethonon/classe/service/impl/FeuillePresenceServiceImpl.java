@@ -5,7 +5,7 @@ import org.mosqueethonon.classe.entity.ClasseEntity;
 import org.mosqueethonon.classe.entity.ClasseFeuillePresenceEntity;
 import org.mosqueethonon.classe.entity.EleveFeuillePresenceEntity;
 import org.mosqueethonon.classe.entity.FeuillePresenceEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseFeuillePresenceRepository;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.classe.repository.FeuillePresenceRepository;

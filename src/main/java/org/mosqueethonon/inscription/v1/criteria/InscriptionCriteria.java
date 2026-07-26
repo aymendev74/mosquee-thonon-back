@@ -3,7 +3,7 @@ package org.mosqueethonon.inscription.v1.criteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.inscription.enums.StatutInscription;

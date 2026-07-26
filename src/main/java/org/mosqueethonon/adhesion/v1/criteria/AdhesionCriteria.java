@@ -3,7 +3,7 @@ package org.mosqueethonon.adhesion.v1.criteria;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.inscription.enums.StatutInscription;
 import org.springframework.format.annotation.DateTimeFormat;
 

@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.entity.audit.Auditable;
-import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 
 @Entity

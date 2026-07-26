@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.param.entity.ParamEntity;
 import org.mosqueethonon.param.enums.ParamNameEnum;
 import org.mosqueethonon.param.parser.DateParamValueParser;

@@ -3,9 +3,9 @@ package org.mosqueethonon.adhesion.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Formula;
-import org.mosqueethonon.entity.audit.Auditable;
-import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
 import org.mosqueethonon.inscription.enums.StatutInscription;
 
 import java.math.BigDecimal;

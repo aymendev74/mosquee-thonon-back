@@ -17,7 +17,7 @@ import org.mosqueethonon.referentiel.entity.MatiereEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.referentiel.service.TraductionService;

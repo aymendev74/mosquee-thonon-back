@@ -2,7 +2,7 @@ package org.mosqueethonon.mail.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.mail.dto.MailAttachmentDto;
 import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.adhesion.service.AdhesionService;

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mosqueethonon.param.annotation.DataBaseParam;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.param.entity.ParamEntity;
 import org.mosqueethonon.param.enums.ParamNameEnum;
 import org.mosqueethonon.param.enums.ParamTypeEnum;

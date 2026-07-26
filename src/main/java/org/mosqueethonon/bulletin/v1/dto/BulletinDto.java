@@ -3,7 +3,7 @@ package org.mosqueethonon.bulletin.v1.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 
 import java.time.LocalDate;

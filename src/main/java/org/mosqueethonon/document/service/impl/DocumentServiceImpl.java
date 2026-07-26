@@ -2,10 +2,10 @@ package org.mosqueethonon.document.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.document.repository.DocumentRepository;
 import org.mosqueethonon.document.service.DocumentGenerator;
 import org.mosqueethonon.document.service.DocumentService;

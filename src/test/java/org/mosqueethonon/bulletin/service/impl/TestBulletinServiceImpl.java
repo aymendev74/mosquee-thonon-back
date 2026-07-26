@@ -18,7 +18,7 @@ import org.mosqueethonon.document.enums.DocumentRequestType;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 import org.mosqueethonon.referentiel.enums.TypeMatiereEnum;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.mosqueethonon.document.repository.DocumentRepository;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;

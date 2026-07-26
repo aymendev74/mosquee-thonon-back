@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mosqueethonon.classe.entity.LienClasseEleveEntity;
 import org.mosqueethonon.inscription.entity.EleveEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.classe.v1.dto.LienClasseEleveDto;
 import org.mosqueethonon.inscription.v1.mapper.EleveMapper;

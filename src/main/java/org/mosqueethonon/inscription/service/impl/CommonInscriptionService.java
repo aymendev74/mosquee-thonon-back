@@ -1,6 +1,6 @@
 package org.mosqueethonon.inscription.service.impl;
 
-import org.mosqueethonon.configuration.security.context.Roles;
+import org.mosqueethonon.common.security.context.Roles;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;

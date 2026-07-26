@@ -7,12 +7,12 @@ import org.mosqueethonon.classe.entity.ClasseEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
 import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.document.service.DocumentGenerator;
 import org.mosqueethonon.referentiel.service.TraductionService;
-import org.mosqueethonon.utils.HashUtils;
+import org.mosqueethonon.common.util.HashUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;

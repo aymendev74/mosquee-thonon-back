@@ -17,7 +17,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeInfoEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.referentiel.repository.PeriodeInfoRepository;
 import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;

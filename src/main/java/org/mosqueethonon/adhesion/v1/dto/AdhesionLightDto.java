@@ -2,7 +2,7 @@ package org.mosqueethonon.adhesion.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.inscription.enums.StatutInscription;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

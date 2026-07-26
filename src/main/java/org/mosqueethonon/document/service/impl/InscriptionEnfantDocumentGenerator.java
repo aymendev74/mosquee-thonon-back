@@ -6,7 +6,7 @@ import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.document.service.DocumentGenerator;
-import org.mosqueethonon.utils.HashUtils;
+import org.mosqueethonon.common.util.HashUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

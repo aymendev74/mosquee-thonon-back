@@ -2,7 +2,7 @@ package org.mosqueethonon.tarif.v1.dto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
 
 import lombok.Data;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Signature;
 
 import java.math.BigDecimal;
 

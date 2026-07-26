@@ -3,7 +3,7 @@ package org.mosqueethonon.utilisateur.service.impl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.AuthCookieConfiguration;
+import org.mosqueethonon.common.security.AuthCookieConfiguration;
 import org.mosqueethonon.utilisateur.service.UserService;
 import org.mosqueethonon.utilisateur.service.IAuthService;
 import org.mosqueethonon.utilisateur.v1.dto.UserInfoDto;

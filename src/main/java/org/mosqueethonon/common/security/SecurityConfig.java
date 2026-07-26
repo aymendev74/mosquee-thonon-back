@@ -1,0 +1,192 @@
+package org.mosqueethonon.common.security;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.mosqueethonon.utilisateur.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@EnableWebSecurity
+@AllArgsConstructor
+@Configuration
+public class SecurityConfig {
+
+    private ApplicationConfiguration applicationConfiguration;
+
+    private UserService userService;
+
+    private JwtCookieFilter jwtCookieFilter;
+
+    private MdcUserFilter mdcUserFilter;
+
+    private static final String[] AUTH_WHITE_LIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**"
+    };
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.GET, "/v1/inscriptions/mes-inscriptions").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/reinscription").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-enfants/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/inscriptions-adultes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/adhesions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.PUT, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers(HttpMethod.PATCH, "/v1/adhesions/**").hasRole("TRESORIER")
+                        .requestMatchers("/v1/tarifs").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/tarifs-inscription/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/params/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/classes/**").hasRole("ENSEIGNANT")
+                        .requestMatchers(HttpMethod.POST, "/v1/classes/**/presences").hasRole("ENSEIGNANT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/presences/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/presences/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/eleves/*/bulletins").authenticated()
+                        .requestMatchers("/v1/eleves/**/**").hasRole("ENSEIGNANT")
+                        .requestMatchers("/v1/bulletins/**").hasRole("ENSEIGNANT")
+                        .requestMatchers("/v1/matieres").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/documents/**").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/token").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/password").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/users/informations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/enable").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/resetPassword/request").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/users/resetPassword/informations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users/resetPassword").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                        .requestMatchers("/v1/locks").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/chatbot/reindex").hasRole("ADMIN")
+                        .requestMatchers("/v1/chatbot/**").hasAnyRole("ADMIN", "ENSEIGNANT")
+                        .anyRequest().hasRole("ADMIN"))
+                .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, exception1) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
+                .logout(logout -> logout.clearAuthentication(true).invalidateHttpSession(true).deleteCookies("JSESSIONID", "MOTH-TOKEN")
+                        .logoutSuccessHandler(logoutSuccessHandler())
+                        .permitAll());
+
+        http.addFilterBefore(jwtCookieFilter, BearerTokenAuthenticationFilter.class);
+        http.addFilterAfter(mdcUserFilter, BearerTokenAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    private LogoutSuccessHandler logoutSuccessHandler() {
+        SimpleUrlLogoutSuccessHandler handler = new SimpleUrlLogoutSuccessHandler();
+        handler.setDefaultTargetUrl(this.applicationConfiguration.getLogoutRedirectUri());  // Rediriger vers la page d'accueil après déconnexion
+        return handler;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(authProvider);
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        // HttpSessionSecurityContextRepository reads/writes the SecurityContext under Spring's
+        // shared HttpSession key (SPRING_SECURITY_CONTEXT). This is what lets a session
+        // authenticated here (chain @Order(2), e.g. POST /login) be recognized as authenticated
+        // by the separate OAuth2 authorization server chain (@Order(1), /oauth2/authorize) —
+        // do not replace with a chain-local/non-session repository without preserving this.
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.fromHierarchy(
+                """
+                ROLE_ADMIN > ROLE_TRESORIER
+                ROLE_ADMIN > ROLE_ENSEIGNANT
+                """
+        );
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter2 = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter2.setAuthoritiesClaimName("roles");
+        jwtGrantedAuthoritiesConverter2.setAuthorityPrefix(StringUtils.EMPTY);
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter2);
+        return jwtAuthenticationConverter;
+    }
+
+    /**
+     * CORS configuration pour les ressources OAuth
+     *
+     * @return la config cors des ressources oauth
+     */
+    @Bean
+    @Qualifier("corsConfigurationSource")
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(this.applicationConfiguration.getAllowedOrigins());
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public HttpFirewall allowSemicolonHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowSemicolon(true); // Permettre le point-virgule
+        return firewall;
+    }
+
+    /*@Bean
+    public FilterRegistrationBean<RequestLoggingFilter> loggingFilter() {
+        FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(new RequestLoggingFilter());
+        registrationBean.addUrlPatterns("/*"); // Appliquer le filtre à toutes les URL
+
+        return registrationBean;
+    }*/
+}

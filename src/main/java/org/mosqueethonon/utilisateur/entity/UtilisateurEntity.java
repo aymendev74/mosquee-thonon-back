@@ -3,9 +3,9 @@ package org.mosqueethonon.utilisateur.entity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.mosqueethonon.entity.audit.Auditable;
-import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

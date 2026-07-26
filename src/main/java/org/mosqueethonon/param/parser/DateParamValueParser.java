@@ -1,6 +1,6 @@
 package org.mosqueethonon.param.parser;
 
-import org.mosqueethonon.configuration.APIDateFormats;
+import org.mosqueethonon.common.config.APIDateFormats;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

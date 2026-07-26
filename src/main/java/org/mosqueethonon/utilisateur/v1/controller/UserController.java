@@ -10,7 +10,7 @@ import org.mosqueethonon.utilisateur.v1.dto.AccountInfosDto;
 import org.mosqueethonon.utilisateur.v1.dto.EnableAccountDto;
 import org.mosqueethonon.utilisateur.v1.dto.ResetPasswordDto;
 import org.mosqueethonon.utilisateur.v1.dto.UserDto;
-import org.mosqueethonon.v1.exception.ErrorConstantes;
+import org.mosqueethonon.common.exception.ErrorConstantes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

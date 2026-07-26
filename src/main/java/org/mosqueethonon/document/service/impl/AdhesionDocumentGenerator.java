@@ -5,7 +5,7 @@ import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
 import org.mosqueethonon.document.enums.DocumentMetadataKey;
 import org.mosqueethonon.document.service.DocumentGenerator;
-import org.mosqueethonon.utils.HashUtils;
+import org.mosqueethonon.common.util.HashUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

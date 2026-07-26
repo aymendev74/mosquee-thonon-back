@@ -18,7 +18,7 @@ import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.SexeEnum;
 import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.referentiel.v1.dto.TraductionDto;
 import org.mosqueethonon.inscription.enums.StatutInscription;

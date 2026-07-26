@@ -1,9 +1,9 @@
 package org.mosqueethonon.document.v1.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.configuration.security.context.SecurityContext;
+import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.document.entity.DocumentEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
 import org.mosqueethonon.document.service.DocumentService;
 import org.springframework.http.HttpHeaders;

@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
 import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.LoginRepository;
 import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
 import org.mosqueethonon.utilisateur.repository.RoleRepository;

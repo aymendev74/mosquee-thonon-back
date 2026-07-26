@@ -2,7 +2,7 @@ package org.mosqueethonon.common.controller;
 
 import org.junit.jupiter.api.TestInstance;
 import org.mosqueethonon.Application;
-import org.mosqueethonon.configuration.exception.CustomExceptionHandler;
+import org.mosqueethonon.common.web.CustomExceptionHandler;
 import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.inscription.service.InscriptionOrchestratorService;

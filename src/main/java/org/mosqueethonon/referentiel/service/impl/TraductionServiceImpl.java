@@ -1,7 +1,7 @@
 package org.mosqueethonon.referentiel.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.referentiel.repository.TraductionRepository;
 import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.referentiel.v1.dto.TraductionDto;

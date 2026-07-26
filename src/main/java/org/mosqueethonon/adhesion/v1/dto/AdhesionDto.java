@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.mosqueethonon.configuration.APIDateFormats;
-import org.mosqueethonon.utils.StringUtils;
+import org.mosqueethonon.common.config.APIDateFormats;
+import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.mail.dto.IMailObject;
 import org.mosqueethonon.inscription.enums.StatutInscription;
 

@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.mosqueethonon.mail.dto.MailAttachmentDto;
-import org.mosqueethonon.entity.audit.Auditable;
-import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
 import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.mail.enums.MailRequestType;
 

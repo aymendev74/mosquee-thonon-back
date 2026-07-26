@@ -3,7 +3,7 @@ package org.mosqueethonon.utilisateur.v1.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.utilisateur.v1.dto.LoginRequestDto;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;

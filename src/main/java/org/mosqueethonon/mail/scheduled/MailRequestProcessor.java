@@ -3,7 +3,7 @@ package org.mosqueethonon.mail.scheduled;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.mail.dto.MailAttachmentDto;
 import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;

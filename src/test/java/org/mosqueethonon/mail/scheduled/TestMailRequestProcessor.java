@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mosqueethonon.configuration.security.ApplicationConfiguration;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.mail.dto.MailAttachmentDto;
 import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;

@@ -1,7 +1,7 @@
 package org.mosqueethonon.utilisateur.v1.dto;
 
 import lombok.Data;
-import org.mosqueethonon.utils.StringUtils;
+import org.mosqueethonon.common.util.StringUtils;
 
 import java.util.Set;
 

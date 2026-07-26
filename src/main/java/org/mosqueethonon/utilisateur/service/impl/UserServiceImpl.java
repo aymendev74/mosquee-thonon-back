@@ -10,7 +10,7 @@ import org.mosqueethonon.utilisateur.entity.UtilisateurRoleEntity;
 import org.mosqueethonon.mail.enums.MailRequestStatut;
 import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
 import org.mosqueethonon.utilisateur.exception.InvalidOldPasswordException;
-import org.mosqueethonon.exception.ResourceNotFoundException;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.LoginRepository;
 import org.mosqueethonon.utilisateur.repository.RoleRepository;
 import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;

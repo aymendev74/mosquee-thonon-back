@@ -2,9 +2,9 @@ package org.mosqueethonon.utilisateur.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.mosqueethonon.entity.audit.Auditable;
-import org.mosqueethonon.entity.audit.EntityListener;
-import org.mosqueethonon.entity.audit.Signature;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
 
 @Entity
 @EntityListeners(EntityListener.class)

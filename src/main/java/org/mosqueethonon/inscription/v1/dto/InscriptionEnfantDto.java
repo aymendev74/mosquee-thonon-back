@@ -3,7 +3,7 @@ package org.mosqueethonon.inscription.v1.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.mosqueethonon.utils.StringUtils;
+import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.inscription.enums.StatutInscription;
 import org.springframework.util.CollectionUtils;
 
