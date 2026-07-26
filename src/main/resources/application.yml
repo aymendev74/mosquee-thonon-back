@@ -27,6 +27,14 @@ server:
     threads:
       max: 100
 spring:
+  http:
+    client:
+      # Sans plafond, un appel Gemini bloqué immobiliserait une connexion JDBC et le verrou de
+      # moth.chatbot_index_state pendant toute la réindexation transactionnelle (et bloquerait le
+      # démarrage d'une seconde instance). S'applique au RestClient.Builder auto-configuré, dont
+      # le client Gemini est aujourd'hui le seul consommateur.
+      connect-timeout: 10s
+      read-timeout: 60s
   jackson:
     default-property-inclusion: non_null
   profiles:
@@ -91,3 +99,27 @@ auth:
     path: /api
     name: MOTH-TOKEN
     same-site: Lax
+
+chatbot:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+    embedding-model: gemini-embedding-001
+    # DOIT rester synchronisé avec moth.chatbot_document_chunk.embedding vector(768) (changelog 063).
+    # Sans cette valeur, gemini-embedding-001 renvoie 3072 dimensions par défaut, non insérables et
+    # non indexables (l'index HNSW pgvector plafonne à 2000 dimensions). Toute modification impose
+    # un changeset Liquibase + une réindexation complète.
+    embedding-dimension: 768
+    generation-model: gemini-3.1-flash-lite
+    # Volontairement basse : réponses factuelles et respect strict du format de sortie imposé par
+    # l'instruction système (pas de titres, pas de tableaux, pas de blocs de code).
+    temperature: 0.2
+    base-url: https://generativelanguage.googleapis.com/v1beta
+  retrieval:
+    top-k: 5
+    min-score: 0.55
+  indexing:
+    # Réindexe au démarrage uniquement si la signature (contenu des chunks + modèle d'embedding +
+    # dimension) a changé. La documentation étant embarquée dans l'image (COPY docs), elle ne peut
+    # changer qu'au déploiement, donc un contrôle au démarrage suffit.
+    on-startup: true
+  docs-path: docs/functional

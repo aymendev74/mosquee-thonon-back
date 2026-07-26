@@ -5,8 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.exception.BadRequestException;
 import org.mosqueethonon.exception.ResourceNotFoundException;
 import org.mosqueethonon.exception.ForbiddenResourceAccessException;
+import org.mosqueethonon.chatbot.exception.GeminiApiException;
+import org.mosqueethonon.chatbot.exception.GeminiQuotaDetails;
 import org.mosqueethonon.exception.ResourceLockedException;
+import org.mosqueethonon.v1.dto.chatbot.ChatbotQuotaErrorDto;
 import org.mosqueethonon.v1.dto.lock.LockResultDto;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -45,6 +49,36 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
         log.error("Authentication failed: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    /**
+     * Un dépassement de quota de l'API d'IA est une condition attendue en offre gratuite, pas un
+     * incident : on renvoie 429 avec de quoi permettre au front de formuler un message utile, plutôt
+     * qu'un 500 indifférencié. Toute autre défaillance Gemini devient un 502, car elle est le fait
+     * d'un service amont et non d'un bug de l'application.
+     */
+    @ExceptionHandler(GeminiApiException.class)
+    public ResponseEntity<ChatbotQuotaErrorDto> handleGeminiApiException(GeminiApiException e) {
+        if (!e.isQuotaExceeded()) {
+            log.error("Appel à l'API Gemini en échec (HTTP {})", e.getStatus().value(), e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
+
+        GeminiQuotaDetails details = e.getQuotaDetails();
+        log.warn("Quota de l'API Gemini dépassé (portée={}, délai suggéré={}s)",
+                details.scope(), details.retryAfterSeconds().isPresent()
+                        ? details.retryAfterSeconds().getAsInt() : "inconnu");
+
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS);
+        details.retryAfterSeconds().ifPresent(seconds ->
+                response.header(HttpHeaders.RETRY_AFTER, String.valueOf(seconds)));
+
+        return response.body(ChatbotQuotaErrorDto.builder()
+                .reason("QUOTA_EXCEEDED")
+                .quotaScope(details.scope().name())
+                .retryAfterSeconds(details.retryAfterSeconds().isPresent()
+                        ? details.retryAfterSeconds().getAsInt() : null)
+                .build());
     }
 
     @ExceptionHandler(RuntimeException.class)

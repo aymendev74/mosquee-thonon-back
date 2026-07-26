@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 065-createTable-chatbot_index_state
+      author: Aymen
+      comment: >
+        Table à ligne unique portant la signature de l'index chatbot (contenu des chunks + modèle
+        d'embedding + dimension). Elle permet de ne réindexer au démarrage que si quelque chose a
+        réellement changé, et sert de point de sérialisation entre instances via SELECT ... FOR UPDATE.
+        La ligne est semée ici avec une signature vide, ce qui force une première indexation.
+      changes:
+        - createTable:
+            schemaName: moth
+            tableName: chatbot_index_state
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: chatbot_index_state_pkey
+              - column:
+                  name: signature
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: chunk_count
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: indexed_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+
+        # Garantit qu'il ne peut jamais exister qu'une seule ligne d'état.
+        - sql:
+            sql: ALTER TABLE moth.chatbot_index_state ADD CONSTRAINT chatbot_index_state_single_row CHECK (id = 1);
+            rollback: ALTER TABLE moth.chatbot_index_state DROP CONSTRAINT chatbot_index_state_single_row;
+
+        - insert:
+            schemaName: moth
+            tableName: chatbot_index_state
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 1
+              - column:
+                  name: signature
+                  value: ''
+              - column:
+                  name: chunk_count
+                  valueNumeric: 0
