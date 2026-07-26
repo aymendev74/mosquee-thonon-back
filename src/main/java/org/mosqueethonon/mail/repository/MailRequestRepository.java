@@ -1,8 +1,8 @@
 package org.mosqueethonon.mail.repository;
 
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.mail.enums.MailRequestType;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,13 +16,13 @@ import java.util.Set;
 @Repository
 public interface MailRequestRepository extends JpaRepository<MailRequestEntity, Long> {
 
-    List<MailRequestEntity> findByStatutOrderBySignatureDateCreationAsc(MailRequestStatut statut);
+    List<MailRequestEntity> findByStatutOrderBySignatureDateCreationAsc(MailRequestStatutEnum statut);
 
     @Query("SELECT m FROM MailRequestEntity m LEFT JOIN FETCH m.documentRequests WHERE m.statut = :statut ORDER BY m.signature.dateCreation ASC")
-    List<MailRequestEntity> findByStatutWithDocumentsOrderBySignatureDateCreationAsc(@Param("statut") MailRequestStatut statut);
+    List<MailRequestEntity> findByStatutWithDocumentsOrderBySignatureDateCreationAsc(@Param("statut") MailRequestStatutEnum statut);
 
     @Transactional
-    void deleteByTypeAndBusinessIdIn(MailRequestType type, Set<Long> businessIds);
+    void deleteByTypeAndBusinessIdIn(MailRequestTypeEnum type, Set<Long> businessIds);
 
     /**
      * Récupère le premier enregistrement PENDING en le verrouillant de manière pessimiste

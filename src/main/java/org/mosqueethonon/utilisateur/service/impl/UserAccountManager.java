@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurRoleEntity;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
@@ -69,8 +69,8 @@ public class UserAccountManager {
     private void requestMailActivation(String username) {
         UserAccountActionEntity accountAction = new UserAccountActionEntity();
         accountAction.setUsername(username);
-        accountAction.setStatut(MailRequestStatut.PENDING);
-        accountAction.setType(UserAccountActionType.ACTIVATION);
+        accountAction.setStatut(MailRequestStatutEnum.PENDING);
+        accountAction.setType(UserAccountActionTypeEnum.ACTIVATION);
         accountAction.setToken(UserActivationTokenGenerator.generateToken(32));
         this.userAccountActionRepository.save(accountAction);
     }

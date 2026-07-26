@@ -6,8 +6,8 @@ import lombok.Setter;
 import org.mosqueethonon.common.audit.Auditable;
 import org.mosqueethonon.common.audit.EntityListener;
 import org.mosqueethonon.common.audit.Signature;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -23,14 +23,14 @@ public class DocumentRequestEntity implements Auditable {
 
     @Column(name = "cddoretype")
     @Enumerated(EnumType.STRING)
-    private DocumentRequestType type;
+    private DocumentRequestTypeEnum type;
 
     @Column(name = "iddorebusi")
     private Long businessId;
 
     @Column(name = "cddorestatut")
     @Enumerated(EnumType.STRING)
-    private DocumentRequestStatut statut;
+    private DocumentRequestStatutEnum statut;
 
     @Column(name = "tddorecode")
     private String documentCode;

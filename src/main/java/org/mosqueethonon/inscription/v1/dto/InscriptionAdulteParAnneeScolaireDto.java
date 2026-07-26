@@ -8,7 +8,7 @@ import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.SexeEnum;
 import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ public class InscriptionAdulteParAnneeScolaireDto {
 
     private Integer anneeDebut;
     private Integer anneeFin;
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     private BigDecimal montantTotal;
     private String noInscription;
     

@@ -6,8 +6,8 @@ import lombok.Setter;
 import org.mosqueethonon.common.audit.Auditable;
 import org.mosqueethonon.common.audit.EntityListener;
 import org.mosqueethonon.common.audit.Signature;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 
 @Entity
 @EntityListeners(EntityListener.class)
@@ -29,11 +29,11 @@ public class UserAccountActionEntity implements Auditable {
 
     @Column(name = "cduaacstatut")
     @Enumerated(EnumType.STRING)
-    private MailRequestStatut statut;
+    private MailRequestStatutEnum statut;
 
     @Column(name = "cduaactype")
     @Enumerated(EnumType.STRING)
-    private UserAccountActionType type;
+    private UserAccountActionTypeEnum type;
 
     @Embedded
     private Signature signature;

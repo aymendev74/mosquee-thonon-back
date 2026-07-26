@@ -1,6 +1,6 @@
 package org.mosqueethonon.inscription.enums;
 
-public enum StatutInscription {
+public enum StatutInscriptionEnum {
 
     PROVISOIRE, VALIDEE, LISTE_ATTENTE, REFUSE;
 

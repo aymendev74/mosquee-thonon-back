@@ -12,8 +12,8 @@ import org.mosqueethonon.mail.dto.MailAttachmentDto;
 import org.mosqueethonon.common.audit.Auditable;
 import org.mosqueethonon.common.audit.EntityListener;
 import org.mosqueethonon.common.audit.Signature;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +35,14 @@ public class MailRequestEntity implements Auditable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cdmaretype", nullable = false, length = 50)
-    private MailRequestType type;
+    private MailRequestTypeEnum type;
 
     @Column(name = "businessid", nullable = false)
     private Long businessId;
 
     @Column(name = "cdmarestatut", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private MailRequestStatut statut;
+    private MailRequestStatutEnum statut;
 
     @Column(name = "txmaresubject")
     private String subject;

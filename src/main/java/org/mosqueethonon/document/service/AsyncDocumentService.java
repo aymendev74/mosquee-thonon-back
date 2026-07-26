@@ -1,7 +1,7 @@
 package org.mosqueethonon.document.service;
 
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 
 public interface AsyncDocumentService {
 
@@ -9,6 +9,6 @@ public interface AsyncDocumentService {
      * Crée une demande de génération de document en statut PENDING.
      * Retourne l'entité persistée, ou null si un doublon PENDING existait déjà.
      */
-    DocumentRequestEntity requestDocumentGeneration(DocumentRequestType type, Long businessId);
+    DocumentRequestEntity requestDocumentGeneration(DocumentRequestTypeEnum type, Long businessId);
 
 }

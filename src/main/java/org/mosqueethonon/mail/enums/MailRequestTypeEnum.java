@@ -1,6 +1,6 @@
 package org.mosqueethonon.mail.enums;
 
-public enum MailRequestType {
+public enum MailRequestTypeEnum {
     INSCRIPTION,
     ADHESION;
 

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import org.mosqueethonon.common.security.AuthCookieConfiguration;
 import org.mosqueethonon.utilisateur.v1.dto.LoginRequestDto;
 import org.mosqueethonon.utilisateur.service.UserService;
-import org.mosqueethonon.utilisateur.service.IAuthService;
+import org.mosqueethonon.utilisateur.service.AuthService;
 import org.mosqueethonon.utilisateur.v1.dto.UserInfoDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class AuthentificationController {
 
-    private IAuthService oauthService;
+    private AuthService oauthService;
 
     private AuthCookieConfiguration authCookieConfiguration;
 

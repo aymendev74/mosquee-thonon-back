@@ -3,7 +3,7 @@ package org.mosqueethonon.document.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.document.service.DocumentGenerator;
 import org.mosqueethonon.common.util.HashUtils;
@@ -138,18 +138,18 @@ public class InscriptionEnfantDocumentGenerator implements DocumentGenerator<Ins
     @Override
     public List<DocumentMetadataEntity> buildMetadata(InscriptionEnfantEntity entity) {
         List<DocumentMetadataEntity> metadata = new ArrayList<>();
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId())));
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.NO_INSCRIPTION, entity.getNoInscription()));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(entity.getId())));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NO_INSCRIPTION, entity.getNoInscription()));
         if (entity.getResponsableLegal() != null) {
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.NOM, entity.getResponsableLegal().getNom()));
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.PRENOM, entity.getResponsableLegal().getPrenom()));
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.EMAIL, entity.getResponsableLegal().getEmail()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, entity.getResponsableLegal().getNom()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.PRENOM, entity.getResponsableLegal().getPrenom()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.EMAIL, entity.getResponsableLegal().getEmail()));
         }
         if (entity.getIdUtilisateur() != null) {
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.ID_UTILISATEUR, String.valueOf(entity.getIdUtilisateur())));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.ID_UTILISATEUR, String.valueOf(entity.getIdUtilisateur())));
         }
         if (entity.getAnneeScolaire() != null) {
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.ANNEE_SCOLAIRE, entity.getAnneeScolaire()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.ANNEE_SCOLAIRE, entity.getAnneeScolaire()));
         }
         return metadata;
     }

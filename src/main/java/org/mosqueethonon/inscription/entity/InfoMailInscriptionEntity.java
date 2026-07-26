@@ -3,7 +3,7 @@ package org.mosqueethonon.inscription.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Immutable;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 @Entity
 @Immutable
@@ -22,7 +22,7 @@ public class InfoMailInscriptionEntity {
     private String email;
     @Column(name = "statut")
     @Enumerated(EnumType.STRING)
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     @Column(name = "noinscription")
     private String noInscription;
 

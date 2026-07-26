@@ -3,7 +3,7 @@ package org.mosqueethonon.document.service.impl;
 import lombok.AllArgsConstructor;
 import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.mosqueethonon.document.service.DocumentGenerator;
 import org.mosqueethonon.common.util.HashUtils;
 import org.springframework.stereotype.Component;
@@ -88,10 +88,10 @@ public class AdhesionDocumentGenerator implements DocumentGenerator<AdhesionEnti
     @Override
     public List<DocumentMetadataEntity> buildMetadata(AdhesionEntity entity) {
         List<DocumentMetadataEntity> metadata = new ArrayList<>();
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.ID_ADHESION, String.valueOf(entity.getId())));
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.NOM, entity.getNom()));
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.PRENOM, entity.getPrenom()));
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.EMAIL, entity.getEmail()));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.ID_ADHESION, String.valueOf(entity.getId())));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, entity.getNom()));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.PRENOM, entity.getPrenom()));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.EMAIL, entity.getEmail()));
         return metadata;
     }
 

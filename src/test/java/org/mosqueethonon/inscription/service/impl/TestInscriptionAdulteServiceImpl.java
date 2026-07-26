@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.mosqueethonon.document.entity.DocumentEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.mosqueethonon.document.repository.DocumentRepository;
 
 import com.google.common.collect.Lists;
@@ -32,7 +32,7 @@ import org.mosqueethonon.referentiel.entity.MatiereEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.inscription.enums.SexeEnum;
 import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
@@ -55,7 +55,7 @@ import org.mosqueethonon.inscription.v1.dto.ReinscriptionAdulteDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.utilisateur.v1.dto.UserDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionAdulteMapper;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionAdulteMapperImpl;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -120,7 +120,7 @@ public class TestInscriptionAdulteServiceImpl {
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
         inscriptionEntity.setDateInscription(LocalDateTime.now());
-        inscriptionEntity.setStatut(StatutInscription.PROVISOIRE);
+        inscriptionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         inscriptionEntity.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
         MatiereEntity matiere = new MatiereEntity();
@@ -286,7 +286,7 @@ public class TestInscriptionAdulteServiceImpl {
         InscriptionAdulteEntity inscription = new InscriptionAdulteEntity();
         inscription.setId(1L);
         inscription.setIdTarif(1L);
-        inscription.setStatut(StatutInscription.VALIDEE);
+        inscription.setStatut(StatutInscriptionEnum.VALIDEE);
         inscription.setMontantTotal(BigDecimal.valueOf(200));
         inscription.setNoInscription("AMC-002");
         inscription.setStatutProfessionnel(StatutProfessionnelEnum.AVEC_ACTIVITE);
@@ -308,7 +308,7 @@ public class TestInscriptionAdulteServiceImpl {
         assertEquals(1, result.size());
         assertEquals(2024, result.get(0).getAnneeDebut());
         assertEquals(2025, result.get(0).getAnneeFin());
-        assertEquals(StatutInscription.VALIDEE, result.get(0).getStatut());
+        assertEquals(StatutInscriptionEnum.VALIDEE, result.get(0).getStatut());
         assertEquals(BigDecimal.valueOf(200), result.get(0).getMontantTotal());
         assertEquals("AMC-002", result.get(0).getNoInscription());
         assertEquals("Dupont", result.get(0).getNom());
@@ -468,7 +468,7 @@ public class TestInscriptionAdulteServiceImpl {
 
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -485,7 +485,7 @@ public class TestInscriptionAdulteServiceImpl {
         Long id = 1L;
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -510,7 +510,7 @@ public class TestInscriptionAdulteServiceImpl {
                 eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
         when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq("1")))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq("1")))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -552,7 +552,7 @@ public class TestInscriptionAdulteServiceImpl {
         // THEN
         assertNotNull(result);
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
+                .requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ADULTE), anyLong());
         verify(mailRequestRepository, times(1)).save(any());
     }
 
@@ -563,7 +563,7 @@ public class TestInscriptionAdulteServiceImpl {
         InscriptionAdulteEntity entityRefuse = new InscriptionAdulteEntity();
         entityRefuse.setId(1L);
         entityRefuse.setDateInscription(java.time.LocalDateTime.now());
-        entityRefuse.setStatut(StatutInscription.REFUSE);
+        entityRefuse.setStatut(StatutInscriptionEnum.REFUSE);
         entityRefuse.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiereRefuse = new InscriptionMatiereEntity();
         MatiereEntity matiereRefuse = new MatiereEntity();
@@ -631,6 +631,6 @@ public class TestInscriptionAdulteServiceImpl {
         assertNotNull(result);
         assertNull(result.getIdDocument());
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(org.mosqueethonon.document.enums.DocumentRequestType.INSCRIPTION_ADULTE), anyLong());
+                .requestDocumentGeneration(eq(org.mosqueethonon.document.enums.DocumentRequestTypeEnum.INSCRIPTION_ADULTE), anyLong());
     }
 }

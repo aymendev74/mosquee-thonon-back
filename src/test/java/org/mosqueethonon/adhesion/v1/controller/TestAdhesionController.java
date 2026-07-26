@@ -10,14 +10,14 @@ import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.tarif.enums.TypeTarifEnum;
 import org.mosqueethonon.adhesion.repository.AdhesionLightRepository;
 import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -91,7 +91,7 @@ public class TestAdhesionController extends TestController {
                 .content(objectMapper.writeValueAsString(testAdhesion)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.statut").value(StatutInscription.PROVISOIRE.name()));
+                .andExpect(jsonPath("$.statut").value(StatutInscriptionEnum.PROVISOIRE.name()));
     }
 
     @Test
@@ -124,14 +124,14 @@ public class TestAdhesionController extends TestController {
         
         // Mise à jour de l'adhésion
         createdAdhesion.setMontant(new BigDecimal("75.0"));
-        createdAdhesion.setStatut(StatutInscription.VALIDEE);
+        createdAdhesion.setStatut(StatutInscriptionEnum.VALIDEE);
         
         mockMvc.perform(MockMvcRequestBuilders.put("/v1/adhesions/" + createdAdhesion.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createdAdhesion)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.montant").value(75.0))
-                .andExpect(jsonPath("$.statut").value(StatutInscription.VALIDEE.name()));
+                .andExpect(jsonPath("$.statut").value(StatutInscriptionEnum.VALIDEE.name()));
     }
 
     @Test
@@ -148,7 +148,7 @@ public class TestAdhesionController extends TestController {
     public void testFindAdhesionsByCriteriaWithTresorierRole() throws Exception {
         // Recherche avec critères
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/adhesions")
-                .param("statut", StatutInscription.PROVISOIRE.name()))
+                .param("statut", StatutInscriptionEnum.PROVISOIRE.name()))
                 .andExpect(status().isOk());
     }
 
@@ -157,7 +157,7 @@ public class TestAdhesionController extends TestController {
     public void testFindAdhesionsByCriteriaWithAdminRole() throws Exception {
         // Recherche avec critères
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/adhesions")
-                        .param("statut", StatutInscription.PROVISOIRE.name()))
+                        .param("statut", StatutInscriptionEnum.PROVISOIRE.name()))
                 .andExpect(status().isOk());
     }
 
@@ -166,7 +166,7 @@ public class TestAdhesionController extends TestController {
     public void testFindAdhesionsByCriteriaWithNoAuthorizedRole() throws Exception {
         // Recherche avec critères
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/adhesions")
-                        .param("statut", StatutInscription.PROVISOIRE.name()))
+                        .param("statut", StatutInscriptionEnum.PROVISOIRE.name()))
                 .andExpect(status().isForbidden());
     }
 
@@ -215,9 +215,9 @@ public class TestAdhesionController extends TestController {
         AdhesionDto createdAdhesion = objectMapper.readValue(response, AdhesionDto.class);
 
         DocumentRequestEntity request = documentRequestRepository
-                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.ADHESION, createdAdhesion.getId(), DocumentRequestStatut.PENDING)
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum.ADHESION, createdAdhesion.getId(), DocumentRequestStatutEnum.PENDING)
                 .orElseThrow();
-        request.setStatut(DocumentRequestStatut.COMPLETED);
+        request.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(request);
 
         AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();
@@ -235,17 +235,17 @@ public class TestAdhesionController extends TestController {
 
         // Complete the legitimate ADHESION request created at creation time.
         DocumentRequestEntity adhesionRequest = documentRequestRepository
-                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.ADHESION, createdAdhesion.getId(), DocumentRequestStatut.PENDING)
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum.ADHESION, createdAdhesion.getId(), DocumentRequestStatutEnum.PENDING)
                 .orElseThrow();
-        adhesionRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        adhesionRequest.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(adhesionRequest);
 
         // Insert an unrelated PENDING request that happens to share the same numeric businessId
         // but a different type -- this must NOT make the adhesion look pending.
         DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
-        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ENFANT);
+        wrongTypeRequest.setType(DocumentRequestTypeEnum.INSCRIPTION_ENFANT);
         wrongTypeRequest.setBusinessId(createdAdhesion.getId());
-        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        wrongTypeRequest.setStatut(DocumentRequestStatutEnum.PENDING);
         documentRequestRepository.save(wrongTypeRequest);
 
         AdhesionLightEntity light = adhesionLightRepository.findById(createdAdhesion.getId()).orElseThrow();

@@ -4,7 +4,7 @@ import org.mosqueethonon.classe.v1.dto.FeuillePresenceDto;
 
 import java.util.List;
 
-public interface IFeuillePresenceService {
+public interface FeuillePresenceService {
 
     FeuillePresenceDto createFeuillePresence(Long idClasse, FeuillePresenceDto feuillePresence);
 

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 
 @Entity
 @Table(name = "document_metadata", schema = "moth")
@@ -23,12 +23,12 @@ public class DocumentMetadataEntity {
 
     @Column(name = "cddomecle")
     @Enumerated(EnumType.STRING)
-    private DocumentMetadataKey cle;
+    private DocumentMetadataKeyEnum cle;
 
     @Column(name = "txdomevaleur")
     private String valeur;
 
-    public DocumentMetadataEntity(DocumentMetadataKey cle, String valeur) {
+    public DocumentMetadataEntity(DocumentMetadataKeyEnum cle, String valeur) {
         this.cle = cle;
         this.valeur = valeur;
     }

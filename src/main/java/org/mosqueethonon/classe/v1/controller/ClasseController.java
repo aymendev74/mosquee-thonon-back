@@ -1,8 +1,8 @@
 package org.mosqueethonon.classe.v1.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.classe.service.IClasseService;
-import org.mosqueethonon.classe.service.IFeuillePresenceService;
+import org.mosqueethonon.classe.service.ClasseService;
+import org.mosqueethonon.classe.service.FeuillePresenceService;
 import org.mosqueethonon.classe.v1.criteria.CreateClasseCriteria;
 import org.mosqueethonon.classe.v1.criteria.SearchClasseCriteria;
 import org.mosqueethonon.classe.v1.dto.ClasseDto;
@@ -18,9 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ClasseController {
 
-    private IClasseService classeService;
+    private ClasseService classeService;
 
-    private IFeuillePresenceService feuillePresenceService;
+    private FeuillePresenceService feuillePresenceService;
 
     @PostMapping("/auto")
     public ResponseEntity<Void> createClasse(@RequestBody CreateClasseCriteria criteria) {

@@ -7,8 +7,8 @@ import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.referentiel.entity.MatiereEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.referentiel.enums.TypeMatiereEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
@@ -81,7 +81,7 @@ public class BulletinServiceImpl implements BulletinService {
         BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
         saved.setComplet(saved.calculerCompletude(this.getCodesMatieresEnfant()));
         if (Boolean.TRUE.equals(saved.getComplet())) {
-            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
+            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.BULLETIN, saved.getId());
         }
         this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
         return saved;
@@ -111,7 +111,7 @@ public class BulletinServiceImpl implements BulletinService {
         BulletinDto saved = bulletinMapper.fromEntityToDto(this.bulletinRepository.save(bulletinEntity));
         saved.setComplet(saved.calculerCompletude(this.getCodesMatieresEnfant()));
         if (Boolean.TRUE.equals(saved.getComplet())) {
-            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.BULLETIN, saved.getId());
+            this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.BULLETIN, saved.getId());
         }
         this.findDocumentByBulletinId(saved.getId()).ifPresent(doc -> saved.setIdDocument(doc.getId()));
         return saved;
@@ -131,14 +131,14 @@ public class BulletinServiceImpl implements BulletinService {
     @Override
     @Transactional
     public void deleteBulletin(Long id) {
-        this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, Sets.newHashSet(id));
+        this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum.BULLETIN, Sets.newHashSet(id));
         this.findDocumentByBulletinId(id).ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
         this.bulletinRepository.deleteById(id);
     }
 
     @Override
     public Optional<DocumentEntity> findDocumentByBulletinId(Long bulletinId) {
-        return this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_BULLETIN, String.valueOf(bulletinId));
+        return this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_BULLETIN, String.valueOf(bulletinId));
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Builder
 @Data
-public class GroupeElevesBean {
+public class GroupeEleves {
 
     private List<EleveEntity> eleves;
     private JourActiviteEnum jourClasse;

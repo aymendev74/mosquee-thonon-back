@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
 import org.mosqueethonon.mail.repository.MailRequestDocumentRequestRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 
@@ -56,7 +56,7 @@ public class TestMailRequestServiceImpl {
     public void testPromoteReadyMailRequestsWhenAllDocumentsCompleted() {
         // GIVEN
         Long mailRequestId = 1L;
-        MailRequestEntity mailRequest = buildMailRequest(mailRequestId, MailRequestStatut.NOT_READY);
+        MailRequestEntity mailRequest = buildMailRequest(mailRequestId, MailRequestStatutEnum.NOT_READY);
 
         when(mailRequestDocumentRequestRepository.findReadyMailRequestIds(
                 eq(42L), eq("NOT_READY"), eq("COMPLETED")))
@@ -69,7 +69,7 @@ public class TestMailRequestServiceImpl {
 
         // THEN — le mail passe en PENDING
         verify(mailRequestRepository, times(1)).saveAll(anyList());
-        assertEquals(MailRequestStatut.PENDING, mailRequest.getStatut());
+        assertEquals(MailRequestStatutEnum.PENDING, mailRequest.getStatut());
     }
 
     // -----------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class TestMailRequestServiceImpl {
     public void testPromoteReadyMailRequestsWhenMailAlreadyPendingConcurrently() {
         // GIVEN — la requête SQL renvoie l'ID (race condition entre la requête et le rechargement)
         Long mailRequestId = 2L;
-        MailRequestEntity mailRequest = buildMailRequest(mailRequestId, MailRequestStatut.PENDING);
+        MailRequestEntity mailRequest = buildMailRequest(mailRequestId, MailRequestStatutEnum.PENDING);
 
         when(mailRequestDocumentRequestRepository.findReadyMailRequestIds(
                 eq(42L), eq("NOT_READY"), eq("COMPLETED")))
@@ -104,8 +104,8 @@ public class TestMailRequestServiceImpl {
     @Test
     public void testPromoteReadyMailRequestsWhenMultipleMailsAllReady() {
         // GIVEN
-        MailRequestEntity mail1 = buildMailRequest(11L, MailRequestStatut.NOT_READY);
-        MailRequestEntity mail2 = buildMailRequest(12L, MailRequestStatut.NOT_READY);
+        MailRequestEntity mail1 = buildMailRequest(11L, MailRequestStatutEnum.NOT_READY);
+        MailRequestEntity mail2 = buildMailRequest(12L, MailRequestStatutEnum.NOT_READY);
 
         when(mailRequestDocumentRequestRepository.findReadyMailRequestIds(
                 eq(7L), eq("NOT_READY"), eq("COMPLETED")))
@@ -118,15 +118,15 @@ public class TestMailRequestServiceImpl {
 
         // THEN — les deux mails passent en PENDING
         verify(mailRequestRepository, times(1)).saveAll(anyList());
-        assertEquals(MailRequestStatut.PENDING, mail1.getStatut());
-        assertEquals(MailRequestStatut.PENDING, mail2.getStatut());
+        assertEquals(MailRequestStatutEnum.PENDING, mail1.getStatut());
+        assertEquals(MailRequestStatutEnum.PENDING, mail2.getStatut());
     }
 
     // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
 
-    private MailRequestEntity buildMailRequest(Long id, MailRequestStatut statut) {
+    private MailRequestEntity buildMailRequest(Long id, MailRequestStatutEnum statut) {
         MailRequestEntity entity = new MailRequestEntity();
         entity.setId(id);
         entity.setStatut(statut);

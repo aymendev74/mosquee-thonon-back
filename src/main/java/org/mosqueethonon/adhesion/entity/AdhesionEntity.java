@@ -6,7 +6,7 @@ import org.hibernate.annotations.Formula;
 import org.mosqueethonon.common.audit.Auditable;
 import org.mosqueethonon.common.audit.EntityListener;
 import org.mosqueethonon.common.audit.Signature;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,7 +46,7 @@ public class AdhesionEntity implements Auditable {
     private BigDecimal montantAutre;
     @Column(name = "cdadhestatut")
     @Enumerated(EnumType.STRING)
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     @Column(name = "dtadheinscription")
     private LocalDateTime dateInscription;
     @Formula("(select tari.mttari from moth.tarif tari where tari.idtari = idtari)")

@@ -15,8 +15,8 @@ import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.inscription.entity.ResponsableLegalEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.document.repository.DocumentRepository;
@@ -40,7 +40,7 @@ import org.mosqueethonon.inscription.v1.dto.ReinscriptionDto;
 import org.mosqueethonon.inscription.v1.dto.ResponsableLegalDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
 import org.mosqueethonon.utilisateur.v1.dto.UserDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.inscription.v1.mapper.EleveMapper;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionEnfantMapper;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionEnfantMapperImpl;
@@ -165,7 +165,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertNotNull(result);
         assertTrue(result.getNewlyCreatedAccount());
         assertFalse(result.getEnabledAccount());
-        assertEquals(StatutInscription.PROVISOIRE, result.getStatut());
+        assertEquals(StatutInscriptionEnum.PROVISOIRE, result.getStatut());
         verify(this.userService).createUser(any(UserDto.class));
         verify(this.mailRequestRepository).save(any());
         verify(this.inscriptionEnfantRepository).save(any());
@@ -198,7 +198,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertNotNull(result);
         assertFalse(result.getNewlyCreatedAccount());
         assertTrue(result.getEnabledAccount());
-        assertEquals(StatutInscription.PROVISOIRE, result.getStatut());
+        assertEquals(StatutInscriptionEnum.PROVISOIRE, result.getStatut());
         verify(this.userService, never()).createUser(any());
         verify(this.mailRequestRepository).save(any());
         verify(this.inscriptionEnfantRepository).save(any());
@@ -231,7 +231,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertNotNull(result);
         assertFalse(result.getNewlyCreatedAccount());
         assertFalse(result.getEnabledAccount());
-        assertEquals(StatutInscription.PROVISOIRE, result.getStatut());
+        assertEquals(StatutInscriptionEnum.PROVISOIRE, result.getStatut());
         verify(this.userService, never()).createUser(any());
         verify(this.mailRequestRepository).save(any());
         verify(this.inscriptionEnfantRepository).save(any());
@@ -315,7 +315,7 @@ public class TestInscriptionEnfantServiceImpl {
         InscriptionEnfantEntity inscription = new InscriptionEnfantEntity();
         inscription.setId(1L);
         inscription.setIdTarif(1L);
-        inscription.setStatut(StatutInscription.VALIDEE);
+        inscription.setStatut(StatutInscriptionEnum.VALIDEE);
         inscription.setMontantTotal(BigDecimal.valueOf(150));
         inscription.setNoInscription("AMC-001");
         inscription.setResponsableLegal(responsableLegal);
@@ -342,7 +342,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertEquals(1, result.size());
         assertEquals(2024, result.get(0).getAnneeDebut());
         assertEquals(2025, result.get(0).getAnneeFin());
-        assertEquals(StatutInscription.VALIDEE, result.get(0).getStatut());
+        assertEquals(StatutInscriptionEnum.VALIDEE, result.get(0).getStatut());
         assertEquals(BigDecimal.valueOf(150), result.get(0).getMontantTotal());
         assertEquals("AMC-001", result.get(0).getNoInscription());
         assertNotNull(result.get(0).getResponsableLegal());
@@ -424,7 +424,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
         InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
-        savedInscription.setStatut(StatutInscription.VALIDEE);
+        savedInscription.setStatut(StatutInscriptionEnum.VALIDEE);
         when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
         when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
 
@@ -483,7 +483,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
         InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
-        savedInscription.setStatut(StatutInscription.VALIDEE);
+        savedInscription.setStatut(StatutInscriptionEnum.VALIDEE);
         when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
         when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(new InscriptionEnfantDto());
 
@@ -570,7 +570,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -592,7 +592,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -636,7 +636,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -662,7 +662,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_INSCRIPTION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -729,7 +729,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionRepository.getNextNumeroInscription()).thenReturn(1001L);
         InscriptionEnfantEntity savedInscription = new InscriptionEnfantEntity();
-        savedInscription.setStatut(StatutInscription.VALIDEE);
+        savedInscription.setStatut(StatutInscriptionEnum.VALIDEE);
         when(inscriptionEnfantRepository.save(any())).thenReturn(savedInscription);
         when(inscriptionEnfantMapper.fromEntityToDto(any())).thenReturn(inscriptionDto);
 
@@ -740,7 +740,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertNotNull(result);
         assertNull(result.getIdDocument());
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ENFANT), any());
+                .requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), any());
     }
 
     // ---------------------------------------------------------------------------
@@ -775,9 +775,9 @@ public class TestInscriptionEnfantServiceImpl {
 
         // THEN
         assertNotNull(result);
-        assertEquals(StatutInscription.PROVISOIRE, result.getStatut());
+        assertEquals(StatutInscriptionEnum.PROVISOIRE, result.getStatut());
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(DocumentRequestType.INSCRIPTION_ENFANT), any());
+                .requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), any());
         verify(mailRequestRepository).save(any());
     }
 
@@ -791,7 +791,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         InscriptionEnfantEntity entityRefuse = createInscriptionEntityWithDate(0);
         entityRefuse.setId(id);
-        entityRefuse.setStatut(StatutInscription.REFUSE);
+        entityRefuse.setStatut(StatutInscriptionEnum.REFUSE);
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entityRefuse));
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
@@ -841,7 +841,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         // THEN
         assertNotNull(result);
-        assertEquals(StatutInscription.LISTE_ATTENTE, result.getStatut());
+        assertEquals(StatutInscriptionEnum.LISTE_ATTENTE, result.getStatut());
         verify(asyncDocumentService, never())
                 .requestDocumentGeneration(any(), any());
         verify(mailRequestRepository, times(1)).save(any());

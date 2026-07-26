@@ -1,7 +1,7 @@
 package org.mosqueethonon.document.repository;
 
 import org.mosqueethonon.document.entity.DocumentEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +18,6 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, Long> 
     List<DocumentEntity> findByIdUtilisateur(Long idUtilisateur);
 
     @Query("SELECT d FROM DocumentEntity d JOIN d.metadonnees m WHERE m.cle = :cle AND m.valeur = :valeur")
-    Optional<DocumentEntity> findByMetadataKeyAndValue(@Param("cle") DocumentMetadataKey cle, @Param("valeur") String valeur);
+    Optional<DocumentEntity> findByMetadataKeyAndValue(@Param("cle") DocumentMetadataKeyEnum cle, @Param("valeur") String valeur);
 
 }

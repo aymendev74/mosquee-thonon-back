@@ -3,8 +3,8 @@ package org.mosqueethonon.mail.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
 import org.mosqueethonon.mail.repository.MailRequestDocumentRequestRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.mail.service.MailRequestService;
@@ -29,8 +29,8 @@ public class MailRequestServiceImpl implements MailRequestService {
     public void promoteReadyMailRequests(Long documentRequestId) {
         List<Long> readyMailRequestIds = mailRequestDocumentRequestRepository.findReadyMailRequestIds(
                 documentRequestId,
-                MailRequestStatut.NOT_READY.name(),
-                DocumentRequestStatut.COMPLETED.name()
+                MailRequestStatutEnum.NOT_READY.name(),
+                DocumentRequestStatutEnum.COMPLETED.name()
         );
         if (CollectionUtils.isEmpty(readyMailRequestIds)) {
             return;
@@ -41,8 +41,8 @@ public class MailRequestServiceImpl implements MailRequestService {
 
         List<MailRequestEntity> mailRequests = mailRequestRepository.findAllById(readyMailRequestIds);
         List<MailRequestEntity> toPromote = mailRequests.stream()
-                .filter(mr -> mr.getStatut() == MailRequestStatut.NOT_READY)
-                .peek(mr -> mr.setStatut(MailRequestStatut.PENDING))
+                .filter(mr -> mr.getStatut() == MailRequestStatutEnum.NOT_READY)
+                .peek(mr -> mr.setStatut(MailRequestStatutEnum.PENDING))
                 .collect(Collectors.toList());
 
         if (!toPromote.isEmpty()) {

@@ -10,7 +10,7 @@ import org.mosqueethonon.inscription.enums.SexeEnum;
 import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.mail.dto.IMailObject;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ public class InscriptionAdulteDto implements IMailObject {
     private String numeroEtRue;
     private Integer codePostal;
     private String ville;
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     private BigDecimal montantTotal;
     private NiveauInterneEnum niveauInterne;
     private SexeEnum sexe;

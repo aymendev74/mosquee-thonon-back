@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
 import org.mosqueethonon.inscription.repository.InscriptionRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
@@ -56,7 +56,7 @@ public class TestCommonInscriptionService {
         verify(mailRequestRepository, times(1)).save(captor.capture());
 
         MailRequestEntity savedMailRequest = captor.getAllValues().get(0);
-        assertEquals(MailRequestStatut.NOT_READY, savedMailRequest.getStatut());
+        assertEquals(MailRequestStatutEnum.NOT_READY, savedMailRequest.getStatut());
         assertEquals(1L, savedMailRequest.getDocumentRequests().size());
         assertEquals(99L, savedMailRequest.getDocumentRequests().get(0).getDocumentRequestId());
     }
@@ -71,7 +71,7 @@ public class TestCommonInscriptionService {
         // GIVEN
         MailRequestEntity savedWithId = MailRequestEntity.builder()
                 .businessId(2L)
-                .statut(MailRequestStatut.PENDING)
+                .statut(MailRequestStatutEnum.PENDING)
                 .build();
 
         // WHEN
@@ -82,7 +82,7 @@ public class TestCommonInscriptionService {
         verify(mailRequestRepository, times(1)).save(captor.capture());
 
         MailRequestEntity savedMailRequest = captor.getValue();
-        assertEquals(MailRequestStatut.PENDING, savedMailRequest.getStatut());
+        assertEquals(MailRequestStatutEnum.PENDING, savedMailRequest.getStatut());
         assertTrue(savedMailRequest.getDocumentRequests().isEmpty(), "Aucune liaison document ne doit être créée quand documentRequest est null");
     }
 
@@ -95,7 +95,7 @@ public class TestCommonInscriptionService {
         // GIVEN
         MailRequestEntity savedWithId = MailRequestEntity.builder()
                 .businessId(3L)
-                .statut(MailRequestStatut.PENDING)
+                .statut(MailRequestStatutEnum.PENDING)
                 .build();
         savedWithId.setId(30L);
 
@@ -107,7 +107,7 @@ public class TestCommonInscriptionService {
         // THEN — le type est bien INSCRIPTION
         ArgumentCaptor<MailRequestEntity> captor = ArgumentCaptor.forClass(MailRequestEntity.class);
         verify(mailRequestRepository, times(1)).save(captor.capture());
-        assertEquals(org.mosqueethonon.mail.enums.MailRequestType.INSCRIPTION, captor.getValue().getType());
+        assertEquals(org.mosqueethonon.mail.enums.MailRequestTypeEnum.INSCRIPTION, captor.getValue().getType());
     }
 
     // -----------------------------------------------------------------------
@@ -117,8 +117,8 @@ public class TestCommonInscriptionService {
     private DocumentRequestEntity buildDocumentRequest(Long id) {
         DocumentRequestEntity doc = new DocumentRequestEntity();
         doc.setId(id);
-        doc.setType(DocumentRequestType.BULLETIN);
-        doc.setStatut(DocumentRequestStatut.PENDING);
+        doc.setType(DocumentRequestTypeEnum.BULLETIN);
+        doc.setStatut(DocumentRequestStatutEnum.PENDING);
         return doc;
     }
 }

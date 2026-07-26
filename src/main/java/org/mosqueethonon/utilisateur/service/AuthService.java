@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.mosqueethonon.utilisateur.v1.dto.UserInfoDto;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-public interface IAuthService {
+public interface AuthService {
 
     Jwt exchangeCodeAgainstJWT(String code, String clientId, String redirectURI, String codeVerifier);
 

@@ -8,7 +8,7 @@ import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
 import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
@@ -71,7 +71,7 @@ public class DocumentRequestProcessor {
 
         } catch (Exception e) {
             log.error("Erreur lors du traitement de la demande de document {} : ", request.getId(), e);
-            request.setStatut(DocumentRequestStatut.ERROR);
+            request.setStatut(DocumentRequestStatutEnum.ERROR);
             request.setErrorMessage(e.getMessage());
             documentRequestRepository.save(request);
             return false;
@@ -117,7 +117,7 @@ public class DocumentRequestProcessor {
     private void completeDocumentRequest(DocumentRequestEntity request, DocumentEntity document) {
         request.setDocumentPath(document.getChemin());
         request.setDocumentCode(document.getCode());
-        request.setStatut(DocumentRequestStatut.COMPLETED);
+        request.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(request);
 
         log.info("Traitement terminé pour la demande de génération du document {} - chemin : {}", request.getId(), document.getChemin());

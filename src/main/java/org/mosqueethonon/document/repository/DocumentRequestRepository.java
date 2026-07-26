@@ -1,8 +1,8 @@
 package org.mosqueethonon.document.repository;
 
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,14 +16,14 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface DocumentRequestRepository extends JpaRepository<DocumentRequestEntity, Long> {
 
-    List<DocumentRequestEntity> findByStatutOrderBySignatureDateCreationAsc(DocumentRequestStatut statut);
+    List<DocumentRequestEntity> findByStatutOrderBySignatureDateCreationAsc(DocumentRequestStatutEnum statut);
 
-    boolean existsByTypeAndBusinessIdAndStatut(DocumentRequestType type, Long businessId, DocumentRequestStatut statut);
+    boolean existsByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum type, Long businessId, DocumentRequestStatutEnum statut);
 
-    Optional<DocumentRequestEntity> findByTypeAndBusinessIdAndStatut(DocumentRequestType type, Long businessId, DocumentRequestStatut statut);
+    Optional<DocumentRequestEntity> findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum type, Long businessId, DocumentRequestStatutEnum statut);
 
     @Transactional
-    void deleteByTypeAndBusinessIdIn(DocumentRequestType type, Set<Long> businessIds);
+    void deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum type, Set<Long> businessIds);
 
     /**
      * Récupère le premier enregistrement PENDING en le verrouillant de manière pessimiste

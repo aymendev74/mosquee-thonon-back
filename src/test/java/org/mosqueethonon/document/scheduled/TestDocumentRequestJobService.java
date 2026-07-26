@@ -9,8 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.mail.service.MailRequestService;
 
@@ -96,9 +96,9 @@ public class TestDocumentRequestJobService {
     private DocumentRequestEntity buildRequest(Long id) {
         DocumentRequestEntity request = new DocumentRequestEntity();
         request.setId(id);
-        request.setType(DocumentRequestType.BULLETIN);
+        request.setType(DocumentRequestTypeEnum.BULLETIN);
         request.setBusinessId(id * 10);
-        request.setStatut(DocumentRequestStatut.PENDING);
+        request.setStatut(DocumentRequestStatutEnum.PENDING);
         return request;
     }
 }

@@ -6,7 +6,7 @@ import org.mosqueethonon.classe.v1.dto.ClasseDto;
 
 import java.util.List;
 
-public interface IClasseService {
+public interface ClasseService {
 
     void createClasses(CreateClasseCriteria criteria);
 

@@ -6,7 +6,7 @@ import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
 import org.mosqueethonon.classe.entity.ClasseEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
 import org.mosqueethonon.inscription.entity.EleveEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.inscription.repository.EleveRepository;
@@ -115,11 +115,11 @@ public class BulletinDocumentGenerator implements DocumentGenerator<BulletinEnti
     @Override
     public List<DocumentMetadataEntity> buildMetadata(BulletinEntity entity) {
         List<DocumentMetadataEntity> metadata = new ArrayList<>();
-        metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.ID_BULLETIN, String.valueOf(entity.getId())));
+        metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.ID_BULLETIN, String.valueOf(entity.getId())));
         EleveEntity eleve = this.eleveRepository.findById(entity.getIdEleve()).orElse(null);
         if (eleve != null) {
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.NOM, eleve.getNom()));
-            metadata.add(new DocumentMetadataEntity(DocumentMetadataKey.PRENOM, eleve.getPrenom()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, eleve.getNom()));
+            metadata.add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.PRENOM, eleve.getPrenom()));
         }
         return metadata;
     }

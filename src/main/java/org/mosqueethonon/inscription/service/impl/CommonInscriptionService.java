@@ -4,8 +4,8 @@ import org.mosqueethonon.common.security.context.Roles;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.inscription.repository.InscriptionRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
@@ -69,10 +69,10 @@ public class CommonInscriptionService {
      * @param documentRequest  la demande de document à lier (peut être null si aucun document à attendre)
      */
     protected void createMailRequest(Long idInscription, DocumentRequestEntity documentRequest) {
-        MailRequestStatut statut = documentRequest != null ? MailRequestStatut.NOT_READY : MailRequestStatut.PENDING;
+        MailRequestStatutEnum statut = documentRequest != null ? MailRequestStatutEnum.NOT_READY : MailRequestStatutEnum.PENDING;
         MailRequestEntity mailRequest = MailRequestEntity.builder()
                 .businessId(idInscription)
-                .type(MailRequestType.INSCRIPTION)
+                .type(MailRequestTypeEnum.INSCRIPTION)
                 .statut(statut)
                 .build();
 

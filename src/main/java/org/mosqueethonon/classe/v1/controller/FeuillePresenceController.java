@@ -1,7 +1,7 @@
 package org.mosqueethonon.classe.v1.controller;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.classe.service.IFeuillePresenceService;
+import org.mosqueethonon.classe.service.FeuillePresenceService;
 import org.mosqueethonon.classe.v1.dto.FeuillePresenceDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class FeuillePresenceController {
 
-    private IFeuillePresenceService feuillePresenceService;
+    private FeuillePresenceService feuillePresenceService;
 
     @PutMapping("/{id}")
     public ResponseEntity<FeuillePresenceDto> updateFeuillePresence(@PathVariable("id") Long id, @RequestBody FeuillePresenceDto feuillePresence) {

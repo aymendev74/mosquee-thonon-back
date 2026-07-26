@@ -1,6 +1,6 @@
 package org.mosqueethonon.utilisateur.service;
 
-import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordRequest;
+import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordDto;
 import org.mosqueethonon.utilisateur.exception.InvalidOldPasswordException;
 import org.mosqueethonon.utilisateur.v1.criteria.UserCriteria;
 import org.mosqueethonon.utilisateur.v1.dto.AccountInfosDto;
@@ -22,7 +22,7 @@ public interface UserService extends UserDetailsService {
 
     public void addRoleIfMissing(Long userId, String role);
 
-    public void changeUserPassword(ChangePasswordRequest chagePasswordRequest) throws InvalidOldPasswordException;
+    public void changeUserPassword(ChangePasswordDto chagePasswordRequest) throws InvalidOldPasswordException;
 
     public void saveLoginHistory(String username);
 

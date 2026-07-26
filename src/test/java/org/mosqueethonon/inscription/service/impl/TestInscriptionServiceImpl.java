@@ -24,9 +24,9 @@ import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.common.exception.BadRequestException;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
@@ -40,7 +40,7 @@ import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.inscription.service.InscriptionEnfantService;
 import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.referentiel.service.PeriodeService;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInscriptionServiceImpl {
@@ -97,12 +97,12 @@ public class TestInscriptionServiceImpl {
 
         InscriptionEntity inscription1 = new InscriptionEnfantEntity();
         inscription1.setId(1L);
-        inscription1.setStatut(StatutInscription.LISTE_ATTENTE);
+        inscription1.setStatut(StatutInscriptionEnum.LISTE_ATTENTE);
         inscription1.setNoPositionAttente(5);
 
         InscriptionEntity inscription2 = new InscriptionEnfantEntity();
         inscription2.setId(2L);
-        inscription2.setStatut(StatutInscription.LISTE_ATTENTE);
+        inscription2.setStatut(StatutInscriptionEnum.LISTE_ATTENTE);
         inscription2.setNoPositionAttente(10);
 
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
@@ -170,13 +170,13 @@ public class TestInscriptionServiceImpl {
 
         DocumentEntity docBulletin = new DocumentEntity();
         docBulletin.setId(300L);
-        when(documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("100")))
+        when(documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("100")))
                 .thenReturn(Optional.of(docBulletin));
 
         when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription1));
         when(inscriptionRepository.findById(2L)).thenReturn(Optional.of(inscription2));
         when(bulletinRepository.findByIdEleveIn(anyList())).thenReturn(List.of(bulletin));
-        when(documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_INSCRIPTION), anyString()))
+        when(documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), anyString()))
                 .thenReturn(Optional.of(docEntity));
 
         // WHEN
@@ -188,9 +188,9 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository, times(2)).deleteById(any());
-        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.INSCRIPTION), any());
+        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestTypeEnum.INSCRIPTION), any());
         verify(documentRequestRepository, times(2))
-                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), any());
+                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.BULLETIN), any());
         verify(bulletinRepository, times(2)).deleteAll(anyList());
         verify(documentService, times(2)).deleteDocument(200L);
         verify(documentService, times(2)).deleteDocument(300L);
@@ -271,7 +271,7 @@ public class TestInscriptionServiceImpl {
         // THEN
         assertNotNull(result);
         verify(documentRequestRepository, never())
-                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), any());
+                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.BULLETIN), any());
         verify(bulletinRepository, never()).deleteAll(anyList());
     }
 
@@ -301,6 +301,6 @@ public class TestInscriptionServiceImpl {
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
         verify(inscriptionRepository,times(2)).deleteById(any());
-        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.INSCRIPTION), any());
+        verify(mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestTypeEnum.INSCRIPTION), any());
     }
 }

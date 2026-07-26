@@ -13,8 +13,8 @@ import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.mosqueethonon.bulletin.entity.BulletinMatiereEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.referentiel.entity.MatiereEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
 import org.mosqueethonon.referentiel.enums.TypeMatiereEnum;
@@ -87,7 +87,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinMapper.fromDtoToEntity(any())).thenReturn(bulletinEntity);
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -125,7 +125,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
         when(this.matiereService.findByCode(eq(MatiereEnum.TAFFSIR_CORAN))).thenReturn(Optional.of(new MatiereEntity()));
         when(this.bulletinMatiereMapper.fromDtoToEntity(any())).thenReturn(new BulletinMatiereEntity());
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -155,7 +155,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
         when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -163,7 +163,7 @@ public class TestBulletinServiceImpl {
 
         // THEN
         assertNotNull(result);
-        verify(this.asyncDocumentService, times(1)).requestDocumentGeneration(eq(DocumentRequestType.BULLETIN), eq(1L));
+        verify(this.asyncDocumentService, times(1)).requestDocumentGeneration(eq(DocumentRequestTypeEnum.BULLETIN), eq(1L));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class TestBulletinServiceImpl {
         // GIVEN
         DocumentEntity doc = new DocumentEntity();
         doc.setId(77L);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("1")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("1")))
                 .thenReturn(Optional.of(doc));
 
         // WHEN
@@ -179,7 +179,7 @@ public class TestBulletinServiceImpl {
 
         // THEN
         verify(this.documentRequestRepository, times(1))
-                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.BULLETIN), eq(Set.of(1L)));
+                .deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.BULLETIN), eq(Set.of(1L)));
         verify(this.documentService, times(1)).deleteDocument(77L);
         verify(this.bulletinRepository, times(1)).deleteById(eq(1L));
     }
@@ -187,7 +187,7 @@ public class TestBulletinServiceImpl {
     @Test
     public void testDeleteBulletin_NeSupprimeAucunDocument_QuandAucunDocumentTrouve() {
         // GIVEN
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("1")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("1")))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -215,7 +215,7 @@ public class TestBulletinServiceImpl {
         when(this.eleveService.findEleveById(anyLong())).thenReturn(new EleveDto());
         when(this.bulletinRepository.findByIdEleve(anyLong())).thenReturn(List.of(bulletinEntity, bulletinEntity2));
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(new BulletinDto());
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -247,7 +247,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
         when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -255,7 +255,7 @@ public class TestBulletinServiceImpl {
 
         // THEN
         assertNotNull(result);
-        verify(this.asyncDocumentService, times(1)).requestDocumentGeneration(eq(DocumentRequestType.BULLETIN), eq(1L));
+        verify(this.asyncDocumentService, times(1)).requestDocumentGeneration(eq(DocumentRequestTypeEnum.BULLETIN), eq(1L));
     }
 
     @Test
@@ -357,7 +357,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
         when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -378,7 +378,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
         when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of());
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -406,7 +406,7 @@ public class TestBulletinServiceImpl {
         when(this.eleveService.findEleveById(anyLong())).thenReturn(new EleveDto());
         when(this.bulletinRepository.findByIdEleve(anyLong())).thenReturn(List.of(bulletinEntity));
         when(this.bulletinMapper.fromEntityToDto(bulletinEntity)).thenReturn(dto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("10")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("10")))
                 .thenReturn(Optional.of(documentEntity));
 
         // WHEN
@@ -430,7 +430,7 @@ public class TestBulletinServiceImpl {
         when(this.eleveService.findEleveById(anyLong())).thenReturn(new EleveDto());
         when(this.bulletinRepository.findByIdEleve(anyLong())).thenReturn(List.of(bulletinEntity));
         when(this.bulletinMapper.fromEntityToDto(bulletinEntity)).thenReturn(dto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("10")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("10")))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -460,7 +460,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinMapper.fromDtoToEntity(any())).thenReturn(bulletinEntity);
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("5")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("5")))
                 .thenReturn(Optional.of(documentEntity));
 
         // WHEN
@@ -485,7 +485,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.findById(7L)).thenReturn(Optional.of(bulletinEntity));
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("7")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("7")))
                 .thenReturn(Optional.of(documentEntity));
 
         // WHEN
@@ -512,7 +512,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinRepository.findByIdEleve(anyLong())).thenReturn(List.of(bulletinEntity));
         when(this.bulletinMapper.fromEntityToDto(bulletinEntity)).thenReturn(dto);
         when(this.matiereRepository.findByType(TypeMatiereEnum.ENFANT)).thenReturn(List.of(matiereEnfant));
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), eq("10")))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), eq("10")))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -532,7 +532,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinMapper.fromDtoToEntity(any())).thenReturn(bulletinEntity);
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
 
         // WHEN
@@ -596,7 +596,7 @@ public class TestBulletinServiceImpl {
         when(this.bulletinMapper.fromDtoToEntity(any())).thenReturn(bulletinEntity);
         when(this.bulletinRepository.save(any())).thenReturn(bulletinEntity);
         when(this.bulletinMapper.fromEntityToDto(any())).thenReturn(savedDto);
-        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKey.ID_BULLETIN), anyString()))
+        when(this.documentRepository.findByMetadataKeyAndValue(eq(DocumentMetadataKeyEnum.ID_BULLETIN), anyString()))
                 .thenReturn(Optional.empty());
     }
 

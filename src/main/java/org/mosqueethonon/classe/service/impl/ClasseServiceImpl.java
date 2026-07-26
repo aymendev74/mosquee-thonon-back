@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.mosqueethonon.classe.service.GroupeElevesBean;
+import org.mosqueethonon.classe.service.GroupeEleves;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.classe.entity.ClasseActiviteEntity;
 import org.mosqueethonon.classe.entity.ClasseEntity;
@@ -20,7 +20,7 @@ import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.common.exception.ForbiddenResourceAccessException;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.inscription.repository.EleveRepository;
-import org.mosqueethonon.classe.service.IClasseService;
+import org.mosqueethonon.classe.service.ClasseService;
 import org.mosqueethonon.classe.v1.criteria.CreateClasseCriteria;
 import org.mosqueethonon.classe.v1.criteria.SearchClasseCriteria;
 import org.mosqueethonon.classe.v1.dto.ClasseDto;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @NoArgsConstructor
-public class ClasseServiceImpl implements IClasseService {
+public class ClasseServiceImpl implements ClasseService {
 
     private ClasseRepository classeRepository;
     private EleveRepository eleveRepository;
@@ -57,7 +57,7 @@ public class ClasseServiceImpl implements IClasseService {
         // Affecter chaque élève à un groupe en fonction de son jour d'activité l'année précédente
         List<ClasseEntity> classesAnneePrecedentes = this.classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(
                 criteria.getDebutAnneeScolaire() - 1, criteria.getFinAnneeScolaire() - 1);
-        List<GroupeElevesBean> groupeEleves = this.createGroupeEleves(classesAnneePrecedentes, eleves);
+        List<GroupeEleves> groupeEleves = this.createGroupeEleves(classesAnneePrecedentes, eleves);
 
         // Puis créer les classes par niveau dans chacun de ces groupes
         if(!CollectionUtils.isEmpty(groupeEleves)) {
@@ -69,10 +69,10 @@ public class ClasseServiceImpl implements IClasseService {
         }
     }
 
-    private List<ClasseEntity> createClasses(List<GroupeElevesBean> groupeEleves, Integer debutAnneeScolaire, Integer finAnneeScolaire,
+    private List<ClasseEntity> createClasses(List<GroupeEleves> groupeEleves, Integer debutAnneeScolaire, Integer finAnneeScolaire,
                                              Integer nbMaxEleveClasse) {
         List<ClasseEntity> classes = new ArrayList<>();
-        for(GroupeElevesBean groupeEleve : groupeEleves) {
+        for(GroupeEleves groupeEleve : groupeEleves) {
             Map<NiveauInterneEnum, List<EleveEntity>> elevesByNiveau = groupeEleve.getEleves().stream().collect(Collectors.groupingBy(EleveEntity::getNiveauInterne));
             for (Map.Entry<NiveauInterneEnum, List<EleveEntity>> entrySet : elevesByNiveau.entrySet()) {
                 classes.addAll(this.createClasses(entrySet.getKey(), entrySet.getValue(), debutAnneeScolaire, finAnneeScolaire, nbMaxEleveClasse,
@@ -109,16 +109,16 @@ public class ClasseServiceImpl implements IClasseService {
         return classes;
     }
 
-    private List<GroupeElevesBean> createGroupeEleves(List<ClasseEntity> classesAnneePrecedentes, List<EleveEntity> eleves) {
+    private List<GroupeEleves> createGroupeEleves(List<ClasseEntity> classesAnneePrecedentes, List<EleveEntity> eleves) {
         // On créé tous les groupe pour l'année en cours
-        List<GroupeElevesBean> groupeEleves = JOURS_CLASSE.stream().map(jour -> GroupeElevesBean.builder().jourClasse(jour).build()).collect(Collectors.toList());
+        List<GroupeEleves> groupeEleves = JOURS_CLASSE.stream().map(jour -> GroupeEleves.builder().jourClasse(jour).build()).collect(Collectors.toList());
         // On créé un groupe avec le jour d'activité à null (pour les nouveaux élèves)
-        groupeEleves.add(GroupeElevesBean.builder().build());
+        groupeEleves.add(GroupeEleves.builder().build());
 
         // Pour chaque élève on va détemriner dans quel groupe le mettre
         for (EleveEntity eleve : eleves) {
             JourActiviteEnum jourActivite = this.getJourActiviteEleve(eleve, classesAnneePrecedentes);
-            GroupeElevesBean groupeEleve = null;
+            GroupeEleves groupeEleve = null;
             if(jourActivite != null)  {
                 groupeEleve = groupeEleves.stream().filter(groupe -> groupe.getJourClasse() == jourActivite).findFirst().orElse(null);
                 // Si le groupe avec le jour d'activité de l'an passé n'existe pas => ajout au groupe des nouveaux élèves

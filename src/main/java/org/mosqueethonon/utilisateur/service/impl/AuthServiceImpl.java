@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.common.security.AuthCookieConfiguration;
 import org.mosqueethonon.utilisateur.service.UserService;
-import org.mosqueethonon.utilisateur.service.IAuthService;
+import org.mosqueethonon.utilisateur.service.AuthService;
 import org.mosqueethonon.utilisateur.v1.dto.UserInfoDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthServiceImpl implements IAuthService {
+public class AuthServiceImpl implements AuthService {
 
     @Value("${app.token-uri}")
     private String tokenUri;

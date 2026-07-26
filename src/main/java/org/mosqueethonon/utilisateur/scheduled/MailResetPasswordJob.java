@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
@@ -45,16 +45,16 @@ public class MailResetPasswordJob {
     @Scheduled(fixedDelayString = "${scheduled.reset-password-mail}", timeUnit = TimeUnit.SECONDS)
     @Transactional
     public void sendPendingEmailsResetPassword() {
-        List<UserAccountActionEntity> resetPasswordRequests = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatut.PENDING, UserAccountActionType.RESET_PASSWORD);
+        List<UserAccountActionEntity> resetPasswordRequests = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatutEnum.PENDING, UserAccountActionTypeEnum.RESET_PASSWORD);
         if (!CollectionUtils.isEmpty(resetPasswordRequests)) {
             log.info("Il y a {} mails de réinitialisation de mot de passe à envoyer", resetPasswordRequests.size());
             for (UserAccountActionEntity resetPasswordRequest : resetPasswordRequests) {
-                MailRequestStatut statut;
+                MailRequestStatutEnum statut;
                 try {
                     statut = this.processMail(resetPasswordRequest);
                 } catch (Exception e) {
                     log.error("Problème lors de l'envoi du mail de réinitialisation pour l'utilisateur {}", resetPasswordRequest.getUsername(), e);
-                    statut = MailRequestStatut.ERROR;
+                    statut = MailRequestStatutEnum.ERROR;
                 }
                 resetPasswordRequest.setStatut(statut);
                 userAccountActionRepository.save(resetPasswordRequest);
@@ -62,10 +62,10 @@ public class MailResetPasswordJob {
         }
     }
 
-    private MailRequestStatut processMail(UserAccountActionEntity accountAction) throws MessagingException {
+    private MailRequestStatutEnum processMail(UserAccountActionEntity accountAction) throws MessagingException {
         boolean isSendEmailDisabled = !this.paramService.isSendEmailEnabled();
         if (isSendEmailDisabled) {
-            return MailRequestStatut.IGNORED;
+            return MailRequestStatutEnum.IGNORED;
         }
 
         UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(accountAction.getUsername())
@@ -90,7 +90,7 @@ public class MailResetPasswordJob {
 
         emailSender.send(message);
 
-        return MailRequestStatut.SENT;
+        return MailRequestStatutEnum.SENT;
     }
 
 }

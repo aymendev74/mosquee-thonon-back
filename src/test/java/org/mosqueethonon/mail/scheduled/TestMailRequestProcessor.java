@@ -21,10 +21,10 @@ import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.document.exception.PendingDocumentGenerationException;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
@@ -83,7 +83,7 @@ public class TestMailRequestProcessor {
     @Test
     public void testProcessMailRequestWhenEmailSendingDisabled() {
         // GIVEN
-        MailRequestEntity mailRequest = buildMailRequest(5L, MailRequestType.INSCRIPTION, Collections.emptyList());
+        MailRequestEntity mailRequest = buildMailRequest(5L, MailRequestTypeEnum.INSCRIPTION, Collections.emptyList());
         when(paramService.isSendEmailEnabled()).thenReturn(false);
 
         // WHEN
@@ -93,7 +93,7 @@ public class TestMailRequestProcessor {
         verify(emailSender, never()).send(any(MimeMessage.class));
         ArgumentCaptor<MailRequestEntity> captor = ArgumentCaptor.forClass(MailRequestEntity.class);
         verify(mailRequestRepository, times(1)).save(captor.capture());
-        assertEquals(MailRequestStatut.IGNORED, captor.getValue().getStatut());
+        assertEquals(MailRequestStatutEnum.IGNORED, captor.getValue().getStatut());
     }
 
     // -----------------------------------------------------------------------
@@ -103,7 +103,7 @@ public class TestMailRequestProcessor {
     @Test
     public void testProcessMailRequestSendsMailAndSetsStatusSent() {
         // GIVEN
-        MailRequestEntity mailRequest = buildMailRequest(6L, MailRequestType.INSCRIPTION, Collections.emptyList());
+        MailRequestEntity mailRequest = buildMailRequest(6L, MailRequestTypeEnum.INSCRIPTION, Collections.emptyList());
         MailDto mailDto = buildMailDto("Confirmation inscription");
         // MimeMessage mocké pour éviter les problèmes de session JavaMail dans les tests unitaires :
         // MimeMessageHelper appelle des méthodes internes (setRecipient, setSubject...)
@@ -121,7 +121,7 @@ public class TestMailRequestProcessor {
         verify(emailSender, times(1)).send(mimeMessage);
         ArgumentCaptor<MailRequestEntity> captor = ArgumentCaptor.forClass(MailRequestEntity.class);
         verify(mailRequestRepository, times(1)).save(captor.capture());
-        assertEquals(MailRequestStatut.SENT, captor.getValue().getStatut());
+        assertEquals(MailRequestStatutEnum.SENT, captor.getValue().getStatut());
     }
 
     // -----------------------------------------------------------------------
@@ -131,7 +131,7 @@ public class TestMailRequestProcessor {
     @Test
     public void testProcessMailRequestSetsStatusErrorOnException() {
         // GIVEN — le service de mail lève une exception (ex: données manquantes)
-        MailRequestEntity mailRequest = buildMailRequest(7L, MailRequestType.INSCRIPTION, Collections.emptyList());
+        MailRequestEntity mailRequest = buildMailRequest(7L, MailRequestTypeEnum.INSCRIPTION, Collections.emptyList());
         when(paramService.isSendEmailEnabled()).thenReturn(true);
         when(mailInscriptionService.createMail(anyLong()))
                 .thenThrow(new RuntimeException("Erreur service mail"));
@@ -142,7 +142,7 @@ public class TestMailRequestProcessor {
         // THEN — le statut passe en ERROR et le record est sauvegardé
         ArgumentCaptor<MailRequestEntity> captor = ArgumentCaptor.forClass(MailRequestEntity.class);
         verify(mailRequestRepository, times(1)).save(captor.capture());
-        assertEquals(MailRequestStatut.ERROR, captor.getValue().getStatut());
+        assertEquals(MailRequestStatutEnum.ERROR, captor.getValue().getStatut());
     }
 
     // -----------------------------------------------------------------------
@@ -153,7 +153,7 @@ public class TestMailRequestProcessor {
     @Test
     public void testEnrichWithGeneratedDocumentsWhenNoLinkedDocuments() {
         // GIVEN — mail sans documents liés
-        MailRequestEntity mailRequest = buildMailRequest(1L, MailRequestType.INSCRIPTION, Collections.emptyList());
+        MailRequestEntity mailRequest = buildMailRequest(1L, MailRequestTypeEnum.INSCRIPTION, Collections.emptyList());
         MailDto mailDto = buildMailDto("Confirmation inscription");
 
         // WHEN — appel direct de la méthode privée via ReflectionTestUtils
@@ -175,14 +175,14 @@ public class TestMailRequestProcessor {
         Long docId1 = 10L;
         Long docId2 = 11L;
 
-        DocumentRequestEntity doc1 = buildDocumentRequest(docId1, DocumentRequestStatut.COMPLETED, "/docs/bulletin-10.pdf");
-        DocumentRequestEntity doc2 = buildDocumentRequest(docId2, DocumentRequestStatut.COMPLETED, "/docs/inscription-11.pdf");
+        DocumentRequestEntity doc1 = buildDocumentRequest(docId1, DocumentRequestStatutEnum.COMPLETED, "/docs/bulletin-10.pdf");
+        DocumentRequestEntity doc2 = buildDocumentRequest(docId2, DocumentRequestStatutEnum.COMPLETED, "/docs/inscription-11.pdf");
 
         List<MailRequestDocumentRequestEntity> links = List.of(
                 MailRequestDocumentRequestEntity.builder().mailRequestId(1L).documentRequestId(docId1).build(),
                 MailRequestDocumentRequestEntity.builder().mailRequestId(1L).documentRequestId(docId2).build()
         );
-        MailRequestEntity mailRequest = buildMailRequest(1L, MailRequestType.INSCRIPTION, links);
+        MailRequestEntity mailRequest = buildMailRequest(1L, MailRequestTypeEnum.INSCRIPTION, links);
         MailDto mailDto = buildMailDto("Confirmation inscription");
 
         when(documentRequestRepository.findAllById(List.of(docId1, docId2)))
@@ -210,12 +210,12 @@ public class TestMailRequestProcessor {
     public void testEnrichWithGeneratedDocumentsWhenDocumentInError() {
         // GIVEN — un document en ERROR (non-COMPLETED)
         Long docId = 20L;
-        DocumentRequestEntity docEnError = buildDocumentRequest(docId, DocumentRequestStatut.ERROR, null);
+        DocumentRequestEntity docEnError = buildDocumentRequest(docId, DocumentRequestStatutEnum.ERROR, null);
 
         List<MailRequestDocumentRequestEntity> links = List.of(
                 MailRequestDocumentRequestEntity.builder().mailRequestId(2L).documentRequestId(docId).build()
         );
-        MailRequestEntity mailRequest = buildMailRequest(2L, MailRequestType.INSCRIPTION, links);
+        MailRequestEntity mailRequest = buildMailRequest(2L, MailRequestTypeEnum.INSCRIPTION, links);
         MailDto mailDto = buildMailDto("Confirmation inscription");
 
         when(documentRequestRepository.findAllById(List.of(docId)))
@@ -236,12 +236,12 @@ public class TestMailRequestProcessor {
     public void testEnrichWithGeneratedDocumentsWhenDocumentStillPending() {
         // GIVEN — un document encore en PENDING
         Long docId = 30L;
-        DocumentRequestEntity docPending = buildDocumentRequest(docId, DocumentRequestStatut.PENDING, null);
+        DocumentRequestEntity docPending = buildDocumentRequest(docId, DocumentRequestStatutEnum.PENDING, null);
 
         List<MailRequestDocumentRequestEntity> links = List.of(
                 MailRequestDocumentRequestEntity.builder().mailRequestId(3L).documentRequestId(docId).build()
         );
-        MailRequestEntity mailRequest = buildMailRequest(3L, MailRequestType.INSCRIPTION, links);
+        MailRequestEntity mailRequest = buildMailRequest(3L, MailRequestTypeEnum.INSCRIPTION, links);
         MailDto mailDto = buildMailDto("Confirmation inscription");
 
         when(documentRequestRepository.findAllById(List.of(docId)))
@@ -262,12 +262,12 @@ public class TestMailRequestProcessor {
     public void testEnrichWithGeneratedDocumentsPreservesExistingAttachments() {
         // GIVEN — MailDto avec un RIB statique déjà en pièce jointe
         Long docId = 40L;
-        DocumentRequestEntity doc = buildDocumentRequest(docId, DocumentRequestStatut.COMPLETED, "/docs/bulletin-40.pdf");
+        DocumentRequestEntity doc = buildDocumentRequest(docId, DocumentRequestStatutEnum.COMPLETED, "/docs/bulletin-40.pdf");
 
         List<MailRequestDocumentRequestEntity> links = List.of(
                 MailRequestDocumentRequestEntity.builder().mailRequestId(4L).documentRequestId(docId).build()
         );
-        MailRequestEntity mailRequest = buildMailRequest(4L, MailRequestType.ADHESION, links);
+        MailRequestEntity mailRequest = buildMailRequest(4L, MailRequestTypeEnum.ADHESION, links);
 
         MailAttachmentDto ribStatique = MailAttachmentDto.builder()
                 .name("rib-amc.pdf")
@@ -292,22 +292,22 @@ public class TestMailRequestProcessor {
     // Helpers
     // -----------------------------------------------------------------------
 
-    private MailRequestEntity buildMailRequest(Long id, MailRequestType type,
+    private MailRequestEntity buildMailRequest(Long id, MailRequestTypeEnum type,
                                                List<MailRequestDocumentRequestEntity> documentLinks) {
         MailRequestEntity entity = MailRequestEntity.builder()
                 .type(type)
                 .businessId(100L)
-                .statut(MailRequestStatut.PENDING)
+                .statut(MailRequestStatutEnum.PENDING)
                 .build();
         entity.setId(id);
         entity.getDocumentRequests().addAll(documentLinks);
         return entity;
     }
 
-    private DocumentRequestEntity buildDocumentRequest(Long id, DocumentRequestStatut statut, String documentPath) {
+    private DocumentRequestEntity buildDocumentRequest(Long id, DocumentRequestStatutEnum statut, String documentPath) {
         DocumentRequestEntity doc = new DocumentRequestEntity();
         doc.setId(id);
-        doc.setType(DocumentRequestType.BULLETIN);
+        doc.setType(DocumentRequestTypeEnum.BULLETIN);
         doc.setStatut(statut);
         doc.setDocumentPath(documentPath);
         return doc;

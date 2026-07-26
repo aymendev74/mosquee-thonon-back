@@ -9,7 +9,7 @@ import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.classe.repository.ClasseFeuillePresenceRepository;
 import org.mosqueethonon.classe.repository.ClasseRepository;
 import org.mosqueethonon.classe.repository.FeuillePresenceRepository;
-import org.mosqueethonon.classe.service.IFeuillePresenceService;
+import org.mosqueethonon.classe.service.FeuillePresenceService;
 import org.mosqueethonon.classe.v1.dto.FeuillePresenceDto;
 import org.mosqueethonon.classe.v1.dto.PresenceEleveDto;
 import org.mosqueethonon.classe.v1.mapper.FeuillePresenceMapper;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class FeuillePresenceServiceImpl implements IFeuillePresenceService {
+public class FeuillePresenceServiceImpl implements FeuillePresenceService {
 
     private ClasseFeuillePresenceRepository classeFeuillePresenceRepository;
     private ClasseRepository classeRepository;

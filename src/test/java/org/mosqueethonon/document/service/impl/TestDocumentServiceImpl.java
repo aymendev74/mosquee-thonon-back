@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.document.entity.DocumentMetadataEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.document.repository.DocumentRepository;
 import org.mosqueethonon.document.service.DocumentGenerator;
@@ -73,7 +73,7 @@ public class TestDocumentServiceImpl {
                 .idUtilisateur(9L)
                 .hash("hash1")
                 .templateVariables(Map.of("cle", "valeur"))
-                .metadata(List.of(new DocumentMetadataEntity(DocumentMetadataKey.NOM, "Dupont")))
+                .metadata(List.of(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, "Dupont")))
                 .build();
         Object entity = new Object();
         byte[] pdfContent = "PDF-CONTENT".getBytes(StandardCharsets.UTF_8);
@@ -208,7 +208,7 @@ public class TestDocumentServiceImpl {
                 .idUtilisateur(9L)
                 .hash("hash-nouveau")
                 .templateVariables(Map.of("cle", "valeur"))
-                .metadata(List.of(new DocumentMetadataEntity(DocumentMetadataKey.NOM, "NouveauNom")))
+                .metadata(List.of(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, "NouveauNom")))
                 .build();
         Object entity = new Object();
         byte[] newContent = "NOUVEAU-CONTENU".getBytes(StandardCharsets.UTF_8);
@@ -216,7 +216,7 @@ public class TestDocumentServiceImpl {
         DocumentEntity existingDoc = new DocumentEntity();
         existingDoc.setChemin("TYPE/2025/fichier.pdf");
         existingDoc.setHash("hash-ancien");
-        existingDoc.getMetadonnees().add(new DocumentMetadataEntity(DocumentMetadataKey.NOM, "AncienNom"));
+        existingDoc.getMetadonnees().add(new DocumentMetadataEntity(DocumentMetadataKeyEnum.NOM, "AncienNom"));
 
         when(documentRepository.findByChemin("TYPE/2025/fichier.pdf")).thenReturn(Optional.of(existingDoc));
         when(pdfGeneratorService.generatePdf("documents/type-001", Map.of("cle", "valeur"))).thenReturn(newContent);

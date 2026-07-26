@@ -9,8 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
 
 import java.util.Optional;
@@ -93,9 +93,9 @@ public class TestMailRequestJobService {
 
     private MailRequestEntity buildMailRequest(Long id) {
         MailRequestEntity entity = MailRequestEntity.builder()
-                .type(MailRequestType.INSCRIPTION)
+                .type(MailRequestTypeEnum.INSCRIPTION)
                 .businessId(id * 10)
-                .statut(MailRequestStatut.PENDING)
+                .statut(MailRequestStatutEnum.PENDING)
                 .build();
         entity.setId(id);
         return entity;

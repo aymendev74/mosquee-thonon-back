@@ -13,14 +13,14 @@ import org.mosqueethonon.inscription.entity.InscriptionLightEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.param.enums.ParamNameEnum;
 import org.mosqueethonon.tarif.enums.TypeTarifEnum;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.inscription.repository.InscriptionEnfantRepository;
 import org.mosqueethonon.inscription.repository.InscriptionLightRepository;
@@ -28,7 +28,7 @@ import org.mosqueethonon.param.repository.ParamRepository;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantDto;
 import org.mosqueethonon.inscription.v1.dto.ResponsableLegalDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -169,7 +169,7 @@ public class TestInscriptionEnfantController extends TestController {
         Set<Long> inscriptionsASupprimer = new HashSet<>();
         for (InscriptionEnfantEntity inscription : allInscriptions) {
             if (inscriptionsASupprimer.size() == 5) break;
-            if (inscription.getStatut() == StatutInscription.PROVISOIRE) {
+            if (inscription.getStatut() == StatutInscriptionEnum.PROVISOIRE) {
                 inscriptionsASupprimer.add(inscription.getId());
             }
         }
@@ -182,9 +182,9 @@ public class TestInscriptionEnfantController extends TestController {
     private void assertInscriptionsAttentes(List<InscriptionEnfantEntity> allInscriptions, Integer nbEnAttente) {
         assertEquals(500 + nbEnAttente, allInscriptions.size());
         Long nbInscriptionEnAttente = allInscriptions.stream().filter(inscription ->
-                inscription.getStatut() == StatutInscription.LISTE_ATTENTE).count();
+                inscription.getStatut() == StatutInscriptionEnum.LISTE_ATTENTE).count();
         Long nbInscriptionProvisoire = allInscriptions.stream().filter(inscription ->
-                inscription.getStatut() == StatutInscription.PROVISOIRE).count();
+                inscription.getStatut() == StatutInscriptionEnum.PROVISOIRE).count();
         assertEquals(500, nbInscriptionProvisoire);
         assertEquals(Long.valueOf(nbEnAttente), nbInscriptionEnAttente);
     }
@@ -254,9 +254,9 @@ public class TestInscriptionEnfantController extends TestController {
 
         Long idInscription = this.inscriptionEnfantRepository.findAll().get(0).getId();
         DocumentRequestEntity request = documentRequestRepository
-                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatut.PENDING)
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatutEnum.PENDING)
                 .orElseThrow();
-        request.setStatut(DocumentRequestStatut.COMPLETED);
+        request.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(request);
 
         InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()
@@ -278,17 +278,17 @@ public class TestInscriptionEnfantController extends TestController {
 
         // Complete the legitimate INSCRIPTION_ENFANT request created at creation time.
         DocumentRequestEntity enfantRequest = documentRequestRepository
-                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatut.PENDING)
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, idInscription, DocumentRequestStatutEnum.PENDING)
                 .orElseThrow();
-        enfantRequest.setStatut(DocumentRequestStatut.COMPLETED);
+        enfantRequest.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(enfantRequest);
 
         // Insert a PENDING request for the SAME businessId but the ADULTE type -- proves the
         // 'INSCRIPTION_' || cdinsctype filter isolates ENFANT from ADULTE, not just by id.
         DocumentRequestEntity wrongTypeRequest = new DocumentRequestEntity();
-        wrongTypeRequest.setType(DocumentRequestType.INSCRIPTION_ADULTE);
+        wrongTypeRequest.setType(DocumentRequestTypeEnum.INSCRIPTION_ADULTE);
         wrongTypeRequest.setBusinessId(idInscription);
-        wrongTypeRequest.setStatut(DocumentRequestStatut.PENDING);
+        wrongTypeRequest.setStatut(DocumentRequestStatutEnum.PENDING);
         documentRequestRepository.save(wrongTypeRequest);
 
         InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()

@@ -8,7 +8,7 @@ import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.adhesion.service.AdhesionService;
 import org.mosqueethonon.mail.service.MailService;
 import org.mosqueethonon.referentiel.service.TraductionService;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class MailAdhesionServiceImpl implements MailService {
                 .replace("@@{prenom}", adhesion.getPrenom())
                 .replace("@@{nom}", adhesion.getNom());
         var attachments = new ArrayList<MailAttachmentDto>();
-        if(adhesion.getStatut() == StatutInscription.VALIDEE) {
+        if(adhesion.getStatut() == StatutInscriptionEnum.VALIDEE) {
             attachments.add(MailAttachmentDto.builder().name(applicationConfiguration.getRibAmc().getMailAttachmentFilename())
                     .location(applicationConfiguration.getRibAmc().getFileLocation()).build());
         }

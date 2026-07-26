@@ -3,7 +3,7 @@ package org.mosqueethonon.inscription.v1.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.mosqueethonon.common.config.APIDateFormats;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class InscriptionLightDto {
     private String mobileContactUrgence;
     private Boolean autorisationAutonomie;
     private Boolean autorisationMedia;
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     private String ville;
     private String noInscription;
     private Boolean reinscription;

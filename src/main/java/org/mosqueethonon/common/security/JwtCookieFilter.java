@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.utilisateur.service.IAuthService;
+import org.mosqueethonon.utilisateur.service.AuthService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +22,7 @@ public class JwtCookieFilter extends OncePerRequestFilter {
 
     private static final List<String> AUTHENTICATION_ENDPOINTS = Lists.newArrayList("/login", "/token", "/authorize");
 
-    private IAuthService authService;
+    private AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

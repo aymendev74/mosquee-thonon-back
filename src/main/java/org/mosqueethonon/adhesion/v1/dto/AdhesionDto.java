@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.mail.dto.IMailObject;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,7 +31,7 @@ public class AdhesionDto implements IMailObject {
     private Integer codePostal;
     private String ville;
     private BigDecimal montantAutre;
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     private BigDecimal montant;
     private Integer noMembre;
 

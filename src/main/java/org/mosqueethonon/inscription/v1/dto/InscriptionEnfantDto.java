@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.common.util.StringUtils;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ public class InscriptionEnfantDto {
 
     private Long id;
     private Long idDocument;
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     private ResponsableLegalDto responsableLegal;
     private List<EleveDto> eleves;
     private Integer noPositionAttente;

@@ -7,9 +7,9 @@ import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEntity;
 import org.mosqueethonon.bulletin.entity.BulletinEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 import org.mosqueethonon.common.exception.BadRequestException;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
@@ -24,7 +24,7 @@ import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.inscription.service.InscriptionService;
 import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.referentiel.service.PeriodeService;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,9 +70,9 @@ public class InscriptionServiceImpl implements InscriptionService {
             if(patchNode.get("statut").isNull()) {
                 inscription.setStatut(null);
             } else {
-                StatutInscription statut = StatutInscription.valueOf(patchNode.get("statut").asText());
+                StatutInscriptionEnum statut = StatutInscriptionEnum.valueOf(patchNode.get("statut").asText());
                 inscription.setStatut(statut);
-                if(statut == StatutInscription.VALIDEE) {
+                if(statut == StatutInscriptionEnum.VALIDEE) {
                     inscription.setNoPositionAttente(null);
                 }
             }
@@ -100,21 +100,21 @@ public class InscriptionServiceImpl implements InscriptionService {
                     Set<Long> bulletinIds = bulletins.stream()
                             .map(BulletinEntity::getId)
                             .collect(Collectors.toSet());
-                    this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.BULLETIN, bulletinIds);
+                    this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum.BULLETIN, bulletinIds);
                     bulletinIds.forEach(bulletinId ->
-                            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_BULLETIN, String.valueOf(bulletinId))
+                            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_BULLETIN, String.valueOf(bulletinId))
                                     .ifPresent(doc -> this.documentService.deleteDocument(doc.getId())));
                     this.bulletinRepository.deleteAll(bulletins);
                 }
                 this.eleveFeuillePresenceRepository.deleteByEleveIdIn(eleveIds);
                 this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
             }
-            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.INSCRIPTION, Sets.newHashSet(id));
+            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestTypeEnum.INSCRIPTION, Sets.newHashSet(id));
             // Supprimer les DocumentRequests d'inscription avant de supprimer le document (contrainte FK)
-            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.INSCRIPTION_ENFANT, Sets.newHashSet(id));
-            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.INSCRIPTION_ADULTE, Sets.newHashSet(id));
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, Sets.newHashSet(id));
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum.INSCRIPTION_ADULTE, Sets.newHashSet(id));
             // Supprimer le document associé (DB + filesystem après commit)
-            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
             this.inscriptionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());

@@ -12,8 +12,8 @@ import org.mosqueethonon.inscription.entity.InscriptionLightEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.param.enums.ParamNameEnum;
@@ -27,7 +27,7 @@ import org.mosqueethonon.param.repository.ParamRepository;
 import org.mosqueethonon.inscription.v1.dto.InscriptionAdulteDto;
 import org.mosqueethonon.inscription.v1.dto.ReinscriptionAdulteDto;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -140,7 +140,7 @@ public class TestInscriptionAdulteController extends TestController {
         List<InscriptionAdulteEntity> allInscriptions = this.inscriptionAdulteRepository.findAll();
         // Vérification d'un certain nombre de critères (ajustez selon vos besoins)
         Long nbInscriptionsValides = allInscriptions.stream()
-                .filter(inscription -> inscription.getStatut() == StatutInscription.PROVISOIRE)
+                .filter(inscription -> inscription.getStatut() == StatutInscriptionEnum.PROVISOIRE)
                 .count();
         assertEquals(50, nbInscriptionsValides);
     }
@@ -156,7 +156,7 @@ public class TestInscriptionAdulteController extends TestController {
 
         List<InscriptionAdulteEntity> allInscriptions = this.inscriptionAdulteRepository.findAll();
         assertEquals(1, allInscriptions.size());
-        assertEquals(StatutInscription.VALIDEE, allInscriptions.get(0).getStatut());
+        assertEquals(StatutInscriptionEnum.VALIDEE, allInscriptions.get(0).getStatut());
     }
 
     @Test
@@ -241,9 +241,9 @@ public class TestInscriptionAdulteController extends TestController {
 
         Long idInscription = this.inscriptionAdulteRepository.findAll().get(0).getId();
         DocumentRequestEntity request = documentRequestRepository
-                .findByTypeAndBusinessIdAndStatut(DocumentRequestType.INSCRIPTION_ADULTE, idInscription, DocumentRequestStatut.PENDING)
+                .findByTypeAndBusinessIdAndStatut(DocumentRequestTypeEnum.INSCRIPTION_ADULTE, idInscription, DocumentRequestStatutEnum.PENDING)
                 .orElseThrow();
-        request.setStatut(DocumentRequestStatut.COMPLETED);
+        request.setStatut(DocumentRequestStatutEnum.COMPLETED);
         documentRequestRepository.save(request);
 
         InscriptionLightEntity light = inscriptionLightRepository.findAll().stream()

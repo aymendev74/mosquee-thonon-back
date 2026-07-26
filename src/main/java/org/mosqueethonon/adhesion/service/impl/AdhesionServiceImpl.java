@@ -8,10 +8,10 @@ import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
 import org.mosqueethonon.common.exception.BadRequestException;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
@@ -25,7 +25,7 @@ import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,12 +64,12 @@ public class AdhesionServiceImpl implements AdhesionService {
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         this.adhesionMapper.updateAdhesion(adhesionDto, adhesionEntity);
         adhesionEntity.setDateInscription(LocalDateTime.now());
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
         AdhesionDto resultAdhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesionDto.getId());
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.ADHESION, resultAdhesionDto.getId());
         this.createMailRequest(resultAdhesionDto, documentRequest);
-        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesionDto.getId()))
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_ADHESION, String.valueOf(resultAdhesionDto.getId()))
                 .ifPresent(doc -> resultAdhesionDto.setIdDocument(doc.getId()));
         return resultAdhesionDto;
     }
@@ -78,7 +78,7 @@ public class AdhesionServiceImpl implements AdhesionService {
     public AdhesionDto findAdhesionById(Long id) {
         AdhesionEntity adhesionEntity = this.adhesionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'adhesion recherché n'existe pas ! id = " + id));
         AdhesionDto dto = this.adhesionMapper.fromEntityToDto(adhesionEntity);
-        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_ADHESION, String.valueOf(id))
                 .ifPresent(doc -> dto.setIdDocument(doc.getId()));
         return dto;
     }
@@ -88,11 +88,11 @@ public class AdhesionServiceImpl implements AdhesionService {
     public Set<Long> deleteAdhesions(Set<Long> ids) {
         for(Long id : ids) {
             this.lockService.acquireLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
-            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestType.ADHESION, Sets.newHashSet(id));
+            this.mailRequestRepository.deleteByTypeAndBusinessIdIn(MailRequestTypeEnum.ADHESION, Sets.newHashSet(id));
             // Supprimer les DocumentRequests d'adhésion avant de supprimer le document (contrainte FK)
-            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestType.ADHESION, Sets.newHashSet(id));
+            this.documentRequestRepository.deleteByTypeAndBusinessIdIn(DocumentRequestTypeEnum.ADHESION, Sets.newHashSet(id));
             // Supprimer le document associé (DB + filesystem après commit)
-            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(id))
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_ADHESION, String.valueOf(id))
                     .ifPresent(doc -> this.documentService.deleteDocument(doc.getId()));
             this.adhesionRepository.deleteById(id);
             this.lockService.releaseLock(ResourceTypeEnum.ADHESION, id, this.securityContext.getUser());
@@ -124,9 +124,9 @@ public class AdhesionServiceImpl implements AdhesionService {
             if (patchNode.get("statut").isNull()) {
                 adhesion.setStatut(null);
             } else {
-                StatutInscription newStatut = StatutInscription.valueOf(patchNode.get("statut").asText());
+                StatutInscriptionEnum newStatut = StatutInscriptionEnum.valueOf(patchNode.get("statut").asText());
                 if (isStatutChangedToValidated(adhesion.getStatut(), newStatut)) {
-                    DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, adhesion.getId());
+                    DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.ADHESION, adhesion.getId());
                     this.createMailRequest(this.adhesionMapper.fromEntityToDto(adhesion), documentRequest);
                 }
                 adhesion.setStatut(newStatut);
@@ -148,24 +148,24 @@ public class AdhesionServiceImpl implements AdhesionService {
         this.adhesionMapper.updateAdhesion(adhesiondto, adhesion);
         adhesion = this.adhesionRepository.save(adhesion);
         AdhesionDto resultAdhesiondto = this.adhesionMapper.fromEntityToDto(adhesion);
-        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.ADHESION, resultAdhesiondto.getId());
+        DocumentRequestEntity documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.ADHESION, resultAdhesiondto.getId());
         if (isStatutChangedToValidated || Boolean.TRUE.equals(saveCriteria.getSendMailConfirmation())) {
             this.createMailRequest(resultAdhesiondto, documentRequest);
         }
-        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_ADHESION, String.valueOf(resultAdhesiondto.getId()))
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_ADHESION, String.valueOf(resultAdhesiondto.getId()))
                 .ifPresent(doc -> resultAdhesiondto.setIdDocument(doc.getId()));
         return resultAdhesiondto;
     }
 
-    private boolean isStatutChangedToValidated(StatutInscription oldStatut, StatutInscription newStatut) {
-        return oldStatut == StatutInscription.PROVISOIRE && newStatut == StatutInscription.VALIDEE;
+    private boolean isStatutChangedToValidated(StatutInscriptionEnum oldStatut, StatutInscriptionEnum newStatut) {
+        return oldStatut == StatutInscriptionEnum.PROVISOIRE && newStatut == StatutInscriptionEnum.VALIDEE;
     }
 
     private void createMailRequest(AdhesionDto adhesion, DocumentRequestEntity documentRequest) {
-        MailRequestStatut statut = documentRequest != null ? MailRequestStatut.NOT_READY : MailRequestStatut.PENDING;
+        MailRequestStatutEnum statut = documentRequest != null ? MailRequestStatutEnum.NOT_READY : MailRequestStatutEnum.PENDING;
         MailRequestEntity mailRequest = MailRequestEntity.builder()
                 .businessId(adhesion.getId())
-                .type(MailRequestType.ADHESION)
+                .type(MailRequestTypeEnum.ADHESION)
                 .statut(statut)
                 .build();
 

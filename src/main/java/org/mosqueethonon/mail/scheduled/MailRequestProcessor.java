@@ -9,9 +9,9 @@ import org.mosqueethonon.mail.dto.MailDto;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestDocumentRequestEntity;
 import org.mosqueethonon.mail.entity.MailRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.document.exception.PendingDocumentGenerationException;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.mail.repository.MailRequestRepository;
@@ -71,7 +71,7 @@ public class MailRequestProcessor {
         try {
             if (!paramService.isSendEmailEnabled()) {
                 log.info("Envoi de mail désactivé pour la demande {}", mailRequest.getId());
-                mailRequest.setStatut(MailRequestStatut.IGNORED);
+                mailRequest.setStatut(MailRequestStatutEnum.IGNORED);
                 return;
             }
 
@@ -84,12 +84,12 @@ public class MailRequestProcessor {
             log.info("Envoi du mail en cours pour la demande {}", mailRequest.getId());
             MimeMessage mimeMessage = createMimeMessage(mailDto);
             emailSender.send(mimeMessage);
-            mailRequest.setStatut(MailRequestStatut.SENT);
+            mailRequest.setStatut(MailRequestStatutEnum.SENT);
             log.info("Mail envoyé avec succès pour la demande {}", mailRequest.getId());
 
         } catch (Exception e) {
             log.error("Erreur lors du traitement de la demande de mail {} : ", mailRequest.getId(), e);
-            mailRequest.setStatut(MailRequestStatut.ERROR);
+            mailRequest.setStatut(MailRequestStatutEnum.ERROR);
         } finally {
             mailRequestRepository.save(mailRequest);
         }
@@ -97,9 +97,9 @@ public class MailRequestProcessor {
 
     private MailDto createMailDto(MailRequestEntity mailRequest) {
         MailDto mailDto;
-        if (mailRequest.getType() == MailRequestType.INSCRIPTION) {
+        if (mailRequest.getType() == MailRequestTypeEnum.INSCRIPTION) {
             mailDto = mailInscriptionService.createMail(mailRequest.getBusinessId());
-        } else if (mailRequest.getType() == MailRequestType.ADHESION) {
+        } else if (mailRequest.getType() == MailRequestTypeEnum.ADHESION) {
             mailDto = mailAdhesionService.createMail(mailRequest.getBusinessId());
         } else {
             throw new IllegalStateException("Type de demande de mail non géré : " + mailRequest.getType());
@@ -116,7 +116,7 @@ public class MailRequestProcessor {
                 .map(MailRequestDocumentRequestEntity::getDocumentRequestId)
                 .collect(Collectors.toList());
         List<DocumentRequestEntity> documents = documentRequestRepository.findAllById(documentIds);
-        if (documents.stream().anyMatch(doc -> doc.getStatut() != DocumentRequestStatut.COMPLETED)) {
+        if (documents.stream().anyMatch(doc -> doc.getStatut() != DocumentRequestStatutEnum.COMPLETED)) {
             throw new PendingDocumentGenerationException("Le mail ne peut pas être envoyé car au moins une pièce jointe n'a pas encore été générée - mailRequest : " + mailRequest.getId());
         }
         List<MailAttachmentDto> generatedAttachments = documents.stream()

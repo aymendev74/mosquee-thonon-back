@@ -12,8 +12,8 @@ import org.mosqueethonon.inscription.entity.InscriptionMatiereEntity;
 import org.mosqueethonon.referentiel.entity.MatiereEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.MatiereEnum;
 import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.inscription.enums.TypeInscriptionEnum;
@@ -35,7 +35,7 @@ import org.mosqueethonon.inscription.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.inscription.v1.dto.ReinscriptionAdulteDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionAdulteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,7 +98,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
-        entity.setStatut(StatutInscription.PROVISOIRE);
+        entity.setStatut(StatutInscriptionEnum.PROVISOIRE);
 
         // calcul du tarif
         this.calculTarif(entity, LocalDate.now(), inscription.getStatutProfessionnel());
@@ -108,7 +108,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         // Demande de génération asynchrone du document PDF
         // Le mail sera créé en NOT_READY et passera en PENDING une fois le document généré
-        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ADULTE, entity.getId());
         this.createMailRequest(entity.getId(), documentRequest);
 
         return InscriptionAdulteResultDto.builder()
@@ -122,7 +122,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
         InscriptionAdulteEntity inscriptionAdulteEntity = this.inscriptionAdulteRepository.findById(id).orElse(null);
         if (inscriptionAdulteEntity != null) {
             InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
-            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> dto.setIdDocument(doc.getId()));
             return dto;
         }
@@ -144,14 +144,14 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         // Demande de régénération asynchrone du document PDF si nécessaire
         DocumentRequestEntity documentRequest = null;
-        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
-            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        if (entity.getStatut() == StatutInscriptionEnum.PROVISOIRE || entity.getStatut() == StatutInscriptionEnum.VALIDEE) {
+            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ADULTE, entity.getId());
         }
         if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
             this.createMailRequest(entity.getId(), documentRequest);
         }
         InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(entity);
-        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(entity.getId()))
                 .ifPresent(doc -> dto.setIdDocument(doc.getId()));
         return dto;
     }
@@ -192,7 +192,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         entity.setDateInscription(LocalDateTime.now());
         entity.setNoInscription(this.generateNoInscription());
-        entity.setStatut(StatutInscription.VALIDEE);
+        entity.setStatut(StatutInscriptionEnum.VALIDEE);
         // Marquer qu'il s'agit bien d'une réinscription passée par le processus dédié
         entity.setReinscription(Boolean.TRUE);
 
@@ -202,8 +202,8 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
 
         // Demande de génération asynchrone du document PDF
         // Condition toujours vraie ici (statut hardcodé à VALIDEE), maintenue par cohérence avec le service enfant et pour évolutivité future
-        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
-            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ADULTE, entity.getId());
+        if (entity.getStatut() == StatutInscriptionEnum.PROVISOIRE || entity.getStatut() == StatutInscriptionEnum.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ADULTE, entity.getId());
             this.createMailRequest(entity.getId(), documentRequest);
         }
 
@@ -253,7 +253,7 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
                             .collect(Collectors.toList());
 
                     // Récupérer l'idDocument associé à cette inscription
-                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
+                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(inscription.getId()))
                             .map(DocumentEntity::getId)
                             .orElse(null);
 

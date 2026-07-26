@@ -21,7 +21,7 @@ import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.referentiel.service.TraductionService;
 import org.mosqueethonon.referentiel.v1.dto.TraductionDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -118,7 +118,7 @@ public class TestInscriptionAdulteDocumentGenerator {
         // GIVEN
         InscriptionAdulteEntity entity = buildEntityMinimal();
         entity.setNoInscription("2025-0002");
-        entity.setStatut(StatutInscription.VALIDEE);
+        entity.setStatut(StatutInscriptionEnum.VALIDEE);
         LocalDateTime dateInscription = LocalDateTime.of(2025, 9, 1, 10, 0);
         entity.setDateInscription(dateInscription);
         entity.setMontantTotal(new BigDecimal("80.00"));
@@ -441,7 +441,7 @@ public class TestInscriptionAdulteDocumentGenerator {
 
     private InscriptionAdulteEntity buildEntityComplete() {
         InscriptionAdulteEntity entity = buildEntityMinimal();
-        entity.setStatut(StatutInscription.VALIDEE);
+        entity.setStatut(StatutInscriptionEnum.VALIDEE);
         entity.setMontantTotal(new BigDecimal("80.00"));
         entity.setStatutProfessionnel(StatutProfessionnelEnum.ETUDIANT);
         entity.setAnneeScolaire("2025-2026");

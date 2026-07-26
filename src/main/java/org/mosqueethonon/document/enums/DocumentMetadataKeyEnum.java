@@ -1,6 +1,6 @@
 package org.mosqueethonon.document.enums;
 
-public enum DocumentMetadataKey {
+public enum DocumentMetadataKeyEnum {
     NO_INSCRIPTION,
     NOM,
     PRENOM,

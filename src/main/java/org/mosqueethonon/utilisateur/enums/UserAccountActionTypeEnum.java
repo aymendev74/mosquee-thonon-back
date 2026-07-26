@@ -1,6 +1,6 @@
 package org.mosqueethonon.utilisateur.enums;
 
-public enum UserAccountActionType {
+public enum UserAccountActionTypeEnum {
 
     ACTIVATION, RESET_PASSWORD
 

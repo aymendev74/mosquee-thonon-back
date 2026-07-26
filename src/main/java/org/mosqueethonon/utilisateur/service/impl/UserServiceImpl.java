@@ -1,14 +1,14 @@
 package org.mosqueethonon.utilisateur.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordRequest;
+import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordDto;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
 import org.mosqueethonon.utilisateur.entity.LoginHistoryEntity;
 import org.mosqueethonon.utilisateur.entity.RoleEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.utilisateur.entity.UtilisateurRoleEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 import org.mosqueethonon.utilisateur.exception.InvalidOldPasswordException;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.LoginRepository;
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changeUserPassword(ChangePasswordRequest changePasswordRequest) throws InvalidOldPasswordException {
+    public void changeUserPassword(ChangePasswordDto changePasswordRequest) throws InvalidOldPasswordException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         // Le user ne contient pas le mot de passe apparement... (sûrement une sécurité spring)
         // Je reload le user depuis la DB pour avoir le mot de passe.
@@ -133,10 +133,10 @@ public class UserServiceImpl implements UserService {
         return this.userAccountManager.createUser(user);
     }
 
-    private void requestAccountAction(String username, UserAccountActionType type) {
+    private void requestAccountAction(String username, UserAccountActionTypeEnum type) {
         UserAccountActionEntity accountAction = new UserAccountActionEntity();
         accountAction.setUsername(username);
-        accountAction.setStatut(MailRequestStatut.PENDING);
+        accountAction.setStatut(MailRequestStatutEnum.PENDING);
         accountAction.setType(type);
         accountAction.setToken(UserActivationTokenGenerator.generateToken(32));
         this.userAccountActionRepository.save(accountAction);
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AccountInfosDto getAccountInformations(String token) {
-        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION);
+        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(token, UserAccountActionTypeEnum.ACTIVATION);
         if(accountAction == null) {
             throw new ResourceNotFoundException("Le token est invalide, aucun compte lié");
         }
@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void enableAccount(EnableAccountDto enableAccountDto) {
-        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(enableAccountDto.getToken(), UserAccountActionType.ACTIVATION);
+        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(enableAccountDto.getToken(), UserAccountActionTypeEnum.ACTIVATION);
         if(accountAction == null || !accountAction.getUsername().equals(enableAccountDto.getUsername())) {
             throw new ResourceNotFoundException("Les paramètres d'activation sont invalides (username/token) !");
         }
@@ -212,9 +212,9 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("L'email de l'utilisateur est inconnu - id = " + idUtilisateur);
         }
         // Si un mail d'activation avait déjà été envoyé, on supprime la demande
-        this.userAccountActionRepository.deleteByUsernameAndType(utilisateurEntity.getUsername(), UserAccountActionType.ACTIVATION);
+        this.userAccountActionRepository.deleteByUsernameAndType(utilisateurEntity.getUsername(), UserAccountActionTypeEnum.ACTIVATION);
         // on demande un nouveau mail d'activation du compte
-        this.requestAccountAction(utilisateurEntity.getUsername(), UserAccountActionType.ACTIVATION);
+        this.requestAccountAction(utilisateurEntity.getUsername(), UserAccountActionTypeEnum.ACTIVATION);
     }
 
     @Override
@@ -226,14 +226,14 @@ public class UserServiceImpl implements UserService {
         }
         UtilisateurEntity utilisateur = utilisateurOptional.get();
         // Supprimer les éventuelles demandes de reset précédentes
-        this.userAccountActionRepository.deleteByUsernameAndType(utilisateur.getUsername(), UserAccountActionType.RESET_PASSWORD);
+        this.userAccountActionRepository.deleteByUsernameAndType(utilisateur.getUsername(), UserAccountActionTypeEnum.RESET_PASSWORD);
         // Créer une nouvelle demande de reset
-        this.requestAccountAction(utilisateur.getUsername(), UserAccountActionType.RESET_PASSWORD);
+        this.requestAccountAction(utilisateur.getUsername(), UserAccountActionTypeEnum.RESET_PASSWORD);
     }
 
     @Override
     public AccountInfosDto getResetPasswordInfo(String token) {
-        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.RESET_PASSWORD);
+        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(token, UserAccountActionTypeEnum.RESET_PASSWORD);
         if(accountAction == null) {
             throw new ResourceNotFoundException("Le token de réinitialisation est invalide");
         }
@@ -248,7 +248,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void resetPassword(ResetPasswordDto resetPasswordDto) {
-        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(resetPasswordDto.getToken(), UserAccountActionType.RESET_PASSWORD);
+        UserAccountActionEntity accountAction = this.userAccountActionRepository.findByTokenAndType(resetPasswordDto.getToken(), UserAccountActionTypeEnum.RESET_PASSWORD);
         if(accountAction == null || !accountAction.getUsername().equals(resetPasswordDto.getUsername())) {
             throw new ResourceNotFoundException("Les paramètres de réinitialisation sont invalides (username/token) !");
         }

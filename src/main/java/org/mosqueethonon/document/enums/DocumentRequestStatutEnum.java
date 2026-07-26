@@ -1,6 +1,6 @@
 package org.mosqueethonon.document.enums;
 
-public enum DocumentRequestStatut {
+public enum DocumentRequestStatutEnum {
     PENDING,
     COMPLETED,
     ERROR

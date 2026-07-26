@@ -7,7 +7,7 @@ import org.mosqueethonon.common.audit.Auditable;
 import org.mosqueethonon.common.audit.EntityListener;
 import org.mosqueethonon.common.audit.Signature;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ public abstract class InscriptionEntity implements Auditable {
     private Long id;
     @Column(name = "cdinscstatut")
     @Enumerated(EnumType.STRING)
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     @Column(name = "dtinscinscription")
     private LocalDateTime dateInscription;
     @ManyToOne(cascade = CascadeType.PERSIST)

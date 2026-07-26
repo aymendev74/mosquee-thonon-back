@@ -12,9 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
-import org.mosqueethonon.mail.enums.MailRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
+import org.mosqueethonon.mail.enums.MailRequestTypeEnum;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.document.repository.DocumentRepository;
@@ -25,7 +25,7 @@ import org.mosqueethonon.document.service.DocumentService;
 import org.mosqueethonon.lock.service.LockService;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionDto;
 import org.mosqueethonon.adhesion.v1.dto.AdhesionSaveCriteria;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapperImpl;
 
@@ -85,7 +85,7 @@ public class TestAdhesionServiceImpl {
 
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity.setDateInscription(LocalDateTime.now());
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
@@ -140,8 +140,8 @@ public class TestAdhesionServiceImpl {
         assertNotNull(result);
         assertEquals(ids, result);
         verify(adhesionRepository, times(2)).deleteById(any());
-        verify(this.mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestType.ADHESION), any());
-        verify(this.documentRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), any());
+        verify(this.mailRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(MailRequestTypeEnum.ADHESION), any());
+        verify(this.documentRequestRepository, times(2)).deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.ADHESION), any());
         verify(this.documentService, never()).deleteDocument(any());
     }
 
@@ -153,7 +153,7 @@ public class TestAdhesionServiceImpl {
         doc.setId(55L);
 
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_ADHESION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -161,7 +161,7 @@ public class TestAdhesionServiceImpl {
 
         // Assert
         assertEquals(Set.of(id), result);
-        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.ADHESION), eq(Set.of(id)));
         verify(documentService).deleteDocument(55L);
         verify(adhesionRepository).deleteById(id);
     }
@@ -177,7 +177,7 @@ public class TestAdhesionServiceImpl {
 
         // Assert
         assertEquals(Set.of(id), result);
-        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestType.ADHESION), eq(Set.of(id)));
+        verify(documentRequestRepository).deleteByTypeAndBusinessIdIn(eq(DocumentRequestTypeEnum.ADHESION), eq(Set.of(id)));
         verify(documentService, never()).deleteDocument(any());
         verify(adhesionRepository).deleteById(id);
     }
@@ -197,11 +197,11 @@ public class TestAdhesionServiceImpl {
 
         AdhesionEntity adhesion1 = new AdhesionEntity();
         adhesion1.setId(1L);
-        adhesion1.setStatut(StatutInscription.PROVISOIRE);
+        adhesion1.setStatut(StatutInscriptionEnum.PROVISOIRE);
 
         AdhesionEntity adhesion2 = new AdhesionEntity();
         adhesion2.setId(2L);
-        adhesion2.setStatut(StatutInscription.PROVISOIRE);
+        adhesion2.setStatut(StatutInscriptionEnum.PROVISOIRE);
 
         when(adhesionRepository.findById(1L)).thenReturn(Optional.of(adhesion1));
         when(adhesionRepository.findById(2L)).thenReturn(Optional.of(adhesion2));
@@ -214,8 +214,8 @@ public class TestAdhesionServiceImpl {
         assertEquals(2, result.size());
         assertTrue(result.contains(1L));
         assertTrue(result.contains(2L));
-        assertEquals(StatutInscription.VALIDEE, adhesion1.getStatut());
-        assertEquals(StatutInscription.VALIDEE, adhesion2.getStatut());
+        assertEquals(StatutInscriptionEnum.VALIDEE, adhesion1.getStatut());
+        assertEquals(StatutInscriptionEnum.VALIDEE, adhesion2.getStatut());
         verify(adhesionRepository, times(2)).save(any());
         verify(mailRequestRepository, times(2)).save(any());
     }
@@ -240,10 +240,10 @@ public class TestAdhesionServiceImpl {
         var adhesionCriteria = AdhesionSaveCriteria.builder().build();
         Long id = 1L;
         AdhesionDto adhesionDto = new AdhesionDto();
-        adhesionDto.setStatut(StatutInscription.VALIDEE);
+        adhesionDto.setStatut(StatutInscriptionEnum.VALIDEE);
 
         AdhesionEntity adhesionEntity = new AdhesionEntity();
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity.setId(id);
 
         when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
@@ -290,7 +290,7 @@ public class TestAdhesionServiceImpl {
         // le document n'existe pas encore au moment du retour → idDocument reste null.
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity.setDateInscription(LocalDateTime.now());
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
@@ -301,7 +301,7 @@ public class TestAdhesionServiceImpl {
         assertNotNull(result);
         assertNull(result.getIdDocument());
         verify(asyncDocumentService, times(1))
-                .requestDocumentGeneration(eq(DocumentRequestType.ADHESION), eq(1L));
+                .requestDocumentGeneration(eq(DocumentRequestTypeEnum.ADHESION), eq(1L));
     }
 
     @Test
@@ -319,7 +319,7 @@ public class TestAdhesionServiceImpl {
         when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
         when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_ADHESION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -342,7 +342,7 @@ public class TestAdhesionServiceImpl {
         when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));
         when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_ADHESION), eq(String.valueOf(id))))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -358,11 +358,11 @@ public class TestAdhesionServiceImpl {
         // Arrange
         Long id = 1L;
         AdhesionDto adhesionDto = new AdhesionDto();
-        adhesionDto.setStatut(StatutInscription.VALIDEE);
+        adhesionDto.setStatut(StatutInscriptionEnum.VALIDEE);
         adhesionDto.setId(id);
 
         AdhesionEntity adhesionEntity = new AdhesionEntity();
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity.setId(id);
 
         DocumentEntity doc = new DocumentEntity();
@@ -372,7 +372,7 @@ public class TestAdhesionServiceImpl {
         when(adhesionRepository.save(adhesionEntity)).thenReturn(adhesionEntity);
         when(adhesionMapper.fromEntityToDto(adhesionEntity)).thenReturn(adhesionDto);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKey.ID_ADHESION), eq(String.valueOf(id))))
+                eq(DocumentMetadataKeyEnum.ID_ADHESION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -388,11 +388,11 @@ public class TestAdhesionServiceImpl {
         // Arrange
         Long id = 1L;
         AdhesionDto adhesionDto = new AdhesionDto();
-        adhesionDto.setStatut(StatutInscription.VALIDEE);
+        adhesionDto.setStatut(StatutInscriptionEnum.VALIDEE);
         adhesionDto.setId(id);
 
         AdhesionEntity adhesionEntity = new AdhesionEntity();
-        adhesionEntity.setStatut(StatutInscription.PROVISOIRE);
+        adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity.setId(id);
 
         when(adhesionRepository.findById(id)).thenReturn(Optional.of(adhesionEntity));

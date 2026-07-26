@@ -2,7 +2,7 @@ package org.mosqueethonon.utilisateur.v1.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
-import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordRequest;
+import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordDto;
 import org.mosqueethonon.utilisateur.exception.InvalidOldPasswordException;
 import org.mosqueethonon.utilisateur.service.UserService;
 import org.mosqueethonon.utilisateur.v1.criteria.UserCriteria;
@@ -25,7 +25,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto request) {
         try {
             this.userService.changeUserPassword(request);
         } catch (InvalidOldPasswordException e) {

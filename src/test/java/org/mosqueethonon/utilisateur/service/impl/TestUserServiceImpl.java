@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.common.exception.ResourceNotFoundException;
 import org.mosqueethonon.utilisateur.repository.LoginRepository;
@@ -126,8 +126,8 @@ public class TestUserServiceImpl {
         UserAccountActionEntity accountAction = new UserAccountActionEntity();
         accountAction.setUsername("testuser");
         accountAction.setToken(token);
-        accountAction.setType(UserAccountActionType.ACTIVATION);
-        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
+        accountAction.setType(UserAccountActionTypeEnum.ACTIVATION);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionTypeEnum.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         AccountInfosDto infos = userService.getAccountInformations(token);
         assertEquals("testuser", infos.getUsername());
@@ -144,11 +144,11 @@ public class TestUserServiceImpl {
         UserAccountActionEntity accountAction = new UserAccountActionEntity();
         accountAction.setUsername("testuser");
         accountAction.setToken(token);
-        accountAction.setType(UserAccountActionType.ACTIVATION);
+        accountAction.setType(UserAccountActionTypeEnum.ACTIVATION);
         UtilisateurEntity utilisateurEntity = new UtilisateurEntity();
         utilisateurEntity.setUsername("testuser");
         utilisateurEntity.setEnabled(false);
-        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionType.ACTIVATION)).thenReturn(accountAction);
+        when(userAccountActionRepository.findByTokenAndType(token, UserAccountActionTypeEnum.ACTIVATION)).thenReturn(accountAction);
         when(utilisateurRepository.findByUsername("testuser")).thenReturn(Optional.of(utilisateurEntity));
         when(passwordEncoder.encode("pass")).thenReturn("encoded");
         userService.enableAccount(dto);
@@ -166,7 +166,7 @@ public class TestUserServiceImpl {
         utilisateurEntity.setEmail("test@domain.com");
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateurEntity));
         userService.resendActivationMail(1L);
-        verify(userAccountActionRepository).deleteByUsernameAndType("testuser", UserAccountActionType.ACTIVATION);
+        verify(userAccountActionRepository).deleteByUsernameAndType("testuser", UserAccountActionTypeEnum.ACTIVATION);
         verify(userAccountActionRepository, atLeastOnce()).save(any(UserAccountActionEntity.class));
     }
 

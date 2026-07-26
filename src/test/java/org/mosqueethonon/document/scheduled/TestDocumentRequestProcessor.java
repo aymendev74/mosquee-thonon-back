@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.bulletin.entity.BulletinEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
-import org.mosqueethonon.document.enums.DocumentRequestStatut;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.adhesion.repository.AdhesionRepository;
 import org.mosqueethonon.bulletin.repository.BulletinRepository;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
@@ -71,7 +71,7 @@ public class TestDocumentRequestProcessor {
     @Test
     public void testProcessBulletinRequestSucces() {
         // GIVEN
-        DocumentRequestEntity request = buildRequest(1L, DocumentRequestType.BULLETIN, 42L);
+        DocumentRequestEntity request = buildRequest(1L, DocumentRequestTypeEnum.BULLETIN, 42L);
         BulletinEntity bulletin = new BulletinEntity();
         bulletin.setId(42L);
         DocumentEntity document = buildDocument("/path/bulletin-42.pdf", "BULLETIN-001");
@@ -89,7 +89,7 @@ public class TestDocumentRequestProcessor {
         ArgumentCaptor<DocumentRequestEntity> captor = ArgumentCaptor.forClass(DocumentRequestEntity.class);
         verify(documentRequestRepository, times(1)).save(captor.capture());
         DocumentRequestEntity saved = captor.getValue();
-        assertEquals(DocumentRequestStatut.COMPLETED, saved.getStatut());
+        assertEquals(DocumentRequestStatutEnum.COMPLETED, saved.getStatut());
         assertEquals("/path/bulletin-42.pdf", saved.getDocumentPath());
         assertEquals("BULLETIN-001", saved.getDocumentCode());
     }
@@ -101,7 +101,7 @@ public class TestDocumentRequestProcessor {
     @Test
     public void testProcessBulletinRequestWhenBulletinNotFound() {
         // GIVEN
-        DocumentRequestEntity request = buildRequest(2L, DocumentRequestType.BULLETIN, 999L);
+        DocumentRequestEntity request = buildRequest(2L, DocumentRequestTypeEnum.BULLETIN, 999L);
         when(bulletinRepository.findById(999L)).thenReturn(Optional.empty());
 
         // WHEN
@@ -113,7 +113,7 @@ public class TestDocumentRequestProcessor {
         ArgumentCaptor<DocumentRequestEntity> captor = ArgumentCaptor.forClass(DocumentRequestEntity.class);
         verify(documentRequestRepository, times(1)).save(captor.capture());
         DocumentRequestEntity saved = captor.getValue();
-        assertEquals(DocumentRequestStatut.ERROR, saved.getStatut());
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
         assertNotNull(saved.getErrorMessage());
         assertTrue(saved.getErrorMessage().contains("999"));
     }
@@ -125,7 +125,7 @@ public class TestDocumentRequestProcessor {
     @Test
     public void testProcessBulletinRequestWhenGenerationThrowsException() {
         // GIVEN
-        DocumentRequestEntity request = buildRequest(3L, DocumentRequestType.BULLETIN, 42L);
+        DocumentRequestEntity request = buildRequest(3L, DocumentRequestTypeEnum.BULLETIN, 42L);
         BulletinEntity bulletin = new BulletinEntity();
         bulletin.setId(42L);
 
@@ -140,7 +140,7 @@ public class TestDocumentRequestProcessor {
         ArgumentCaptor<DocumentRequestEntity> captor = ArgumentCaptor.forClass(DocumentRequestEntity.class);
         verify(documentRequestRepository, times(1)).save(captor.capture());
         DocumentRequestEntity saved = captor.getValue();
-        assertEquals(DocumentRequestStatut.ERROR, saved.getStatut());
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
         assertEquals("Erreur inattendue lors de la génération", saved.getErrorMessage());
     }
 
@@ -151,7 +151,7 @@ public class TestDocumentRequestProcessor {
     @Test
     public void testProcessRequestsAreSelfContainedOnError() {
         // GIVEN — demande dont le bulletin est absent
-        DocumentRequestEntity requestErreur = buildRequest(11L, DocumentRequestType.BULLETIN, 999L);
+        DocumentRequestEntity requestErreur = buildRequest(11L, DocumentRequestTypeEnum.BULLETIN, 999L);
         when(bulletinRepository.findById(999L)).thenReturn(Optional.empty());
 
         // WHEN — on traite uniquement la demande en erreur
@@ -160,19 +160,19 @@ public class TestDocumentRequestProcessor {
         // THEN — elle passe en ERROR sans affecter d'autres demandes
         ArgumentCaptor<DocumentRequestEntity> captor = ArgumentCaptor.forClass(DocumentRequestEntity.class);
         verify(documentRequestRepository, times(1)).save(captor.capture());
-        assertEquals(DocumentRequestStatut.ERROR, captor.getValue().getStatut());
+        assertEquals(DocumentRequestStatutEnum.ERROR, captor.getValue().getStatut());
     }
 
     // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
 
-    private DocumentRequestEntity buildRequest(Long id, DocumentRequestType type, Long businessId) {
+    private DocumentRequestEntity buildRequest(Long id, DocumentRequestTypeEnum type, Long businessId) {
         DocumentRequestEntity request = new DocumentRequestEntity();
         request.setId(id);
         request.setType(type);
         request.setBusinessId(businessId);
-        request.setStatut(DocumentRequestStatut.PENDING);
+        request.setStatut(DocumentRequestStatutEnum.PENDING);
         return request;
     }
 

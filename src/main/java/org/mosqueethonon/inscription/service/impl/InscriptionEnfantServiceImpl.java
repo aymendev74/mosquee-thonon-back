@@ -11,8 +11,8 @@ import org.mosqueethonon.inscription.entity.ResponsableLegalEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
 import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
-import org.mosqueethonon.document.enums.DocumentMetadataKey;
-import org.mosqueethonon.document.enums.DocumentRequestType;
+import org.mosqueethonon.document.enums.DocumentMetadataKeyEnum;
+import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.inscription.enums.ResultatEnum;
@@ -41,7 +41,7 @@ import org.mosqueethonon.inscription.v1.dto.ResponsableLegalDto;
 import org.mosqueethonon.utilisateur.v1.dto.UserDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.inscription.service.Incoherences;
 import org.mosqueethonon.inscription.v1.mapper.EleveMapper;
 import org.mosqueethonon.inscription.v1.mapper.InscriptionEnfantMapper;
@@ -116,8 +116,8 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         entity.setNoInscription(this.generateNoInscription());
         entity = this.inscriptionEnfantRepository.save(entity);
         DocumentRequestEntity documentRequest = null;
-        if(entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
-            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        if(entity.getStatut() == StatutInscriptionEnum.PROVISOIRE || entity.getStatut() == StatutInscriptionEnum.VALIDEE) {
+            documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, entity.getId());
         }
         this.createMailRequest(entity.getId(), documentRequest);
 
@@ -142,17 +142,17 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         inscription.normalize();
         InscriptionEnfantEntity entity = this.inscriptionEnfantRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'inscription n'a pas été trouvée ! id = " + id));
         this.lockPeriodeActive(entity.getDateInscription().toLocalDate());
-        StatutInscription statutActuel = entity.getStatut();
+        StatutInscriptionEnum statutActuel = entity.getStatut();
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
 
         this.doCalculTarifInscription(entity);
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
         InscriptionEnfantDto resultInscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
-        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(entity.getId()))
+        this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(entity.getId()))
                 .ifPresent(doc -> resultInscription.setIdDocument(doc.getId()));
-        if (entity.getStatut() == StatutInscription.PROVISOIRE || entity.getStatut() == StatutInscription.VALIDEE) {
-            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, entity.getId());
+        if (entity.getStatut() == StatutInscriptionEnum.PROVISOIRE || entity.getStatut() == StatutInscriptionEnum.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, entity.getId());
             if (Boolean.TRUE.equals(criteria.getSendMailConfirmation())) {
                 this.createMailRequest(entity.getId(), documentRequest);
             }
@@ -165,24 +165,24 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         if (isReinscriptionEnabled) {
             if (validateReinscription(inscription)) {
                 // Si réinscription et que les élèves sont tous reconnus alors on valide directement l'inscription
-                inscription.setStatut(StatutInscription.VALIDEE);
+                inscription.setStatut(StatutInscriptionEnum.VALIDEE);
             } else {
                 // Sinon on la refuse
-                inscription.setStatut(StatutInscription.REFUSE);
+                inscription.setStatut(StatutInscriptionEnum.REFUSE);
             }
             return;
         }
 
         // Si pas réinscription alors soit on est en PROVISOIRE ou alors LISTE_ATTENTE
         if (isListeAttente) {
-            inscription.setStatut(StatutInscription.LISTE_ATTENTE);
+            inscription.setStatut(StatutInscriptionEnum.LISTE_ATTENTE);
             inscription.setNoPositionAttente(this.calculPositionAttente(inscription));
         } else {
-            inscription.setStatut(StatutInscription.PROVISOIRE);
+            inscription.setStatut(StatutInscriptionEnum.PROVISOIRE);
         }
     }
 
-    private void checkStatutInscription(InscriptionEnfantEntity inscription, StatutInscription ancienStatut) {
+    private void checkStatutInscription(InscriptionEnfantEntity inscription, StatutInscriptionEnum ancienStatut) {
         // Si l'ancien statut est identique au nouveau (pas de changement), on ne fait rien
         if (inscription.getStatut() == ancienStatut) {
             return;
@@ -195,7 +195,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
             case PROVISOIRE:
             case VALIDEE:
             case REFUSE:
-                if (inscription.getStatut() == StatutInscription.LISTE_ATTENTE) {
+                if (inscription.getStatut() == StatutInscriptionEnum.LISTE_ATTENTE) {
                     inscription.setNoPositionAttente(this.calculPositionAttente(inscription));
                 }
                 break;
@@ -264,7 +264,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         InscriptionEnfantEntity inscriptionEnfantEntity = this.inscriptionEnfantRepository.findById(id).orElse(null);
         if (inscriptionEnfantEntity != null) {
             InscriptionEnfantDto dto = this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
-            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(id))
+            this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> dto.setIdDocument(doc.getId()));
             return dto;
         }
@@ -328,7 +328,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
                     int nbEleveInscription = inscriptionEnAttente.getEleves().size();
                     if (nbEleveInscription <= nbPlacesDisponibles) {
                         // Le nombre d'élève à inscrire est inférieur ou égal au nombre de places restantes
-                        inscriptionEnAttente.setStatut(StatutInscription.PROVISOIRE);
+                        inscriptionEnAttente.setStatut(StatutInscriptionEnum.PROVISOIRE);
                         nbPlacesDisponibles = nbPlacesDisponibles - nbEleveInscription;
                     }
                     if (nbPlacesDisponibles == 0) {
@@ -363,7 +363,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
                     ResponsableLegalDto responsableLegalDto = this.responsableLegalMapper.fromEntityToDto(inscription.getResponsableLegal());
 
                     // Récupérer l'idDocument associé à cette inscription
-                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKey.ID_INSCRIPTION, String.valueOf(inscription.getId()))
+                    Long idDocument = this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(inscription.getId()))
                             .map(DocumentEntity::getId)
                             .orElse(null);
 
@@ -443,8 +443,8 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         nouvelleInscription.setReinscription(Boolean.TRUE);
 
         nouvelleInscription = this.inscriptionEnfantRepository.save(nouvelleInscription);
-        if (nouvelleInscription.getStatut() == StatutInscription.PROVISOIRE || nouvelleInscription.getStatut() == StatutInscription.VALIDEE) {
-            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestType.INSCRIPTION_ENFANT, nouvelleInscription.getId());
+        if (nouvelleInscription.getStatut() == StatutInscriptionEnum.PROVISOIRE || nouvelleInscription.getStatut() == StatutInscriptionEnum.VALIDEE) {
+            var documentRequest = this.asyncDocumentService.requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, nouvelleInscription.getId());
             this.createMailRequest(nouvelleInscription.getId(), documentRequest);
         }
 

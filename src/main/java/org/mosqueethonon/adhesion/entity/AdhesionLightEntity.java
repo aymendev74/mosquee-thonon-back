@@ -2,7 +2,7 @@ package org.mosqueethonon.adhesion.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class AdhesionLightEntity {
     private String ville;
     @Column(name = "statut")
     @Enumerated(EnumType.STRING)
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     @Column(name = "montant")
     private BigDecimal montant;
     @Column(name = "dateinscription")

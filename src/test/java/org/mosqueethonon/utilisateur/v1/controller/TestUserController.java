@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordRequest;
+import org.mosqueethonon.utilisateur.v1.dto.ChangePasswordDto;
 import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
-import org.mosqueethonon.mail.enums.MailRequestStatut;
-import org.mosqueethonon.utilisateur.enums.UserAccountActionType;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
 import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
 import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
 import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
@@ -57,8 +57,8 @@ public class TestUserController extends TestController {
         UserAccountActionEntity entity = new UserAccountActionEntity();
         entity.setToken("valid-token");
         entity.setUsername("john.d");
-        entity.setType(UserAccountActionType.ACTIVATION);
-        entity.setStatut(MailRequestStatut.PENDING);
+        entity.setType(UserAccountActionTypeEnum.ACTIVATION);
+        entity.setStatut(MailRequestStatutEnum.PENDING);
         this.userAccountActionRepository.save(entity);
     }
 
@@ -98,7 +98,7 @@ public class TestUserController extends TestController {
     @Test
     @WithMockUser(username = "john.d")
     public void testChangePassword_ShouldBeAccessibleWithAuthentication() throws Exception {
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        ChangePasswordDto request = new ChangePasswordDto();
         request.setOldPassword("password");
         request.setNewPassword("newPassword");
 
@@ -162,7 +162,7 @@ public class TestUserController extends TestController {
     @Test
     @WithAnonymousUser
     public void testChangePassword_ShouldBeForbiddenForAnonymous() throws Exception {
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        ChangePasswordDto request = new ChangePasswordDto();
         request.setOldPassword("oldPassword");
         request.setNewPassword("newPassword");
 

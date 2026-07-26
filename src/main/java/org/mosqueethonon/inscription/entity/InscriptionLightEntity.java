@@ -3,7 +3,7 @@ package org.mosqueethonon.inscription.entity;
 import lombok.Data;
 import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
 import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
-import org.mosqueethonon.inscription.enums.StatutInscription;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -52,7 +52,7 @@ public class InscriptionLightEntity {
     private String mobileContactUrgence;
     @Column(name = "statut")
     @Enumerated(EnumType.STRING)
-    private StatutInscription statut;
+    private StatutInscriptionEnum statut;
     @Column(name = "ville")
     private String ville;
     @Column(name = "noinscription")
