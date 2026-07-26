@@ -98,6 +98,26 @@ test sont **préfixées** `Test` (`TestInscriptionServiceImpl`) — pas suffixé
 Le `pom.xml` ne configure pas surefire, on dépend donc de ses includes par
 défaut, qui reconnaissent `Test*`.
 
+## Références en dur au nom des packages
+
+Deux fichiers hors Java désignent une classe par son **nom pleinement qualifié,
+dans une chaîne**. Aucun compilateur ne les vérifie : les déplacer sans les
+mettre à jour casse l'application au démarrage, silencieusement.
+
+| Fichier | Classe référencée | Symptôme si désynchronisé |
+|---|---|---|
+| `src/test/resources/schema.sql` | `common.util.FunctionSQLMocks` | tous les `@SpringBootTest` échouent au démarrage du contexte H2 |
+| `src/main/resources/META-INF/spring.factories` | `common.config.RequiredEnvironmentVariablesValidator` | la validation des variables d'environnement ne s'exécute plus, l'application démarre avec une config incomplète |
+
+Déplacer l'une de ces deux classes et modifier le fichier correspondant doivent
+se faire **dans le même commit**.
+
+Le reste est sûr : `application.yml`, Liquibase, `logback-spring.xml`, le
+`Dockerfile` et la CI ne contiennent aucun nom de package Java, et MapStruct
+n'utilise que des littéraux `X.class`. Seul `pom.xml` cite
+`org.mosqueethonon.Application` dans `<start-class>`, qui ne doit pas bouger de
+la racine.
+
 ## Dette connue
 
 - `inscription/service/impl/CommonInscriptionService` est un `@Service` concret
