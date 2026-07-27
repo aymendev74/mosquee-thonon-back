@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.inscription.entity.EleveEntity;
@@ -53,6 +54,7 @@ import org.mosqueethonon.inscription.v1.mapper.InscriptionEnfantMapperImpl;
 import org.mosqueethonon.inscription.v1.mapper.ResponsableLegalMapper;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -98,6 +100,13 @@ public class TestInscriptionEnfantServiceImpl {
     private AsyncDocumentService asyncDocumentService;
     @Mock
     private DocumentRepository documentRepository;
+    /** Date de référence des tests : figée pour que les assertions sur « aujourd'hui » soient stables. */
+    private static final LocalDate AUJOURD_HUI = LocalDate.of(2026, 3, 15);
+
+    @Spy
+    private Clock clock = Clock.fixed(AUJOURD_HUI.atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
 
@@ -1172,7 +1181,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertEquals(Incoherences.NO_INCOHERENCE, underTest.checkCoherence(99L, dto));
 
         verify(inscriptionEnfantRepository).findInscriptionsWithEleve(eq("Marie"), eq("Dupont"),
-                isNull(), eq(LocalDate.now()), eq(99L));
+                isNull(), eq(AUJOURD_HUI), eq(99L));
     }
 
     @Test

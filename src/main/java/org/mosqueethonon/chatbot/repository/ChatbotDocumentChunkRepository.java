@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 public class ChatbotDocumentChunkRepository {
+
+    private final Clock clock;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -49,7 +52,7 @@ public class ChatbotDocumentChunkRepository {
             ps.setString(3, chunk.getSectionTitle());
             ps.setString(4, chunk.getContent());
             setEmbedding(ps, 5, chunk.getEmbedding());
-            LocalDateTime createdAt = chunk.getCreatedAt() != null ? chunk.getCreatedAt() : LocalDateTime.now();
+            LocalDateTime createdAt = chunk.getCreatedAt() != null ? chunk.getCreatedAt() : LocalDateTime.now(clock);
             ps.setTimestamp(6, Timestamp.valueOf(createdAt));
         });
     }

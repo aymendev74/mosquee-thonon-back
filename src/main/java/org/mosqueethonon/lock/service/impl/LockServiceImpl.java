@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LockServiceImpl implements LockService {
+
+    private final Clock clock;
 
     private final LockRepository lockRepository;
 
@@ -33,7 +36,7 @@ public class LockServiceImpl implements LockService {
 
         if (existingLock.isPresent()) {
             LockEntity lock = existingLock.get();
-            if (lock.getExpiresAt().isAfter(LocalDateTime.now())) {
+            if (lock.getExpiresAt().isAfter(LocalDateTime.now(clock))) {
                 if (!lock.getLockedBy().equals(username)) {
                     log.warn("Resource {}:{} is already locked by user {}", resourceType, resourceId, lock.getLockedBy());
                     LockResultDto lockResult = buildLockResultDto(lock, false);
@@ -54,8 +57,8 @@ public class LockServiceImpl implements LockService {
                 .resourceType(resourceType)
                 .resourceId(resourceId)
                 .lockedBy(username)
-                .lockedAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(this.applicationConfiguration.getResourceLockTimeout()))
+                .lockedAt(LocalDateTime.now(clock))
+                .expiresAt(LocalDateTime.now(clock).plusMinutes(this.applicationConfiguration.getResourceLockTimeout()))
                 .build();
 
         try {
@@ -96,7 +99,7 @@ public class LockServiceImpl implements LockService {
 
         LockEntity lock = lockOpt.get();
 
-        if (lock.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (lock.getExpiresAt().isBefore(LocalDateTime.now(clock))) {
             log.info("Lock expired for resource {}:{}, attempting to reacquire for user {}", 
                     resourceType, resourceId, username);
             lockRepository.delete(lock);
@@ -136,14 +139,14 @@ public class LockServiceImpl implements LockService {
 
     @Transactional
     public void refreshLock(LockEntity lock) {
-        lock.setExpiresAt(LocalDateTime.now().plusMinutes(this.applicationConfiguration.getResourceLockTimeout()));
+        lock.setExpiresAt(LocalDateTime.now(clock).plusMinutes(this.applicationConfiguration.getResourceLockTimeout()));
         lockRepository.save(lock);
         log.debug("Lock refreshed for resource {}:{}", lock.getResourceType(), lock.getResourceId());
     }
 
     @Transactional
     public void cleanExpiredLocks() {
-        lockRepository.deleteExpiredLocks(LocalDateTime.now());
+        lockRepository.deleteExpiredLocks(LocalDateTime.now(clock));
     }
 
     private LockResultDto buildLockResultDto(LockEntity lock, boolean acquired) {

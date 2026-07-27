@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
@@ -101,6 +103,11 @@ public class TestInscriptionAdulteServiceImpl {
 
     @Mock
     private DocumentRepository documentRepository;
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;

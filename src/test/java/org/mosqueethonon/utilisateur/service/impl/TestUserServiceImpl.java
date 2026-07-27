@@ -8,7 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.inscription.service.InscriptionOrchestratorService;
 import org.mosqueethonon.utilisateur.entity.LoginHistoryEntity;
 import org.mosqueethonon.utilisateur.entity.RoleEntity;
@@ -38,6 +40,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +68,11 @@ public class TestUserServiceImpl {
     private UserAccountManager userAccountManager;
     @Mock
     private InscriptionOrchestratorService inscriptionOrchestratorService;
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private UserServiceImpl userService;

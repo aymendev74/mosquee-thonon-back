@@ -9,8 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.param.entity.ParamEntity;
 import org.mosqueethonon.param.enums.ParamNameEnum;
@@ -21,6 +23,7 @@ import org.mosqueethonon.param.repository.ParamRepository;
 import org.mosqueethonon.param.v1.dto.ParamDto;
 import org.mosqueethonon.param.v1.dto.ParamsDto;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,6 +36,11 @@ public class TestParamServiceImpl {
 
     @Mock
     private ParamRepository paramRepository;
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private ParamServiceImpl underTest;

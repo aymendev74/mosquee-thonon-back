@@ -23,12 +23,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class TarifCalculServiceImpl implements TarifCalculService {
+
+    private Clock clock;
 
     private TarifService tarifService;
     private InscriptionRepository inscriptionRepository;
@@ -50,7 +53,7 @@ public class TarifCalculServiceImpl implements TarifCalculService {
         }
 
         // Par défaut date du jour
-        LocalDate atDate = LocalDate.now();
+        LocalDate atDate = LocalDate.now(clock);
         if(id != null) {
             InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
             if(inscription == null) {

@@ -7,6 +7,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
+import org.mosqueethonon.common.config.TimeConfiguration;
 
 @AllArgsConstructor
 public class EntityListener {
@@ -20,14 +21,14 @@ public class EntityListener {
             signature = new Signature();
             auditable.setSignature(signature);
         }
-        signature.setDateCreation(LocalDateTime.now());
+        signature.setDateCreation(LocalDateTime.now(TimeConfiguration.ZONE_APPLICATION));
         signature.setVisaCreation(securityContext.getVisa());
     }
 
     @PreUpdate
     public void doBeforeUpdate(Auditable auditable) {
         Signature signature = auditable.getSignature();
-        signature.setDateModification(LocalDateTime.now());
+        signature.setDateModification(LocalDateTime.now(TimeConfiguration.ZONE_APPLICATION));
         signature.setVisaModification(securityContext.getVisa());
     }
 

@@ -16,8 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.lock.entity.LockEntity;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
@@ -26,6 +28,7 @@ import org.mosqueethonon.lock.repository.LockRepository;
 import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,6 +45,11 @@ public class TestLockServiceImpl {
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private LockServiceImpl underTest;

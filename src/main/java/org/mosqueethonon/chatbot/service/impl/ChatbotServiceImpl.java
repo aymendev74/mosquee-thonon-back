@@ -27,6 +27,7 @@ import org.mosqueethonon.chatbot.v1.mapper.ChatbotSourceMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatbotServiceImpl implements ChatbotService {
+
+    private final Clock clock;
 
     private final ChatbotRetrievalService chatbotRetrievalService;
 
@@ -104,7 +107,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
         ChatbotConversationEntity conversation = new ChatbotConversationEntity();
         conversation.setUtilisateurId(resolveCurrentUtilisateurId());
-        conversation.setCreatedAt(LocalDateTime.now());
+        conversation.setCreatedAt(LocalDateTime.now(clock));
         return this.chatbotConversationRepository.save(conversation);
     }
 
@@ -123,7 +126,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         message.setContent(content);
         message.setSources(sources);
         message.setModel(model);
-        message.setCreatedAt(LocalDateTime.now());
+        message.setCreatedAt(LocalDateTime.now(clock));
         return message;
     }
 

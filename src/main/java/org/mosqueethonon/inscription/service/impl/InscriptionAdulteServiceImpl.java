@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Slf4j
 public class InscriptionAdulteServiceImpl extends CommonInscriptionService implements InscriptionAdulteService {
+
+    private Clock clock;
 
     private InscriptionAdulteRepository inscriptionAdulteRepository;
 
@@ -96,12 +99,12 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
         UserAccountResult userAccountResult = this.manageUserAccount(inscription.getEmail(), inscription.getNom(), inscription.getPrenom(), inscription.getMobile());
         entity.setIdUtilisateur(userAccountResult.userId());
 
-        entity.setDateInscription(LocalDateTime.now());
+        entity.setDateInscription(LocalDateTime.now(clock));
         entity.setNoInscription(this.generateNoInscription());
         entity.setStatut(StatutInscriptionEnum.PROVISOIRE);
 
         // calcul du tarif
-        this.calculTarif(entity, LocalDate.now(), inscription.getStatutProfessionnel());
+        this.calculTarif(entity, LocalDate.now(clock), inscription.getStatutProfessionnel());
 
         // On sauvegarde
         entity = this.inscriptionAdulteRepository.save(entity);
@@ -190,13 +193,13 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
                 reinscriptionAdulteDto.getNom(), reinscriptionAdulteDto.getPrenom(), reinscriptionAdulteDto.getMobile());
         entity.setIdUtilisateur(userAccountResult.userId());
 
-        entity.setDateInscription(LocalDateTime.now());
+        entity.setDateInscription(LocalDateTime.now(clock));
         entity.setNoInscription(this.generateNoInscription());
         entity.setStatut(StatutInscriptionEnum.VALIDEE);
         // Marquer qu'il s'agit bien d'une réinscription passée par le processus dédié
         entity.setReinscription(Boolean.TRUE);
 
-        this.calculTarif(entity, LocalDate.now(), reinscriptionAdulteDto.getStatutProfessionnel());
+        this.calculTarif(entity, LocalDate.now(clock), reinscriptionAdulteDto.getStatutProfessionnel());
 
         entity = this.inscriptionAdulteRepository.save(entity);
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 /**
@@ -14,6 +15,8 @@ import java.time.LocalDateTime;
 @Repository
 @RequiredArgsConstructor
 public class ChatbotIndexStateRepository {
+
+    private final Clock clock;
 
     private static final long SINGLE_ROW_ID = 1L;
 
@@ -40,7 +43,7 @@ public class ChatbotIndexStateRepository {
     public void updateSignature(String signature, int chunkCount) {
         this.jdbcTemplate.update(
                 "UPDATE moth.chatbot_index_state SET signature = ?, chunk_count = ?, indexed_at = ? WHERE id = ?",
-                signature, chunkCount, LocalDateTime.now(), SINGLE_ROW_ID);
+                signature, chunkCount, LocalDateTime.now(clock), SINGLE_ROW_ID);
     }
 
 }
