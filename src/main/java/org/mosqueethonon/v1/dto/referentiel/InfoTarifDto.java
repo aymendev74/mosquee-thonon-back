@@ -42,7 +42,7 @@ public class InfoTarifDto {
     private BigDecimal montantBase4Enfant;
     @CodeTarifEnfant(codeTarif = "BASE_ADHERENT_4_ENFANT", type = TypeTarifEnum.BASE, adherent = true, nbEnfant = 4)
     private BigDecimal montantBase4EnfantAdherent;
-    @CodeTarifEnfant(codeTarif = "ENFANT_4_ENFANT", type = TypeTarifEnum.BASE, adherent = false, nbEnfant = 4)
+    @CodeTarifEnfant(codeTarif = "ENFANT_4_ENFANT", type = TypeTarifEnum.ENFANT, adherent = false, nbEnfant = 4)
     private BigDecimal montantEnfant4Enfant;
     @CodeTarifEnfant(codeTarif = "ENFANT_ADHERENT_4_ENFANT", type = TypeTarifEnum.ENFANT, adherent = true, nbEnfant = 4)
     private BigDecimal montantEnfant4EnfantAdherent;
