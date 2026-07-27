@@ -27,8 +27,10 @@ import org.mosqueethonon.tarif.v1.dto.InfoTarifDto;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 public class TestTarifAdminServiceImpl {
@@ -203,6 +205,102 @@ public class TestTarifAdminServiceImpl {
             Mockito.verify(tarifRepository).saveAll(tarifsSauvegardes.capture());
             assertEquals(1, tarifsSauvegardes.getValue().size());
             assertEquals(new BigDecimal("10"), existant.getMontant());
+        }
+    }
+
+    /**
+     * Le calcul d'un tarif d'inscription recherche les tarifs par le triplet
+     * (type, adherent, nbEnfant) et abandonne si aucun ne correspond. Les tarifs créés
+     * ici à partir des annotations de {@link InfoTarifDto} doivent donc couvrir toutes
+     * les combinaisons, une seule fois chacune.
+     */
+    @Nested
+    class QuandOnVerifieLaCoherenceDesTarifsEnfantCrees {
+
+        private List<TarifEntity> creerLesTarifs() {
+            givenPeriode("COURS_ENFANT");
+            when(tarifRepository.findByPeriodeId(ID_PERIODE)).thenReturn(Collections.emptyList());
+
+            underTest.saveInfoTarif(infoTarifEnfantComplet().build());
+
+            Mockito.verify(tarifRepository).saveAll(tarifsSauvegardes.capture());
+            return tarifsSauvegardes.getValue();
+        }
+
+        private TarifEntity tarifDuCode(List<TarifEntity> tarifs, String code) {
+            return tarifs.stream().filter(t -> code.equals(t.getCode())).findFirst()
+                    .orElseThrow(() -> new AssertionError("Aucun tarif créé pour le code " + code));
+        }
+
+        @Test
+        public void testLeTarifParEnfantPour4EnfantsEstDeTypeEnfant() {
+            // Régression historique : ce tarif était créé avec type=BASE. Aucun tarif
+            // (ENFANT, non adhérent, 4 enfants) n'existait alors en base, et le calcul du
+            // tarif d'une inscription à 4 enfants renvoyait null — inscription impossible.
+            // WHEN
+            TarifEntity tarif = tarifDuCode(creerLesTarifs(), "ENFANT_4_ENFANT");
+
+            // THEN
+            assertEquals(TypeTarifEnum.ENFANT, tarif.getType());
+            assertEquals(4, tarif.getNbEnfant());
+            assertEquals(Boolean.FALSE, tarif.getAdherent());
+        }
+
+        @Test
+        public void testLesQuatreTarifsDe4EnfantsSontCorrectementTypes() {
+            // WHEN
+            List<TarifEntity> tarifs = creerLesTarifs();
+
+            // THEN
+            assertEquals(TypeTarifEnum.BASE, tarifDuCode(tarifs, "BASE_4_ENFANT").getType());
+            assertEquals(TypeTarifEnum.BASE, tarifDuCode(tarifs, "BASE_ADHERENT_4_ENFANT").getType());
+            assertEquals(TypeTarifEnum.ENFANT, tarifDuCode(tarifs, "ENFANT_4_ENFANT").getType());
+            assertEquals(TypeTarifEnum.ENFANT, tarifDuCode(tarifs, "ENFANT_ADHERENT_4_ENFANT").getType());
+        }
+
+        @Test
+        public void testLesTarifsSontRepartisEnHuitBaseEtHuitParEnfant() {
+            // WHEN
+            List<TarifEntity> tarifs = creerLesTarifs();
+
+            // THEN
+            assertEquals(8, tarifs.stream().filter(t -> t.getType() == TypeTarifEnum.BASE).count());
+            assertEquals(8, tarifs.stream().filter(t -> t.getType() == TypeTarifEnum.ENFANT).count());
+        }
+
+        @Test
+        public void testChaqueCombinaisonRecherchableAuCalculExisteUneSeuleFois() {
+            // WHEN
+            List<TarifEntity> tarifs = creerLesTarifs();
+
+            // THEN — aucun doublon : sinon le tarif retenu au calcul devient arbitraire
+            Set<String> combinaisons = new HashSet<>();
+            for (TarifEntity tarif : tarifs) {
+                String combinaison = tarif.getType() + "|" + tarif.getAdherent() + "|" + tarif.getNbEnfant();
+                assertTrue(combinaisons.add(combinaison),
+                        "Deux tarifs partagent la combinaison " + combinaison + " (code " + tarif.getCode() + ")");
+            }
+
+            // THEN — et aucun trou : sinon le calcul renvoie null pour ce cas
+            for (TypeTarifEnum type : List.of(TypeTarifEnum.BASE, TypeTarifEnum.ENFANT)) {
+                for (Boolean adherent : List.of(Boolean.FALSE, Boolean.TRUE)) {
+                    for (int nbEnfant = 1; nbEnfant <= 4; nbEnfant++) {
+                        String combinaison = type + "|" + adherent + "|" + nbEnfant;
+                        assertTrue(combinaisons.contains(combinaison), "Combinaison de tarif absente : " + combinaison);
+                    }
+                }
+            }
+        }
+
+        @Test
+        public void testChaqueMontantSaisiAtterritSurUnSeulCodeTarif() {
+            // WHEN
+            List<TarifEntity> tarifs = creerLesTarifs();
+
+            // THEN
+            assertEquals(new BigDecimal("42"), tarifDuCode(tarifs, "ENFANT_4_ENFANT").getMontant());
+            assertEquals(new BigDecimal("40"), tarifDuCode(tarifs, "BASE_4_ENFANT").getMontant());
+            assertEquals(16, tarifs.stream().map(TarifEntity::getMontant).distinct().count());
         }
     }
 
