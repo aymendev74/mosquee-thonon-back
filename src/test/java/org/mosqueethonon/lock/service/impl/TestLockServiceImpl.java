@@ -40,22 +40,27 @@ public class TestLockServiceImpl {
     private static final String PROPRIETAIRE = "alice";
     private static final String AUTRE = "bob";
 
+    /**
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Les verrous manipulés ici s'expriment tous en écart par rapport à « maintenant » : le service et
+     * les fixtures doivent lire la même horloge, sinon un verrou actif peut paraître expiré du simple
+     * fait du fuseau de la machine qui exécute les tests.
+     */
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDateTime.of(2026, 3, 15, 10, 0).atZone(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDateTime.now(clock)}. */
+    private static final LocalDateTime MAINTENANT = LocalDateTime.now(HORLOGE_FIGEE);
+
     @Mock
     private LockRepository lockRepository;
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
 
-    /**
-     * Instant de référence figé. Les verrous manipulés ici s'expriment tous en écart par rapport à
-     * « maintenant » : les fixtures et le service doivent impérativement lire la même horloge, sinon
-     * un verrou actif peut paraître expiré du simple fait du fuseau de la machine qui exécute les tests.
-     */
-    private static final LocalDateTime MAINTENANT = LocalDateTime.of(2026, 3, 15, 10, 0);
-
     @Spy
-    private Clock clock = Clock.fixed(MAINTENANT.atZone(TimeConfiguration.ZONE_APPLICATION).toInstant(),
-            TimeConfiguration.ZONE_APPLICATION);
+    private Clock clock = HORLOGE_FIGEE;
 
     @InjectMocks
     private LockServiceImpl underTest;

@@ -100,12 +100,20 @@ public class TestInscriptionEnfantServiceImpl {
     private AsyncDocumentService asyncDocumentService;
     @Mock
     private DocumentRepository documentRepository;
-    /** Date de référence des tests : figée pour que les assertions sur « aujourd'hui » soient stables. */
-    private static final LocalDate AUJOURD_HUI = LocalDate.of(2026, 3, 15);
+    /**
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
+     * tests décale la comparaison d'un jour.
+     */
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDate.of(2026, 3, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */
+    private static final LocalDate AUJOURD_HUI = LocalDate.now(HORLOGE_FIGEE);
 
     @Spy
-    private Clock clock = Clock.fixed(AUJOURD_HUI.atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
-            TimeConfiguration.ZONE_APPLICATION);
+    private Clock clock = HORLOGE_FIGEE;
 
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;

@@ -38,15 +38,19 @@ public class TestParamServiceImpl {
     private ParamRepository paramRepository;
 
     /**
-     * Date de référence figée. Cette classe compare des dates d'ouverture à « aujourd'hui » :
-     * fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute
-     * les tests décale la comparaison d'un jour.
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
+     * tests décale la comparaison d'un jour.
      */
-    private static final LocalDate AUJOURD_HUI = LocalDate.of(2026, 3, 15);
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDate.of(2026, 3, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */
+    private static final LocalDate AUJOURD_HUI = LocalDate.now(HORLOGE_FIGEE);
 
     @Spy
-    private Clock clock = Clock.fixed(AUJOURD_HUI.atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
-            TimeConfiguration.ZONE_APPLICATION);
+    private Clock clock = HORLOGE_FIGEE;
 
     @InjectMocks
     private ParamServiceImpl underTest;
