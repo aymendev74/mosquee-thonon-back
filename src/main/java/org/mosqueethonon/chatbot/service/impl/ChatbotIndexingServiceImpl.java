@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,6 +34,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatbotIndexingServiceImpl implements ChatbotIndexingService {
+
+    private final Clock clock;
 
     private static final String README_FILE_NAME = "README.md";
 
@@ -169,7 +172,7 @@ public class ChatbotIndexingServiceImpl implements ChatbotIndexingService {
         String content = readFile(file);
 
         List<MarkdownSection> sections = MarkdownChunker.split(content);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
 
         return sections.stream()
                 .map(section -> ChatbotDocumentChunkEntity.builder()

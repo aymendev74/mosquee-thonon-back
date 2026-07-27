@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.inscription.entity.EleveEntity;
@@ -53,8 +54,10 @@ import org.mosqueethonon.inscription.v1.mapper.InscriptionEnfantMapperImpl;
 import org.mosqueethonon.inscription.v1.mapper.ResponsableLegalMapper;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +101,21 @@ public class TestInscriptionEnfantServiceImpl {
     private AsyncDocumentService asyncDocumentService;
     @Mock
     private DocumentRepository documentRepository;
+    /**
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
+     * tests décale la comparaison d'un jour.
+     */
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDate.of(2026, Month.MARCH, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */
+    private static final LocalDate AUJOURD_HUI = LocalDate.now(HORLOGE_FIGEE);
+
+    @Spy
+    private Clock clock = HORLOGE_FIGEE;
+
     @InjectMocks
     private InscriptionEnfantServiceImpl underTest;
 
@@ -257,7 +275,7 @@ public class TestInscriptionEnfantServiceImpl {
 
     private InscriptionEnfantEntity createInscriptionEntityWithDate(Integer nbEleves) {
         InscriptionEnfantEntity entity = createInscriptionEntity(nbEleves);
-        entity.setDateInscription(LocalDateTime.now());
+        entity.setDateInscription(LocalDateTime.now(clock));
         return entity;
     }
 
@@ -1172,7 +1190,7 @@ public class TestInscriptionEnfantServiceImpl {
         assertEquals(Incoherences.NO_INCOHERENCE, underTest.checkCoherence(99L, dto));
 
         verify(inscriptionEnfantRepository).findInscriptionsWithEleve(eq("Marie"), eq("Dupont"),
-                isNull(), eq(LocalDate.now()), eq(99L));
+                isNull(), eq(AUJOURD_HUI), eq(99L));
     }
 
     @Test

@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
 import java.time.LocalDate;
 
 @RestController
 @RequestMapping(path = "/v1/tarifs-inscription")
 public class TarifInscriptionController {
+
+    @Autowired
+    private Clock clock;
 
     @Autowired
     private TarifCalculService tarifCalculService;
@@ -38,7 +42,7 @@ public class TarifInscriptionController {
 
     @GetMapping(path = "/adulte")
     public ResponseEntity<TarifInscriptionAdulteDto> calculTarifInscriptionAdulte(@RequestParam("statutProfessionnel") StatutProfessionnelEnum statutPro) {
-        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(null, LocalDate.now(), statutPro);
+        TarifInscriptionAdulteDto tarif = this.tarifCalculService.calculTarifInscriptionAdulte(null, LocalDate.now(clock), statutPro);
         if(tarif == null) {
             return ResponseEntity.noContent().build();
         }

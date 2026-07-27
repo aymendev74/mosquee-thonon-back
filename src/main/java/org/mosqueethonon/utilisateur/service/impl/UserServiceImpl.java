@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
+
+    private Clock clock;
 
     private UtilisateurRepository userRepository;
 
@@ -111,7 +114,7 @@ public class UserServiceImpl implements UserService {
     public void saveLoginHistory(String username) {
         LoginHistoryEntity loginHistory = new LoginHistoryEntity();
         loginHistory.setUsername(username);
-        loginHistory.setDateConnexion(LocalDateTime.now());
+        loginHistory.setDateConnexion(LocalDateTime.now(clock));
         loginRepository.save(loginHistory);
     }
 

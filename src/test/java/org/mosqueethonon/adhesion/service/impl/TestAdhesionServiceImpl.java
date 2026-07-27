@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
@@ -29,6 +30,7 @@ import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapperImpl;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -67,6 +69,11 @@ public class TestAdhesionServiceImpl {
     @Mock
     private DocumentService documentService;
 
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
+
     @InjectMocks
     private AdhesionServiceImpl adhesionService;
 
@@ -86,7 +93,7 @@ public class TestAdhesionServiceImpl {
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
         adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
-        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setDateInscription(LocalDateTime.now(clock));
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
 
@@ -291,7 +298,7 @@ public class TestAdhesionServiceImpl {
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
         adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
-        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setDateInscription(LocalDateTime.now(clock));
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
         // documentRepository retourne empty (stub par défaut du @BeforeEach)

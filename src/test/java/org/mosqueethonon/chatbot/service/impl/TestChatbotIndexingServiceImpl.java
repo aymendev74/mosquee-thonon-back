@@ -9,10 +9,12 @@ import org.mosqueethonon.chatbot.config.ChatbotProperties;
 import org.mosqueethonon.chatbot.repository.ChatbotDocumentChunkRepository;
 import org.mosqueethonon.chatbot.repository.ChatbotIndexStateRepository;
 import org.mosqueethonon.chatbot.service.EmbeddingService;
+import org.mosqueethonon.common.config.TimeConfiguration;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 import java.util.OptionalInt;
 
@@ -74,8 +76,8 @@ public class TestChatbotIndexingServiceImpl {
         this.properties = ChatbotTestProperties.build();
         this.properties.setDocsPath(this.docsDir.toString());
 
-        this.underTest = new ChatbotIndexingServiceImpl(this.embeddingService, this.chunkRepository,
-                this.indexStateRepository, this.properties);
+        this.underTest = new ChatbotIndexingServiceImpl(Clock.system(TimeConfiguration.ZONE_APPLICATION),
+                this.embeddingService, this.chunkRepository, this.indexStateRepository, this.properties);
 
         stubEmbeddings();
     }

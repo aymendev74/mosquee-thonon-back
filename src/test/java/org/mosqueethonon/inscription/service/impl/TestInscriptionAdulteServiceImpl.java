@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.inscription.entity.EleveEntity;
 import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
@@ -102,6 +104,11 @@ public class TestInscriptionAdulteServiceImpl {
     @Mock
     private DocumentRepository documentRepository;
 
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
+
     @InjectMocks
     private InscriptionAdulteServiceImpl inscriptionAdulteService;
 
@@ -119,7 +126,7 @@ public class TestInscriptionAdulteServiceImpl {
 
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
-        inscriptionEntity.setDateInscription(LocalDateTime.now());
+        inscriptionEntity.setDateInscription(LocalDateTime.now(clock));
         inscriptionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         inscriptionEntity.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
@@ -236,8 +243,8 @@ public class TestInscriptionAdulteServiceImpl {
     public void testIsInscriptionOutsidePeriode() {
         // Arrange
         PeriodeDto periode = new PeriodeDto();
-        periode.setDateDebut(LocalDate.now().minusDays(1));
-        periode.setDateFin(LocalDate.now().plusDays(1));
+        periode.setDateDebut(LocalDate.now(clock).minusDays(1));
+        periode.setDateFin(LocalDate.now(clock).plusDays(1));
 
         when(inscriptionRepository.getNbInscriptionOutsideRange(anyLong(), any(LocalDate.class), any(LocalDate.class), anyString()))
                 .thenReturn(1);
@@ -562,7 +569,7 @@ public class TestInscriptionAdulteServiceImpl {
         // est fausse, donc requestDocumentGeneration ne doit pas être appelé.
         InscriptionAdulteEntity entityRefuse = new InscriptionAdulteEntity();
         entityRefuse.setId(1L);
-        entityRefuse.setDateInscription(java.time.LocalDateTime.now());
+        entityRefuse.setDateInscription(LocalDateTime.now(clock));
         entityRefuse.setStatut(StatutInscriptionEnum.REFUSE);
         entityRefuse.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiereRefuse = new InscriptionMatiereEntity();

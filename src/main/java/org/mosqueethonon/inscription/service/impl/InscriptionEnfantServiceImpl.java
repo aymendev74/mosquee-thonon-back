@@ -54,6 +54,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -64,6 +65,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Slf4j
 public class InscriptionEnfantServiceImpl extends CommonInscriptionService implements InscriptionEnfantService {
+
+    private Clock clock;
 
     private InscriptionEnfantRepository inscriptionEnfantRepository;
 
@@ -102,7 +105,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
             throw e;
         }
         // On lock la période en base pour gérer la liste d'attente lors des nouvelles inscriptions
-        this.lockPeriodeActive(LocalDate.now());
+        this.lockPeriodeActive(LocalDate.now(clock));
         inscription.normalize();
         InscriptionEnfantEntity entity = this.inscriptionEnfantMapper.fromDtoToEntity(inscription);
 
@@ -112,7 +115,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
 
         TarifInscriptionEnfantDto tarifs = this.doCalculTarifInscription(entity);
         this.computeStatutNewInscription(entity, tarifs.isListeAttente());
-        entity.setDateInscription(LocalDateTime.now());
+        entity.setDateInscription(LocalDateTime.now(clock));
         entity.setNoInscription(this.generateNoInscription());
         entity = this.inscriptionEnfantRepository.save(entity);
         DocumentRequestEntity documentRequest = null;
@@ -129,7 +132,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
     }
 
     private void lockPeriodeActive(LocalDate dateInscription) {
-        final LocalDate atDate = dateInscription != null ? dateInscription : LocalDate.now();
+        final LocalDate atDate = dateInscription != null ? dateInscription : LocalDate.now(clock);
         PeriodeEntity periode = this.periodeRepository.findByApplicationAndDateDebutLessThanEqualAndDateFinGreaterThanEqual(ApplicationTarifEnum.COURS_ENFANT.name(), atDate, atDate)
                 .orElseThrow(() -> new IllegalStateException("Aucune période active retrouvée - application : " + ApplicationTarifEnum.COURS_ENFANT.name() + " - date : " + atDate));
         this.periodeRepository.lockById(periode.getId());
@@ -254,7 +257,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
     }
 
     private Integer calculPositionAttente(InscriptionEnfantEntity inscription) {
-        LocalDate dateRefInscription = inscription.getDateInscription() != null ? inscription.getDateInscription().toLocalDate() : LocalDate.now();
+        LocalDate dateRefInscription = inscription.getDateInscription() != null ? inscription.getDateInscription().toLocalDate() : LocalDate.now(clock);
         Integer lastPosition = this.inscriptionEnfantRepository.getLastPositionAttente(dateRefInscription);
         return lastPosition != null ? ++lastPosition : 1;
     }
@@ -291,7 +294,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
 
     private String isAlreadyExistingEleves(Long idInscription, InscriptionEnfantDto inscriptionEnfantDto) {
         if (!CollectionUtils.isEmpty(inscriptionEnfantDto.getEleves())) {
-            LocalDateTime atDate = LocalDateTime.now();
+            LocalDateTime atDate = LocalDateTime.now(clock);
             if (idInscription != null) {
                 InscriptionEnfantEntity inscription = this.inscriptionEnfantRepository.findById(idInscription).orElse(null);
                 if (inscription != null) {
@@ -390,7 +393,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
                 "Les inscriptions/réinscriptions sont actuellement fermées !");
         Assert.notEmpty(reinscriptionDto.getEleves(), "Aucun élève sélectionné pour la réinscription");
 
-        this.lockPeriodeActive(LocalDate.now());
+        this.lockPeriodeActive(LocalDate.now(clock));
 
         String username = this.securityContext.getUser();
         Assert.state(username != null, "Aucun utilisateur connecté");
@@ -420,7 +423,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         InscriptionEnfantEntity nouvelleInscription = new InscriptionEnfantEntity();
         nouvelleInscription.setResponsableLegal(responsableLegal);
         nouvelleInscription.setIdUtilisateur(utilisateur.getId());
-        nouvelleInscription.setDateInscription(LocalDateTime.now());
+        nouvelleInscription.setDateInscription(LocalDateTime.now(clock));
 
         // Construire une map id -> niveau depuis le DTO
         Map<Long, NiveauScolaireEnum> niveauParEleve = reinscriptionDto.getEleves().stream()

@@ -13,8 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.context.SecurityContext;
 import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
@@ -32,6 +34,7 @@ import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -57,6 +60,11 @@ public class TestTarifCalculServiceImpl {
 
     @Mock
     private SecurityContext securityContext;
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private TarifCalculServiceImpl underTest;
@@ -309,7 +317,7 @@ public class TestTarifCalculServiceImpl {
 
             // WHEN
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> underTest.calculTarifInscriptionAdulte(404L, LocalDate.now(),
+                    () -> underTest.calculTarifInscriptionAdulte(404L, LocalDate.now(clock),
                             StatutProfessionnelEnum.ETUDIANT));
 
             // THEN

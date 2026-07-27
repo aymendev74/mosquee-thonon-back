@@ -16,8 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.security.ApplicationConfiguration;
 import org.mosqueethonon.lock.entity.LockEntity;
 import org.mosqueethonon.lock.enums.ResourceTypeEnum;
@@ -26,7 +28,9 @@ import org.mosqueethonon.lock.repository.LockRepository;
 import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,11 +41,27 @@ public class TestLockServiceImpl {
     private static final String PROPRIETAIRE = "alice";
     private static final String AUTRE = "bob";
 
+    /**
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Les verrous manipulés ici s'expriment tous en écart par rapport à « maintenant » : le service et
+     * les fixtures doivent lire la même horloge, sinon un verrou actif peut paraître expiré du simple
+     * fait du fuseau de la machine qui exécute les tests.
+     */
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDateTime.of(2026, Month.MARCH, 15, 10, 0).atZone(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDateTime.now(clock)}. */
+    private static final LocalDateTime MAINTENANT = LocalDateTime.now(HORLOGE_FIGEE);
+
     @Mock
     private LockRepository lockRepository;
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
+
+    @Spy
+    private Clock clock = HORLOGE_FIGEE;
 
     @InjectMocks
     private LockServiceImpl underTest;
@@ -53,15 +73,15 @@ public class TestLockServiceImpl {
 
     private LockEntity verrou(String proprietaire, LocalDateTime expiration) {
         return LockEntity.builder().resourceType(TYPE).resourceId(ID)
-                .lockedBy(proprietaire).lockedAt(LocalDateTime.now()).expiresAt(expiration).build();
+                .lockedBy(proprietaire).lockedAt(MAINTENANT).expiresAt(expiration).build();
     }
 
     private LockEntity verrouActif(String proprietaire) {
-        return verrou(proprietaire, LocalDateTime.now().plusMinutes(10));
+        return verrou(proprietaire, MAINTENANT.plusMinutes(10));
     }
 
     private LockEntity verrouExpire(String proprietaire) {
-        return verrou(proprietaire, LocalDateTime.now().minusMinutes(1));
+        return verrou(proprietaire, MAINTENANT.minusMinutes(1));
     }
 
     private void givenVerrou(LockEntity lock) {
@@ -88,7 +108,7 @@ public class TestLockServiceImpl {
             LockEntity saved = captor.getValue();
             assertEquals(TYPE, saved.getResourceType());
             assertEquals(ID, saved.getResourceId());
-            assertTrue(saved.getExpiresAt().isAfter(LocalDateTime.now().plusMinutes(29)),
+            assertTrue(saved.getExpiresAt().isAfter(MAINTENANT.plusMinutes(29)),
                     "l'expiration doit suivre le timeout configuré");
         }
 

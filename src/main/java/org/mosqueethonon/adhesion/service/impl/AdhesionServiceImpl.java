@@ -30,6 +30,7 @@ import org.mosqueethonon.adhesion.v1.mapper.AdhesionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,6 +38,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Service
 public class AdhesionServiceImpl implements AdhesionService {
+
+    private Clock clock;
 
     private AdhesionRepository adhesionRepository;
 
@@ -63,7 +66,7 @@ public class AdhesionServiceImpl implements AdhesionService {
         adhesionDto.normalize();
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         this.adhesionMapper.updateAdhesion(adhesionDto, adhesionEntity);
-        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setDateInscription(LocalDateTime.now(clock));
         adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         adhesionEntity = this.adhesionRepository.save(adhesionEntity);
         AdhesionDto resultAdhesionDto = this.adhesionMapper.fromEntityToDto(adhesionEntity);

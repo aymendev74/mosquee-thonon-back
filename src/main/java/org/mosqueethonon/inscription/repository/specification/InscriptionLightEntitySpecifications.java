@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.mosqueethonon.common.config.TimeConfiguration;
 
 public class InscriptionLightEntitySpecifications {
 
@@ -59,7 +60,7 @@ public class InscriptionLightEntitySpecifications {
             }
 
             if (criteria.getNbDerniersJours() != null) {
-                LocalDate fromDate = LocalDate.now().minusDays(criteria.getNbDerniersJours());
+                LocalDate fromDate = LocalDate.now(TimeConfiguration.ZONE_APPLICATION).minusDays(criteria.getNbDerniersJours());
                 predicatesOR.add(builder.greaterThanOrEqualTo(root.get("dateInscription"), fromDate));
             }
 

@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.chatbot.config.ChatbotProperties;
 import org.mosqueethonon.chatbot.entity.ChatbotConversationEntity;
 import org.mosqueethonon.chatbot.entity.ChatbotDocumentChunkEntity;
@@ -27,6 +28,7 @@ import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageResponseDto;
 import org.mosqueethonon.chatbot.v1.dto.ChatbotSourceDto;
 import org.mosqueethonon.chatbot.v1.mapper.ChatbotSourceMapper;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +77,11 @@ public class TestChatbotServiceImpl {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
+    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    @Spy
+    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private ChatbotServiceImpl underTest;

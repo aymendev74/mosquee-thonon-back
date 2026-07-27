@@ -9,8 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.common.config.TimeConfiguration;
 import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.param.entity.ParamEntity;
 import org.mosqueethonon.param.enums.ParamNameEnum;
@@ -21,7 +23,9 @@ import org.mosqueethonon.param.repository.ParamRepository;
 import org.mosqueethonon.param.v1.dto.ParamDto;
 import org.mosqueethonon.param.v1.dto.ParamsDto;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -33,6 +37,21 @@ public class TestParamServiceImpl {
 
     @Mock
     private ParamRepository paramRepository;
+
+    /**
+     * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
+     * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
+     * tests décale la comparaison d'un jour.
+     */
+    private static final Clock HORLOGE_FIGEE = Clock.fixed(
+            LocalDate.of(2026, Month.MARCH, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
+
+    /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */
+    private static final LocalDate AUJOURD_HUI = LocalDate.now(HORLOGE_FIGEE);
+
+    @Spy
+    private Clock clock = HORLOGE_FIGEE;
 
     @InjectMocks
     private ParamServiceImpl underTest;
@@ -65,7 +84,7 @@ public class TestParamServiceImpl {
         // GIVEN
         ParamEntity param = new ParamEntity();
         when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE))).thenReturn(param);
-        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now().plusDays(1));
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI.plusDays(1));
 
         // WHEN
         boolean isInscriptionEnabled = underTest.isInscriptionEnfantEnabled();
@@ -93,7 +112,7 @@ public class TestParamServiceImpl {
         // GIVEN
         ParamEntity param = new ParamEntity();
         when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE))).thenReturn(param);
-        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now().plusDays(1));
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI.plusDays(1));
 
         // WHEN
         boolean isInscriptionEnabled = underTest.isInscriptionAdulteEnabled();
@@ -147,7 +166,7 @@ public class TestParamServiceImpl {
             // GIVEN — cas limite : la date d'ouverture est aujourd'hui
             when(paramRepository.findByName(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE))
                     .thenReturn(new ParamEntity());
-            when(dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now());
+            when(dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI);
 
             // WHEN / THEN
             assertTrue(underTest.isInscriptionEnfantEnabled());

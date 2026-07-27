@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -30,6 +31,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class ParamServiceImpl implements ParamService {
+
+    private Clock clock;
 
     private ParamRepository paramRepository;
     private BooleanParamValueParser booleanParamValueParser;
@@ -115,13 +118,13 @@ public class ParamServiceImpl implements ParamService {
     @Override
     public boolean isInscriptionEnfantEnabled() {
         LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE);
-        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
+        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now(clock));
     }
 
     @Override
     public boolean isInscriptionAdulteEnabled() {
         LocalDate inscriptionEnabledFromDate = this.findParamAsLocalDate(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE);
-        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now());
+        return inscriptionEnabledFromDate != null && !inscriptionEnabledFromDate.isAfter(LocalDate.now(clock));
     }
 
     private boolean findParamAsBoolean(ParamNameEnum paramName) {
