@@ -1,0 +1,45 @@
+package org.mosqueethonon.inscription.v1.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.mosqueethonon.common.config.APIDateFormats;
+import org.mosqueethonon.referentiel.enums.MatiereEnum;
+import org.mosqueethonon.referentiel.enums.NiveauInterneEnum;
+import org.mosqueethonon.inscription.enums.SexeEnum;
+import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.common.util.StringUtils;
+import org.mosqueethonon.mail.dto.IMailObject;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+public class InscriptionAdulteDto implements IMailObject {
+
+    private Long idDocument;
+    private String nom;
+    private String prenom;
+    private String email;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
+    private LocalDate dateNaissance;
+    private String mobile;
+    private String numeroEtRue;
+    private Integer codePostal;
+    private String ville;
+    private StatutInscriptionEnum statut;
+    private BigDecimal montantTotal;
+    private NiveauInterneEnum niveauInterne;
+    private SexeEnum sexe;
+    private String anneeScolaire;
+    private StatutProfessionnelEnum statutProfessionnel;
+    private List<MatiereEnum> matieres;
+
+    public void normalize() {
+        this.nom = StringUtils.normalize(nom);
+        this.prenom = StringUtils.normalize(prenom);
+    }
+}

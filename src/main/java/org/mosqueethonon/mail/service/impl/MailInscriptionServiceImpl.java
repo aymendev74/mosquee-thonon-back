@@ -1,0 +1,44 @@
+package org.mosqueethonon.mail.service.impl;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.mail.dto.MailDto;
+import org.mosqueethonon.inscription.entity.InfoMailInscriptionEntity;
+import org.mosqueethonon.inscription.repository.InfoMailInscriptionRepository;
+import org.mosqueethonon.mail.service.MailService;
+import org.mosqueethonon.referentiel.service.TraductionService;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
+@Service(MailInscriptionServiceImpl.MAIL_INSCRIPTION_SERVICE)
+@Slf4j
+@AllArgsConstructor
+public class MailInscriptionServiceImpl implements MailService {
+
+    public static final String MAIL_INSCRIPTION_SERVICE = "MAIL_INSCRIPTION_SERVICE";
+
+    private InfoMailInscriptionRepository infoMailInscriptionRepository;
+
+    private TraductionService traductionService;
+
+    @Override
+    public MailDto createMail(Long idInscription) {
+        log.info("Création du contenu du mail pour l'inscription idinsc = {}", idInscription);
+        InfoMailInscriptionEntity infoMail = this.infoMailInscriptionRepository.findById(idInscription).orElse(null);
+        if(infoMail == null) {
+            log.error("Pas de données (infos mail) pour l'inscription idinsc = {}", idInscription);
+            return null;
+        }
+        String bodyKey = "mail_inscription_" + infoMail.getStatut().name().toLowerCase();
+        String subject = this.traductionService.findTraductionByCleAndValeur("mail_inscription", "subject").getFr();
+        String bodyTemplate = this.traductionService.findTraductionByCleAndValeur(bodyKey, "body").getFr();
+        String body = bodyTemplate
+                .replace("@@{prenom}", infoMail.getPrenom())
+                .replace("@@{nom}", infoMail.getNom())
+                .replace("@@{noInscription}", infoMail.getNoInscription());
+
+        return new MailDto().subject(subject).body(body).recipientEmail(infoMail.getEmail());
+    }
+
+}

@@ -1,0 +1,36 @@
+package org.mosqueethonon.adhesion.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "v_adhesion_light", schema = "moth")
+@Data
+public class AdhesionLightEntity {
+
+    @Column(name = "id")
+    @Id
+    private Long id;
+    @Column(name = "nom")
+    private String nom;
+    @Column(name = "prenom")
+    private String prenom;
+    @Column(name = "ville")
+    private String ville;
+    @Column(name = "statut")
+    @Enumerated(EnumType.STRING)
+    private StatutInscriptionEnum statut;
+    @Column(name = "montant")
+    private BigDecimal montant;
+    @Column(name = "dateinscription")
+    private LocalDateTime dateInscription;
+    @Column(name = "iddocument")
+    private Long idDocument;
+    @Column(name = "documentpending")
+    private Boolean documentPending;
+
+}

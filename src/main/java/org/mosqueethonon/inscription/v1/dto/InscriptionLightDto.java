@@ -1,0 +1,40 @@
+package org.mosqueethonon.inscription.v1.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import org.mosqueethonon.common.config.APIDateFormats;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Data
+public class InscriptionLightDto {
+
+    private Long id;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
+    private LocalDateTime dateInscription;
+    private Long idInscription;
+    private String nom;
+    private String prenom;
+    private String nomResponsableLegal;
+    private String prenomResponsableLegal;
+    private String nomContactUrgence;
+    private String prenomContactUrgence;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
+    private LocalDate dateNaissance;
+    private String niveau;
+    private String niveauInterne;
+    private String mobile;
+    private String mobileContactUrgence;
+    private Boolean autorisationAutonomie;
+    private Boolean autorisationMedia;
+    private StatutInscriptionEnum statut;
+    private String ville;
+    private String noInscription;
+    private Boolean reinscription;
+    private String email;
+    private Long idDocument;
+    private Boolean documentPending;
+
+}

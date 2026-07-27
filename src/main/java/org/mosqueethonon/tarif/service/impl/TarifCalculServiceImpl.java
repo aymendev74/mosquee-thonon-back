@@ -1,0 +1,117 @@
+package org.mosqueethonon.tarif.service.impl;
+
+import lombok.AllArgsConstructor;
+import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEntity;
+import org.mosqueethonon.tarif.enums.ApplicationTarifEnum;
+import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
+import org.mosqueethonon.inscription.enums.TypeInscriptionEnum;
+import org.mosqueethonon.tarif.enums.TypeTarifEnum;
+import org.mosqueethonon.inscription.repository.InscriptionAdulteRepository;
+import org.mosqueethonon.inscription.repository.InscriptionRepository;
+import org.mosqueethonon.common.security.context.SecurityContext;
+import org.mosqueethonon.param.service.ParamService;
+import org.mosqueethonon.tarif.service.TarifCalculService;
+import org.mosqueethonon.tarif.service.TarifService;
+import org.mosqueethonon.tarif.criteria.TarifCriteria;
+import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantInfosDto;
+import org.mosqueethonon.referentiel.v1.dto.PeriodeInfoDto;
+import org.mosqueethonon.tarif.v1.dto.TarifDto;
+import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
+import org.mosqueethonon.tarif.v1.dto.TarifInscriptionEnfantDto;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class TarifCalculServiceImpl implements TarifCalculService {
+
+    private TarifService tarifService;
+    private InscriptionRepository inscriptionRepository;
+    private InscriptionAdulteRepository inscriptionAdulteRepository;
+
+    private ParamService paramService;
+
+    private SecurityContext securityContext;
+
+    @Override
+    @Transactional
+    public TarifInscriptionEnfantDto calculTarifInscriptionEnfant(Long id, InscriptionEnfantInfosDto inscriptionInfos) {
+        // Uniquement hors mode admin, si les inscriptions sont désactivées, on ne va pas plus loin
+        if(!this.securityContext.isAdmin()) {
+            boolean isInscriptionEnabled = this.paramService.isInscriptionEnfantEnabled();
+            if(!isInscriptionEnabled) {
+                return null;
+            }
+        }
+
+        // Par défaut date du jour
+        LocalDate atDate = LocalDate.now();
+        if(id != null) {
+            InscriptionEntity inscription = this.inscriptionRepository.findById(id).orElse(null);
+            if(inscription == null) {
+                throw new IllegalArgumentException("Inscription non trouvée ! idinsc = " + id);
+            }
+            atDate = inscription.getDateInscription().toLocalDate();
+        }
+
+        Boolean adherent = inscriptionInfos.getAdherent();
+        Integer nbEnfants = inscriptionInfos.getNbEleves();
+
+        // Calcul du tarif de base
+        TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ENFANT.name())
+                .type(TypeTarifEnum.BASE).adherent(adherent)
+                .nbEnfant(nbEnfants).atDate(atDate).build();
+        List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
+        if(CollectionUtils.isEmpty(tarifsBase)) {
+            // Si pas de tarif base trouvé, alors on ne peut pas donner de tarif à l'utilisateur
+            return null;
+        }
+
+        // Calcul du tarif par enfant
+        criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ENFANT.name())
+                .type(TypeTarifEnum.ENFANT).adherent(adherent)
+                .nbEnfant(nbEnfants).atDate(atDate).build();
+        List<TarifDto> tarifsEnfant = this.tarifService.findTarifByCriteria(criteria);
+        if(CollectionUtils.isEmpty(tarifsEnfant)) {
+            // Si pas de tarif enfant trouvé, alors on ne peut pas donner de tarif à l'utilisateur
+            return null;
+        }
+
+        // On va aller calculer si le nombre d'élèves maximum sur la période risque d'être atteint
+        // afin d'avertir l'utilisateur
+        TarifDto tarifBase = tarifsBase.get(0);
+        TarifDto tarifEnfant = tarifsEnfant.get(0);
+        PeriodeInfoDto periode = tarifEnfant.getPeriode();
+        Integer nbElevesInscrits = this.inscriptionRepository.getNbElevesInscritsByIdPeriode(periode.getId(), TypeInscriptionEnum.ENFANT.name());
+        boolean isListeAttente = nbEnfants + nbElevesInscrits > periode.getNbMaxInscription();
+
+        return TarifInscriptionEnfantDto.builder().tarifBase(tarifBase.getMontant()).idTariBase(tarifBase.getId())
+                .tarifEleve(tarifEnfant.getMontant()).idTariEleve(tarifEnfant.getId())
+                .listeAttente(isListeAttente).build();
+    }
+
+    @Override
+    public TarifInscriptionAdulteDto calculTarifInscriptionAdulte(Long id, LocalDate atDate, StatutProfessionnelEnum statutPro) {
+        if(id != null) {
+            InscriptionAdulteEntity entity = this.inscriptionAdulteRepository.findById(id).orElse(null);
+            if(entity == null) {
+                throw new IllegalArgumentException("Inscription non trouvée ! idinsc = " + id);
+            }
+            atDate = entity.getDateInscription().toLocalDate();
+        }
+
+        TarifCriteria criteria = TarifCriteria.builder().application(ApplicationTarifEnum.COURS_ADULTE.name())
+                .type(TypeTarifEnum.valueOf(statutPro.name())).atDate(atDate).build();
+        List<TarifDto> tarifsBase = this.tarifService.findTarifByCriteria(criteria);
+        if(!CollectionUtils.isEmpty(tarifsBase)) {
+            TarifDto tarif = tarifsBase.get(0);
+            return TarifInscriptionAdulteDto.builder().idTari(tarif.getId()).tarif(tarif.getMontant()).build();
+        }
+        return null;
+    }
+}

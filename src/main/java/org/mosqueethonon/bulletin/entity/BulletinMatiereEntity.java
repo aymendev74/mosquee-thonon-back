@@ -1,0 +1,39 @@
+package org.mosqueethonon.bulletin.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
+import org.mosqueethonon.referentiel.entity.MatiereEntity;
+import org.mosqueethonon.bulletin.enums.NoteMatiereEnum;
+
+@Entity
+@EntityListeners(EntityListener.class)
+@Table(name = "bulletin_matiere", schema = "moth")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class BulletinMatiereEntity implements Auditable {
+
+    @Id
+    @Column(name = "idbuma")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne
+    @JoinColumn(name = "idmati")
+    private MatiereEntity matiere;
+    @Column(name = "cdbumanote")
+    @Enumerated(EnumType.STRING)
+    private NoteMatiereEnum note;
+    @Column(name = "txbumaremarque")
+    private String remarque;
+    @Embedded
+    private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
+
+}

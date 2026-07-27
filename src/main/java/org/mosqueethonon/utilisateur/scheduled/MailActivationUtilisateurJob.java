@@ -1,0 +1,99 @@
+package org.mosqueethonon.utilisateur.scheduled;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mosqueethonon.common.security.ApplicationConfiguration;
+import org.mosqueethonon.utilisateur.entity.UserAccountActionEntity;
+import org.mosqueethonon.utilisateur.entity.UtilisateurEntity;
+import org.mosqueethonon.mail.enums.MailRequestStatutEnum;
+import org.mosqueethonon.common.exception.ResourceNotFoundException;
+import org.mosqueethonon.utilisateur.enums.UserAccountActionTypeEnum;
+import org.mosqueethonon.utilisateur.repository.UserAccountActionRepository;
+import org.mosqueethonon.utilisateur.repository.UtilisateurRepository;
+import org.mosqueethonon.param.service.ParamService;
+import org.mosqueethonon.referentiel.service.TraductionService;
+import org.mosqueethonon.referentiel.v1.dto.TraductionDto;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class MailActivationUtilisateurJob {
+
+    private ParamService paramService;
+
+    private JavaMailSender emailSender;
+
+    private TraductionService traductionService;
+
+    private UserAccountActionRepository userAccountActionRepository;
+
+    private UtilisateurRepository utilisateurRepository;
+
+    private ApplicationConfiguration applicationConfiguration;
+
+    @Scheduled(fixedDelayString = "${scheduled.activation-utilisateur-mail}", timeUnit = TimeUnit.SECONDS)
+    @Transactional
+    public void sendPendingEmailsActivation() {
+        List<UserAccountActionEntity> mailingActivationsToProcess = userAccountActionRepository.findByStatutAndTypeOrderBySignatureDateCreationAsc(MailRequestStatutEnum.PENDING, UserAccountActionTypeEnum.ACTIVATION);
+        if (!CollectionUtils.isEmpty(mailingActivationsToProcess)) {
+            log.info("Il y a {} mails d'activation de compte à envoyer", mailingActivationsToProcess.size());
+            for (UserAccountActionEntity accountAction : mailingActivationsToProcess) {
+                MailRequestStatutEnum statut;
+                try {
+                    statut = this.processMail(accountAction);
+                } catch (Exception e) {
+                    log.error("Problème lors de l'envoi du mail d'activation pour l'utilisateur {}", accountAction.getUsername(), e);
+                    statut = MailRequestStatutEnum.ERROR;
+                }
+                accountAction.setStatut(statut);
+                userAccountActionRepository.save(accountAction);
+            }
+        }
+    }
+
+    private MailRequestStatutEnum processMail(UserAccountActionEntity accountAction) throws MessagingException {
+        // Si envoi des mails désactivé, on n'envoi pas le mail d'activation
+        boolean isSendEmailDisabled = !this.paramService.isSendEmailEnabled();
+        if (isSendEmailDisabled) {
+            return MailRequestStatutEnum.IGNORED;
+        }
+
+        UtilisateurEntity utilisateur = this.utilisateurRepository.findByUsername(accountAction.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé - username + " + accountAction.getUsername()));
+        String subject = this.traductionService.findTraductionByCleAndValeur("mail_activation", "subject").getFr();
+        TraductionDto bodyTemplate = this.traductionService.findTraductionByCleAndValeur("mail_activation", "body");
+
+        // On remplace les placeholders par les valeurs réelles
+        String urlActivation = new StringBuilder(this.applicationConfiguration.getActivationUtilisateurUri())
+                .append("?")
+                .append("token=")
+                .append(accountAction.getToken())
+                .toString();
+        String username = utilisateur.getPrenom() != null ? utilisateur.getPrenom() : utilisateur.getUsername();
+        String body = bodyTemplate.getFr().replace("@@{username}", username)
+                .replace("@@{activationUrl}", urlActivation);
+
+        MimeMessage message = this.emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(utilisateur.getEmail());
+        helper.setSubject(subject);
+        helper.setText(body, true); // true = HTML
+
+        emailSender.send(message);
+
+        return MailRequestStatutEnum.SENT;
+    }
+
+}

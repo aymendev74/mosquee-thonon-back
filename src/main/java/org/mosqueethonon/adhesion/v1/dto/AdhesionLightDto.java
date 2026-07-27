@@ -1,0 +1,24 @@
+package org.mosqueethonon.adhesion.v1.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import org.mosqueethonon.common.config.APIDateFormats;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+public class AdhesionLightDto {
+
+    private Long id;
+    private String nom;
+    private String prenom;
+    private String ville;
+    private StatutInscriptionEnum statut;
+    private BigDecimal montant;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_TIME_FORMAT)
+    private LocalDateTime dateInscription;
+    private Long idDocument;
+    private Boolean documentPending;
+
+}

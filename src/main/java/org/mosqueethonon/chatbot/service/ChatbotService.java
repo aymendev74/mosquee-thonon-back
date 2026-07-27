@@ -1,8 +1,8 @@
 package org.mosqueethonon.chatbot.service;
 
 import org.mosqueethonon.chatbot.enums.ChatbotFeedbackEnum;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageRequestDto;
-import org.mosqueethonon.v1.dto.chatbot.ChatbotMessageResponseDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageRequestDto;
+import org.mosqueethonon.chatbot.v1.dto.ChatbotMessageResponseDto;
 
 public interface ChatbotService {
 

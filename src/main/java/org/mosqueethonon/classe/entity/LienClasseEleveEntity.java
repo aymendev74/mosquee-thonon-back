@@ -1,0 +1,35 @@
+package org.mosqueethonon.classe.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.mosqueethonon.common.audit.Auditable;
+import org.mosqueethonon.common.audit.EntityListener;
+import org.mosqueethonon.common.audit.Signature;
+import org.mosqueethonon.inscription.entity.EleveEntity;
+
+@Entity
+@EntityListeners(EntityListener.class)
+@Table(name = "lien_classe_eleve", schema = "moth")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class LienClasseEleveEntity implements Auditable {
+
+    @Id
+    @Column(name = "idlcel")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne
+    @JoinColumn(name = "idelev")
+    private EleveEntity eleve;
+    @Embedded
+    private Signature signature;
+    @Version
+    @Column(name = "oh_version")
+    private Long version;
+
+}

@@ -1,0 +1,42 @@
+package org.mosqueethonon.adhesion.v1.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.mosqueethonon.common.config.APIDateFormats;
+import org.mosqueethonon.common.util.StringUtils;
+import org.mosqueethonon.mail.dto.IMailObject;
+import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Data
+@SuperBuilder
+@NoArgsConstructor
+public class AdhesionDto implements IMailObject {
+
+    private Long id;
+    private Long idDocument;
+    private String titre;
+    private String nom;
+    private String prenom;
+    private String email;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = APIDateFormats.DATE_FORMAT)
+    private LocalDate dateNaissance;
+    private Long idTarif;
+    private String mobile;
+    private String numeroEtRue;
+    private Integer codePostal;
+    private String ville;
+    private BigDecimal montantAutre;
+    private StatutInscriptionEnum statut;
+    private BigDecimal montant;
+    private Integer noMembre;
+
+    public void normalize() {
+        this.setNom(StringUtils.normalize(this.getNom()));
+        this.setPrenom(StringUtils.normalize(this.getPrenom()));
+    }
+}
