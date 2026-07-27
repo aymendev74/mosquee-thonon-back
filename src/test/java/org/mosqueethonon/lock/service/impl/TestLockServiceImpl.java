@@ -46,10 +46,16 @@ public class TestLockServiceImpl {
     @Mock
     private ApplicationConfiguration applicationConfiguration;
 
-    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
-    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    /**
+     * Instant de référence figé. Les verrous manipulés ici s'expriment tous en écart par rapport à
+     * « maintenant » : les fixtures et le service doivent impérativement lire la même horloge, sinon
+     * un verrou actif peut paraître expiré du simple fait du fuseau de la machine qui exécute les tests.
+     */
+    private static final LocalDateTime MAINTENANT = LocalDateTime.of(2026, 3, 15, 10, 0);
+
     @Spy
-    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
+    private Clock clock = Clock.fixed(MAINTENANT.atZone(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private LockServiceImpl underTest;
@@ -61,15 +67,15 @@ public class TestLockServiceImpl {
 
     private LockEntity verrou(String proprietaire, LocalDateTime expiration) {
         return LockEntity.builder().resourceType(TYPE).resourceId(ID)
-                .lockedBy(proprietaire).lockedAt(LocalDateTime.now()).expiresAt(expiration).build();
+                .lockedBy(proprietaire).lockedAt(MAINTENANT).expiresAt(expiration).build();
     }
 
     private LockEntity verrouActif(String proprietaire) {
-        return verrou(proprietaire, LocalDateTime.now().plusMinutes(10));
+        return verrou(proprietaire, MAINTENANT.plusMinutes(10));
     }
 
     private LockEntity verrouExpire(String proprietaire) {
-        return verrou(proprietaire, LocalDateTime.now().minusMinutes(1));
+        return verrou(proprietaire, MAINTENANT.minusMinutes(1));
     }
 
     private void givenVerrou(LockEntity lock) {
@@ -96,7 +102,7 @@ public class TestLockServiceImpl {
             LockEntity saved = captor.getValue();
             assertEquals(TYPE, saved.getResourceType());
             assertEquals(ID, saved.getResourceId());
-            assertTrue(saved.getExpiresAt().isAfter(LocalDateTime.now().plusMinutes(29)),
+            assertTrue(saved.getExpiresAt().isAfter(MAINTENANT.plusMinutes(29)),
                     "l'expiration doit suivre le timeout configuré");
         }
 

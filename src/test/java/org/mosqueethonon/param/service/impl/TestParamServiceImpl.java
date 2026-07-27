@@ -37,10 +37,16 @@ public class TestParamServiceImpl {
     @Mock
     private ParamRepository paramRepository;
 
-    // Horloge réelle sur le fuseau de l'application : comportement identique à avant
-    // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
+    /**
+     * Date de référence figée. Cette classe compare des dates d'ouverture à « aujourd'hui » :
+     * fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute
+     * les tests décale la comparaison d'un jour.
+     */
+    private static final LocalDate AUJOURD_HUI = LocalDate.of(2026, 3, 15);
+
     @Spy
-    private Clock clock = Clock.system(TimeConfiguration.ZONE_APPLICATION);
+    private Clock clock = Clock.fixed(AUJOURD_HUI.atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            TimeConfiguration.ZONE_APPLICATION);
 
     @InjectMocks
     private ParamServiceImpl underTest;
@@ -73,7 +79,7 @@ public class TestParamServiceImpl {
         // GIVEN
         ParamEntity param = new ParamEntity();
         when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE))).thenReturn(param);
-        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now().plusDays(1));
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI.plusDays(1));
 
         // WHEN
         boolean isInscriptionEnabled = underTest.isInscriptionEnfantEnabled();
@@ -101,7 +107,7 @@ public class TestParamServiceImpl {
         // GIVEN
         ParamEntity param = new ParamEntity();
         when(this.paramRepository.findByName(Mockito.eq(ParamNameEnum.INSCRIPTION_ADULTE_ENABLED_FROM_DATE))).thenReturn(param);
-        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now().plusDays(1));
+        when(this.dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI.plusDays(1));
 
         // WHEN
         boolean isInscriptionEnabled = underTest.isInscriptionAdulteEnabled();
@@ -155,7 +161,7 @@ public class TestParamServiceImpl {
             // GIVEN — cas limite : la date d'ouverture est aujourd'hui
             when(paramRepository.findByName(ParamNameEnum.INSCRIPTION_ENFANT_ENABLED_FROM_DATE))
                     .thenReturn(new ParamEntity());
-            when(dateParamValueParser.getValue(Mockito.any())).thenReturn(LocalDate.now());
+            when(dateParamValueParser.getValue(Mockito.any())).thenReturn(AUJOURD_HUI);
 
             // WHEN / THEN
             assertTrue(underTest.isInscriptionEnfantEnabled());

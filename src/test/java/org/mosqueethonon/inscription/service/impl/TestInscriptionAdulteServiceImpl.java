@@ -126,7 +126,7 @@ public class TestInscriptionAdulteServiceImpl {
 
         inscriptionEntity = new InscriptionAdulteEntity();
         inscriptionEntity.setId(1L);
-        inscriptionEntity.setDateInscription(LocalDateTime.now());
+        inscriptionEntity.setDateInscription(LocalDateTime.now(clock));
         inscriptionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
         inscriptionEntity.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiere = new InscriptionMatiereEntity();
@@ -243,8 +243,8 @@ public class TestInscriptionAdulteServiceImpl {
     public void testIsInscriptionOutsidePeriode() {
         // Arrange
         PeriodeDto periode = new PeriodeDto();
-        periode.setDateDebut(LocalDate.now().minusDays(1));
-        periode.setDateFin(LocalDate.now().plusDays(1));
+        periode.setDateDebut(LocalDate.now(clock).minusDays(1));
+        periode.setDateFin(LocalDate.now(clock).plusDays(1));
 
         when(inscriptionRepository.getNbInscriptionOutsideRange(anyLong(), any(LocalDate.class), any(LocalDate.class), anyString()))
                 .thenReturn(1);
@@ -569,7 +569,7 @@ public class TestInscriptionAdulteServiceImpl {
         // est fausse, donc requestDocumentGeneration ne doit pas être appelé.
         InscriptionAdulteEntity entityRefuse = new InscriptionAdulteEntity();
         entityRefuse.setId(1L);
-        entityRefuse.setDateInscription(java.time.LocalDateTime.now());
+        entityRefuse.setDateInscription(LocalDateTime.now(clock));
         entityRefuse.setStatut(StatutInscriptionEnum.REFUSE);
         entityRefuse.setResponsableLegal(new ResponsableLegalEntity());
         InscriptionMatiereEntity inscriptionMatiereRefuse = new InscriptionMatiereEntity();

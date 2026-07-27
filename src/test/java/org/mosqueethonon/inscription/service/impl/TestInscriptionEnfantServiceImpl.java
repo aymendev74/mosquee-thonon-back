@@ -266,7 +266,7 @@ public class TestInscriptionEnfantServiceImpl {
 
     private InscriptionEnfantEntity createInscriptionEntityWithDate(Integer nbEleves) {
         InscriptionEnfantEntity entity = createInscriptionEntity(nbEleves);
-        entity.setDateInscription(LocalDateTime.now());
+        entity.setDateInscription(LocalDateTime.now(clock));
         return entity;
     }
 

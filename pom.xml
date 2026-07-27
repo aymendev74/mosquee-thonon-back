@@ -26,6 +26,8 @@
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
         <logback.version>1.5.15</logback.version> <!-- Temporaire =>  vulnerable transitive version 1.5.12 -->
         <openhtmltopdf.version>1.0.10</openhtmltopdf.version>
+        <!-- Valeur par défaut complétée par l'agent jacoco (prepare-agent) puis par surefire. -->
+        <argLine></argLine>
     </properties>
 
     <scm>
@@ -220,6 +222,21 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <goals>install</goals>
                     <tagNameFormat>@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--
+                        Les tests tournent sur un fuseau fixe, volontairement différent d'Europe/Paris
+                        (le fuseau applicatif, cf. TimeConfiguration). Toute fixture de test qui lirait
+                        l'heure via le fuseau par défaut de la JVM au lieu de l'horloge injectée devient
+                        ainsi incohérente avec le code testé et échoue immédiatement, sur toutes les
+                        machines — plutôt que seulement sur les runners CI, qui sont en UTC.
+                        @{argLine} conserve l'agent positionné par jacoco.
+                    -->
+                    <argLine>@{argLine} -Duser.timezone=UTC</argLine>
                 </configuration>
             </plugin>
             <plugin>

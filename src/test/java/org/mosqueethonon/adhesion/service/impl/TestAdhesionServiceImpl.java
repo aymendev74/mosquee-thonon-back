@@ -93,7 +93,7 @@ public class TestAdhesionServiceImpl {
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
         adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
-        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setDateInscription(LocalDateTime.now(clock));
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
 
@@ -298,7 +298,7 @@ public class TestAdhesionServiceImpl {
         AdhesionEntity adhesionEntity = new AdhesionEntity();
         adhesionEntity.setId(1L);
         adhesionEntity.setStatut(StatutInscriptionEnum.PROVISOIRE);
-        adhesionEntity.setDateInscription(LocalDateTime.now());
+        adhesionEntity.setDateInscription(LocalDateTime.now(clock));
 
         when(adhesionRepository.save(any())).thenReturn(adhesionEntity);
         // documentRepository retourne empty (stub par défaut du @BeforeEach)

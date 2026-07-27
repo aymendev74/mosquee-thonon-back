@@ -317,7 +317,7 @@ public class TestTarifCalculServiceImpl {
 
             // WHEN
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> underTest.calculTarifInscriptionAdulte(404L, LocalDate.now(),
+                    () -> underTest.calculTarifInscriptionAdulte(404L, LocalDate.now(clock),
                             StatutProfessionnelEnum.ETUDIANT));
 
             // THEN
