@@ -57,6 +57,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class TestInscriptionEnfantServiceImpl {
      * tests décale la comparaison d'un jour.
      */
     private static final Clock HORLOGE_FIGEE = Clock.fixed(
-            LocalDate.of(2026, 3, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            LocalDate.of(2026, Month.MARCH, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
             TimeConfiguration.ZONE_APPLICATION);
 
     /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */

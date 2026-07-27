@@ -25,6 +25,7 @@ import org.mosqueethonon.param.v1.dto.ParamsDto;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class TestParamServiceImpl {
      * tests décale la comparaison d'un jour.
      */
     private static final Clock HORLOGE_FIGEE = Clock.fixed(
-            LocalDate.of(2026, 3, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
+            LocalDate.of(2026, Month.MARCH, 15).atStartOfDay(TimeConfiguration.ZONE_APPLICATION).toInstant(),
             TimeConfiguration.ZONE_APPLICATION);
 
     /** Ce que le service obtient lorsqu'il appelle {@code LocalDate.now(clock)}. */
