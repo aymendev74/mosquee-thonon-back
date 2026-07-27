@@ -21,6 +21,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mosqueethonon.classe.entity.ClasseActiviteEntity;
 import org.mosqueethonon.classe.entity.ClasseEntity;
+import org.mosqueethonon.classe.entity.ClasseFeuillePresenceEntity;
+import org.mosqueethonon.classe.entity.EleveFeuillePresenceEntity;
+import org.mosqueethonon.classe.entity.FeuillePresenceEntity;
 import org.mosqueethonon.classe.entity.LienClasseEleveEntity;
 import org.mosqueethonon.classe.entity.LienClasseEnseignantEntity;
 import org.mosqueethonon.classe.enums.JourActiviteEnum;
@@ -228,6 +231,22 @@ public class TestClasseServiceImpl {
             // THEN
             assertNull(capturerClassesCreees().get(0).getActivites().get(0).getJour());
         }
+
+        @Test
+        public void testIgnoreUneClasseDeLAnneePrecedenteOuLEleveNestPas() {
+            // GIVEN — la classe de l'an dernier existe et a des élèves, mais aucun ne correspond
+            EleveEntity autreEleve = eleve(9L, "Martin", NiveauInterneEnum.P1);
+            when(eleveRepository.findElevesEnfantByAnneeScolaire(ANNEE_DEBUT, ANNEE_FIN, true))
+                    .thenReturn(List.of(eleve(1L, "Dupont", NiveauInterneEnum.P1)));
+            when(classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(ANNEE_DEBUT - 1, ANNEE_FIN - 1))
+                    .thenReturn(List.of(classeAvecEleves(77L, JourActiviteEnum.DIMANCHE_MATIN, autreEleve)));
+
+            // WHEN
+            underTest.createClasses(criteresCreation(10));
+
+            // THEN — élève considéré comme nouveau, aucun jour d'activité reconduit
+            assertNull(capturerClassesCreees().get(0).getActivites().get(0).getJour());
+        }
     }
 
     @Nested
@@ -328,6 +347,109 @@ public class TestClasseServiceImpl {
 
             // THEN
             assertTrue(exception.getMessage().contains("404"));
+        }
+
+        @Test
+        public void testAppliqueLesModificationsEtResynchroniseLesNiveaux() {
+            // GIVEN
+            EleveEntity sansNiveau = eleve(1L, "A", null);
+            ClasseEntity entity = classeAvecEleves(5L, JourActiviteEnum.SAMEDI_MATIN, sansNiveau);
+            entity.setNiveau(NiveauInterneEnum.N1_1);
+            entity.setFeuillesPresences(new ArrayList<>());
+            ClasseDto dto = new ClasseDto();
+            when(classeRepository.findById(5L)).thenReturn(Optional.of(entity));
+            when(eleveRepository.findById(1L)).thenReturn(Optional.of(sansNiveau));
+            when(classeRepository.save(entity)).thenReturn(entity);
+            when(classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(ANNEE_DEBUT, ANNEE_FIN))
+                    .thenReturn(List.of(entity));
+            when(classeMapper.fromEntityToDto(entity)).thenReturn(dto);
+
+            // WHEN
+            ClasseDto result = underTest.updateClasse(5L, dto);
+
+            // THEN
+            assertNotNull(result);
+            verify(classeMapper).updateClasseEntity(dto, entity);
+            assertEquals(NiveauInterneEnum.N1_1, sansNiveau.getNiveauInterne());
+            verify(classeRepository).save(entity);
+        }
+
+        @Test
+        public void testRetireDesFeuillesDePresenceLesElevesSortisDeLEffectif() {
+            // GIVEN — la feuille de présence contient l'élève 2 qui ne fait plus partie de la classe
+            EleveEntity restant = eleve(1L, "A", NiveauInterneEnum.P1);
+            ClasseEntity entity = classeAvecEleves(5L, JourActiviteEnum.SAMEDI_MATIN, restant);
+            FeuillePresenceEntity feuille = feuillePresence(presence(1L, true), presence(2L, true));
+            entity.setFeuillesPresences(new ArrayList<>(List.of(
+                    ClasseFeuillePresenceEntity.builder().feuillePresence(feuille).build())));
+            preparerModification(entity, restant);
+
+            // WHEN
+            underTest.updateClasse(5L, new ClasseDto());
+
+            // THEN
+            assertEquals(List.of(1L), feuille.getElevesFeuillesPresences().stream()
+                    .map(EleveFeuillePresenceEntity::getIdEleve).toList());
+        }
+
+        @Test
+        public void testAjouteLesNouveauxElevesAuxFeuillesDePresenceEnAbsent() {
+            // GIVEN — l'élève 2 vient d'être ajouté à la classe mais n'est pas dans la feuille
+            EleveEntity dejaLa = eleve(1L, "A", NiveauInterneEnum.P1);
+            EleveEntity nouveau = eleve(2L, "B", NiveauInterneEnum.P1);
+            ClasseEntity entity = classeAvecEleves(5L, JourActiviteEnum.SAMEDI_MATIN, dejaLa, nouveau);
+            FeuillePresenceEntity feuille = feuillePresence(presence(1L, true));
+            entity.setFeuillesPresences(new ArrayList<>(List.of(
+                    ClasseFeuillePresenceEntity.builder().feuillePresence(feuille).build())));
+            preparerModification(entity, dejaLa, nouveau);
+
+            // WHEN
+            underTest.updateClasse(5L, new ClasseDto());
+
+            // THEN — le nouvel élève est ajouté, absent par défaut
+            EleveFeuillePresenceEntity ajout = feuille.getElevesFeuillesPresences().stream()
+                    .filter(e -> e.getIdEleve().equals(2L)).findFirst().orElseThrow();
+            assertEquals(Boolean.FALSE, ajout.getPresent());
+            assertEquals(2, feuille.getElevesFeuillesPresences().size());
+        }
+
+        @Test
+        public void testNeTouchePasAUneFeuilleDePresenceDejaCoherente() {
+            // GIVEN
+            EleveEntity eleve = eleve(1L, "A", NiveauInterneEnum.P1);
+            ClasseEntity entity = classeAvecEleves(5L, JourActiviteEnum.SAMEDI_MATIN, eleve);
+            EleveFeuillePresenceEntity presenceExistante = presence(1L, true);
+            FeuillePresenceEntity feuille = feuillePresence(presenceExistante);
+            entity.setFeuillesPresences(new ArrayList<>(List.of(
+                    ClasseFeuillePresenceEntity.builder().feuillePresence(feuille).build())));
+            preparerModification(entity, eleve);
+
+            // WHEN
+            underTest.updateClasse(5L, new ClasseDto());
+
+            // THEN — la présence déjà saisie n'est pas écrasée
+            assertEquals(1, feuille.getElevesFeuillesPresences().size());
+            assertEquals(Boolean.TRUE, presenceExistante.getPresent());
+        }
+
+        private EleveFeuillePresenceEntity presence(Long idEleve, boolean present) {
+            return EleveFeuillePresenceEntity.builder().idEleve(idEleve).present(present).build();
+        }
+
+        private FeuillePresenceEntity feuillePresence(EleveFeuillePresenceEntity... presences) {
+            return FeuillePresenceEntity.builder()
+                    .elevesFeuillesPresences(new ArrayList<>(List.of(presences)))
+                    .build();
+        }
+
+        private void preparerModification(ClasseEntity entity, EleveEntity... eleves) {
+            when(classeRepository.findById(5L)).thenReturn(Optional.of(entity));
+            for (EleveEntity eleve : eleves) {
+                when(eleveRepository.findById(eleve.getId())).thenReturn(Optional.of(eleve));
+            }
+            when(classeRepository.save(entity)).thenReturn(entity);
+            when(classeRepository.findByDebutAnneeScolaireAndFinAnneeScolaire(ANNEE_DEBUT, ANNEE_FIN))
+                    .thenReturn(List.of(entity));
         }
     }
 

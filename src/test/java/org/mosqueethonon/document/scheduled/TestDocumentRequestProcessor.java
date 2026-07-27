@@ -9,7 +9,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mosqueethonon.adhesion.entity.AdhesionEntity;
 import org.mosqueethonon.bulletin.entity.BulletinEntity;
+import org.mosqueethonon.inscription.entity.InscriptionAdulteEntity;
+import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
 import org.mosqueethonon.document.entity.DocumentEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
@@ -164,8 +167,159 @@ public class TestDocumentRequestProcessor {
     }
 
     // -----------------------------------------------------------------------
+    // case INSCRIPTION_ENFANT
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testProcessInscriptionEnfantRequestSucces() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(4L, DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 10L);
+        InscriptionEnfantEntity inscription = new InscriptionEnfantEntity();
+        inscription.setId(10L);
+        DocumentEntity document = buildDocument("/path/inscription-enfant-10.pdf", "INSC-ENF-001");
+
+        when(inscriptionEnfantRepository.findById(10L)).thenReturn(Optional.of(inscription));
+        when(documentService.generateOrUpdateDocument(inscriptionEnfantDocumentGenerator, inscription)).thenReturn(document);
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertTrue(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.COMPLETED, saved.getStatut());
+        assertEquals("/path/inscription-enfant-10.pdf", saved.getDocumentPath());
+        assertEquals("INSC-ENF-001", saved.getDocumentCode());
+    }
+
+    @Test
+    public void testProcessInscriptionEnfantRequestWhenInscriptionNotFound() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(5L, DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 888L);
+        when(inscriptionEnfantRepository.findById(888L)).thenReturn(Optional.empty());
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertFalse(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
+        assertTrue(saved.getErrorMessage().contains("888"));
+        verify(documentService, never()).generateOrUpdateDocument(any(), any());
+    }
+
+    // -----------------------------------------------------------------------
+    // case INSCRIPTION_ADULTE
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testProcessInscriptionAdulteRequestSucces() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(6L, DocumentRequestTypeEnum.INSCRIPTION_ADULTE, 20L);
+        InscriptionAdulteEntity inscription = new InscriptionAdulteEntity();
+        inscription.setId(20L);
+        DocumentEntity document = buildDocument("/path/inscription-adulte-20.pdf", "INSC-ADU-001");
+
+        when(inscriptionAdulteRepository.findById(20L)).thenReturn(Optional.of(inscription));
+        when(documentService.generateOrUpdateDocument(inscriptionAdulteDocumentGenerator, inscription)).thenReturn(document);
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertTrue(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.COMPLETED, saved.getStatut());
+        assertEquals("INSC-ADU-001", saved.getDocumentCode());
+    }
+
+    @Test
+    public void testProcessInscriptionAdulteRequestWhenInscriptionNotFound() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(7L, DocumentRequestTypeEnum.INSCRIPTION_ADULTE, 777L);
+        when(inscriptionAdulteRepository.findById(777L)).thenReturn(Optional.empty());
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertFalse(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
+        assertTrue(saved.getErrorMessage().contains("777"));
+    }
+
+    // -----------------------------------------------------------------------
+    // case ADHESION
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testProcessAdhesionRequestSucces() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(8L, DocumentRequestTypeEnum.ADHESION, 30L);
+        AdhesionEntity adhesion = new AdhesionEntity();
+        adhesion.setId(30L);
+        DocumentEntity document = buildDocument("/path/adhesion-30.pdf", "ADH-001");
+
+        when(adhesionRepository.findById(30L)).thenReturn(Optional.of(adhesion));
+        when(documentService.generateOrUpdateDocument(adhesionDocumentGenerator, adhesion)).thenReturn(document);
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertTrue(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.COMPLETED, saved.getStatut());
+        assertEquals("ADH-001", saved.getDocumentCode());
+    }
+
+    @Test
+    public void testProcessAdhesionRequestWhenAdhesionNotFound() {
+        // GIVEN
+        DocumentRequestEntity request = buildRequest(9L, DocumentRequestTypeEnum.ADHESION, 666L);
+        when(adhesionRepository.findById(666L)).thenReturn(Optional.empty());
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertFalse(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
+        assertTrue(saved.getErrorMessage().contains("666"));
+    }
+
+    // -----------------------------------------------------------------------
+    // type non géré
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testProcessRequestWithoutTypeIsRejected() {
+        // GIVEN — aucun type renseigné : aucun traitement ne peut être choisi
+        DocumentRequestEntity request = buildRequest(10L, null, 1L);
+
+        // WHEN
+        boolean result = documentRequestProcessor.processDocumentRequest(request);
+
+        // THEN
+        assertFalse(result);
+        DocumentRequestEntity saved = captureSavedRequest();
+        assertEquals(DocumentRequestStatutEnum.ERROR, saved.getStatut());
+        assertNotNull(saved.getErrorMessage());
+        verify(documentService, never()).generateOrUpdateDocument(any(), any());
+    }
+
+    // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
+
+    private DocumentRequestEntity captureSavedRequest() {
+        ArgumentCaptor<DocumentRequestEntity> captor = ArgumentCaptor.forClass(DocumentRequestEntity.class);
+        verify(documentRequestRepository, times(1)).save(captor.capture());
+        return captor.getValue();
+    }
 
     private DocumentRequestEntity buildRequest(Long id, DocumentRequestTypeEnum type, Long businessId) {
         DocumentRequestEntity request = new DocumentRequestEntity();
