@@ -1,6 +1,6 @@
 services:
   postgres-mosquee:
-    image: pgvector/pgvector:pg15
+    image: pgvector/pgvector:pg16
     container_name: mosquee-postgres
     ports:
       - "5434:5432" # for external connection (Dbeaver)
