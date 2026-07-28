@@ -1,0 +1,22 @@
+# Fins de ligne : LF dans le dépôt ET sur le disque, quel que soit l'OS.
+#
+# Le répertoire de travail compte autant que le dépôt : le `COPY mvnw .` du
+# Dockerfile lit le fichier sur le disque, sans passer par git. Sans cette
+# règle, core.autocrlf=true (valeur par défaut de l'installeur Git for Windows)
+# convertit mvnw en CRLF au checkout et le build casse sur
+# « /bin/sh^M: bad interpreter ».
+* text=auto eol=lf
+
+# Scripts exécutés sous Linux (Docker, CI) : LF impératif.
+mvnw text eol=lf
+*.sh text eol=lf
+
+# Scripts exécutés par cmd.exe : CRLF impératif.
+mvnw.cmd text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binaires : aucune normalisation.
+*.png binary
+*.pdf binary
+*.jar binary
