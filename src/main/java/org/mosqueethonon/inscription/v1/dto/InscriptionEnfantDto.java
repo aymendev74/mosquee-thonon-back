@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+import org.mosqueethonon.paiement.v1.dto.SituationPaiementDto;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -23,6 +24,11 @@ public class InscriptionEnfantDto {
     private Integer noPositionAttente;
     private BigDecimal montantTotal;
     private String anneeScolaire;
+    /**
+     * En lecture seule, comme {@link #montantTotal} : peuplé par {@code findInscriptionById} pour
+     * éviter au front un second appel quand il ouvre une inscription. Ignoré à l'entrée.
+     */
+    private SituationPaiementDto situationPaiement;
 
     public void normalize() {
         if(responsableLegal != null) {

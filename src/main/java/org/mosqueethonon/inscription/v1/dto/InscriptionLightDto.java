@@ -5,6 +5,7 @@ import lombok.Data;
 import org.mosqueethonon.common.config.APIDateFormats;
 import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -36,5 +37,7 @@ public class InscriptionLightDto {
     private String email;
     private Long idDocument;
     private Boolean documentPending;
+    private BigDecimal montantTotal;
+    private BigDecimal montantRegle;
 
 }

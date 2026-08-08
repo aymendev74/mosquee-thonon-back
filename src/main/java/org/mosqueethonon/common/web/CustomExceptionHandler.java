@@ -8,6 +8,8 @@ import org.mosqueethonon.common.exception.ForbiddenResourceAccessException;
 import org.mosqueethonon.chatbot.exception.GeminiApiException;
 import org.mosqueethonon.chatbot.exception.GeminiQuotaDetails;
 import org.mosqueethonon.lock.exception.ResourceLockedException;
+import org.mosqueethonon.paiement.exception.PaiementValidationException;
+import org.mosqueethonon.paiement.v1.dto.PaiementErreurDto;
 import org.mosqueethonon.chatbot.v1.dto.ChatbotQuotaErrorDto;
 import org.mosqueethonon.lock.v1.dto.LockResultDto;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +39,18 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleForbiddenResourceAccessException(ForbiddenResourceAccessException e) {
         log.error("Forbidden resource access: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    /**
+     * Seule exception de saisie à renvoyer un corps : l'utilisateur doit pouvoir distinguer « le
+     * montant dépasse le reste à payer » de « la date est dans le futur », ce qu'un 400 vide ne
+     * permet pas.
+     */
+    @ExceptionHandler(PaiementValidationException.class)
+    public ResponseEntity<PaiementErreurDto> handlePaiementValidationException(PaiementValidationException e) {
+        log.warn("Saisie de paiement refusée ({}) : {}", e.getCode(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(PaiementErreurDto.builder().code(e.getCode()).message(e.getMessage()).build());
     }
 
     @ExceptionHandler(ResourceLockedException.class)
