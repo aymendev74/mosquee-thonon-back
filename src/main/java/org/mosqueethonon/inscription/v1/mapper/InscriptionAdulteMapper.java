@@ -16,6 +16,7 @@ import java.util.List;
 public abstract class InscriptionAdulteMapper {
 
     @InheritInverseConfiguration(name = "mapDtoToEntity")
+    @Mapping(target = "situationPaiement", ignore = true)
     public abstract InscriptionAdulteDto fromEntityToDto(InscriptionAdulteEntity inscriptionAdulteEntity);
 
     @Mapping(source = "nom", target = "responsableLegal.nom")

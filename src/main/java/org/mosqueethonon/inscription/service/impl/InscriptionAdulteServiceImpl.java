@@ -33,6 +33,8 @@ import org.mosqueethonon.inscription.v1.dto.InscriptionAdulteParAnneeScolaireDto
 import org.mosqueethonon.inscription.v1.dto.InscriptionAdulteResultDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.inscription.v1.dto.ReinscriptionAdulteDto;
+import org.mosqueethonon.paiement.enums.TypeCiblePaiementEnum;
+import org.mosqueethonon.paiement.service.PaiementService;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
@@ -77,6 +79,8 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
     private AsyncDocumentService asyncDocumentService;
 
     private DocumentRepository documentRepository;
+
+    private PaiementService paiementService;
 
     @Override
     @Transactional
@@ -127,6 +131,9 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
             InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
             this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            // Embarquée ici plutôt que laissée à un second appel : l'administrateur qui ouvre une
+            // inscription a systématiquement besoin de sa situation de règlement.
+            dto.setSituationPaiement(this.paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id));
             return dto;
         }
         return null;

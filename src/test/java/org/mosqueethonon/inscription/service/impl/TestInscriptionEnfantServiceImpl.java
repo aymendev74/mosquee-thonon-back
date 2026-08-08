@@ -35,6 +35,9 @@ import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.document.service.AsyncDocumentService;
 import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
+import org.mosqueethonon.paiement.enums.TypeCiblePaiementEnum;
+import org.mosqueethonon.paiement.service.PaiementService;
+import org.mosqueethonon.paiement.v1.dto.SituationPaiementDto;
 import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
@@ -101,6 +104,8 @@ public class TestInscriptionEnfantServiceImpl {
     private AsyncDocumentService asyncDocumentService;
     @Mock
     private DocumentRepository documentRepository;
+    @Mock
+    private PaiementService paiementService;
     /**
      * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
      * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
@@ -601,10 +606,13 @@ public class TestInscriptionEnfantServiceImpl {
         DocumentEntity doc = new DocumentEntity();
         doc.setId(55L);
 
+        SituationPaiementDto situation = SituationPaiementDto.builder().idCible(id).build();
+
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
                 eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
                 .thenReturn(Optional.of(doc));
+        when(paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id)).thenReturn(situation);
 
         // Act
         InscriptionEnfantDto result = underTest.findInscriptionById(id);
@@ -612,6 +620,8 @@ public class TestInscriptionEnfantServiceImpl {
         // Assert
         assertNotNull(result);
         assertEquals(55L, result.getIdDocument());
+        // La situation de règlement est embarquée pour éviter au front un second appel
+        assertSame(situation, result.getSituationPaiement());
     }
 
     @Test

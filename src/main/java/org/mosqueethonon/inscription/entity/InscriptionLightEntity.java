@@ -6,6 +6,7 @@ import org.mosqueethonon.inscription.enums.NiveauScolaireEnum;
 import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -67,6 +68,14 @@ public class InscriptionLightEntity {
     private Long idDocument;
     @Column(name = "documentpending")
     private Boolean documentPending;
+    @Column(name = "montanttotal")
+    private BigDecimal montantTotal;
+    /**
+     * Somme des paiements valides de l'inscription. L'état de règlement s'en déduit côté client :
+     * l'ajouter à la vue serait une troisième colonne redondante.
+     */
+    @Column(name = "montantregle")
+    private BigDecimal montantRegle;
     private String type;
 
 }

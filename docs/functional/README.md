@@ -21,6 +21,7 @@ Ces fichiers ont un double usage :
 | [inscription-cours-adulte.md](inscription-cours-adulte.md) | Inscription aux cours adultes : matières, statut professionnel, tarif forfaitaire, réinscription. |
 | [adhesions.md](adhesions.md) | Adhésions : formulaire public, montant fixe/libre, validation par le trésorier, documents et e-mails. |
 | [tarifs.md](tarifs.md) | Tarifs et périodes : modèle de tarification, années scolaires, administration des grilles. |
+| [paiements.md](paiements.md) | Paiements des inscriptions : règlements en plusieurs fois, modes de paiement, contrôles, annulation, état de règlement. |
 | [parametres.md](parametres.md) | Paramètres de l'application : ouverture des inscriptions, envoi des e-mails, règles de saisie. |
 | [classes-et-bulletins.md](classes-et-bulletins.md) | Domaine enseignant : classes, feuilles de présence, bulletins, progression de niveau. |
 | [roles-et-acces.md](roles-et-acces.md) | Rôles (administrateur, trésorier, enseignant, utilisateur), permissions, gestion des comptes. |

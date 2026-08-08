@@ -51,6 +51,11 @@ SELECT
     r.txrespemail AS email,
     i.cdinsctype AS type,
     d.iddocu AS iddocument,
+    i.mtinsctotal AS montanttotal,
+    COALESCE((SELECT SUM(pa.mtpaie) FROM moth.paiement pa
+              WHERE pa.cdpaietypecible = 'INSCRIPTION'
+                AND pa.idpaiecible = i.idinsc
+                AND pa.cdpaiestatut = 'VALIDE'), 0) AS montantregle,
     EXISTS (
         SELECT 1 FROM moth.document_request dr
         WHERE dr.cddoretype = 'INSCRIPTION_' || i.cdinsctype
