@@ -70,10 +70,6 @@ public class InscriptionLightEntity {
     private Boolean documentPending;
     @Column(name = "montanttotal")
     private BigDecimal montantTotal;
-    /**
-     * Somme des paiements valides de l'inscription. L'état de règlement s'en déduit côté client :
-     * l'ajouter à la vue serait une troisième colonne redondante.
-     */
     @Column(name = "montantregle")
     private BigDecimal montantRegle;
     private String type;

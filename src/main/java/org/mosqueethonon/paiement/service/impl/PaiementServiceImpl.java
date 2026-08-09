@@ -66,15 +66,12 @@ public class PaiementServiceImpl implements PaiementService {
         PaiementEntity entity = this.findPaiementById(id);
         this.assertModifiable(entity);
 
-        // La cible d'un paiement n'est pas modifiable : un règlement ne se déplace pas d'une
-        // inscription à une autre, il s'annule et se ressaisit.
+        // La cible est lue sur l'entité, jamais sur le DTO : un règlement ne se déplace pas.
         TypeCiblePaiementEnum typeCible = entity.getTypeCible();
         Long idCible = entity.getIdCible();
         BigDecimal montantDu = this.getMontantDu(typeCible, idCible);
 
-        // Le paiement modifié est déjà compté dans le montant réglé : on l'en retire avant de
-        // contrôler, sans quoi toute augmentation d'un règlement existant serait rejetée à tort.
-        // Le retrait est légitime ici car assertModifiable garantit que le paiement est VALIDE.
+        // Sans ce retrait, toute augmentation d'un règlement existant serait rejetée à tort.
         BigDecimal montantRegleHorsCourant = this.getMontantRegle(typeCible, idCible)
                 .subtract(entity.getMontant());
 

@@ -131,8 +131,6 @@ public class InscriptionAdulteServiceImpl extends CommonInscriptionService imple
             InscriptionAdulteDto dto = this.inscriptionAdulteMapper.fromEntityToDto(inscriptionAdulteEntity);
             this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> dto.setIdDocument(doc.getId()));
-            // Embarquée ici plutôt que laissée à un second appel : l'administrateur qui ouvre une
-            // inscription a systématiquement besoin de sa situation de règlement.
             dto.setSituationPaiement(this.paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id));
             return dto;
         }
