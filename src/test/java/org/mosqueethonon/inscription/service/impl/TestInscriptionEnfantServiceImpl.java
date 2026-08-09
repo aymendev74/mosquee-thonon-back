@@ -70,7 +70,7 @@ import static org.mockito.Mockito.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class TestInscriptionEnfantServiceImpl {
+class TestInscriptionEnfantServiceImpl {
 
     @Mock
     private InscriptionEnfantRepository inscriptionEnfantRepository;
@@ -309,10 +309,11 @@ public class TestInscriptionEnfantServiceImpl {
 
     @Test
     public void testUpdateInscriptionExpectResourceNotFoundExceptionWhenInscriptionDoesNotExist() {
-        InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        var inscriptionEnfantDto = new InscriptionEnfantDto();
+        var criteria = InscriptionSaveCriteria.builder().build();
         assertThrows(ResourceNotFoundException.class,
                 () -> {
-                    this.underTest.updateInscription(null, inscriptionEnfantDto, InscriptionSaveCriteria.builder().build());
+                    this.underTest.updateInscription(null, inscriptionEnfantDto, criteria);
                 });
     }
 
@@ -610,7 +611,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
         when(paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id)).thenReturn(situation);
 
@@ -635,7 +636,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -679,7 +680,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -704,8 +705,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
-        when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+        when(documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -984,7 +984,7 @@ public class TestInscriptionEnfantServiceImpl {
         underTest.updateInscription(1L, createInscriptionNormalisable(0),
                 InscriptionSaveCriteria.builder().sendMailConfirmation(true).build());
 
-        verify(asyncDocumentService).requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), eq(1L));
+        verify(asyncDocumentService).requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 1L);
         verify(mailRequestRepository).save(any());
     }
 
@@ -995,7 +995,7 @@ public class TestInscriptionEnfantServiceImpl {
         underTest.updateInscription(1L, createInscriptionNormalisable(0),
                 InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
 
-        verify(asyncDocumentService).requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), eq(1L));
+        verify(asyncDocumentService).requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 1L);
         verify(mailRequestRepository, never()).save(any());
     }
 

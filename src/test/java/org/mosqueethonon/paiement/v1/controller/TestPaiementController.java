@@ -33,7 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class TestPaiementController extends TestController {
+class TestPaiementController extends TestController {
 
     private static final BigDecimal MONTANT_INSCRIPTION = bd(200);
 

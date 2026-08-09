@@ -66,7 +66,7 @@ import org.mosqueethonon.inscription.v1.mapper.InscriptionAdulteMapperImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class TestInscriptionAdulteServiceImpl {
+class TestInscriptionAdulteServiceImpl {
 
     @Mock
     private InscriptionAdulteRepository inscriptionAdulteRepository;
@@ -179,7 +179,8 @@ public class TestInscriptionAdulteServiceImpl {
     public void testCreateInscription_InscriptionClosed() {
         when(paramService.isInscriptionAdulteEnabled()).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> inscriptionAdulteService.createInscription(new InscriptionAdulteDto()));
+        var inscription = new InscriptionAdulteDto();
+        assertThrows(IllegalStateException.class, () -> inscriptionAdulteService.createInscription(inscription));
     }
 
     @Test
@@ -482,7 +483,7 @@ public class TestInscriptionAdulteServiceImpl {
 
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
         when(paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id)).thenReturn(situation);
 
@@ -502,7 +503,7 @@ public class TestInscriptionAdulteServiceImpl {
         Long id = 1L;
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -527,7 +528,7 @@ public class TestInscriptionAdulteServiceImpl {
                 eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
         when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq("1")))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, "1"))
                 .thenReturn(Optional.of(doc));
 
         // Act
