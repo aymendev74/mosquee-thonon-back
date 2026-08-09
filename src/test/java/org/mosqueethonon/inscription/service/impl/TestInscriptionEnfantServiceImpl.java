@@ -35,6 +35,9 @@ import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.document.service.AsyncDocumentService;
 import org.mosqueethonon.utilisateur.service.impl.UserAccountManager;
+import org.mosqueethonon.paiement.enums.TypeCiblePaiementEnum;
+import org.mosqueethonon.paiement.service.PaiementService;
+import org.mosqueethonon.paiement.v1.dto.SituationPaiementDto;
 import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
@@ -67,7 +70,7 @@ import static org.mockito.Mockito.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class TestInscriptionEnfantServiceImpl {
+class TestInscriptionEnfantServiceImpl {
 
     @Mock
     private InscriptionEnfantRepository inscriptionEnfantRepository;
@@ -101,6 +104,8 @@ public class TestInscriptionEnfantServiceImpl {
     private AsyncDocumentService asyncDocumentService;
     @Mock
     private DocumentRepository documentRepository;
+    @Mock
+    private PaiementService paiementService;
     /**
      * Horloge figée sur le fuseau de l'application, injectée dans le service par {@code @InjectMocks}.
      * Fixtures et service doivent lire la même horloge, sinon le fuseau de la machine qui exécute les
@@ -304,10 +309,11 @@ public class TestInscriptionEnfantServiceImpl {
 
     @Test
     public void testUpdateInscriptionExpectResourceNotFoundExceptionWhenInscriptionDoesNotExist() {
-        InscriptionEnfantDto inscriptionEnfantDto = new InscriptionEnfantDto();
+        var inscriptionEnfantDto = new InscriptionEnfantDto();
+        var criteria = InscriptionSaveCriteria.builder().build();
         assertThrows(ResourceNotFoundException.class,
                 () -> {
-                    this.underTest.updateInscription(null, inscriptionEnfantDto, InscriptionSaveCriteria.builder().build());
+                    this.underTest.updateInscription(null, inscriptionEnfantDto, criteria);
                 });
     }
 
@@ -601,10 +607,13 @@ public class TestInscriptionEnfantServiceImpl {
         DocumentEntity doc = new DocumentEntity();
         doc.setId(55L);
 
+        SituationPaiementDto situation = SituationPaiementDto.builder().idCible(id).build();
+
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
+        when(paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id)).thenReturn(situation);
 
         // Act
         InscriptionEnfantDto result = underTest.findInscriptionById(id);
@@ -612,6 +621,8 @@ public class TestInscriptionEnfantServiceImpl {
         // Assert
         assertNotNull(result);
         assertEquals(55L, result.getIdDocument());
+        // La situation de règlement est embarquée pour éviter au front un second appel
+        assertSame(situation, result.getSituationPaiement());
     }
 
     @Test
@@ -625,7 +636,7 @@ public class TestInscriptionEnfantServiceImpl {
 
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -669,7 +680,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
 
         // Act
@@ -694,8 +705,7 @@ public class TestInscriptionEnfantServiceImpl {
         when(inscriptionEnfantRepository.findById(id)).thenReturn(Optional.of(entity));
         when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
         when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
-        when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+        when(documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -974,7 +984,7 @@ public class TestInscriptionEnfantServiceImpl {
         underTest.updateInscription(1L, createInscriptionNormalisable(0),
                 InscriptionSaveCriteria.builder().sendMailConfirmation(true).build());
 
-        verify(asyncDocumentService).requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), eq(1L));
+        verify(asyncDocumentService).requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 1L);
         verify(mailRequestRepository).save(any());
     }
 
@@ -985,7 +995,7 @@ public class TestInscriptionEnfantServiceImpl {
         underTest.updateInscription(1L, createInscriptionNormalisable(0),
                 InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
 
-        verify(asyncDocumentService).requestDocumentGeneration(eq(DocumentRequestTypeEnum.INSCRIPTION_ENFANT), eq(1L));
+        verify(asyncDocumentService).requestDocumentGeneration(DocumentRequestTypeEnum.INSCRIPTION_ENFANT, 1L);
         verify(mailRequestRepository, never()).save(any());
     }
 

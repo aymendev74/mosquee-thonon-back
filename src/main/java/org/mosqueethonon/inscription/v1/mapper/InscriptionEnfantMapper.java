@@ -20,6 +20,7 @@ public abstract class InscriptionEnfantMapper {
 
     @InheritInverseConfiguration(name = "fromDtoToEntity")
     @Mapping(target = "eleves", source = "eleves", qualifiedByName = "fromEntityToDtoIgnoreId")
+    @Mapping(target = "situationPaiement", ignore = true)
     public abstract InscriptionEnfantDto fromEntityToDto(InscriptionEnfantEntity inscriptionEnfantEntity);
 
     @Mapping(target = "id", ignore = true)

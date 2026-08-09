@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 066-createTable-paiement
+      author: Aymen
+      changes:
+        - createTable:
+            schemaName: moth
+            tableName: paiement
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: paiement_pkey
+                  name: idpaie
+                  startWith: 1
+                  type: BIGINT
+              - column:
+                  name: cdpaietypecible
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: idpaiecible
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: mtpaie
+                  type: NUMERIC(10, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dtpaie
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdpaiemode
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cdpaiestatut
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: txpaiereference
+                  type: VARCHAR(100)
+              - column:
+                  name: txpaiecommentaire
+                  type: VARCHAR(500)
+              - column:
+                  name: oh_date_cre
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_cre
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_date_mod
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: oh_vis_mod
+                  type: VARCHAR(50)
+              - column:
+                  name: oh_version
+                  type: BIGINT
+        - createIndex:
+            schemaName: moth
+            tableName: paiement
+            indexName: idx_paiement_cible
+            columns:
+              - column:
+                  name: cdpaietypecible
+              - column:
+                  name: idpaiecible

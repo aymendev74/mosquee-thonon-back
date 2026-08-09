@@ -11,6 +11,7 @@ import org.mosqueethonon.inscription.enums.StatutProfessionnelEnum;
 import org.mosqueethonon.common.util.StringUtils;
 import org.mosqueethonon.mail.dto.IMailObject;
 import org.mosqueethonon.inscription.enums.StatutInscriptionEnum;
+import org.mosqueethonon.paiement.v1.dto.SituationPaiementDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,6 +38,12 @@ public class InscriptionAdulteDto implements IMailObject {
     private String anneeScolaire;
     private StatutProfessionnelEnum statutProfessionnel;
     private List<MatiereEnum> matieres;
+    /**
+     * En lecture seule, comme {@link #montantTotal} : peuplé par {@code findInscriptionById} pour
+     * éviter au front un second appel quand il ouvre une inscription. Ignoré à l'entrée, et laissé
+     * nul dans le flux mail — les montants réglés n'ont rien à faire dans un modèle de rendu.
+     */
+    private SituationPaiementDto situationPaiement;
 
     public void normalize() {
         this.nom = StringUtils.normalize(nom);

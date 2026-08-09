@@ -54,6 +54,9 @@ import org.mosqueethonon.inscription.v1.dto.InscriptionAdulteParAnneeScolaireDto
 import org.mosqueethonon.inscription.v1.dto.InscriptionAdulteResultDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionSaveCriteria;
 import org.mosqueethonon.inscription.v1.dto.ReinscriptionAdulteDto;
+import org.mosqueethonon.paiement.enums.TypeCiblePaiementEnum;
+import org.mosqueethonon.paiement.service.PaiementService;
+import org.mosqueethonon.paiement.v1.dto.SituationPaiementDto;
 import org.mosqueethonon.referentiel.v1.dto.PeriodeDto;
 import org.mosqueethonon.tarif.v1.dto.TarifInscriptionAdulteDto;
 import org.mosqueethonon.utilisateur.v1.dto.UserDto;
@@ -63,7 +66,7 @@ import org.mosqueethonon.inscription.v1.mapper.InscriptionAdulteMapperImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class TestInscriptionAdulteServiceImpl {
+class TestInscriptionAdulteServiceImpl {
 
     @Mock
     private InscriptionAdulteRepository inscriptionAdulteRepository;
@@ -103,6 +106,8 @@ public class TestInscriptionAdulteServiceImpl {
 
     @Mock
     private DocumentRepository documentRepository;
+    @Mock
+    private PaiementService paiementService;
 
     // Horloge réelle sur le fuseau de l'application : comportement identique à avant
     // l'injection du Clock. Utiliser Clock.fixed(...) pour un test sensible à la date.
@@ -174,7 +179,8 @@ public class TestInscriptionAdulteServiceImpl {
     public void testCreateInscription_InscriptionClosed() {
         when(paramService.isInscriptionAdulteEnabled()).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> inscriptionAdulteService.createInscription(new InscriptionAdulteDto()));
+        var inscription = new InscriptionAdulteDto();
+        assertThrows(IllegalStateException.class, () -> inscriptionAdulteService.createInscription(inscription));
     }
 
     @Test
@@ -473,10 +479,13 @@ public class TestInscriptionAdulteServiceImpl {
         DocumentEntity doc = new DocumentEntity();
         doc.setId(77L);
 
+        SituationPaiementDto situation = SituationPaiementDto.builder().idCible(id).build();
+
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.of(doc));
+        when(paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id)).thenReturn(situation);
 
         // Act
         InscriptionAdulteDto result = inscriptionAdulteService.findInscriptionById(id);
@@ -484,6 +493,8 @@ public class TestInscriptionAdulteServiceImpl {
         // Assert
         assertNotNull(result);
         assertEquals(77L, result.getIdDocument());
+        // La situation de règlement est embarquée pour éviter au front un second appel
+        assertSame(situation, result.getSituationPaiement());
     }
 
     @Test
@@ -492,7 +503,7 @@ public class TestInscriptionAdulteServiceImpl {
         Long id = 1L;
         when(inscriptionAdulteRepository.findById(id)).thenReturn(Optional.of(inscriptionEntity));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq(String.valueOf(id))))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id)))
                 .thenReturn(Optional.empty());
 
         // Act
@@ -517,7 +528,7 @@ public class TestInscriptionAdulteServiceImpl {
                 eq(inscriptionDto.getStatutProfessionnel()))).thenReturn(tarifDto);
         when(matiereService.findByCode(MatiereEnum.TAFFSIR_CORAN)).thenReturn(Optional.of(new MatiereEntity()));
         when(documentRepository.findByMetadataKeyAndValue(
-                eq(DocumentMetadataKeyEnum.ID_INSCRIPTION), eq("1")))
+                DocumentMetadataKeyEnum.ID_INSCRIPTION, "1"))
                 .thenReturn(Optional.of(doc));
 
         // Act

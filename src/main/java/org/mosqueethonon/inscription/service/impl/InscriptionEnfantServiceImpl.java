@@ -27,6 +27,8 @@ import org.mosqueethonon.referentiel.repository.NiveauRepository;
 import org.mosqueethonon.referentiel.repository.PeriodeRepository;
 import org.mosqueethonon.tarif.repository.TarifRepository;
 import org.mosqueethonon.inscription.service.InscriptionEnfantService;
+import org.mosqueethonon.paiement.enums.TypeCiblePaiementEnum;
+import org.mosqueethonon.paiement.service.PaiementService;
 import org.mosqueethonon.param.service.ParamService;
 import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
@@ -93,6 +95,8 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
     private AsyncDocumentService asyncDocumentService;
 
     private DocumentRepository documentRepository;
+
+    private PaiementService paiementService;
 
     @Transactional
     @Override
@@ -269,6 +273,7 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
             InscriptionEnfantDto dto = this.inscriptionEnfantMapper.fromEntityToDto(inscriptionEnfantEntity);
             this.documentRepository.findByMetadataKeyAndValue(DocumentMetadataKeyEnum.ID_INSCRIPTION, String.valueOf(id))
                     .ifPresent(doc -> dto.setIdDocument(doc.getId()));
+            dto.setSituationPaiement(this.paiementService.getSituation(TypeCiblePaiementEnum.INSCRIPTION, id));
             return dto;
         }
         return null;
