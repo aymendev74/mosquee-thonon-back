@@ -10,11 +10,12 @@ Le suivi porte sur les inscriptions aux **cours enfants** et aux **cours adultes
 
 ## Montant dû, montant réglé, reste à payer
 
-Le **montant dû** d'une inscription est le tarif calculé automatiquement par l'application au moment de l'inscription (voir la fiche Tarifs et périodes). Il n'est pas saisi manuellement.
+Le **montant dû** d'une inscription est calculé automatiquement par l'application au moment de l'inscription, en fonction du paramétrage effectué par les administrateurs chaque année.  
+Pour les inscriptions enfants, il dépend de plusieurs paramètres, par exemple si le responsable légal est adhérent ou non, ou encore du nombre d'enfants inscrits.Pour les inscriptions adultes, il dépend uniquement de son statut professionnel.
 
 Le **montant réglé** est la somme des paiements enregistrés sur l'inscription et non annulés.
 
-Le **reste à payer** est la différence entre les deux. Il n'est jamais stocké : il est recalculé à chaque affichage. Ainsi, si le tarif d'une inscription change, le reste à payer se met à jour immédiatement, sans intervention.
+Le **reste à payer** est la différence entre les deux. Il n'est jamais stocké en base de données, il est simplement déduit : il est calculé à l'affichage.
 
 ## Enregistrer un paiement
 
@@ -80,7 +81,7 @@ Une inscription dont le montant dû est nul est considérée comme **soldée**.
 
 Dans la liste des inscriptions (cours enfants comme cours adultes), une colonne **Paiement** affiche l'état de règlement de chaque inscription. Elle est filtrable, ce qui permet d'isoler d'un coup d'œil les inscriptions non soldées.
 
-Attention : la liste affiche une **ligne par élève**. Une inscription regroupant plusieurs enfants d'une même famille apparaît donc sur plusieurs lignes, qui portent toutes le **même état de règlement** — le paiement concerne l'inscription dans son ensemble, pas chaque enfant séparément.
+Attention : la liste affiche une **ligne par élève**. Une inscription regroupant plusieurs enfants d'une même famille apparaît donc sur plusieurs lignes, qui portent toutes le **même état de règlement** — le paiement concerne l'inscription dans son ensemble.
 
 Le détail des règlements d'une inscription (situation et historique) est accessible depuis la liste, et depuis l'inscription elle-même.
 
@@ -88,4 +89,4 @@ Le détail des règlements d'une inscription (situation et historique) est acces
 
 La saisie, la modification, l'annulation et la consultation des paiements sont réservées exclusivement aux **administrateurs** de l'application (rôle ADMIN).
 
-Les familles n'ont **aucune visibilité** sur les paiements enregistrés depuis leur espace personnel ni depuis le formulaire d'inscription.
+Les familles n'ont pour le moment **aucune visibilité** sur les paiements enregistrés depuis leur espace personnel.
