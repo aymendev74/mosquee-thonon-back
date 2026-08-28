@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Mosquée Thonon API CI
+name: Deployer Mosquée Thonon backend
 
 on:
   push:

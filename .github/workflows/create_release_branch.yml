@@ -1,3 +1,5 @@
+name: Création nouvelle branche de release
+
 on:
   workflow_dispatch:
 
