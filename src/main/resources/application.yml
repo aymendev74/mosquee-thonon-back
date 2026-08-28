@@ -118,8 +118,6 @@ chatbot:
     top-k: 5
     min-score: 0.55
   indexing:
-    # Réindexe au démarrage uniquement si la signature (contenu des chunks + modèle d'embedding +
-    # dimension) a changé. La documentation étant embarquée dans l'image (COPY docs), elle ne peut
-    # changer qu'au déploiement, donc un contrôle au démarrage suffit.
-    on-startup: true
-  docs-path: docs/functional
+    enabled: true
+    check-interval: 60 # unit = seconds
+  docs-path: ${CHATBOT_DOCS_PATH:docs/functional}

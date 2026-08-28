@@ -11,7 +11,16 @@ Ces fichiers ont un double usage :
 
 - Quand une **règle métier change**, mettez à jour le fichier de thème concerné.
 - Gardez chaque **section (titre `##` / `###`) autonome et cohérente** : c'est l'unité utilisée par le chatbot pour retrouver l'information.
-- Après toute modification, **relancez l'indexation** du chatbot pour que les changements soient pris en compte.
+
+## Publier une modification
+
+Une modification de ces fichiers **ne nécessite ni release ni redéploiement**. Une fois les changements fusionnés sur `master` :
+
+1. Lancez le workflow GitHub **« Mise à jour documentation chatbot »** et choisissez l'environnement cible (`staging` ou `production`).
+2. Le workflow copie le contenu de ce dossier sur le serveur.
+3. L'application relit la documentation toutes les minutes (`chatbot.indexing.check-interval`) et réindexe **uniquement** si le contenu a changé. Comptez donc environ une minute avant que le chatbot ne réponde avec la nouvelle version.
+
+Un administrateur peut forcer la prise en compte immédiate via `POST /v1/chatbot/reindex`.
 
 ## Thèmes
 

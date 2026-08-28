@@ -1,0 +1,38 @@
+name: 'Sync documentation chatbot'
+description: "Copie la documentation fonctionnelle (source du RAG) vers l'environnement cible"
+
+inputs:
+  environment:
+    description: "Environnement cible (staging | production)"
+    required: true
+  server-ip:
+    description: 'Adresse du serveur cible'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    # La copie vise functional.incoming puis bascule, car le job d'indexation de l'application relit
+    # le répertoire à intervalle régulier et ne doit jamais tomber sur une synchronisation à moitié
+    # faite
+    - name: Copie de la documentation fonctionnelle
+      shell: bash
+      env:
+        TARGET: /home/ubuntu/mosquee-thonon-api/${{ inputs.environment }}/docs
+        HOST: ubuntu@${{ inputs.server-ip }}
+      run: |
+        set -euo pipefail
+
+        ssh -o StrictHostKeyChecking=no "$HOST" "mkdir -p '$TARGET/functional.incoming'"
+
+        rsync -az --delete -e "ssh -o StrictHostKeyChecking=no" \
+          docs/functional/ "$HOST:$TARGET/functional.incoming/"
+
+        ssh -o StrictHostKeyChecking=no "$HOST" "
+          set -e
+          cd '$TARGET'
+          rm -rf functional.previous
+          if [ -d functional ]; then mv functional functional.previous; fi
+          mv functional.incoming functional
+          ls -la functional
+        "

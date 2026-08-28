@@ -81,11 +81,18 @@ public class ChatbotProperties {
     @Data
     public static final class Indexing {
         /**
-         * Réindexation conditionnelle au démarrage. Doit rester à false dans les tests : le contexte
-         * Spring complet déclenche ApplicationReadyEvent, ce qui appellerait réellement l'API Gemini.
+         * Interrupteur du job de réindexation. Doit rester à false dans les tests : le job démarre
+         * avec le contexte Spring, ce qui appellerait réellement l'API Gemini.
          */
         @NotNull
-        private Boolean onStartup;
+        private Boolean enabled;
+        /**
+         * Période de relecture de la documentation, en secondes. Un cycle ne coûte que la lecture
+         * des fichiers et un SHA-256 : l'API Gemini n'est appelée que si la signature a changé.
+         */
+        @NotNull
+        @Min(1)
+        private Integer checkInterval;
     }
 
 }

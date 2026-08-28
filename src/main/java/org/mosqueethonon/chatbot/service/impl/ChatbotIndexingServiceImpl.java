@@ -78,7 +78,7 @@ public class ChatbotIndexingServiceImpl implements ChatbotIndexingService {
         IndexingContext context = prepareIndexing();
 
         if (context.signature().equals(context.storedSignature())) {
-            log.info("Indexation chatbot : index déjà à jour (signature {}), rien à faire", context.signature());
+            log.debug("Indexation chatbot : index déjà à jour (signature {}), rien à faire", context.signature());
             return OptionalInt.empty();
         }
 
@@ -131,7 +131,7 @@ public class ChatbotIndexingServiceImpl implements ChatbotIndexingService {
         Path docsPath = Paths.get(this.chatbotProperties.getDocsPath());
         List<Path> markdownFiles = listMarkdownFiles(docsPath);
 
-        log.info("Indexation chatbot : {} fichier(s) markdown trouvé(s) dans {}", markdownFiles.size(), docsPath);
+        log.debug("Indexation chatbot : {} fichier(s) markdown trouvé(s) dans {}", markdownFiles.size(), docsPath);
 
         List<ChatbotDocumentChunkEntity> chunks = new ArrayList<>();
         for (Path file : markdownFiles) {

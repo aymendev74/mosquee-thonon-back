@@ -62,6 +62,12 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
 
     steps:
+    # Avant le téléchargement de l'artefact : actions/checkout nettoie le workspace et supprimerait
+    # le jar. La documentation fonctionnelle du chatbot n'est pas embarquée dans le jar, il faut
+    # donc les sources pour pouvoir la synchroniser.
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
     - name: Download artifact
       uses: actions/download-artifact@v8
       with:
@@ -71,7 +77,15 @@ jobs:
       uses: webfactory/ssh-agent@v0.10.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
+
+    # Avant le redémarrage du service : l'application réindexe le chatbot dès son démarrage si la
+    # documentation a changé, autant qu'elle trouve déjà la bonne version sur disque.
+    - name: Sync documentation chatbot
+      uses: ./.github/actions/sync-chatbot-docs
+      with:
+        environment: ${{ github.event.inputs.environment }}
+        server-ip: ${{ secrets.TARGET_SERVER_IP }}
+
     - name: Update API
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl stop mosqueethononapp-${{ github.event.inputs.environment }}.service"

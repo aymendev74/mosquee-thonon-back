@@ -4,9 +4,9 @@ logging:
 
 chatbot:
     indexing:
-        # Les @SpringBootTest déclenchent ApplicationReadyEvent : sans ce false, chaque exécution de
-        # la suite de tests appellerait réellement l'API Gemini.
-        on-startup: false
+        # Le job d'indexation démarre avec le contexte Spring : sans ce false, chaque @SpringBootTest
+        # de la suite appellerait réellement l'API Gemini.
+        enabled: false
 
 spring:
     liquibase:

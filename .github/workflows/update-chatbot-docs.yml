@@ -1,0 +1,36 @@
+name: Mise à jour documentation chatbot
+
+# Publie la documentation fonctionnelle sans passer par une release : l'application relit le
+# répertoire à intervalle régulier (chatbot.indexing.check-interval) et ne réindexe que si le
+# contenu a réellement changé.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environnement cible'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  update-docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Sync documentation chatbot
+        uses: ./.github/actions/sync-chatbot-docs
+        with:
+          environment: ${{ inputs.environment }}
+          server-ip: ${{ secrets.TARGET_SERVER_IP }}

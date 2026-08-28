@@ -20,6 +20,8 @@ public final class ChatbotTestProperties {
 
     public static final double TEMPERATURE = 0.2d;
 
+    public static final int CHECK_INTERVAL_SECONDS = 300;
+
     private ChatbotTestProperties() {
     }
 
@@ -37,7 +39,8 @@ public final class ChatbotTestProperties {
         retrieval.setMinScore(0.55d);
 
         ChatbotProperties.Indexing indexing = new ChatbotProperties.Indexing();
-        indexing.setOnStartup(Boolean.TRUE);
+        indexing.setEnabled(Boolean.TRUE);
+        indexing.setCheckInterval(CHECK_INTERVAL_SECONDS);
 
         ChatbotProperties properties = new ChatbotProperties();
         properties.setGemini(gemini);

@@ -1,4 +1,4 @@
-package org.mosqueethonon.chatbot.startup;
+package org.mosqueethonon.chatbot.scheduled;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,19 +14,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class TestChatbotIndexingStartupListener {
+public class TestChatbotIndexingJob {
 
     private ChatbotIndexingService chatbotIndexingService;
 
     private ChatbotProperties properties;
 
-    private ChatbotIndexingStartupListener underTest;
+    private ChatbotIndexingJob underTest;
 
     @BeforeEach
     void setUp() {
         this.chatbotIndexingService = mock(ChatbotIndexingService.class);
         this.properties = ChatbotTestProperties.build();
-        this.underTest = new ChatbotIndexingStartupListener(this.chatbotIndexingService, this.properties);
+        this.underTest = new ChatbotIndexingJob(this.chatbotIndexingService, this.properties);
     }
 
     @Test
@@ -39,12 +39,12 @@ public class TestChatbotIndexingStartupListener {
     }
 
     /**
-     * Garde-fou du profil de test : les @SpringBootTest publient ApplicationReadyEvent, et sans cet
-     * interrupteur chaque exécution de la suite appellerait réellement l'API Gemini.
+     * Garde-fou du profil de test : le job démarre avec le contexte Spring, et sans cet interrupteur
+     * chaque exécution de la suite appellerait réellement l'API Gemini.
      */
     @Test
     void testDoesNothingWhenDisabled() {
-        this.properties.getIndexing().setOnStartup(Boolean.FALSE);
+        this.properties.getIndexing().setEnabled(Boolean.FALSE);
 
         this.underTest.reindexIfOutdated();
 
@@ -52,7 +52,8 @@ public class TestChatbotIndexingStartupListener {
     }
 
     /**
-     * Une API Gemini indisponible ne doit pas empêcher l'application de démarrer.
+     * Une exception qui remonterait au scheduler annulerait définitivement les cycles suivants : une
+     * API Gemini indisponible doit rester rattrapable au cycle d'après.
      */
     @Test
     void testSwallowsIndexingFailure() {
