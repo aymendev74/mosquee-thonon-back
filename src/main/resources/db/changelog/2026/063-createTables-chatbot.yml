@@ -3,9 +3,6 @@ databaseChangeLog:
       id: 063-createTables-chatbot
       author: Aymen
       changes:
-        - sql:
-            sql: CREATE EXTENSION IF NOT EXISTS vector SCHEMA public;
-
         - createTable:
             schemaName: moth
             tableName: chatbot_document_chunk
