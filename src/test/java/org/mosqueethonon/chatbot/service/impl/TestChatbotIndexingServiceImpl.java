@@ -6,6 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mosqueethonon.chatbot.ChatbotTestProperties;
 import org.mosqueethonon.chatbot.config.ChatbotProperties;
+import org.mosqueethonon.chatbot.entity.ChatbotDocumentChunkEntity;
 import org.mosqueethonon.chatbot.repository.ChatbotDocumentChunkRepository;
 import org.mosqueethonon.chatbot.repository.ChatbotIndexStateRepository;
 import org.mosqueethonon.chatbot.service.EmbeddingService;
@@ -198,6 +199,30 @@ public class TestChatbotIndexingServiceImpl {
         verify(this.chunkRepository).deleteAll();
         verify(this.chunkRepository, never()).insertAll(any());
         verifyNoInteractions(this.embeddingService);
+    }
+
+    /**
+     * Le README décrit comment maintenir et publier la documentation : il s'adresse aux
+     * contributeurs, pas aux utilisateurs du chatbot, et ne doit jamais alimenter une réponse.
+     */
+    @Test
+    void testReindexNeverIndexesReadme() throws IOException {
+        Files.writeString(this.docsDir.resolve("README.md"), DOC_CONTENT);
+        when(this.indexStateRepository.findSignatureForUpdate()).thenReturn("");
+
+        OptionalInt indexed = this.underTest.reindexIfOutdated();
+
+        assertTrue(indexed.isPresent());
+        assertEquals(2, indexed.getAsInt());
+        assertTrue(captureChunks().stream()
+                .noneMatch(chunk -> "README.md".equalsIgnoreCase(chunk.getSourceFile())));
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ChatbotDocumentChunkEntity> captureChunks() {
+        ArgumentCaptor<List<ChatbotDocumentChunkEntity>> captor = ArgumentCaptor.forClass(List.class);
+        verify(this.chunkRepository).insertAll(captor.capture());
+        return captor.getValue();
     }
 
     private String captureSignature() {
