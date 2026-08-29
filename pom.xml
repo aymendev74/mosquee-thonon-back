@@ -27,14 +27,14 @@
         <logback.version>1.5.15</logback.version> <!-- Temporaire =>  vulnerable transitive version 1.5.12 -->
         <openhtmltopdf.version>1.0.10</openhtmltopdf.version>
         <!-- Valeur par défaut complétée par l'agent jacoco (prepare-agent) puis par surefire. -->
-        <argLine></argLine>
+        <argLine />
     </properties>
 
     <scm>
         <connection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</connection>
         <developerConnection>scm:git:git@github.com:aymendev74/mosquee-thonon-back.git</developerConnection>
         <url>https://github.com/aymendev74/mosquee-thonon-back</url>
-      <tag>HEAD</tag>
+      <tag>release-6.x</tag>
   </scm>
 
     <dependencies>
