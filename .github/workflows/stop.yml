@@ -13,4 +13,4 @@ jobs:
   runs-on: ubuntu-latest
   steps:
     - name: Stop application
-    run: ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl stop mosqueethononapp-${{ github.event.inputs.environment }}.service"
+      run: ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl stop mosqueethononapp-${{ github.event.inputs.environment }}.service"
