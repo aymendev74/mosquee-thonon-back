@@ -10,7 +10,13 @@ on:
 
 jobs:
 
-  runs-on: ubuntu-latest
-  steps:
-    - name: Stop application
-      run: ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl start mosqueethononapp-${{ github.event.inputs.environment }}.service"
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Start application
+        run: ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.TARGET_SERVER_IP }} "sudo systemctl start mosqueethononapp-${{ github.event.inputs.environment }}.service"
