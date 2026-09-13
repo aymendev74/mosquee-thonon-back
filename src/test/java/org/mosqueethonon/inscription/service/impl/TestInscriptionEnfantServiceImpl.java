@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -43,6 +44,7 @@ import org.mosqueethonon.tarif.service.TarifCalculService;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
 import org.mosqueethonon.inscription.v1.dto.EleveReinscriptionDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantDto;
+import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantInfosDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantParAnneeScolaireDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionEnfantResultDto;
 import org.mosqueethonon.inscription.v1.dto.InscriptionSaveCriteria;
@@ -888,6 +890,65 @@ class TestInscriptionEnfantServiceImpl {
         verify(asyncDocumentService, never())
                 .requestDocumentGeneration(any(), any());
         verify(mailRequestRepository, times(1)).save(any());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Ordre calcul du tarif / mutation de l'entité (updateInscription)
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Le calcul du tarif exécute une requête JPQL qui déclenche un pre-flush Hibernate : un nouvel
+     * élève ajouté par le mapper serait inséré (IDENTITY) avant d'avoir son idTarif. Le tarif doit
+     * donc être calculé AVANT que le mapper ne touche l'entité managée, puis appliqué à tous les
+     * élèves, nouveau compris.
+     */
+    @Test
+    public void testUpdateInscription_AjoutEleve_CalculeLeTarifAvantDeMuterLEntite() {
+        InscriptionEnfantEntity entity = createInscriptionEntityWithDate(1);
+        entity.setId(1L);
+        entity.setStatut(StatutInscriptionEnum.PROVISOIRE);
+        entity.getEleves().get(0).setId(10L);
+        entity.getEleves().get(0).setIdTarif(1L);
+
+        doAnswer(invocation -> {
+            InscriptionEnfantEntity target = invocation.getArgument(1);
+            target.getEleves().add(new EleveEntity()); // nouvel élève, sans id ni idTarif
+            return null;
+        }).when(inscriptionEnfantMapper).updateInscriptionEntity(any(), any());
+        when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
+        doReturn(new InscriptionEnfantDto()).when(inscriptionEnfantMapper).fromEntityToDto(any());
+
+        underTest.updateInscription(1L, createInscriptionNormalisable(2),
+                InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        InOrder inOrder = inOrder(tarifCalculService, inscriptionEnfantMapper);
+        inOrder.verify(tarifCalculService).calculTarifInscriptionEnfant(any(), any());
+        inOrder.verify(inscriptionEnfantMapper).updateInscriptionEntity(any(), any());
+        assertEquals(2, entity.getEleves().size());
+        entity.getEleves().forEach(eleve -> assertEquals(1L, eleve.getIdTarif()));
+        assertEquals(2L, entity.getIdTarif());
+    }
+
+    @Test
+    public void testUpdateInscription_NbElevesDuCalculTarifProvientDuDto() {
+        InscriptionEnfantEntity entity = createInscriptionEntityWithDate(1);
+        entity.setId(1L);
+        entity.setStatut(StatutInscriptionEnum.PROVISOIRE);
+        when(inscriptionEnfantRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(tarifCalculService.calculTarifInscriptionEnfant(any(), any())).thenReturn(createTarifInscription());
+        when(inscriptionEnfantRepository.save(any())).thenReturn(entity);
+        doReturn(new InscriptionEnfantDto()).when(inscriptionEnfantMapper).fromEntityToDto(any());
+        InscriptionEnfantDto dto = createInscriptionNormalisable(3);
+        dto.getResponsableLegal().setAdherent(Boolean.TRUE);
+
+        underTest.updateInscription(1L, dto, InscriptionSaveCriteria.builder().sendMailConfirmation(false).build());
+
+        ArgumentCaptor<InscriptionEnfantInfosDto> infosCaptor = ArgumentCaptor.forClass(InscriptionEnfantInfosDto.class);
+        verify(tarifCalculService).calculTarifInscriptionEnfant(eq(1L), infosCaptor.capture());
+        assertEquals(3, infosCaptor.getValue().getNbEleves());
+        assertEquals(Boolean.TRUE, infosCaptor.getValue().getAdherent());
     }
 
     // ---------------------------------------------------------------------------

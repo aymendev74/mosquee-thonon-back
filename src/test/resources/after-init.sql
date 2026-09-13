@@ -71,3 +71,7 @@ FROM ((((moth.inscription i
     JOIN moth.document d ON d.iddocu = dm.iddocu)
                    ON (dm.cddomecle = 'ID_INSCRIPTION' AND dm.txdomevaleur = CAST(i.idinsc AS VARCHAR))
 ;
+-- Hibernate génère le schéma H2 depuis les entités, sans les contraintes NOT NULL portées par
+-- Liquibase (cf. db.sql). On rétablit celle de eleve.idtari pour que les tests échouent au
+-- même endroit que la base réelle. Devient inutile avec Testcontainers + Liquibase.
+ALTER TABLE moth.eleve ALTER COLUMN idtari SET NOT NULL;
