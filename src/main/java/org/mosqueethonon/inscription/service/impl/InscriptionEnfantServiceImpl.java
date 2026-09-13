@@ -150,9 +150,13 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
         InscriptionEnfantEntity entity = this.inscriptionEnfantRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("L'inscription n'a pas été trouvée ! id = " + id));
         this.lockPeriodeActive(entity.getDateInscription().toLocalDate());
         StatutInscriptionEnum statutActuel = entity.getStatut();
+        // Le tarif est calculé AVANT de muter l'entité managée : la requête JPQL du calcul provoque un pre-flush
+        // Hibernate qui cascade le persist (IDENTITY => INSERT immédiat) des nouveaux élèves ajoutés par le mapper,
+        // alors que leur idTarif (NOT NULL en base) n'est pas encore renseigné.
+        int nbEleves = inscription.getEleves() != null ? inscription.getEleves().size() : 0;
+        TarifInscriptionEnfantDto tarifs = this.calculTarifs(entity.getId(), nbEleves, inscription.getResponsableLegal().getAdherent());
         this.inscriptionEnfantMapper.updateInscriptionEntity(inscription, entity);
-
-        this.doCalculTarifInscription(entity);
+        this.applyTarifs(entity, tarifs);
         this.checkStatutInscription(entity, statutActuel);
         entity = this.inscriptionEnfantRepository.save(entity);
         InscriptionEnfantDto resultInscription = this.inscriptionEnfantMapper.fromEntityToDto(entity);
@@ -244,16 +248,25 @@ public class InscriptionEnfantServiceImpl extends CommonInscriptionService imple
     }
 
     private TarifInscriptionEnfantDto doCalculTarifInscription(InscriptionEnfantEntity inscription) {
-        Integer nbEleves = inscription.getEleves().size();
+        TarifInscriptionEnfantDto tarifs = this.calculTarifs(inscription.getId(), inscription.getEleves().size(),
+                inscription.getResponsableLegal().getAdherent());
+        this.applyTarifs(inscription, tarifs);
+        return tarifs;
+    }
+
+    private TarifInscriptionEnfantDto calculTarifs(Long idInscription, int nbEleves, Boolean adherent) {
         InscriptionEnfantInfosDto inscriptionInfos = InscriptionEnfantInfosDto.builder().nbEleves(nbEleves)
-                .adherent(inscription.getResponsableLegal().getAdherent()).build();
-        TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(inscription.getId(), inscriptionInfos);
+                .adherent(adherent).build();
+        TarifInscriptionEnfantDto tarifs = this.tarifCalculService.calculTarifInscriptionEnfant(idInscription, inscriptionInfos);
         Assert.state(tarifs != null && tarifs.getIdTariBase() != null && tarifs.getIdTariEleve() != null,
                 "Le tarif pour cette inscription n'a pas pu être déterminé !");
+        return tarifs;
+    }
+
+    private void applyTarifs(InscriptionEnfantEntity inscription, TarifInscriptionEnfantDto tarifs) {
         inscription.setIdTarif(tarifs.getIdTariBase());
         inscription.getEleves().forEach(eleve -> eleve.setIdTarif(tarifs.getIdTariEleve()));
-        inscription.setMontantTotal(this.calculMontantTotal(tarifs.getTarifBase(), tarifs.getTarifEleve(), nbEleves));
-        return tarifs;
+        inscription.setMontantTotal(this.calculMontantTotal(tarifs.getTarifBase(), tarifs.getTarifEleve(), inscription.getEleves().size()));
     }
 
     private BigDecimal calculMontantTotal(BigDecimal tarifBase, BigDecimal tarifEleve, Integer nbEleves) {
