@@ -9,6 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.mosqueethonon.param.entity.ParamEntity;
 import org.mosqueethonon.document.entity.DocumentRequestEntity;
 import org.mosqueethonon.inscription.entity.InscriptionEnfantEntity;
+import org.mosqueethonon.inscription.entity.EleveEntity;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import java.math.BigDecimal;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.mosqueethonon.inscription.entity.InscriptionLightEntity;
 import org.mosqueethonon.referentiel.entity.PeriodeEntity;
 import org.mosqueethonon.tarif.entity.TarifEntity;
@@ -23,6 +28,7 @@ import org.mosqueethonon.document.enums.DocumentRequestStatutEnum;
 import org.mosqueethonon.document.enums.DocumentRequestTypeEnum;
 import org.mosqueethonon.document.repository.DocumentRequestRepository;
 import org.mosqueethonon.inscription.repository.InscriptionEnfantRepository;
+import org.mosqueethonon.inscription.repository.EleveRepository;
 import org.mosqueethonon.inscription.repository.InscriptionLightRepository;
 import org.mosqueethonon.param.repository.ParamRepository;
 import org.mosqueethonon.inscription.v1.dto.EleveDto;
@@ -39,6 +45,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +72,9 @@ public class TestInscriptionEnfantController extends TestController {
 
     @Autowired
     protected InscriptionLightRepository inscriptionLightRepository;
+
+    @Autowired
+    protected EleveRepository eleveRepository;
 
     @Autowired
     protected DocumentRequestRepository documentRequestRepository;
@@ -195,7 +205,7 @@ public class TestInscriptionEnfantController extends TestController {
     }
 
     private ResponsableLegalDto createResponsableLegal() {
-        return ResponsableLegalDto.builder().autorisationAutonomie(false).autorisationAutonomie(false)
+        return ResponsableLegalDto.builder().autorisationAutonomie(false).autorisationMedia(false).adherent(false)
                 .codePostal(74200).mobile("").ville("").nomAutre("").lienParente("").prenomAutre("")
                 .numeroEtRue("").nom("").prenom("").email("").build();
     }
@@ -295,6 +305,99 @@ public class TestInscriptionEnfantController extends TestController {
                 .filter(l -> idInscription.equals(l.getIdInscription()))
                 .findFirst().orElseThrow();
         assertFalse(light.getDocumentPending());
+    }
+
+    // Modification d'une inscription par un administrateur (PUT)
+
+    /**
+     * Reproduit l'erreur de prod du 13/09/2026 : l'ajout d'un élève à une inscription existante
+     * déclenchait un INSERT eleve avec idtari NULL (pre-flush Hibernate pendant la recherche du tarif).
+     */
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void testUpdateInscription_ajoutEleve_persisteLeNouvelEleveAvecTarif() throws Exception {
+        InscriptionEnfantEntity creee = this.creerInscriptionUnEleve();
+        EleveEntity eleveExistant = this.elevesDe(creee.getId()).get(0);
+
+        InscriptionEnfantDto dto = this.getInscription(creee.getId());
+        dto.getEleves().add(EleveDto.builder().nom("Cadet").prenom("Enfant").dateNaissance(LocalDate.of(2017, 8, 3))
+                .niveau(NiveauScolaireEnum.CM1).build());
+
+        this.putInscription(creee.getId(), dto).andExpect(MockMvcResultMatchers.status().isOk());
+
+        InscriptionEnfantEntity modifiee = this.inscriptionEnfantRepository.findById(creee.getId()).orElseThrow();
+        List<EleveEntity> eleves = this.elevesDe(creee.getId());
+        assertEquals(2, eleves.size());
+        // Les tarifs dépendent du nombre d'enfants : l'élève existant est lui aussi re-tarifé
+        for (EleveEntity eleve : eleves) {
+            TarifEntity tarifEleve = this.tarifRepository.findById(eleve.getIdTarif()).orElseThrow();
+            assertEquals("ENFANT_2_ENFANT", tarifEleve.getCode());
+        }
+        assertTrue(eleves.stream().anyMatch(e -> eleveExistant.getId().equals(e.getId())),
+                "L'élève existant doit être conservé (pas de suppression/recréation)");
+        // Tarifs de initTarifsCoursEnfant : BASE_2_ENFANT 280 + 2 x ENFANT_2_ENFANT 15
+        assertEquals(0, bd(310).compareTo(modifiee.getMontantTotal()));
+        TarifEntity tarifBase = this.tarifRepository.findById(modifiee.getIdTarif()).orElseThrow();
+        assertEquals("BASE_2_ENFANT", tarifBase.getCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void testUpdateInscription_sansAjoutEleve_conserveLesEleves() throws Exception {
+        InscriptionEnfantEntity creee = this.creerInscriptionUnEleve();
+        EleveEntity eleveExistant = this.elevesDe(creee.getId()).get(0);
+        BigDecimal montantInitial = creee.getMontantTotal();
+
+        InscriptionEnfantDto dto = this.getInscription(creee.getId());
+        dto.getResponsableLegal().setVille("Evian-les-Bains");
+
+        this.putInscription(creee.getId(), dto).andExpect(MockMvcResultMatchers.status().isOk());
+
+        InscriptionEnfantEntity modifiee = this.inscriptionEnfantRepository.findById(creee.getId()).orElseThrow();
+        assertEquals("Evian-les-Bains", modifiee.getResponsableLegal().getVille());
+        List<EleveEntity> eleves = this.elevesDe(creee.getId());
+        assertEquals(1, eleves.size());
+        assertEquals(eleveExistant.getId(), eleves.get(0).getId());
+        assertEquals(eleveExistant.getIdTarif(), eleves.get(0).getIdTarif());
+        assertEquals(0, montantInitial.compareTo(modifiee.getMontantTotal()));
+    }
+
+    private InscriptionEnfantEntity creerInscriptionUnEleve() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/v1/inscriptions-enfants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(this.createInscription()))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        InscriptionEnfantEntity creee = this.inscriptionEnfantRepository.findAll().get(0);
+        List<EleveEntity> eleves = this.elevesDe(creee.getId());
+        assertEquals(1, eleves.size());
+        assertNotNull(eleves.get(0).getIdTarif());
+        return creee;
+    }
+
+    /** La collection eleves est lazy : hors transaction on la relit par requête. */
+    private List<EleveEntity> elevesDe(Long idInscription) {
+        return this.eleveRepository.findAll().stream()
+                .filter(e -> idInscription.equals(e.getIdInscription()))
+                .sorted(Comparator.comparing(EleveEntity::getId))
+                .toList();
+    }
+
+    /** Même flux que le front : la fiche est rechargée par GET (élèves avec leur id) avant d'être renvoyée en PUT. */
+    private InscriptionEnfantDto getInscription(Long id) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/v1/inscriptions-enfants/" + id))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        InscriptionEnfantDto dto = jsonMapper.readValue(result.getResponse().getContentAsString(), InscriptionEnfantDto.class);
+        assertNotNull(dto.getEleves().get(0).getId(), "Le GET doit renvoyer l'id des élèves, sinon le PUT les recréerait tous");
+        return dto;
+    }
+
+    private ResultActions putInscription(Long id, InscriptionEnfantDto dto) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.put("/v1/inscriptions-enfants/" + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(dto))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()));
     }
 
 }
