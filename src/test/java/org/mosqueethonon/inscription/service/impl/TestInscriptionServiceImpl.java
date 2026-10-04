@@ -139,6 +139,62 @@ public class TestInscriptionServiceImpl {
     }
 
     @Test
+    public void testPatchInscriptions_WhenStatutPasseANonValidee_ThenSupprimeLiensClasseEleve() {
+        // GIVEN
+        ObjectNode inscriptions = this.objectMapper.createObjectNode();
+        ArrayNode inscriptionsArray = inscriptions.putArray("inscriptions");
+        ObjectNode inscriptionNode = this.objectMapper.createObjectNode();
+        inscriptionNode.put("id", 1L);
+        inscriptionNode.put("statut", "PROVISOIRE");
+        inscriptionsArray.add(inscriptionNode);
+
+        EleveEntity eleve1 = new EleveEntity();
+        eleve1.setId(10L);
+        EleveEntity eleve2 = new EleveEntity();
+        eleve2.setId(11L);
+
+        InscriptionEntity inscription = new InscriptionEnfantEntity();
+        inscription.setId(1L);
+        inscription.setStatut(StatutInscriptionEnum.VALIDEE);
+        inscription.setEleves(List.of(eleve1, eleve2));
+
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription));
+
+        // WHEN
+        inscriptionService.patchInscriptions(inscriptions);
+
+        // THEN
+        verify(lienClasseEleveRepository).deleteByEleveIdIn(List.of(10L, 11L));
+    }
+
+    @Test
+    public void testPatchInscriptions_WhenStatutResteValidee_ThenConserveLiensClasseEleve() {
+        // GIVEN
+        ObjectNode inscriptions = this.objectMapper.createObjectNode();
+        ArrayNode inscriptionsArray = inscriptions.putArray("inscriptions");
+        ObjectNode inscriptionNode = this.objectMapper.createObjectNode();
+        inscriptionNode.put("id", 1L);
+        inscriptionNode.put("statut", "VALIDEE");
+        inscriptionsArray.add(inscriptionNode);
+
+        EleveEntity eleve = new EleveEntity();
+        eleve.setId(10L);
+
+        InscriptionEntity inscription = new InscriptionEnfantEntity();
+        inscription.setId(1L);
+        inscription.setStatut(StatutInscriptionEnum.PROVISOIRE);
+        inscription.setEleves(List.of(eleve));
+
+        when(inscriptionRepository.findById(1L)).thenReturn(Optional.of(inscription));
+
+        // WHEN
+        inscriptionService.patchInscriptions(inscriptions);
+
+        // THEN
+        verify(lienClasseEleveRepository, never()).deleteByEleveIdIn(any());
+    }
+
+    @Test
     public void testDeleteInscriptions_WithInscriptionEnfantAndBulletins() {
         // GIVEN
         TarifEntity tarif = new TarifEntity();

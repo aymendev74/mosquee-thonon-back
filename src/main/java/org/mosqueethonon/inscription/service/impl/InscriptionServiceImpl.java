@@ -76,12 +76,34 @@ public class InscriptionServiceImpl implements InscriptionService {
                     inscription.setNoPositionAttente(null);
                 }
             }
+            // Invariant : un élève n'est rattaché à une classe que si son inscription est validée.
+            // EleveRepository.findElevesEnfantByAnneeScolaire filtre sur statut = 'VALIDEE' : sans ce
+            // nettoyage, repasser une inscription validée en provisoire fait disparaître l'élève de la
+            // recherche d'élèves alors que son lien classe/élève survit. La classe annonce alors plus
+            // d'élèves qu'elle n'en expose, et la modale de modification de classe ne peut plus
+            // résoudre ces liens orphelins.
+            if (inscription.getStatut() != StatutInscriptionEnum.VALIDEE) {
+                this.deleteLiensClasseEleve(inscription);
+            }
         }
         Long idPeriode = this.inscriptionRepository.getIdPeriodeByIdInscription(inscription.getId());
         this.periodeService.updateNbMaxElevesIfNeeded(idPeriode);
         this.inscriptionRepository.save(inscription);
         this.lockService.releaseLock(ResourceTypeEnum.INSCRIPTION, id, this.securityContext.getUser());
         return id;
+    }
+
+    private void deleteLiensClasseEleve(InscriptionEntity inscription) {
+        if (inscription.getEleves() == null) {
+            return;
+        }
+        List<Long> eleveIds = inscription.getEleves().stream()
+                .map(EleveEntity::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        if (!eleveIds.isEmpty()) {
+            this.lienClasseEleveRepository.deleteByEleveIdIn(eleveIds);
+        }
     }
 
     @Transactional
